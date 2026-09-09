@@ -1,0 +1,13 @@
+{
+    "name": "chvb/hojas-de-vida",
+    "type": "project",
+    "authors": [
+        {
+            "name": "aremtg",
+            "email": "tgz57031@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.7"
+    }
+}
