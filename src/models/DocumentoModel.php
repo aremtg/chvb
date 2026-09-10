@@ -91,4 +91,10 @@ class DocumentoModel
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['anterior' => $cedulaAnterior, 'nueva' => $cedulaNueva, 'nueva2' => $cedulaNueva]);
     }
+
+    public static function actualizarNombreYRuta(int $id, string $nombreArchivo, string $ruta): void {
+    $pdo = getPDO();
+    $stmt = $pdo->prepare("UPDATE documentos SET nombre_archivo = :nombre, ruta = :ruta WHERE id = :id");
+    $stmt->execute(['nombre' => $nombreArchivo, 'ruta' => $ruta, 'id' => $id]);
+}
 }

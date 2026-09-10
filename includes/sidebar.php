@@ -1,12 +1,23 @@
 <?php
 // includes/sidebar.php
 $paginaActual = basename($_SERVER['PHP_SELF']);
+require_once __DIR__ . '/../src/models/NotificacionModel.php';
+
 $linksSidebar = [
     ['url' => '/chvb/public/dashboard.php', 'label' => 'Inicio', 'icon' => '🏠'],
     ['url' => '/chvb/public/empleados.php', 'label' => 'Hojas de Vida', 'icon' => '📁'],
     ['url' => '/chvb/public/alarmas.php', 'label' => 'Alarmas', 'icon' => '⏰'],
     ['url' => '/chvb/public/usuarios_empleados.php', 'label' => 'Usuarios Empleados', 'icon' => '🔑'],
 ];
+
+if (($_SESSION['superadmin_rol'] ?? '') === 'superadmin_talento_humano') {
+    $totalNotif = NotificacionModel::contar();
+    $linksSidebar[] = [
+        'url' => '/chvb/public/notificaciones.php',
+        'label' => 'Notificaciones' . ($totalNotif > 0 ? " ({$totalNotif})" : ''),
+        'icon' => '🔔',
+    ];
+}
 ?>
 <aside class="w-64 bg-white border-r border-gray-200 min-h-screen p-4">
     <div class="mb-6 px-2">

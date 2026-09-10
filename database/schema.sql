@@ -99,3 +99,21 @@ CREATE TABLE
     bloqueado_hasta DATETIME NULL,
     FOREIGN KEY (cedula) REFERENCES empleados (cedula) ON DELETE CASCADE ON UPDATE CASCADE
   ) ENGINE = InnoDB;
+
+
+  ALTER TABLE usuarios 
+  MODIFY COLUMN rol ENUM('superadmin_talento_humano','auxiliar_talento_humano') NOT NULL;
+
+CREATE TABLE notificaciones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT NOT NULL COMMENT 'quien hizo el cambio (el auxiliar)',
+  usuario_nombre VARCHAR(50) NOT NULL,
+  cedula_empleado VARCHAR(10) NOT NULL,
+  campo VARCHAR(50) NOT NULL,
+  mensaje VARCHAR(500) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+ALTER TABLE usuarios_empleados 
+  ADD COLUMN pin_encriptado VARCHAR(255) NULL COMMENT 'PIN cifrado reversible, solo visible para superadmin/auxiliar';

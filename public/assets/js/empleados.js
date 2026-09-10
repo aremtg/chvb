@@ -122,8 +122,7 @@ async function abrirModalVer(cedula) {
         </div>
         <p><strong>Nombre:</strong> ${emp.nombre}</p>
         <p><strong>Cédula:</strong> ${emp.cedula}</p>
-        <p><strong>Cargo:</strong> ${emp.cargo}</p>
-        <p><strong>Bombero Integral:</strong> ${emp.es_bombero_integral == 1 ? 'Sí' : 'No'}</p>
+        <p><strong>Cargo:</strong> ${emp.es_bombero_integral == 1 ? `Bombero integral con funciones de ${emp.cargo}` : emp.cargo}</p>
         <p><strong>Tipo de contrato:</strong> ${emp.tipo_de_contrato}</p>
         <p><strong>Estado:</strong> ${emp.estado}</p>
         <p><strong>Celular:</strong> ${emp.celular || '-'}</p>

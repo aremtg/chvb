@@ -1,7 +1,15 @@
 <?php
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../src/models/BolsilloModel.php';
+require_once __DIR__ . '/../src/models/EmpleadoModel.php';
 requireSuperAdmin();
+
+function formatearFechaLarga(?string $fecha): string {
+    if (!$fecha) return '-';
+    $d = DateTime::createFromFormat('Y-m-d', $fecha);
+    if (!$d) return $fecha;
+    return EmpleadoModel::mesEnEspanol((int)$d->format('m')) . ' ' . (int)$d->format('d') . ' de ' . $d->format('Y');
+}
 
 $alarmas = BolsilloModel::alarmasProximas();
 ?>
@@ -44,7 +52,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                                 <td class="px-4 py-3 font-medium text-gray-800"><?= htmlspecialchars($al['nombre_empleado']) ?></td>
                                 <td class="px-4 py-3"><?= htmlspecialchars($al['nombre_completo']) ?></td>
                                 <td class="px-4 py-3"><?= htmlspecialchars($al['alarma_tipo']) ?></td>
-                                <td class="px-4 py-3"><?= htmlspecialchars($al['alarma_fecha']) ?></td>
+                               <td class="px-4 py-3"><?= htmlspecialchars(formatearFechaLarga($al['alarma_fecha'])) ?></td>
                                 <td class="px-4 py-3">
                                     <span class="px-2 py-1 rounded-lg text-xs font-medium <?= $vencida ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700' ?>">
                                         <?= $vencida ? '🔴 Vencida' : '🟡 Próxima' ?>

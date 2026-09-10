@@ -96,32 +96,83 @@ document.getElementById("selectAlarma").addEventListener("change", (e) => {
 });
 
 function renderDocumentos(documentos) {
-  const lista = document.getElementById("listaDocumentos");
-  lista.innerHTML = "";
+    const lista = document.getElementById('listaDocumentos');
+    lista.innerHTML = '';
 
-  if (!documentos || documentos.length === 0) {
-    lista.innerHTML =
-      '<li class="p-3 text-sm text-gray-400">No hay documentos en este bolsillo.</li>';
-    return;
-  }
+    if (!documentos || documentos.length === 0) {
+        lista.innerHTML = '<li class="p-3 text-sm text-gray-400">No hay documentos en este bolsillo.</li>';
+        return;
+    }
 
-  documentos.forEach((doc, index) => {
-    const li = document.createElement("li");
-    li.className = "p-3 flex items-center justify-between text-sm";
-    li.innerHTML = `
+    documentos.forEach((doc, index) => {
+        const li = document.createElement('li');
+        li.className = 'p-3 flex items-center justify-between text-sm';
+        li.innerHTML = `
             <button onclick="abrirVisorPDF(${index})" class="flex items-center gap-2 text-left flex-1 text-red-600 hover:underline">
                 <span class="text-gray-400 no-underline">${index + 1}.</span>
                 <span>${doc.nombre_archivo}</span>
-                ${doc.pendiente_revision == 1 ? '<span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-lg no-underline">Pendiente revisión</span>' : ""}
+                ${doc.pendiente_revision == 1 ? '<span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-lg no-underline">Pendiente revisión</span>' : ''}
             </button>
             <div class="flex items-center gap-1">
+                <button onclick="abrirModalRenombrar(${doc.id}, '${doc.nombre_archivo.replace(/'/g, "\\'")}')" class="text-gray-400 hover:text-blue-600 px-1">✎</button>
                 <button onclick="moverDocumento(${doc.id}, 'arriba')" class="text-gray-400 hover:text-gray-700 px-1">↑</button>
                 <button onclick="moverDocumento(${doc.id}, 'abajo')" class="text-gray-400 hover:text-gray-700 px-1">↓</button>
                 <button onclick="eliminarDocumento(${doc.id})" class="text-red-400 hover:text-red-600 px-1">✕</button>
             </div>
         `;
-    lista.appendChild(li);
-  });
+        lista.appendChild(li);
+    });
+}
+
+// --- Renombrar documento ---
+function abrirModalRenombrar(documentoId, nombreActual) {
+    document.getElementById('modalBolsillo').classList.add('hidden'); // se oculta temporalmente para no solaparse
+    document.getElementById('renombrarDocumentoId').value = documentoId;
+    document.getElementById('inputNuevoNombre').value = nombreActual;
+    document.getElementById('errorRenombrar').classList.add('hidden');
+    document.getElementById('modalRenombrar').classList.remove('hidden');
+}
+
+function cerrarModalRenombrar() {
+    document.getElementById('modalRenombrar').classList.add('hidden');
+    document.getElementById('modalBolsillo').classList.remove('hidden'); // vuelve a mostrar el bolsillo
+}
+
+document.getElementById('formRenombrar').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorRenombrar = document.getElementById('errorRenombrar');
+    errorRenombrar.classList.add('hidden');
+
+    const formData = new FormData();
+    formData.append('documento_id', document.getElementById('renombrarDocumentoId').value);
+    formData.append('cedula', cedula);
+    formData.append('nuevo_nombre', document.getElementById('inputNuevoNombre').value);
+
+    try {
+        const res = await fetch('/chvb/public/api/documentos_renombrar.php', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.ok) {
+            document.getElementById('modalRenombrar').classList.add('hidden');
+            await refrescarBolsilloActual();
+        } else {
+            errorRenombrar.textContent = data.error;
+            errorRenombrar.classList.remove('hidden');
+        }
+    } catch (err) {
+        errorRenombrar.textContent = 'Error de conexión con el servidor.';
+        errorRenombrar.classList.remove('hidden');
+    }
+});
+
+async function refrescarBolsilloActual() {
+    const res = await fetch(`/chvb/public/api/bolsillo_obtener.php?id=${bolsilloActual.id}`);
+    const data = await res.json();
+    if (data.ok) {
+        bolsilloActual = data.bolsillo;
+        renderDocumentos(bolsilloActual.documentos);
+        document.getElementById('modalBolsillo').classList.remove('hidden');
+    }
 }
 
 // --- Subir PDF ---

@@ -230,6 +230,30 @@ foreach ($bolsillos as $b) {
         </div>
     </div>
 
+    <!-- MODAL RENOMBRAR DOCUMENTO -->
+    <div id="modalRenombrar" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[70]">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-sm">
+            <div class="px-6 py-4 border-b">
+                <h2 class="font-bold text-gray-800">Renombrar documento</h2>
+            </div>
+            <form id="formRenombrar" class="p-6 space-y-4">
+                <input type="hidden" id="renombrarDocumentoId">
+                <div id="errorRenombrar" class="hidden bg-red-100 text-red-700 text-sm rounded-xl p-3"></div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nuevo nombre</label>
+                    <input type="text" id="inputNuevoNombre" required maxlength="200"
+                        class="w-full border border-gray-300 rounded-xl px-3 py-2">
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" onclick="cerrarModalRenombrar()"
+                        class="flex-1 border border-gray-300 rounded-xl py-2 text-gray-700">Cancelar</button>
+                    <button type="submit"
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-xl py-2">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="/chvb/public/assets/js/libro.js"></script>
 </body>
 

@@ -2,12 +2,14 @@
 // src/controllers/AuthController.php
 require_once __DIR__ . '/../../config/database.php';
 
-class AuthController {
+class AuthController
+{
 
-    public static function login(string $username, string $password): array {
+    public static function login(string $username, string $password): array
+    {
         $pdo = getPDO();
 
-        $stmt = $pdo->prepare("SELECT id, username, password_hash FROM usuarios WHERE username = :username");
+        $stmt = $pdo->prepare("SELECT id, username, password_hash, rol FROM usuarios WHERE username = :username");
         $stmt->execute(['username' => $username]);
         $usuario = $stmt->fetch();
 
@@ -20,11 +22,13 @@ class AuthController {
 
         $_SESSION['superadmin_id'] = $usuario['id'];
         $_SESSION['superadmin_username'] = $usuario['username'];
+        $_SESSION['superadmin_rol'] = $usuario['rol'];
 
         return ['ok' => true];
     }
 
-    public static function logout(): void {
-    unset($_SESSION['superadmin_id'], $_SESSION['superadmin_username']);
-}
+    public static function logout(): void
+    {
+        unset($_SESSION['superadmin_id'], $_SESSION['superadmin_username']);
+    }
 }

@@ -2,7 +2,7 @@
 // config/seed_superadmin.php
 require_once __DIR__ . '/database.php';
 
-$username = 'admin';
+$username = 'Talento Humano';
 $passwordPlano = 'CambiaEsto123'; // CAMBIA esto antes de correr el script
 
 $hash = password_hash($passwordPlano, PASSWORD_DEFAULT);
@@ -25,3 +25,13 @@ if ($stmt->fetch()) {
     ]);
     echo "Usuario superadmin creado con éxito. Username: $username";
 }
+//http://localhost/chvb/config/seed_superadmin.php
+//npm run build:css
+//B) .env y .env.example — agregar una llave de cifrado
+
+//Genera una llave aleatoria corriendo esto en tu terminal, parado en C:\xampp\htdocs\chvb:
+
+//bash
+//php -r "echo bin2hex(random_bytes(16));"
+
+//Copia el resultado (32 caracteres hexadecimales) y agrégalo a tu .env:

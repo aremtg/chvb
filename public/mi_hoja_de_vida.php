@@ -60,7 +60,7 @@ foreach ($bolsillos as $b) {
             <?php endif; ?>
             <div>
                 <h1 class="text-lg font-bold text-gray-800"><?= htmlspecialchars($empleado['nombre']) ?></h1>
-                <p class="text-xs text-gray-500">CC <?= htmlspecialchars($cedula) ?> · Solo lectura</p>
+                <p class="text-md text-gray-500">CC <?= htmlspecialchars($cedula) ?> · Solo lectura</p>
             </div>
         </div>
         <a href="/chvb/public/logout_empleado.php" class="text-sm text-red-600 hover:underline">Cerrar sesión</a>
