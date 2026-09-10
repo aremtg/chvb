@@ -3,7 +3,7 @@ require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../src/models/BolsilloModel.php';
 requireSuperAdmin();
 
-$alarmas = BolsilloModel::alarmasProximas(30);
+$alarmas = BolsilloModel::alarmasProximas();
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -13,15 +13,15 @@ $alarmas = BolsilloModel::alarmasProximas(30);
     <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
+<div class="flex">
+    <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <header class="bg-white shadow px-6 py-4 flex justify-between items-center">
-        <div>
-            <a href="/chvb/public/dashboard.php" class="text-sm text-red-600 hover:underline">&larr; Volver</a>
-            <h1 class="text-lg font-bold text-gray-800 mt-1">Panel de Alarmas</h1>
-        </div>
-    </header>
+    <div class="flex-1">
+        <header class="bg-white shadow px-6 py-4">
+            <h1 class="text-lg font-bold text-gray-800">Panel de Alarmas</h1>
+        </header>
 
-    <main class="p-6 max-w-4xl mx-auto">
+        <main class="p-6 max-w-4xl">
         <div class="bg-white rounded-lg shadow overflow-hidden">
             <?php if (empty($alarmas)): ?>
                 <p class="p-6 text-sm text-gray-400">No hay alarmas activas próximas a vencer.</p>
@@ -39,15 +39,15 @@ $alarmas = BolsilloModel::alarmasProximas(30);
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <?php foreach ($alarmas as $al): ?>
-                            <?php $vencida = strtotime($al['alarma_fecha']) < strtotime('today'); ?>
-                            <tr class="<?= $vencida ? 'bg-red-50' : '' ?>">
+                            <?php $vencida = $al['estado_alarma'] === 'vencida'; ?>
+                            <tr class="<?= $vencida ? 'bg-red-50' : 'bg-yellow-50' ?>">
                                 <td class="px-4 py-3 font-medium text-gray-800"><?= htmlspecialchars($al['nombre_empleado']) ?></td>
                                 <td class="px-4 py-3"><?= htmlspecialchars($al['nombre_completo']) ?></td>
                                 <td class="px-4 py-3"><?= htmlspecialchars($al['alarma_tipo']) ?></td>
                                 <td class="px-4 py-3"><?= htmlspecialchars($al['alarma_fecha']) ?></td>
                                 <td class="px-4 py-3">
-                                    <span class="px-2 py-1 rounded text-xs <?= $vencida ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700' ?>">
-                                        <?= $vencida ? 'Vencida' : 'Próxima' ?>
+                                    <span class="px-2 py-1 rounded-lg text-xs font-medium <?= $vencida ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700' ?>">
+                                        <?= $vencida ? '🔴 Vencida' : '🟡 Próxima' ?>
                                     </span>
                                 </td>
                                 <td class="px-4 py-3">
@@ -60,7 +60,8 @@ $alarmas = BolsilloModel::alarmasProximas(30);
                 </table>
             <?php endif; ?>
         </div>
-    </main>
-
+        </main>
+    </div>
+</div>
 </body>
 </html>

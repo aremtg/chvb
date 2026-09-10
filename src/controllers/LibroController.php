@@ -95,33 +95,81 @@ class LibroController {
         return ['ok' => true];
     }
 
-    public static function actualizarAlarma(int $bolsilloId, string $tipo, ?string $fechaCustom): array {
-        $tiposValidos = ['2m', '3m', '6m', '1a', 'custom'];
-        if (!in_array($tipo, $tiposValidos, true)) {
-            return ['ok' => false, 'error' => 'Tipo de alarma inválido.'];
-        }
-
-        $fecha = self::calcularFechaAlarma($tipo, $fechaCustom);
-        BolsilloModel::actualizarAlarma($bolsilloId, $tipo, $fecha, true);
-
-        return ['ok' => true, 'fecha' => $fecha];
+    public static function actualizarAlarma(
+    int $bolsilloId,
+    string $tipo,
+    ?string $fechaInicio,
+    ?int $valorCustom,
+    ?string $unidadCustom
+): array {
+    $tiposValidos = ['1m', '2m', '6m', '1a', 'custom'];
+    if (!in_array($tipo, $tiposValidos, true)) {
+        return ['ok' => false, 'error' => 'Tipo de alarma inválido.'];
     }
+
+    // Fecha desde la cual se cuenta el plazo: si no la envían, usamos HOY (fecha real del servidor PHP)
+    $inicio = new DateTime('today');
+    if (!empty($fechaInicio)) {
+        $d = DateTime::createFromFormat('Y-m-d', $fechaInicio);
+        if (!$d || $d->format('Y-m-d') !== $fechaInicio) {
+            return ['ok' => false, 'error' => 'La fecha de inicio no es válida.'];
+        }
+        $inicio = $d;
+    }
+
+    // Días de aviso: 15 si es "1 mes", 35 para el resto
+    $diasAviso = $tipo === '1m' ? 15 : 35;
+
+    $fecha = clone $inicio;
+
+    switch ($tipo) {
+        case '1m':
+            $fecha->modify('+1 month');
+            break;
+        case '2m':
+            $fecha->modify('+2 months');
+            break;
+        case '6m':
+            $fecha->modify('+6 months');
+            break;
+        case '1a':
+            $fecha->modify('+1 year');
+            break;
+        case 'custom':
+            if (!$valorCustom || $valorCustom < 1) {
+                return ['ok' => false, 'error' => 'Debes indicar una cantidad válida para el plazo personalizado.'];
+            }
+            $unidadesValidas = ['dias', 'meses', 'anios'];
+            if (!in_array($unidadCustom, $unidadesValidas, true)) {
+                return ['ok' => false, 'error' => 'Debes seleccionar una unidad válida (días, meses o años).'];
+            }
+            $mapaUnidad = ['dias' => 'days', 'meses' => 'months', 'anios' => 'years'];
+            $fecha->modify("+{$valorCustom} {$mapaUnidad[$unidadCustom]}");
+            break;
+    }
+
+    BolsilloModel::actualizarAlarma(
+        $bolsilloId,
+        $tipo,
+        $fecha->format('Y-m-d'),
+        true,
+        $tipo === 'custom' ? $valorCustom : null,
+        $tipo === 'custom' ? $unidadCustom : null,
+        $inicio->format('Y-m-d'),
+        $diasAviso
+    );
+
+    return [
+        'ok' => true,
+        'fecha' => $fecha->format('Y-m-d'),
+        'fecha_inicio' => $inicio->format('Y-m-d'),
+        'dias_aviso' => $diasAviso,
+    ];
+}
 
     public static function desactivarAlarma(int $bolsilloId): array {
         BolsilloModel::actualizarAlarma($bolsilloId, null, null, false);
         return ['ok' => true];
     }
 
-    private static function calcularFechaAlarma(string $tipo, ?string $fechaCustom): string {
-        $hoy = new DateTime('today');
-
-        return match ($tipo) {
-            '2m' => $hoy->modify('+2 months')->format('Y-m-d'),
-            '3m' => $hoy->modify('+3 months')->format('Y-m-d'),
-            '6m' => $hoy->modify('+6 months')->format('Y-m-d'),
-            '1a' => $hoy->modify('+1 year')->format('Y-m-d'),
-            'custom' => $fechaCustom ?: $hoy->format('Y-m-d'),
-            default => $hoy->format('Y-m-d'),
-        };
-    }
 }

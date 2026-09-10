@@ -12,6 +12,9 @@ if ($accion === 'desactivar') {
     echo json_encode(LibroController::desactivarAlarma($bolsilloId));
 } else {
     $tipo = $_POST['tipo'] ?? '';
-    $fechaCustom = $_POST['fecha_custom'] ?? null;
-    echo json_encode(LibroController::actualizarAlarma($bolsilloId, $tipo, $fechaCustom));
+    $fechaInicio = $_POST['fecha_inicio'] ?? null;
+    $valorCustom = isset($_POST['valor_custom']) && $_POST['valor_custom'] !== '' ? (int)$_POST['valor_custom'] : null;
+    $unidadCustom = $_POST['unidad_custom'] ?? null;
+
+    echo json_encode(LibroController::actualizarAlarma($bolsilloId, $tipo, $fechaInicio, $valorCustom, $unidadCustom));
 }

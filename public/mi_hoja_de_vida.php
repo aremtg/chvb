@@ -17,12 +17,13 @@ if (!$empleado) {
 $bolsillos = BolsilloModel::listarPorEmpleado($cedula);
 $bolsillosPorSeccion = ['hoja_de_vida' => [], 'documentos_contractuales' => []];
 foreach ($bolsillos as $b) {
-    $b['documentos'] = DocumentoModel::listarPorBolsillo((int)$b['id']);
+    $b['documentos'] = DocumentoModel::listarPorBolsillo((int) $b['id']);
     $bolsillosPorSeccion[$b['seccion']][] = $b;
 }
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Mi Hoja de Vida - CHVB</title>
@@ -32,18 +33,35 @@ foreach ($bolsillos as $b) {
             transform-origin: left center;
             animation: abrirPagina 0.35s ease-out;
         }
+
         @keyframes abrirPagina {
-            from { transform: rotateY(-15deg); opacity: 0; }
-            to { transform: rotateY(0deg); opacity: 1; }
+            from {
+                transform: rotateY(-15deg);
+                opacity: 0;
+            }
+
+            to {
+                transform: rotateY(0deg);
+                opacity: 1;
+            }
         }
     </style>
 </head>
+
 <body class="bg-gray-100 min-h-screen">
 
     <header class="bg-white shadow px-6 py-4 flex justify-between items-center">
-        <div>
-            <h1 class="text-lg font-bold text-gray-800"><?= htmlspecialchars($empleado['nombre']) ?></h1>
-            <p class="text-xs text-gray-500">CC <?= htmlspecialchars($cedula) ?> · Solo lectura</p>
+        <div class="flex items-center gap-3">
+            <?php if (!empty($empleado['foto'])): ?>
+                <img src="/chvb/public/api/foto_ver.php?cedula=<?= urlencode($cedula) ?>"
+                    class="w-12 h-12 rounded-full object-cover border border-gray-200">
+            <?php else: ?>
+                <span class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl">👤</span>
+            <?php endif; ?>
+            <div>
+                <h1 class="text-lg font-bold text-gray-800"><?= htmlspecialchars($empleado['nombre']) ?></h1>
+                <p class="text-xs text-gray-500">CC <?= htmlspecialchars($cedula) ?> · Solo lectura</p>
+            </div>
         </div>
         <a href="/chvb/public/logout_empleado.php" class="text-sm text-red-600 hover:underline">Cerrar sesión</a>
     </header>
@@ -63,7 +81,8 @@ foreach ($bolsillos as $b) {
 
         <div class="bg-white rounded-lg shadow p-6">
             <?php foreach (['hoja_de_vida', 'documentos_contractuales'] as $seccion): ?>
-                <div id="seccion-<?= $seccion ?>" class="seccion-contenido <?= $seccion !== 'hoja_de_vida' ? 'hidden' : '' ?>">
+                <div id="seccion-<?= $seccion ?>"
+                    class="seccion-contenido <?= $seccion !== 'hoja_de_vida' ? 'hidden' : '' ?>">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <?php foreach ($bolsillosPorSeccion[$seccion] as $bolsillo): ?>
                             <button onclick='abrirBolsillo(<?= json_encode($bolsillo) ?>)'
@@ -93,9 +112,11 @@ foreach ($bolsillos as $b) {
                     <form id="formSubirPDF" class="flex flex-col sm:flex-row gap-2">
                         <input type="file" name="archivo" accept="application/pdf" required
                             class="flex-1 text-sm border border-gray-300 rounded px-2 py-1">
-                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-1 rounded">Subir</button>
+                        <button type="submit"
+                            class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-1 rounded">Subir</button>
                     </form>
-                    <p class="text-xs text-gray-400 mt-1">Tu documento quedará marcado como pendiente de revisión por Talento Humano.</p>
+                    <p class="text-xs text-gray-400 mt-1">Tu documento quedará marcado como pendiente de revisión por
+                        Talento Humano.</p>
                     <p id="errorSubida" class="text-xs text-red-600 mt-1 hidden"></p>
                 </div>
 
@@ -108,6 +129,33 @@ foreach ($bolsillos as $b) {
         </div>
     </div>
 
+
+    <!-- MODAL VISOR PDF -->
+<div id="modalVisorPDF" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[60]">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl h-[90vh] flex flex-col">
+        <div class="px-4 py-3 border-b flex justify-between items-center">
+            <div>
+                <p id="visorTituloDocumento" class="font-medium text-gray-800 text-sm"></p>
+                <p id="visorContador" class="text-xs text-gray-400"></p>
+            </div>
+            <button onclick="cerrarVisorPDF()" class="text-gray-400 hover:text-gray-700 text-xl">✕</button>
+        </div>
+        <div class="flex-1 overflow-hidden bg-gray-100">
+            <iframe id="visorPDFIframe" src="" class="w-full h-full border-0"></iframe>
+        </div>
+        <div class="px-4 py-3 border-t flex justify-between items-center">
+            <button onclick="visorAnterior()" id="btnVisorAnterior"
+                class="px-4 py-2 rounded-xl border border-gray-300 text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed">
+                ← Anterior
+            </button>
+            <button onclick="visorSiguiente()" id="btnVisorSiguiente"
+                class="px-4 py-2 rounded-xl border border-gray-300 text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed">
+                Siguiente →
+            </button>
+        </div>
+    </div>
+</div>
     <script src="/chvb/public/assets/js/mi_hoja_de_vida.js"></script>
 </body>
+
 </html>

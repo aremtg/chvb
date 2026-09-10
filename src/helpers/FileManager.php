@@ -105,4 +105,92 @@ class FileManager {
     public static function borrarEstructuraEmpleado(string $cedula): void {
         self::rrmdir(self::rutaBase($cedula));
     }
+
+    public static function rutaCarpetaPerfil(string $cedula): string {
+    return self::rutaBase($cedula) . '/perfil';
+}
+
+/**
+ * Guarda (o reemplaza) la foto de perfil de un empleado. Borra la anterior si existía.
+ */
+public static function guardarFoto(string $cedula, array $archivo): array {
+    $tiposPermitidos = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    $tamanoMaximo = 5 * 1024 * 1024; // 5MB
+
+    if (!isset($archivo['error']) || $archivo['error'] !== UPLOAD_ERR_OK) {
+        return ['ok' => false, 'error' => 'Error al subir la foto.'];
+    }
+    if ($archivo['size'] > $tamanoMaximo) {
+        return ['ok' => false, 'error' => 'La foto no puede superar 5MB.'];
+    }
+
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = finfo_file($finfo, $archivo['tmp_name']);
+    finfo_close($finfo);
+
+    if (!isset($tiposPermitidos[$mime])) {
+        return ['ok' => false, 'error' => 'Solo se permiten imágenes JPG, PNG o WEBP.'];
+    }
+
+    $carpetaPerfil = self::rutaCarpetaPerfil($cedula);
+    if (!is_dir($carpetaPerfil)) {
+        mkdir($carpetaPerfil, 0777, true);
+    }
+
+    // Borrar foto anterior (cualquier extensión) antes de guardar la nueva
+    foreach (glob($carpetaPerfil . '/foto.*') as $anterior) {
+        unlink($anterior);
+    }
+
+    $extension = $tiposPermitidos[$mime];
+    $rutaCompleta = $carpetaPerfil . '/foto.' . $extension;
+
+    if (!move_uploaded_file($archivo['tmp_name'], $rutaCompleta)) {
+        return ['ok' => false, 'error' => 'No se pudo guardar la foto.'];
+    }
+
+    return ['ok' => true, 'ruta' => 'hv_' . $cedula . '/perfil/foto.' . $extension];
+}
+
+    public static function renombrarEstructuraEmpleado(string $cedulaAnterior, string $cedulaNueva): bool {
+        $rutaAnteriorBase = self::rutaBase($cedulaAnterior);
+        $rutaNuevaBase = self::rutaBase($cedulaNueva);
+
+        if (!is_dir($rutaAnteriorBase)) {
+            return false;
+        }
+
+        // 1. Renombrar la carpeta raíz: hv_{anterior} -> hv_{nueva}
+        if (!@rename($rutaAnteriorBase, $rutaNuevaBase)) {
+            return false;
+        }
+
+        // 2. Renombrar cada subcarpeta de bolsillo: {slug}_hv_{anterior} -> {slug}_hv_{nueva}
+        $renombradas = [];
+        try {
+            foreach (self::bolsillosPorSeccion() as $seccion => $bolsillos) {
+                foreach ($bolsillos as $slug => $nombreCompleto) {
+                    $rutaSeccion = $rutaNuevaBase . '/' . $seccion;
+                    $rutaAnteriorBolsillo = $rutaSeccion . '/' . $slug . '_hv_' . $cedulaAnterior;
+                    $rutaNuevaBolsillo = $rutaSeccion . '/' . $slug . '_hv_' . $cedulaNueva;
+
+                    if (is_dir($rutaAnteriorBolsillo)) {
+                        if (!@rename($rutaAnteriorBolsillo, $rutaNuevaBolsillo)) {
+                            throw new Exception("No se pudo renombrar el bolsillo: $slug");
+                        }
+                        $renombradas[] = [$rutaNuevaBolsillo, $rutaAnteriorBolsillo];
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            // Revertir lo ya renombrado para no dejar una mezcla de nombres viejos/nuevos
+            foreach ($renombradas as [$actual, $original]) {
+                @rename($actual, $original);
+            }
+            @rename($rutaNuevaBase, $rutaAnteriorBase);
+            return false;
+        }
+
+        return true;
+    }
 }

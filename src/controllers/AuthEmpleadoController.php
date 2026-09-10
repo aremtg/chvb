@@ -37,7 +37,6 @@ class AuthEmpleadoController {
     }
 
     public static function logout(): void {
-        unset($_SESSION['empleado_cedula']);
-        session_destroy();
-    }
+    unset($_SESSION['empleado_cedula']);
+}
 }

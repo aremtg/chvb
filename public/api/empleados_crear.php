@@ -12,5 +12,5 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$resultado = EmpleadoController::crear($_POST);
+$resultado = EmpleadoController::crear($_POST, $_FILES['foto'] ?? null);
 echo json_encode($resultado);

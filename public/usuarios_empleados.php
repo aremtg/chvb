@@ -15,15 +15,15 @@ $empleados = $busqueda !== '' ? EmpleadoModel::listar($busqueda) : [];
     <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
+<div class="flex">
+    <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <header class="bg-white shadow px-6 py-4 flex justify-between items-center">
-        <div>
-            <a href="/chvb/public/dashboard.php" class="text-sm text-red-600 hover:underline">&larr; Volver</a>
-            <h1 class="text-lg font-bold text-gray-800 mt-1">Usuarios de Empleados</h1>
-        </div>
-    </header>
+    <div class="flex-1">
+        <header class="bg-white shadow px-6 py-4">
+            <h1 class="text-lg font-bold text-gray-800">Usuarios de Empleados</h1>
+        </header>
 
-    <main class="p-6 max-w-3xl mx-auto">
+        <main class="p-6 max-w-3xl">
 
         <form method="GET" class="mb-6">
             <input type="text" name="q" value="<?= htmlspecialchars($busqueda) ?>"
@@ -73,7 +73,9 @@ $empleados = $busqueda !== '' ? EmpleadoModel::listar($busqueda) : [];
             </div>
         <?php endif; ?>
 
-    </main>
+            </main>
+    </div>
+</div>
 
     <!-- MODAL CREAR/RESETEAR PIN -->
     <div id="modalPin" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">

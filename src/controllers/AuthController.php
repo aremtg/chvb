@@ -25,7 +25,6 @@ class AuthController {
     }
 
     public static function logout(): void {
-        $_SESSION = [];
-        session_destroy();
-    }
+    unset($_SESSION['superadmin_id'], $_SESSION['superadmin_username']);
+}
 }

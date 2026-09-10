@@ -16,12 +16,13 @@ if (!$empleado) {
 $bolsillos = BolsilloModel::listarPorEmpleado($cedula);
 $bolsillosPorSeccion = ['hoja_de_vida' => [], 'documentos_contractuales' => []];
 foreach ($bolsillos as $b) {
-    $b['documentos'] = DocumentoModel::listarPorBolsillo((int)$b['id']);
+    $b['documentos'] = DocumentoModel::listarPorBolsillo((int) $b['id']);
     $bolsillosPorSeccion[$b['seccion']][] = $b;
 }
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>CHVB - Libro de <?= htmlspecialchars($empleado['nombre']) ?></title>
@@ -31,71 +32,94 @@ foreach ($bolsillos as $b) {
             transform-origin: left center;
             animation: abrirPagina 0.35s ease-out;
         }
+
         @keyframes abrirPagina {
-            from { transform: rotateY(-15deg); opacity: 0; }
-            to { transform: rotateY(0deg); opacity: 1; }
+            from {
+                transform: rotateY(-15deg);
+                opacity: 0;
+            }
+
+            to {
+                transform: rotateY(0deg);
+                opacity: 1;
+            }
         }
+
         .libro-sombra {
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
+
 <body class="bg-gray-100 min-h-screen">
+    <div class="flex">
+        <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <header class="bg-white shadow px-6 py-4 flex justify-between items-center">
-        <div>
-            <a href="/chvb/public/empleados.php" class="text-sm text-red-600 hover:underline">&larr; Volver</a>
-            <h1 class="text-lg font-bold text-gray-800 mt-1">
-                <?= htmlspecialchars($empleado['nombre']) ?>
-                <span class="text-sm font-normal text-gray-400">(CC <?= htmlspecialchars($cedula) ?>)</span>
-            </h1>
-        </div>
-    </header>
+        <div class="flex-1 min-w-0">
+            <header class="bg-white shadow px-6 py-4">
+                <a href="/chvb/public/empleados.php" class="text-sm text-red-600 hover:underline">&larr; Volver</a>
+                <h1 class="text-lg font-bold text-gray-800 mt-1">
+                    <?= htmlspecialchars($empleado['nombre']) ?>
+                    <span class="text-sm font-normal text-gray-400">(CC <?= htmlspecialchars($cedula) ?>)</span>
+                </h1>
+            </header>
 
-    <main class="p-6 max-w-6xl mx-auto">
+            <main class="p-6 max-w-6xl mx-auto">
 
-        <!-- TABS DE SECCIÓN -->
-        <div class="flex gap-2 mb-6">
-            <button onclick="cambiarSeccion('hoja_de_vida')" id="tab-hoja_de_vida"
-                class="tab-seccion px-4 py-2 rounded-t-lg font-medium bg-red-600 text-white">
-                Hoja de Vida
-            </button>
-            <button onclick="cambiarSeccion('documentos_contractuales')" id="tab-documentos_contractuales"
-                class="tab-seccion px-4 py-2 rounded-t-lg font-medium bg-white text-gray-600">
-                Documentos Contractuales
-            </button>
-        </div>
-
-        <div class="bg-white rounded-lg libro-sombra p-6">
-
-            <?php foreach (['hoja_de_vida', 'documentos_contractuales'] as $seccion): ?>
-                <div id="seccion-<?= $seccion ?>" class="seccion-contenido <?= $seccion !== 'hoja_de_vida' ? 'hidden' : '' ?>">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <?php foreach ($bolsillosPorSeccion[$seccion] as $bolsillo): ?>
-                            <?php
-                                $totalDocs = count($bolsillo['documentos']);
-                                $pendientes = count(array_filter($bolsillo['documentos'], fn($d) => $d['pendiente_revision']));
-                            ?>
-                            <button onclick='abrirBolsillo(<?= json_encode($bolsillo) ?>)'
-                                class="text-left border border-gray-200 rounded-lg p-4 hover:border-red-400 hover:shadow transition relative">
-                                <?php if ($pendientes > 0): ?>
-                                    <span class="absolute -top-2 -right-2 bg-yellow-400 text-xs font-bold text-white rounded-full w-6 h-6 flex items-center justify-center">
-                                        <?= $pendientes ?>
-                                    </span>
-                                <?php endif; ?>
-                                <?php if ($bolsillo['alarma_activa']): ?>
-                                    <span class="text-xs text-orange-500">⏰ Alarma activa</span>
-                                <?php endif; ?>
-                                <p class="font-medium text-gray-800 mt-1"><?= htmlspecialchars($bolsillo['nombre_completo']) ?></p>
-                                <p class="text-xs text-gray-400 mt-1"><?= $totalDocs ?> documento(s)</p>
-                            </button>
-                        <?php endforeach; ?>
-                    </div>
+                <!-- TABS DE SECCIÓN -->
+                <div class="flex gap-2 mb-6">
+                    <button onclick="cambiarSeccion('hoja_de_vida')" id="tab-hoja_de_vida"
+                        class="tab-seccion px-4 py-2 rounded-t-lg font-medium bg-red-600 text-white">
+                        Hoja de Vida
+                    </button>
+                    <button onclick="cambiarSeccion('documentos_contractuales')" id="tab-documentos_contractuales"
+                        class="tab-seccion px-4 py-2 rounded-t-lg font-medium bg-white text-gray-600">
+                        Documentos Contractuales
+                    </button>
                 </div>
-            <?php endforeach; ?>
 
+                <div class="bg-white rounded-lg libro-sombra p-6">
+
+                    <?php foreach (['hoja_de_vida', 'documentos_contractuales'] as $seccion): ?>
+                        <div id="seccion-<?= $seccion ?>"
+                            class="seccion-contenido <?= $seccion !== 'hoja_de_vida' ? 'hidden' : '' ?>">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <?php foreach ($bolsillosPorSeccion[$seccion] as $bolsillo): ?>
+                                    <?php
+                                    $totalDocs = count($bolsillo['documentos']);
+                                    $pendientes = count(array_filter($bolsillo['documentos'], fn($d) => $d['pendiente_revision']));
+                                    $estadoAlarma = BolsilloModel::calcularEstadoAlarma($bolsillo);
+                                    ?>
+                                    <button onclick='abrirBolsillo(<?= json_encode($bolsillo) ?>)'
+                                        class="text-left border rounded-xl p-4 hover:shadow transition relative
+                                    <?= $estadoAlarma === 'vencida' ? 'border-red-400 bg-red-50' : ($estadoAlarma === 'proxima' ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200') ?>">
+                                        <?php if ($pendientes > 0): ?>
+                                            <span
+                                                class="absolute -top-2 -right-2 bg-yellow-400 text-xs font-bold text-white rounded-full w-6 h-6 flex items-center justify-center">
+                                                <?= $pendientes ?>
+                                            </span>
+                                        <?php endif; ?>
+                                        <?php if ($estadoAlarma === 'vencida'): ?>
+                                            <span class="text-xs text-red-600 font-semibold">🔴 Alarma vencida</span>
+                                        <?php elseif ($estadoAlarma === 'proxima'): ?>
+                                            <span class="text-xs text-yellow-600 font-semibold">🟡 Próxima a vencer</span>
+                                        <?php elseif ($bolsillo['alarma_activa']): ?>
+                                            <span class="text-xs text-gray-400">⏰ Alarma configurada</span>
+                                        <?php endif; ?>
+                                        <p class="font-medium text-gray-800 mt-1">
+                                            <?= htmlspecialchars($bolsillo['nombre_completo']) ?>
+                                        </p>
+                                        <p class="text-xs text-gray-400 mt-1"><?= $totalDocs ?> documento(s)</p>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+
+                </div>
+            </main>
         </div>
-    </main>
+    </div>
 
     <!-- MODAL PÁGINA DEL BOLSILLO -->
     <div id="modalBolsillo" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -108,21 +132,54 @@ foreach ($bolsillos as $b) {
             <div class="p-6 space-y-4">
 
                 <!-- Configuración de alarma -->
-                <div class="bg-gray-50 rounded p-4">
-                    <p class="text-sm font-medium text-gray-700 mb-2">Alarma de revisión</p>
-                    <div class="flex flex-wrap gap-2 items-center">
-                        <select id="selectAlarma" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                <div class="bg-gray-50 rounded-xl p-4 space-y-3">
+                    <p class="text-sm font-medium text-gray-700">Alarma de revisión</p>
+
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Plazo</label>
+                        <select id="selectAlarma"
+                            class="border border-gray-300 rounded px-2 py-1 text-sm w-full sm:w-auto">
+                            <option value="1m">Cada 1 mes</option>
                             <option value="2m">Cada 2 meses</option>
-                            <option value="3m">Cada 3 meses</option>
                             <option value="6m">Cada 6 meses</option>
-                            <option value="1a">Cada 1 año</option>
-                            <option value="custom">Fecha personalizada</option>
+                            <option value="1a">Cada 1 año (12 meses)</option>
+                            <option value="custom">Personalizado</option>
                         </select>
-                        <input type="date" id="inputFechaCustom" class="hidden border border-gray-300 rounded px-2 py-1 text-sm">
-                        <button onclick="guardarAlarma()" class="bg-orange-500 hover:bg-orange-600 text-white text-sm px-3 py-1 rounded">Guardar</button>
-                        <button onclick="quitarAlarma()" class="text-sm text-gray-500 hover:text-red-600">Quitar alarma</button>
                     </div>
-                    <p id="infoAlarma" class="text-xs text-gray-500 mt-2"></p>
+
+                    <div id="cajaPersonalizado" class="hidden flex gap-2 items-center">
+                        <input type="number" id="inputValorCustom" min="1" placeholder="Cantidad"
+                            class="border border-gray-300 rounded px-2 py-1 text-sm w-24">
+                        <select id="selectUnidadCustom" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option value="dias">Días</option>
+                            <option value="meses">Meses</option>
+                            <option value="anios">Años</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Contar el plazo desde</label>
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <input type="date" id="inputFechaInicio"
+                                class="border border-gray-300 rounded px-2 py-1 text-sm">
+                            <button type="button" onclick="usarFechaHoy()" id="btnDesdeHoy"
+                                class="text-xs border border-gray-300 rounded-lg px-2 py-1 hover:bg-gray-100 transition">
+                                Desde hoy
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">Si lo dejas vacío, se cuenta desde hoy automáticamente
+                            (fecha del servidor).</p>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="guardarAlarma()"
+                            class="bg-orange-500 hover:bg-orange-600 text-white text-sm px-3 py-1.5 rounded-lg">Guardar
+                            alarma</button>
+                        <button onclick="quitarAlarma()" class="text-sm text-gray-500 hover:text-red-600">Quitar
+                            alarma</button>
+                    </div>
+
+                    <p id="infoAlarma" class="text-xs font-medium mt-1"></p>
                 </div>
 
                 <!-- Subir nuevo PDF -->
@@ -131,7 +188,8 @@ foreach ($bolsillos as $b) {
                     <form id="formSubirPDF" class="flex flex-col sm:flex-row gap-2">
                         <input type="file" name="archivo" accept="application/pdf" required
                             class="flex-1 text-sm border border-gray-300 rounded px-2 py-1">
-                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-1 rounded">Subir</button>
+                        <button type="submit"
+                            class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-1 rounded">Subir</button>
                     </form>
                     <p id="errorSubida" class="text-xs text-red-600 mt-1 hidden"></p>
                 </div>
@@ -146,6 +204,33 @@ foreach ($bolsillos as $b) {
         </div>
     </div>
 
+    <!-- MODAL VISOR PDF -->
+    <div id="modalVisorPDF" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[60]">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl h-[90vh] flex flex-col">
+            <div class="px-4 py-3 border-b flex justify-between items-center">
+                <div>
+                    <p id="visorTituloDocumento" class="font-medium text-gray-800 text-sm"></p>
+                    <p id="visorContador" class="text-xs text-gray-400"></p>
+                </div>
+                <button onclick="cerrarVisorPDF()" class="text-gray-400 hover:text-gray-700 text-xl">✕</button>
+            </div>
+            <div class="flex-1 overflow-hidden bg-gray-100">
+                <iframe id="visorPDFIframe" src="" class="w-full h-full border-0"></iframe>
+            </div>
+            <div class="px-4 py-3 border-t flex justify-between items-center">
+                <button onclick="visorAnterior()" id="btnVisorAnterior"
+                    class="px-4 py-2 rounded-xl border border-gray-300 text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed">
+                    ← Anterior
+                </button>
+                <button onclick="visorSiguiente()" id="btnVisorSiguiente"
+                    class="px-4 py-2 rounded-xl border border-gray-300 text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed">
+                    Siguiente →
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="/chvb/public/assets/js/libro.js"></script>
 </body>
+
 </html>

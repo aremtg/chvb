@@ -100,3 +100,97 @@ formEliminar.addEventListener('submit', async (e) => {
         errorEliminar.classList.remove('hidden');
     }
 });
+
+// --- Ver Empleado ---
+async function abrirModalVer(cedula) {
+    document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
+    const res = await fetch(`/chvb/public/api/empleados_obtener.php?cedula=${encodeURIComponent(cedula)}`);
+    const data = await res.json();
+
+    if (!data.ok) {
+        alert(data.error || 'Error al cargar el empleado.');
+        return;
+    }
+
+    const emp = data.empleado;
+    document.getElementById('contenidoVer').innerHTML = `
+        <div class="flex justify-center mb-3">
+            ${emp.foto
+                ? `<img src="/chvb/public/api/foto_ver.php?cedula=${encodeURIComponent(emp.cedula)}" class="w-24 h-24 rounded-full object-cover border border-gray-200">`
+                : `<span class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-4xl">👤</span>`
+            }
+        </div>
+        <p><strong>Nombre:</strong> ${emp.nombre}</p>
+        <p><strong>Cédula:</strong> ${emp.cedula}</p>
+        <p><strong>Cargo:</strong> ${emp.cargo}</p>
+        <p><strong>Bombero Integral:</strong> ${emp.es_bombero_integral == 1 ? 'Sí' : 'No'}</p>
+        <p><strong>Tipo de contrato:</strong> ${emp.tipo_de_contrato}</p>
+        <p><strong>Estado:</strong> ${emp.estado}</p>
+        <p><strong>Celular:</strong> ${emp.celular || '-'}</p>
+        <p><strong>Correo:</strong> ${emp.correo || '-'}</p>
+        <p><strong>Fecha de nacimiento:</strong> ${emp.fecha_nacimiento || '-'}</p>
+    `;
+    document.getElementById('modalVer').classList.remove('hidden');
+}
+
+// --- Editar Empleado ---
+async function abrirModalEditar(cedula) {
+    document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
+    const res = await fetch(`/chvb/public/api/empleados_obtener.php?cedula=${encodeURIComponent(cedula)}`);
+    const data = await res.json();
+
+    if (!data.ok) {
+        alert(data.error || 'Error al cargar el empleado.');
+        return;
+    }
+
+    const emp = data.empleado;
+    document.getElementById('editCedulaActual').value = emp.cedula;
+    document.getElementById('editNombre').value = emp.nombre;
+    document.getElementById('editCedula').value = emp.cedula;
+    document.getElementById('editCargo').value = emp.cargo;
+    document.getElementById('editBomberoIntegral').checked = emp.es_bombero_integral == 1;
+    document.getElementById('editContrato').value = emp.tipo_de_contrato;
+    document.getElementById('editEstado').value = emp.estado;
+    document.getElementById('editCelular').value = emp.celular || '';
+    document.getElementById('editCorreo').value = emp.correo || '';
+    document.getElementById('editFechaNacimiento').value = emp.fecha_nacimiento || '';
+
+    const editFoto = document.getElementById('editFotoActual');
+    const editFotoPlaceholder = document.getElementById('editFotoPlaceholder');
+    if (emp.foto) {
+        editFoto.src = `/chvb/public/api/foto_ver.php?cedula=${encodeURIComponent(emp.cedula)}`;
+        editFoto.classList.remove('hidden');
+        editFotoPlaceholder.classList.add('hidden');
+    } else {
+        editFoto.classList.add('hidden');
+        editFotoPlaceholder.classList.remove('hidden');
+    }
+
+    document.getElementById('erroresEditar').classList.add('hidden');
+    document.getElementById('modalEditar').classList.remove('hidden');
+}
+
+const formEditar = document.getElementById('formEditar');
+document.getElementById('formEditar').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const erroresEditar = document.getElementById('erroresEditar');
+    erroresEditar.classList.add('hidden');
+
+    const formData = new FormData(formEditar);
+
+    try {
+        const res = await fetch('/chvb/public/api/empleados_actualizar.php', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.ok) {
+            window.location.reload();
+        } else {
+            erroresEditar.innerHTML = data.errores.join('<br>');
+            erroresEditar.classList.remove('hidden');
+        }
+    } catch (err) {
+        erroresEditar.innerHTML = 'Error de conexión con el servidor.';
+        erroresEditar.classList.remove('hidden');
+    }
+});

@@ -54,7 +54,7 @@ class EmpleadoModel {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
     return $stmt->fetchAll();
-}
+  }
     public static function obtenerPorCedula(string $cedula): ?array {
         $pdo = getPDO();
         $stmt = $pdo->prepare("SELECT * FROM empleados WHERE cedula = :cedula");
@@ -105,7 +105,7 @@ class EmpleadoModel {
  * Trae empleados cuyo cumpleaños (mes-día, ignorando año) cae dentro de los próximos $dias días.
  * Maneja el cruce de año (ej: hoy 28-dic, ventana llega hasta 04-ene).
  */
-public static function proximosCumpleanos(int $dias = 7): array {
+ public static function proximosCumpleanos(int $dias = 7): array {
     $pdo = getPDO();
     $sql = "SELECT *, DATE_FORMAT(fecha_nacimiento, '%m-%d') AS mes_dia
             FROM empleados
@@ -131,5 +131,54 @@ public static function proximosCumpleanos(int $dias = 7): array {
     usort($resultado, fn($a, $b) => $a['dias_faltantes'] <=> $b['dias_faltantes']);
 
     return $resultado;
+ }
+
+ public static function actualizar(string $cedula, array $datos): void {
+    $pdo = getPDO();
+    $sql = "UPDATE empleados SET
+              nombre = :nombre, cargo = :cargo, es_bombero_integral = :bombero,
+              tipo_de_contrato = :contrato, estado = :estado, celular = :celular,
+              correo = :correo, fecha_nacimiento = :fecha_nacimiento
+            WHERE cedula = :cedula";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        'nombre' => $datos['nombre'],
+        'cargo' => $datos['cargo'],
+        'bombero' => $datos['es_bombero_integral'],
+        'contrato' => $datos['tipo_de_contrato'],
+        'estado' => $datos['estado'],
+        'celular' => $datos['celular'] ?: null,
+        'correo' => $datos['correo'] ?: null,
+        'fecha_nacimiento' => $datos['fecha_nacimiento'] ?: null,
+        'cedula' => $cedula,
+    ]);
 }
+
+/**
+ * Cambia la PK cedula. Gracias a ON UPDATE CASCADE en bolsillos, documentos (vía bolsillo)
+ * y usuarios_empleados, esto propaga automáticamente el cambio a esas tablas.
+ */
+public static function actualizarCedula(string $cedulaActual, string $cedulaNueva): void {
+    $pdo = getPDO();
+    $stmt = $pdo->prepare("UPDATE empleados SET cedula = :nueva WHERE cedula = :actual");
+    $stmt->execute(['nueva' => $cedulaNueva, 'actual' => $cedulaActual]);
+}
+
+public static function actualizarFoto(string $cedula, string $rutaFoto): void {
+    $pdo = getPDO();
+    $stmt = $pdo->prepare("UPDATE empleados SET foto = :foto WHERE cedula = :cedula");
+    $stmt->execute(['foto' => $rutaFoto, 'cedula' => $cedula]);
+}
+
+public static function actualizarRutaFotoPorCambioCedula(string $cedulaAnterior, string $cedulaNueva): void {
+    $pdo = getPDO();
+    $stmt = $pdo->prepare(
+        "UPDATE empleados 
+         SET foto = REPLACE(foto, CONCAT('hv_', :anterior, '/'), CONCAT('hv_', :nueva, '/'))
+         WHERE cedula = :cedula AND foto IS NOT NULL"
+    );
+    $stmt->execute(['anterior' => $cedulaAnterior, 'nueva' => $cedulaNueva, 'cedula' => $cedulaNueva]);
+}
+
+
 }
