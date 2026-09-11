@@ -1,3 +1,5 @@
+
+
 <?php
 // config/database.php
 
@@ -10,10 +12,10 @@ function getPDO(): PDO {
     static $pdo = null;
 
     if ($pdo === null) {
-        $host = $_ENV['DB_HOST'];
-        $db   = $_ENV['DB_NAME'];
-        $user = $_ENV['DB_USER'];
-        $pass = $_ENV['DB_PASS'];
+    $host = $_SERVER['DB_HOST'] ?? $_ENV['DB_HOST'] ?? '127.0.0.1';
+    $db   = $_SERVER['DB_NAME'] ?? $_ENV['DB_NAME'] ?? 'chvb';
+    $user = $_SERVER['DB_USER'] ?? $_ENV['DB_USER'] ?? 'root';
+    $pass = $_SERVER['DB_PASS'] ?? $_ENV['DB_PASS'] ?? '';
 
         $dsn = "mysql:host=$host;dbname=$db;charset=utf8mb4";
 
