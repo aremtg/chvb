@@ -1,9 +1,8 @@
 <?php
-// config/seed_auxiliar.php
 require_once __DIR__ . '/database.php';
 
-$username = 'Tatiana';
-$passwordPlano = 'tatiana123';
+$username = 'teniente';
+$passwordPlano = 'teniente123'; // CAMBIA esto antes de correr el script
 
 $hash = password_hash($passwordPlano, PASSWORD_DEFAULT);
 $pdo = getPDO();
@@ -14,10 +13,8 @@ $stmt->execute(['username' => $username]);
 if ($stmt->fetch()) {
     echo "Ya existe un usuario con ese username.";
 } else {
-    $stmt = $pdo->prepare(
-        "INSERT INTO usuarios (username, password_hash, rol) VALUES (:username, :hash, 'auxiliar_talento_humano')"
-    );
+    $stmt = $pdo->prepare("INSERT INTO usuarios (username, password_hash, rol) VALUES (:username, :hash, 'teniente')");
     $stmt->execute(['username' => $username, 'hash' => $hash]);
-    echo "Usuario Auxiliar de Talento Humano creado con éxito. Username: $username";
+    echo "Usuario Teniente creado con éxito. Username: $username";
 }
-//http://localhost/chvb/config/seed_auxiliar.php
+//http://localhost/chvb/config/seed_teniente.php

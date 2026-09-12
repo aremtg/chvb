@@ -28,3 +28,17 @@ function requireEmpleado(): void {
         exit;
     }
 }
+
+/**
+ * Bloquea cualquier acción de escritura (crear/editar/eliminar/subir) si el rol es 'teniente'.
+ * Se llama DESPUÉS de requireSuperAdmin() en cada endpoint que modifica datos.
+ */
+function bloquearSiSoloLectura(): void {
+    if (($_SESSION['superadmin_rol'] ?? '') === 'teniente') {
+        header('Content-Type: application/json');
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'Tu rol solo tiene permisos de lectura.']);
+        exit;
+    }
+}
+require_once __DIR__ . '/icon.php';

@@ -36,8 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
     <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-sm">
-        <h1 class="text-xl font-bold text-gray-800 mb-1">CHVB</h1>
-        <p class="text-sm text-gray-500 mb-6">Control Hojas de Vida Bomberos Yopal</p>
+        <img src="/chvb/public/assets/img/logo_chv.png" alt="Logo">
+        <p class="text-sm text-gray-500 mb-6 text-center">Control Hojas de Vida Bomberos Yopal</p>
 
         <?php if ($error): ?>
             <div class="bg-red-100 text-red-700 text-sm rounded p-3 mb-4">
@@ -61,6 +61,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Ingresar
             </button>
         </form>
+        <p class="text-xs text-gray-400 mt-4 text-center">
+            <a href="/chvb/public/login_empleado.php" class="hover:underline">Acceso para empleados</a>
+        </p>
     </div>
 </body>
 </html>

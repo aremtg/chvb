@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../src/controllers/LibroController.php';
 
 header('Content-Type: application/json');
 requireSuperAdmin();
+bloquearSiSoloLectura();
 
 $documentoId = (int)($_POST['documento_id'] ?? 0);
 $direccion = $_POST['direccion'] ?? '';

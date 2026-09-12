@@ -4,6 +4,7 @@ require_once __DIR__ . '/../src/models/EmpleadoModel.php';
 require_once __DIR__ . '/../src/controllers/EmpleadoController.php';
 requireSuperAdmin();
 
+
 $busqueda = trim($_GET['q'] ?? '');
 $empleados = EmpleadoModel::listar($busqueda);
 ?>
@@ -17,112 +18,124 @@ $empleados = EmpleadoModel::listar($busqueda);
 </head>
 
 <body class="bg-gray-100 min-h-screen">
-    <div class="flex">
-        <?php require __DIR__ . '/../includes/sidebar.php'; ?>
+    <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 
-        <div class="flex-1">
-            <header class="bg-white shadow px-6 py-4">
-                <h1 class="text-lg font-bold text-gray-800">Hojas de Vida</h1>
-            </header>
+    <div class="md:ml-64 pt-14 md:pt-0">
+        <header class="bg-white shadow px-6 py-4">
+            <h1 class="text-lg font-bold text-gray-800">Hojas de Vida</h1>
+        </header>
 
-            <main class="p-6">
+        <main class="p-6">
 
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-                    <form method="GET" class="flex-1 max-w-md">
-                        <input type="text" name="q" value="<?= htmlspecialchars($busqueda) ?>"
-                            placeholder="Buscar por cédula, nombre, cargo, celular o correo..."
-                            class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
-                    </form>
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                <form method="GET" class="flex-1 max-w-md">
+                    <input type="text" name="q" value="<?= htmlspecialchars($busqueda) ?>"
+                        placeholder="Buscar por cédula, nombre, cargo, celular o correo..."
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                </form>
+                <?php if (($_SESSION['superadmin_rol'] ?? '') !== 'teniente'): ?>
                     <button onclick="document.getElementById('modalCrear').classList.remove('hidden')"
-                        class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded transition whitespace-nowrap">
-                        + Nuevo Empleado
+                        class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-xl transition whitespace-nowrap">
+                        <?= icon('plus', 'w-4 h-4') ?> Nuevo Empleado
                     </button>
-                </div>
+                <?php endif; ?>
+            </div>
 
-                <div class="bg-white rounded-lg shadow overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+            <div class="bg-white rounded-lg shadow overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+                        <tr>
+                            <th class="px-4 py-3">Nombre</th>
+                            <th class="px-4 py-3 hidden lg:table-cell">Cédula</th>
+                            <th class="px-4 py-3 hidden lg:table-cell">Cargo</th>
+                            <th class="px-4 py-3 hidden lg:table-cell">Bombero Integral</th>
+                            <th class="px-4 py-3 hidden lg:table-cell">Contrato</th>
+                            <th class="px-4 py-3 hidden md:table-cell">Celular</th>
+                            <th class="px-4 py-3 hidden lg:table-cell">Correo</th>
+                            <th class="px-4 py-3">Estado</th>
+                            <th class="px-4 py-3">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <?php if (empty($empleados)): ?>
                             <tr>
-                                <th class="px-4 py-3">Nombre</th>
-                                <th class="px-4 py-3">Cédula</th>
-                                <th class="px-4 py-3">Cargo</th>
-                                <th class="px-4 py-3">Bombero Integral</th>
-                                <th class="px-4 py-3">Contrato</th>
-                                <th class="px-4 py-3">Celular</th>
-                                <th class="px-4 py-3">Correo</th>
-                                <th class="px-4 py-3">Estado</th>
-                                <th class="px-4 py-3">Acciones</th>
+                                <td colspan="9" class="px-4 py-6 text-center text-gray-400">No hay empleados
+                                    registrados.</td>
                             </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <?php if (empty($empleados)): ?>
-                                <tr>
-                                    <td colspan="9" class="px-4 py-6 text-center text-gray-400">No hay empleados
-                                        registrados.</td>
-                                </tr>
-                            <?php endif; ?>
+                        <?php endif; ?>
 
-                            <?php foreach ($empleados as $emp): ?>
-                                <?php $cumple = EmpleadoModel::infoCumpleanos($emp['fecha_nacimiento']); ?>
-                                <tr class="<?= $cumple['cumple'] ? 'bg-yellow-50' : '' ?>">
-                                    <td class="px-4 py-3 font-medium text-gray-800">
-                                        <div class="flex items-center gap-2">
-                                            <?php if (!empty($emp['foto'])): ?>
-                                                <img src="/chvb/public/api/foto_ver.php?cedula=<?= urlencode($emp['cedula']) ?>"
-                                                    class="w-8 h-8 rounded-full object-cover border border-gray-200">
-                                            <?php else: ?>
+                        <?php foreach ($empleados as $emp): ?>
+                            <?php $cumple = EmpleadoModel::infoCumpleanos($emp['fecha_nacimiento']); ?>
+                            <tr class="<?= $cumple['cumple'] ? 'bg-yellow-50' : '' ?>">
+                                <td class="px-4 py-3 font-medium text-gray-800">
+                                    <div class="flex items-center gap-2">
+                                        <?php if (!empty($emp['foto'])): ?>
+                                            <img src="/chvb/public/api/foto_ver.php?cedula=<?= urlencode($emp['cedula']) ?>"
+                                                class="w-8 h-8 rounded-full object-cover border border-gray-200">
+                                        <?php else: ?>
+                                            <span
+                                                class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center"><?= icon('user', 'w-4 h-4 text-gray-500') ?></span>
+                                        <?php endif; ?>
+                                        <span>
+                                            <?= htmlspecialchars($emp['nombre']) ?>
+                                            <?php if ($cumple['cumple']): ?>
                                                 <span
-                                                    class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs">👤</span>
+                                                    title="Cumpleaños el <?= $cumple['fecha_texto'] ?> - faltan <?= $cumple['dias_faltantes'] ?> día(s)"><?= icon('cake', 'w-4 h-4 inline text-pink-500') ?></span>
                                             <?php endif; ?>
-                                            <span>
-                                                <?= htmlspecialchars($emp['nombre']) ?>
-                                                <?php if ($cumple['cumple']): ?>
-                                                    <span
-                                                        title="Cumpleaños el <?= $cumple['fecha_texto'] ?> - faltan <?= $cumple['dias_faltantes'] ?> día(s)">🎂</span>
-                                                <?php endif; ?>
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-3"><?= htmlspecialchars($emp['cedula']) ?></td>
-                                    <td class="px-4 py-3"><?= htmlspecialchars($emp['cargo']) ?></td>
-                                    <td class="px-4 py-3"><?= $emp['es_bombero_integral'] ? 'Sí' : 'No' ?></td>
-                                    <td class="px-4 py-3"><?= htmlspecialchars($emp['tipo_de_contrato']) ?></td>
-                                    <td class="px-4 py-3"><?= htmlspecialchars($emp['celular'] ?: '-') ?></td>
-                                    <td class="px-4 py-3"><?= htmlspecialchars($emp['correo'] ?: '-') ?></td>
-                                    <td class="px-4 py-3">
-                                        <span
-                                            class="px-2 py-1 rounded text-xs <?= $emp['estado'] === 'activo' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600' ?>">
-                                            <?= htmlspecialchars($emp['estado']) ?>
                                         </span>
-                                    </td>
-                                    <td class="px-4 py-3 relative">
-                                        <button onclick="toggleMenu('<?= $emp['cedula'] ?>')"
-                                            class="text-gray-500 hover:text-gray-800 px-2">⋮</button>
-                                        <div id="menu-<?= $emp['cedula'] ?>"
-                                            class="hidden absolute right-4 z-10 bg-white border rounded-xl shadow-md w-44 text-sm overflow-hidden">
-                                            <button onclick="abrirModalVer('<?= $emp['cedula'] ?>')"
-                                                class="block w-full text-left px-4 py-2 hover:bg-gray-50">Ver
-                                                empleado</button>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 hidden lg:table-cell"><?= htmlspecialchars($emp['cedula']) ?></td>
+                                <td class="px-4 py-3 hidden md:table-cell"><?= htmlspecialchars($emp['cargo']) ?></td>
+                                <td class="px-4 py-3 hidden lg:table-cell">
+                                    <?= $emp['es_bombero_integral'] ? 'Sí' : 'No' ?>
+                                </td>
+                                <td class="px-4 py-3 hidden lg:table-cell">
+                                    <?= htmlspecialchars($emp['tipo_de_contrato']) ?>
+                                </td>
+                                <td class="px-4 py-3 hidden md:table-cell">
+                                    <?= htmlspecialchars($emp['celular'] ?: '-') ?>
+                                </td>
+                                <td class="px-4 py-3 hidden lg:table-cell">
+                                    <?= htmlspecialchars($emp['correo'] ?: '-') ?>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span
+                                        class="px-2 py-1 rounded text-xs <?= $emp['estado'] === 'activo' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600' ?>">
+                                        <?= htmlspecialchars($emp['estado']) ?>
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 relative">
+                                    <button onclick="toggleMenu('<?= $emp['cedula'] ?>')"
+                                        class="text-gray-500 hover:text-gray-800 px-2">
+                                        <?= icon('more-vertical', 'w-5 h-5') ?>
+                                    </button>
+                                    <div id="menu-<?= $emp['cedula'] ?>"
+                                        class="hidden absolute right-4 z-10 bg-white border rounded-xl shadow-md w-44 text-sm overflow-hidden">
+                                        <button onclick="abrirModalVer('<?= $emp['cedula'] ?>')"
+                                            class="block w-full text-left px-4 py-2 hover:bg-gray-50">Ver
+                                            empleado</button>
+                                        <a href="/chvb/public/libro.php?cedula=<?= urlencode($emp['cedula']) ?>"
+                                            class="block px-4 py-2 hover:bg-gray-50">Ver libro</a>
+                                        <?php if (($_SESSION['superadmin_rol'] ?? '') !== 'teniente'): ?>
                                             <button onclick="abrirModalEditar('<?= $emp['cedula'] ?>')"
                                                 class="block w-full text-left px-4 py-2 hover:bg-gray-50">Editar</button>
-                                            <a href="/chvb/public/libro.php?cedula=<?= urlencode($emp['cedula']) ?>"
-                                                class="block px-4 py-2 hover:bg-gray-50">Ver libro</a>
                                             <a href="/chvb/public/api/empleados_zip.php?cedula=<?= urlencode($emp['cedula']) ?>"
                                                 class="block px-4 py-2 hover:bg-gray-50">Descargar ZIP</a>
-                                            <?php if (($_SESSION['superadmin_rol'] ?? '') === 'superadmin_talento_humano'): ?>
-                                                <button
-                                                    onclick="abrirModalEliminar('<?= $emp['cedula'] ?>', '<?= htmlspecialchars($emp['nombre'], ENT_QUOTES) ?>')"
-                                                    class="block w-full text-left px-4 py-2 hover:bg-red-50 text-red-600">Eliminar</button>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </main>
-        </div>
+                                        <?php endif; ?>
+                                        <?php if (($_SESSION['superadmin_rol'] ?? '') === 'superadmin_talento_humano'): ?>
+                                            <button
+                                                onclick="abrirModalEliminar('<?= $emp['cedula'] ?>', '<?= htmlspecialchars($emp['nombre'], ENT_QUOTES) ?>')"
+                                                class="block w-full text-left px-4 py-2 hover:bg-red-50 text-red-600">Eliminar</button>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </main>
     </div>
 
     <!-- MODAL CREAR EMPLEADO -->

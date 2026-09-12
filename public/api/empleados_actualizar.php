@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../src/controllers/EmpleadoController.php';
 header('Content-Type: application/json');
 ini_set('display_errors', '0'); // evita que un warning de PHP rompa el JSON de respuesta
 requireSuperAdmin();
+bloquearSiSoloLectura();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

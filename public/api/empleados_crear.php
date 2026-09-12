@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../src/controllers/EmpleadoController.php';
 
 header('Content-Type: application/json');
 requireSuperAdmin();
+bloquearSiSoloLectura();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

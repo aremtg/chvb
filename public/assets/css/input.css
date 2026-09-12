@@ -2,7 +2,7 @@
 
 @layer base {
   input, select, textarea, button {
-    border-radius: 1rem;
+    border-radius: 5rem;
   }
 }
 

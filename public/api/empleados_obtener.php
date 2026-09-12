@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../src/models/EmpleadoModel.php';
 header('Content-Type: application/json');
 requireSuperAdmin();
 
+
 $cedula = trim($_GET['cedula'] ?? '');
 $empleado = EmpleadoModel::obtenerPorCedula($cedula);
 

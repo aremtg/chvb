@@ -4,6 +4,8 @@ require_once __DIR__ . '/../src/models/EmpleadoModel.php';
 require_once __DIR__ . '/../src/models/BolsilloModel.php';
 require_once __DIR__ . '/../src/models/DocumentoModel.php';
 requireSuperAdmin();
+$esSoloLectura = ($_SESSION['superadmin_rol'] ?? '') === 'teniente';
+
 
 $cedula = trim($_GET['cedula'] ?? '');
 $empleado = EmpleadoModel::obtenerPorCedula($cedula);
@@ -51,74 +53,72 @@ foreach ($bolsillos as $b) {
     </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen">
-    <div class="flex">
-        <?php require __DIR__ . '/../includes/sidebar.php'; ?>
+<body class="bg-gray-100 min-h-screen" data-solo-lectura="<?= $esSoloLectura ? '1' : '0' ?>">
+    <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 
-        <div class="flex-1 min-w-0">
-            <header class="bg-white shadow px-6 py-4">
-                <a href="/chvb/public/empleados.php" class="text-sm text-red-600 hover:underline">&larr; Volver</a>
-                <h1 class="text-lg font-bold text-gray-800 mt-1">
-                    <?= htmlspecialchars($empleado['nombre']) ?>
-                    <span class="text-sm font-normal text-gray-400">(CC <?= htmlspecialchars($cedula) ?>)</span>
-                </h1>
-            </header>
+    <div class="md:ml-64 pt-14 md:pt-0">
+        <header class="bg-white shadow px-6 py-4">
+            <a href="/chvb/public/empleados.php" class="text-sm text-red-600 hover:underline">&larr; Volver</a>
+            <h1 class="text-lg font-bold text-gray-800 mt-1">
+                <?= htmlspecialchars($empleado['nombre']) ?>
+                <span class="text-sm font-normal text-gray-400">(CC <?= htmlspecialchars($cedula) ?>)</span>
+            </h1>
+        </header>
 
-            <main class="p-6 max-w-6xl mx-auto">
+        <main class="p-6 max-w-6xl mx-auto">
 
-                <!-- TABS DE SECCIÓN -->
-                <div class="flex gap-2 mb-6">
-                    <button onclick="cambiarSeccion('hoja_de_vida')" id="tab-hoja_de_vida"
-                        class="tab-seccion px-4 py-2 rounded-t-lg font-medium bg-red-600 text-white">
-                        Hoja de Vida
-                    </button>
-                    <button onclick="cambiarSeccion('documentos_contractuales')" id="tab-documentos_contractuales"
-                        class="tab-seccion px-4 py-2 rounded-t-lg font-medium bg-white text-gray-600">
-                        Documentos Contractuales
-                    </button>
-                </div>
+            <!-- TABS DE SECCIÓN -->
+            <div class="flex gap-2 mb-6">
+                <button onclick="cambiarSeccion('hoja_de_vida')" id="tab-hoja_de_vida"
+                    class="tab-seccion px-4 py-2 rounded-t-lg font-medium bg-red-600 text-white">
+                    Hoja de Vida
+                </button>
+                <button onclick="cambiarSeccion('documentos_contractuales')" id="tab-documentos_contractuales"
+                    class="tab-seccion px-4 py-2 rounded-t-lg font-medium bg-white text-gray-600">
+                    Documentos Contractuales
+                </button>
+            </div>
 
-                <div class="bg-white rounded-lg libro-sombra p-6">
+            <div class="bg-white rounded-lg libro-sombra p-6">
 
-                    <?php foreach (['hoja_de_vida', 'documentos_contractuales'] as $seccion): ?>
-                        <div id="seccion-<?= $seccion ?>"
-                            class="seccion-contenido <?= $seccion !== 'hoja_de_vida' ? 'hidden' : '' ?>">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <?php foreach ($bolsillosPorSeccion[$seccion] as $bolsillo): ?>
-                                    <?php
-                                    $totalDocs = count($bolsillo['documentos']);
-                                    $pendientes = count(array_filter($bolsillo['documentos'], fn($d) => $d['pendiente_revision']));
-                                    $estadoAlarma = BolsilloModel::calcularEstadoAlarma($bolsillo);
-                                    ?>
-                                    <button onclick='abrirBolsillo(<?= json_encode($bolsillo) ?>)'
-                                        class="text-left border rounded-xl p-4 hover:shadow transition relative
+                <?php foreach (['hoja_de_vida', 'documentos_contractuales'] as $seccion): ?>
+                    <div id="seccion-<?= $seccion ?>"
+                        class="seccion-contenido <?= $seccion !== 'hoja_de_vida' ? 'hidden' : '' ?>">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <?php foreach ($bolsillosPorSeccion[$seccion] as $bolsillo): ?>
+                                <?php
+                                $totalDocs = count($bolsillo['documentos']);
+                                $pendientes = count(array_filter($bolsillo['documentos'], fn($d) => $d['pendiente_revision']));
+                                $estadoAlarma = BolsilloModel::calcularEstadoAlarma($bolsillo);
+                                ?>
+                                <button onclick='abrirBolsillo(<?= json_encode($bolsillo) ?>)'
+                                    class="text-left border rounded-xl p-4 hover:shadow transition relative
                                     <?= $estadoAlarma === 'vencida' ? 'border-red-400 bg-red-50' : ($estadoAlarma === 'proxima' ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200') ?>">
-                                        <?php if ($pendientes > 0): ?>
-                                            <span
-                                                class="absolute -top-2 -right-2 bg-yellow-400 text-xs font-bold text-white rounded-full w-6 h-6 flex items-center justify-center">
-                                                <?= $pendientes ?>
-                                            </span>
-                                        <?php endif; ?>
-                                        <?php if ($estadoAlarma === 'vencida'): ?>
-                                            <span class="text-xs text-red-600 font-semibold">🔴 Alarma vencida</span>
-                                        <?php elseif ($estadoAlarma === 'proxima'): ?>
-                                            <span class="text-xs text-yellow-600 font-semibold">🟡 Próxima a vencer</span>
-                                        <?php elseif ($bolsillo['alarma_activa']): ?>
-                                            <span class="text-xs text-gray-400">⏰ Alarma configurada</span>
-                                        <?php endif; ?>
-                                        <p class="font-medium text-gray-800 mt-1">
-                                            <?= htmlspecialchars($bolsillo['nombre_completo']) ?>
-                                        </p>
-                                        <p class="text-xs text-gray-400 mt-1"><?= $totalDocs ?> documento(s)</p>
-                                    </button>
-                                <?php endforeach; ?>
-                            </div>
+                                    <?php if ($pendientes > 0): ?>
+                                        <span
+                                            class="absolute -top-2 -right-2 bg-yellow-400 text-xs font-bold text-white rounded-full w-6 h-6 flex items-center justify-center">
+                                            <?= $pendientes ?>
+                                        </span>
+                                    <?php endif; ?>
+                                    <?php if ($estadoAlarma === 'vencida'): ?>
+                                        <span class="text-xs text-red-600 font-semibold">🔴 Alarma vencida</span>
+                                    <?php elseif ($estadoAlarma === 'proxima'): ?>
+                                        <span class="text-xs text-yellow-600 font-semibold">🟡 Próxima a vencer</span>
+                                    <?php elseif ($bolsillo['alarma_activa']): ?>
+                                        <span class="text-xs text-gray-400">⏰ Alarma configurada</span>
+                                    <?php endif; ?>
+                                    <p class="font-medium text-gray-800 mt-1">
+                                        <?= htmlspecialchars($bolsillo['nombre_completo']) ?>
+                                    </p>
+                                    <p class="text-xs text-gray-400 mt-1"><?= $totalDocs ?> documento(s)</p>
+                                </button>
+                            <?php endforeach; ?>
                         </div>
-                    <?php endforeach; ?>
+                    </div>
+                <?php endforeach; ?>
 
-                </div>
-            </main>
-        </div>
+            </div>
+        </main>
     </div>
 
     <!-- MODAL PÁGINA DEL BOLSILLO -->
@@ -132,67 +132,70 @@ foreach ($bolsillos as $b) {
             <div class="p-6 space-y-4">
 
                 <!-- Configuración de alarma -->
-                <div class="bg-gray-50 rounded-xl p-4 space-y-3">
-                    <p class="text-sm font-medium text-gray-700">Alarma de revisión</p>
-
-                    <div>
-                        <label class="block text-xs text-gray-500 mb-1">Plazo</label>
-                        <select id="selectAlarma"
-                            class="border border-gray-300 rounded px-2 py-1 text-sm w-full sm:w-auto">
-                            <option value="1m">Cada 1 mes</option>
-                            <option value="2m">Cada 2 meses</option>
-                            <option value="6m">Cada 6 meses</option>
-                            <option value="1a">Cada 1 año (12 meses)</option>
-                            <option value="custom">Personalizado</option>
-                        </select>
-                    </div>
-
-                    <div id="cajaPersonalizado" class="hidden flex gap-2 items-center">
-                        <input type="number" id="inputValorCustom" min="1" placeholder="Cantidad"
-                            class="border border-gray-300 rounded px-2 py-1 text-sm w-24">
-                        <select id="selectUnidadCustom" class="border border-gray-300 rounded px-2 py-1 text-sm">
-                            <option value="dias">Días</option>
-                            <option value="meses">Meses</option>
-                            <option value="anios">Años</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-gray-500 mb-1">Contar el plazo desde</label>
-                        <div class="flex flex-wrap gap-2 items-center">
-                            <input type="date" id="inputFechaInicio"
-                                class="border border-gray-300 rounded px-2 py-1 text-sm">
-                            <button type="button" onclick="usarFechaHoy()" id="btnDesdeHoy"
-                                class="text-xs border border-gray-300 rounded-lg px-2 py-1 hover:bg-gray-100 transition">
-                                Desde hoy
-                            </button>
+                <?php if (!$esSoloLectura): ?>
+                    <div class="bg-gray-50 rounded-xl p-4 space-y-3">
+                        <p class="text-sm font-medium text-gray-700">Alarma de revisión</p>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Plazo</label>
+                            <select id="selectAlarma"
+                                class="border border-gray-300 rounded px-2 py-1 text-sm w-full sm:w-auto">
+                                <option value="1m">Cada 1 mes</option>
+                                <option value="2m">Cada 2 meses</option>
+                                <option value="6m">Cada 6 meses</option>
+                                <option value="1a">Cada 1 año (12 meses)</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
                         </div>
-                        <p class="text-xs text-gray-400 mt-1">Si lo dejas vacío, se cuenta desde hoy automáticamente
-                            (fecha del servidor).</p>
-                    </div>
 
-                    <div class="flex gap-2">
-                        <button onclick="guardarAlarma()"
-                            class="bg-orange-500 hover:bg-orange-600 text-white text-sm px-3 py-1.5 rounded-lg">Guardar
-                            alarma</button>
-                        <button onclick="quitarAlarma()" class="text-sm text-gray-500 hover:text-red-600">Quitar
-                            alarma</button>
-                    </div>
+                        <div id="cajaPersonalizado" class="hidden flex gap-2 items-center">
+                            <input type="number" id="inputValorCustom" min="1" placeholder="Cantidad"
+                                class="border border-gray-300 rounded px-2 py-1 text-sm w-24">
+                            <select id="selectUnidadCustom" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                                <option value="dias">Días</option>
+                                <option value="meses">Meses</option>
+                                <option value="anios">Años</option>
+                            </select>
+                        </div>
 
-                    <p id="infoAlarma" class="text-xs font-medium mt-1"></p>
-                </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Contar el plazo desde</label>
+                            <div class="flex flex-wrap gap-2 items-center">
+                                <input type="date" id="inputFechaInicio"
+                                    class="border border-gray-300 rounded px-2 py-1 text-sm">
+                                <button type="button" onclick="usarFechaHoy()" id="btnDesdeHoy"
+                                    class="text-xs border border-gray-300 rounded-lg px-2 py-1 hover:bg-gray-100 transition">
+                                    Desde hoy
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1">Si lo dejas vacío, se cuenta desde hoy automáticamente
+                                (fecha del servidor).</p>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button onclick="guardarAlarma()"
+                                class="bg-orange-500 hover:bg-orange-600 text-white text-sm px-3 py-1.5 rounded-lg">Guardar
+                                alarma</button>
+                            <button onclick="quitarAlarma()" class="text-sm text-gray-500 hover:text-red-600">Quitar
+                                alarma</button>
+                        </div>
+
+                        <p id="infoAlarma" class="text-xs font-medium mt-1"></p>
+                    </div>
+                <?php endif; ?>
 
                 <!-- Subir nuevo PDF -->
-                <div class="bg-gray-50 rounded p-4">
-                    <p class="text-sm font-medium text-gray-700 mb-2">Adjuntar PDF</p>
-                    <form id="formSubirPDF" class="flex flex-col sm:flex-row gap-2">
-                        <input type="file" name="archivo" accept="application/pdf" required
-                            class="flex-1 text-sm border border-gray-300 rounded px-2 py-1">
-                        <button type="submit"
-                            class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-1 rounded">Subir</button>
-                    </form>
-                    <p id="errorSubida" class="text-xs text-red-600 mt-1 hidden"></p>
-                </div>
+                <?php if (!$esSoloLectura): ?>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <p class="text-sm font-medium text-gray-700 mb-2">Adjuntar PDF</p>
+                        <form id="formSubirPDF" class="flex flex-col sm:flex-row gap-2">
+                            <input type="file" name="archivo" accept="application/pdf" required
+                                class="flex-1 text-sm border border-gray-300 rounded px-2 py-1">
+                            <button type="submit"
+                                class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-1 rounded">Subir</button>
+                        </form>
+                        <p id="errorSubida" class="text-xs text-red-600 mt-1 hidden"></p>
+                    </div>
+                <?php endif; ?>
 
                 <!-- Lista de documentos -->
                 <div>
