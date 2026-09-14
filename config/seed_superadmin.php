@@ -2,8 +2,8 @@
 // config/seed_superadmin.php
 require_once __DIR__ . '/database.php';
 
-$username = 'Talento Humano';
-$passwordPlano = 'CambiaEsto123'; // CAMBIA esto antes de correr el script
+$username = 'Talento';
+$passwordPlano = 'talento123'; // CAMBIA esto antes de correr el script
 
 $hash = password_hash($passwordPlano, PASSWORD_DEFAULT);
 

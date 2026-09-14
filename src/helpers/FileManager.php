@@ -37,7 +37,6 @@ class FileManager {
                 'contratosFirmados' => 'Contratos Firmados',
                 'notificacionDeTerminacion' => 'Notificación de Terminación',
                 'renovacion' => 'Renovación',
-                'notificacion' => 'Notificación',
                 'evaluacionesDeDesempeno' => 'Evaluaciones de Desempeño',
                 'planDeMejoramiento' => 'Plan de Mejoramiento',
                 'felicitacionesYLlamadosDeAtencion' => 'Felicitaciones y Llamados de Atención',
