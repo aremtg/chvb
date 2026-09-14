@@ -9,14 +9,22 @@ class EmpleadoModel
     {
         $pdo = getPDO();
         $sql = "INSERT INTO empleados 
-                (cedula, nombre, cargo, es_bombero_integral, tipo_de_contrato, estado, celular, correo, fecha_nacimiento)
-                VALUES 
-                (:cedula, :nombre, :cargo, :bombero, :contrato, :estado, :celular, :correo, :fecha_nacimiento)";
+            (cedula, nombre, sexo, cargo, tipo_de_personal, grupo, eps, pension, salario_basico,
+             es_bombero_integral, tipo_de_contrato, estado, celular, correo, fecha_nacimiento)
+            VALUES 
+            (:cedula, :nombre, :sexo, :cargo, :tipo_personal, :grupo, :eps, :pension, :salario,
+             :bombero, :contrato, :estado, :celular, :correo, :fecha_nacimiento)";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             'cedula' => $datos['cedula'],
             'nombre' => $datos['nombre'],
+            'sexo' => $datos['sexo'] ?? null,
             'cargo' => $datos['cargo'],
+            'tipo_personal' => $datos['tipo_de_personal'] ?? null,
+            'grupo' => $datos['grupo'] ?? null,
+            'eps' => $datos['eps'] ?? null,
+            'pension' => $datos['pension'] ?? null,
+            'salario' => $datos['salario_basico'] ?? null,
             'bombero' => $datos['es_bombero_integral'],
             'contrato' => $datos['tipo_de_contrato'],
             'estado' => $datos['estado'],
@@ -158,14 +166,21 @@ class EmpleadoModel
     {
         $pdo = getPDO();
         $sql = "UPDATE empleados SET
-              nombre = :nombre, cargo = :cargo, es_bombero_integral = :bombero,
-              tipo_de_contrato = :contrato, estado = :estado, celular = :celular,
-              correo = :correo, fecha_nacimiento = :fecha_nacimiento
+              nombre = :nombre, sexo = :sexo, cargo = :cargo, tipo_de_personal = :tipo_personal,
+              grupo = :grupo, eps = :eps, pension = :pension, salario_basico = :salario,
+              es_bombero_integral = :bombero, tipo_de_contrato = :contrato, estado = :estado,
+              celular = :celular, correo = :correo, fecha_nacimiento = :fecha_nacimiento
             WHERE cedula = :cedula";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             'nombre' => $datos['nombre'],
+            'sexo' => $datos['sexo'] ?? null,
             'cargo' => $datos['cargo'],
+            'tipo_personal' => $datos['tipo_de_personal'] ?? null,
+            'grupo' => $datos['grupo'] ?? null,
+            'eps' => $datos['eps'] ?? null,
+            'pension' => $datos['pension'] ?? null,
+            'salario' => $datos['salario_basico'] ?? null,
             'bombero' => $datos['es_bombero_integral'],
             'contrato' => $datos['tipo_de_contrato'],
             'estado' => $datos['estado'],
@@ -204,6 +219,17 @@ class EmpleadoModel
         );
         $stmt->execute(['anterior' => $cedulaAnterior, 'nueva' => $cedulaNueva, 'cedula' => $cedulaNueva]);
     }
-
+    /**
+     * Formatea una fecha 'Y-m-d' como "13 de abril de 2003" (orden fijo: día, mes en letras, año).
+     */
+    public static function formatearFechaLarga(?string $fecha): string
+    {
+        if (!$fecha)
+            return '-';
+        $d = DateTime::createFromFormat('Y-m-d', $fecha);
+        if (!$d)
+            return $fecha;
+        return (int) $d->format('d') . ' de ' . strtolower(self::mesEnEspanol((int) $d->format('m'))) . ' de ' . $d->format('Y');
+    }
 
 }

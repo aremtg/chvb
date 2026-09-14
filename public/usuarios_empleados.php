@@ -12,6 +12,7 @@ $empleados = EmpleadoModel::listar($busqueda);
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Usuarios de Empleados</title>
     <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
 </head>

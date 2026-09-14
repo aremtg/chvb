@@ -13,6 +13,7 @@ $alarmas = BolsilloModel::alarmasProximas();
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Dashboard</title>
     <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
 </head>
@@ -100,7 +101,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                                     </div>
                                     <span
                                         class="text-xs px-2 py-1 rounded-lg font-medium <?= $vencida ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700' ?>">
-                                        <?= $vencida ? '🔴 Vencida: ' : '🟡 Vence: ' ?>             <?= $al['alarma_fecha'] ?>
+                                        <?= $vencida ? '🔴 Vencida: ' : '🟡 Vence: ' ?> <?= EmpleadoModel::formatearFechaLarga($al['alarma_fecha']) ?>
                                     </span>
                                 </li>
                             <?php endforeach; ?>

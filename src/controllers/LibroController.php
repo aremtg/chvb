@@ -4,6 +4,7 @@ require_once __DIR__ . '/../models/BolsilloModel.php';
 require_once __DIR__ . '/../models/DocumentoModel.php';
 require_once __DIR__ . '/../helpers/FileManager.php';
 require_once __DIR__ . '/../models/NotificacionModel.php';
+require_once __DIR__ . '/../models/EmpleadoModel.php';
 
 class LibroController
 {
@@ -57,6 +58,21 @@ class LibroController
         $rutaRelativa = 'hv_' . $cedula . '/' . $bolsillo['seccion'] . '/' . $bolsillo['nombre'] . '_hv_' . $cedula . '/' . $nombreFinal;
 
         $id = DocumentoModel::crear($bolsilloId, $archivo['name'], $rutaRelativa, $pendienteRevision);
+
+        $rolActor = $_SESSION['superadmin_rol'] ?? null;
+        if ($rolActor && $rolActor !== 'superadmin_talento_humano' && isset($_SESSION['superadmin_id'])) {
+            $usuarioNombre = $_SESSION['superadmin_username'];
+            $empleado = EmpleadoModel::obtenerPorCedula($cedula);
+            $nombreEmpleado = $empleado['nombre'] ?? $cedula;
+            NotificacionModel::crear(
+                $_SESSION['superadmin_id'],
+                $usuarioNombre,
+                $cedula,
+                'documento',
+                "\"{$usuarioNombre}\" subió un nuevo PDF {$archivo['name']} en la hoja de vida de \"{$nombreEmpleado}\"",
+                "/chvb/public/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . $bolsilloId
+            );
+        }
 
         return ['ok' => true, 'id' => $id];
     }
@@ -133,7 +149,8 @@ class LibroController
                 $usuarioNombre,
                 $cedula,
                 'documento',
-                "{$usuarioNombre} editó un pdf del bolsillo {$bolsillo['nombre_completo']}"
+                "\"{$usuarioNombre}\" editó un pdf del bolsillo {$bolsillo['nombre_completo']}",
+                "/chvb/public/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . $bolsillo['id']
             );
         }
 

@@ -14,7 +14,6 @@ class EmpleadoController
         'Director de talento humano',
         'Auxiliar de Extintores',
         'Enfermero/a',
-        'Teniente',
         'Practicante Sena',
         'Practicante Fundetec',
         'Practicante otra entidad',
@@ -22,9 +21,11 @@ class EmpleadoController
         'Maquinista',
         'Guardia',
         'Recepcionista',
+        'Administrativo',
         'Auxiliar administrativo',
         'Director Académico',
         'Director de negocios',
+        'Directora administrativa y financiera',
         'Tecnico en soporte sistemas',
         'Tecnico archivista',
         'Coordinador SST',
@@ -37,8 +38,22 @@ class EmpleadoController
         'Coordinador de banda',
         'Conductor de ambulancia',
         'Aspirante',
-        'Voluntario'
+        'Voluntario',
+        'Secretario recaudador',
+        'Auxiliar de enfermería',
+        'Docente de banda marcial',
+        'PAMEC',
+        'Revisor(a) fiscal',
+        'Comandante de estación',
+        'Bombero integral'
     ];
+
+    public static array $tiposDePersonal = ['Bombero', 'Civil'];
+    public static array $gruposValidos = ['Operativo', 'Administrativo', 'Administrativo (Negocios y Académica)'];
+    public static array $epsValidas = ['Sanitas', 'Nueva EPS', 'Capresoca', 'Salud Total'];
+    public static array $pensionesValidas = ['Colfondos', 'Porvenir', 'Colpensiones', 'Protección', 'NA'];
+    public static array $tiposDeContrato = ['fijo', 'indefinido', 'ops', 'Contrato SENA', 'OPS SEMY'];
+
     private static function validarCamposComunes(array $datos): array
     {
         $errores = [];
@@ -57,7 +72,7 @@ class EmpleadoController
         if (!in_array($cargo, self::$cargosValidos, true)) {
             $errores[] = 'Debes seleccionar un cargo válido.';
         }
-        if (!in_array($tipoContrato, ['fijo', 'indefinido', 'ops'], true)) {
+        if (!in_array($tipoContrato, self::$tiposDeContrato, true)) {
             $errores[] = 'Debes seleccionar un tipo de contrato válido.';
         }
         if (!in_array($estado, ['activo', 'no activo'], true)) {
@@ -77,6 +92,32 @@ class EmpleadoController
                 $errores[] = 'La fecha de nacimiento no puede ser futura.';
             }
         }
+        $sexo = $datos['sexo'] ?? '';
+        $tipoPersonal = $datos['tipo_de_personal'] ?? '';
+        $grupo = $datos['grupo'] ?? '';
+        $eps = $datos['eps'] ?? '';
+        $pension = $datos['pension'] ?? '';
+        $salarioBasico = trim($datos['salario_basico'] ?? '');
+
+        if ($sexo !== '' && !in_array($sexo, ['F', 'M'], true)) {
+            $errores[] = 'El sexo debe ser F o M.';
+        }
+        if ($tipoPersonal !== '' && !in_array($tipoPersonal, self::$tiposDePersonal, true)) {
+            $errores[] = 'Tipo de personal inválido.';
+        }
+        if ($grupo !== '' && !in_array($grupo, self::$gruposValidos, true)) {
+            $errores[] = 'Grupo inválido.';
+        }
+        if ($eps !== '' && !in_array($eps, self::$epsValidas, true)) {
+            $errores[] = 'EPS inválida.';
+        }
+        if ($pension !== '' && !in_array($pension, self::$pensionesValidas, true)) {
+            $errores[] = 'Fondo de pensión inválido.';
+        }
+        if ($salarioBasico !== '' && (!is_numeric($salarioBasico) || (float) $salarioBasico < 0)) {
+            $errores[] = 'El salario básico debe ser un número válido mayor o igual a 0.';
+        }
+
 
         return $errores;
     }
@@ -105,7 +146,13 @@ class EmpleadoController
         EmpleadoModel::crear([
             'cedula' => $cedula,
             'nombre' => $nombreEmpleado,
+            'sexo' => $datos['sexo'] ?: null,
             'cargo' => $datos['cargo'],
+            'tipo_de_personal' => $datos['tipo_de_personal'] ?: null,
+            'grupo' => $datos['grupo'] ?: null,
+            'eps' => $datos['eps'] ?: null,
+            'pension' => $datos['pension'] ?: null,
+            'salario_basico' => $datos['salario_basico'] !== '' ? $datos['salario_basico'] : null,
             'es_bombero_integral' => isset($datos['es_bombero_integral']) ? 1 : 0,
             'tipo_de_contrato' => $datos['tipo_de_contrato'],
             'estado' => $datos['estado'] ?? 'activo',
@@ -138,7 +185,8 @@ class EmpleadoController
                 $usuarioNombre,
                 $cedula,
                 'creacion',
-                "{$usuarioNombre} creó un nuevo empleado llamado {$nombreEmpleado}, con cédula {$cedula}"
+                "\"{$usuarioNombre}\" creó un nuevo empleado llamado {$nombreEmpleado}, con cédula {$cedula}",
+                "/chvb/public/empleados.php?q=" . urlencode($cedula)
             );
         }
 
@@ -196,7 +244,13 @@ class EmpleadoController
 
         $datosNuevos = [
             'nombre' => trim($datos['nombre']),
+            'sexo' => $datos['sexo'] ?: null,
             'cargo' => $datos['cargo'],
+            'tipo_de_personal' => $datos['tipo_de_personal'] ?: null,
+            'grupo' => $datos['grupo'] ?: null,
+            'eps' => $datos['eps'] ?: null,
+            'pension' => $datos['pension'] ?: null,
+            'salario_basico' => $datos['salario_basico'] !== '' ? $datos['salario_basico'] : null,
             'es_bombero_integral' => isset($datos['es_bombero_integral']) ? 1 : 0,
             'tipo_de_contrato' => $datos['tipo_de_contrato'],
             'estado' => $datos['estado'] ?? 'activo',
@@ -204,7 +258,6 @@ class EmpleadoController
             'correo' => trim($datos['correo'] ?? ''),
             'fecha_nacimiento' => trim($datos['fecha_nacimiento'] ?? ''),
         ];
-
         EmpleadoModel::actualizar($cedulaFinal, $datosNuevos);
 
         if ($esAuxiliar && $empleadoAnterior) {
@@ -223,7 +276,8 @@ class EmpleadoController
                         $usuarioNombre,
                         $cedulaFinal,
                         'foto',
-                        "{$usuarioNombre} cambió la foto de perfil de {$cedulaFinal}"
+                        "\"{$usuarioNombre}\" cambió la foto de perfil de \"{$datosNuevos['nombre']}\"",
+                        "/chvb/public/empleados.php?q=" . urlencode($cedulaFinal)
                     );
                 }
             }
@@ -240,14 +294,8 @@ class EmpleadoController
     {
         $usuarioId = $_SESSION['superadmin_id'];
         $usuarioNombre = $_SESSION['superadmin_username'];
-        $formatearFecha = function (?string $fecha): string {
-            if (!$fecha)
-                return 'sin fecha';
-            $d = DateTime::createFromFormat('Y-m-d', $fecha);
-            if (!$d)
-                return $fecha;
-            return $d->format('d') . '/' . EmpleadoModel::mesEnEspanol((int) $d->format('m')) . '/' . $d->format('Y');
-        };
+        $nombreEmpleadoActual = $anterior['nombre'] ?? $cedula;
+        $enlace = "/chvb/public/empleados.php?q=" . urlencode($cedula);
 
         $campos = [
             'nombre' => ['etiqueta' => 'el nombre', 'formato' => fn($v) => $v],
@@ -255,14 +303,19 @@ class EmpleadoController
             'correo' => ['etiqueta' => 'el correo', 'formato' => fn($v) => $v ?: 'sin correo'],
             'estado' => ['etiqueta' => 'el estado', 'formato' => fn($v) => $v],
             'es_bombero_integral' => ['etiqueta' => 'el campo bombero integral', 'formato' => fn($v) => $v == 1 ? 'Sí' : 'No'],
-            'fecha_nacimiento' => ['etiqueta' => 'la fecha de nacimiento', 'formato' => $formatearFecha],
+            'fecha_nacimiento' => ['etiqueta' => 'la fecha de nacimiento', 'formato' => fn($v) => EmpleadoModel::formatearFechaLarga($v)],
+            'sexo' => ['etiqueta' => 'el sexo', 'formato' => fn($v) => $v ?: 'sin definir'],
+            'tipo_de_personal' => ['etiqueta' => 'el tipo de personal', 'formato' => fn($v) => $v ?: 'sin definir'],
+            'grupo' => ['etiqueta' => 'el grupo', 'formato' => fn($v) => $v ?: 'sin definir'],
+            'eps' => ['etiqueta' => 'la EPS', 'formato' => fn($v) => $v ?: 'sin definir'],
+            'pension' => ['etiqueta' => 'el fondo de pensión', 'formato' => fn($v) => $v ?: 'sin definir'],
+            'salario_basico' => ['etiqueta' => 'el salario básico', 'formato' => fn($v) => $v !== null ? '$' . number_format((float) $v, 0, ',', '.') : 'sin definir'],
         ];
 
         foreach ($campos as $campo => $conf) {
             $valorAnterior = $anterior[$campo] ?? null;
             $valorNuevo = $nuevo[$campo] ?? null;
 
-            // Comparación como texto para detectar cambios reales, incluso entre "0"/0 o null/""
             if ((string) $valorAnterior === (string) $valorNuevo) {
                 continue;
             }
@@ -270,9 +323,13 @@ class EmpleadoController
             $textoAnterior = ($conf['formato'])($valorAnterior);
             $textoNuevo = ($conf['formato'])($valorNuevo);
 
-           $mensaje = "{$usuarioNombre} editó {$conf['etiqueta']} de {$cedula}: antes \"{$textoAnterior}\", ahora \"{$textoNuevo}\"";
+            if ($campo === 'nombre') {
+                $mensaje = "\"{$usuarioNombre}\" editó {$conf['etiqueta']} de {$cedula}: antes \"{$textoAnterior}\", ahora \"{$textoNuevo}\"";
+            } else {
+                $mensaje = "\"{$usuarioNombre}\" editó {$conf['etiqueta']} de \"{$nombreEmpleadoActual}\": antes \"{$textoAnterior}\", ahora \"{$textoNuevo}\"";
+            }
 
-            NotificacionModel::crear($usuarioId, $usuarioNombre, $cedula, $campo, $mensaje);
+            NotificacionModel::crear($usuarioId, $usuarioNombre, $cedula, $campo, $mensaje, $enlace);
         }
     }
     /**

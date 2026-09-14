@@ -13,6 +13,7 @@ $empleados = EmpleadoModel::listar($busqueda);
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Empleados</title>
     <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
 </head>
@@ -46,12 +47,12 @@ $empleados = EmpleadoModel::listar($busqueda);
                     <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
                         <tr>
                             <th class="px-4 py-3">Nombre</th>
-                            <th class="px-4 py-3 hidden lg:table-cell">Cédula</th>
-                            <th class="px-4 py-3 hidden lg:table-cell">Cargo</th>
-                            <th class="px-4 py-3 hidden lg:table-cell">Bombero Integral</th>
-                            <th class="px-4 py-3 hidden lg:table-cell">Contrato</th>
+                            <th class="px-4 py-3 hidden md:table-cell">Cédula</th>
+                            <th class="px-4 py-3 hidden md:table-cell">Cargo</th>
+                            <th class="px-4 py-3 hidden md:table-cell">Bombero Integral</th>
+                            <th class="px-4 py-3 hidden md:table-cell">Contrato</th>
                             <th class="px-4 py-3 hidden md:table-cell">Celular</th>
-                            <th class="px-4 py-3 hidden lg:table-cell">Correo</th>
+                            <th class="px-4 py-3 hidden md:table-cell">Correo</th>
                             <th class="px-4 py-3">Estado</th>
                             <th class="px-4 py-3">Acciones</th>
                         </tr>
@@ -85,18 +86,18 @@ $empleados = EmpleadoModel::listar($busqueda);
                                         </span>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 hidden lg:table-cell"><?= htmlspecialchars($emp['cedula']) ?></td>
+                                <td class="px-4 py-3 hidden md:table-cell"><?= htmlspecialchars($emp['cedula']) ?></td>
                                 <td class="px-4 py-3 hidden md:table-cell"><?= htmlspecialchars($emp['cargo']) ?></td>
-                                <td class="px-4 py-3 hidden lg:table-cell">
+                                <td class="px-4 py-3 hidden md:table-cell">
                                     <?= $emp['es_bombero_integral'] ? 'Sí' : 'No' ?>
                                 </td>
-                                <td class="px-4 py-3 hidden lg:table-cell">
+                                <td class="px-4 py-3 hidden md:table-cell">
                                     <?= htmlspecialchars($emp['tipo_de_contrato']) ?>
                                 </td>
                                 <td class="px-4 py-3 hidden md:table-cell">
                                     <?= htmlspecialchars($emp['celular'] ?: '-') ?>
                                 </td>
-                                <td class="px-4 py-3 hidden lg:table-cell">
+                                <td class="px-4 py-3 hidden md:table-cell">
                                     <?= htmlspecialchars($emp['correo'] ?: '-') ?>
                                 </td>
                                 <td class="px-4 py-3">
@@ -175,6 +176,61 @@ $empleados = EmpleadoModel::listar($busqueda);
                     </select>
                 </div>
 
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+                    <select name="sexo" class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">Selecciona</option>
+                        <option value="F">Femenino</option>
+                        <option value="M">Masculino</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de personal</label>
+                    <select name="tipo_de_personal" class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">Selecciona</option>
+                        <?php foreach (EmpleadoController::$tiposDePersonal as $t): ?>
+                            <option value="<?= htmlspecialchars($t) ?>"><?= htmlspecialchars($t) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Grupo</label>
+                    <select name="grupo" class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">Selecciona</option>
+                        <?php foreach (EmpleadoController::$gruposValidos as $g): ?>
+                            <option value="<?= htmlspecialchars($g) ?>"><?= htmlspecialchars($g) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">EPS</label>
+                    <select name="eps" class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">Selecciona</option>
+                        <?php foreach (EmpleadoController::$epsValidas as $e): ?>
+                            <option value="<?= htmlspecialchars($e) ?>"><?= htmlspecialchars($e) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Fondo de pensión</label>
+                    <select name="pension" class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">Selecciona</option>
+                        <?php foreach (EmpleadoController::$pensionesValidas as $p): ?>
+                            <option value="<?= htmlspecialchars($p) ?>"><?= htmlspecialchars($p) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Salario básico</label>
+                    <input type="number" name="salario_basico" min="0" step="1000" placeholder="Ej: 1300000"
+                        class="w-full border border-gray-300 rounded px-3 py-2">
+                </div>
+
                 <div class="flex items-center gap-2">
                     <input type="checkbox" name="es_bombero_integral" id="bomberoIntegral" class="rounded">
                     <label for="bomberoIntegral" class="text-sm text-gray-700">¿Es Bombero Integral?</label>
@@ -184,9 +240,9 @@ $empleados = EmpleadoModel::listar($busqueda);
                     <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de contrato</label>
                     <select name="tipo_de_contrato" required class="w-full border border-gray-300 rounded px-3 py-2">
                         <option value="">Selecciona</option>
-                        <option value="fijo">Fijo</option>
-                        <option value="indefinido">Indefinido</option>
-                        <option value="ops">OPS</option>
+                        <?php foreach (EmpleadoController::$tiposDeContrato as $tc): ?>
+                            <option value="<?= htmlspecialchars($tc) ?>"><?= htmlspecialchars($tc) ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
 
@@ -320,6 +376,63 @@ $empleados = EmpleadoModel::listar($busqueda);
                     </select>
                 </div>
 
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+                    <select name="sexo" id="editSexo" class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">Selecciona</option>
+                        <option value="F">Femenino</option>
+                        <option value="M">Masculino</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de personal</label>
+                    <select name="tipo_de_personal" id="editTipoPersonal"
+                        class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">Selecciona</option>
+                        <?php foreach (EmpleadoController::$tiposDePersonal as $t): ?>
+                            <option value="<?= htmlspecialchars($t) ?>"><?= htmlspecialchars($t) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Grupo</label>
+                    <select name="grupo" id="editGrupo" class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">Selecciona</option>
+                        <?php foreach (EmpleadoController::$gruposValidos as $g): ?>
+                            <option value="<?= htmlspecialchars($g) ?>"><?= htmlspecialchars($g) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">EPS</label>
+                    <select name="eps" id="editEps" class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">Selecciona</option>
+                        <?php foreach (EmpleadoController::$epsValidas as $e): ?>
+                            <option value="<?= htmlspecialchars($e) ?>"><?= htmlspecialchars($e) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Fondo de pensión</label>
+                    <select name="pension" id="editPension" class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">Selecciona</option>
+                        <?php foreach (EmpleadoController::$pensionesValidas as $p): ?>
+                            <option value="<?= htmlspecialchars($p) ?>"><?= htmlspecialchars($p) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Salario básico</label>
+                    <input type="number" name="salario_basico" id="editSalario" min="0" step="1000"
+                        class="w-full border border-gray-300 rounded px-3 py-2">
+                </div>
+
+
                 <div class="flex items-center gap-2">
                     <input type="checkbox" name="es_bombero_integral" id="editBomberoIntegral" class="rounded">
                     <label for="editBomberoIntegral" class="text-sm text-gray-700">¿Es Bombero Integral?</label>
@@ -329,9 +442,9 @@ $empleados = EmpleadoModel::listar($busqueda);
                     <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de contrato</label>
                     <select name="tipo_de_contrato" id="editContrato" required
                         class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="fijo">Fijo</option>
-                        <option value="indefinido">Indefinido</option>
-                        <option value="ops">OPS</option>
+                        <?php foreach (EmpleadoController::$tiposDeContrato as $tc): ?>
+                            <option value="<?= htmlspecialchars($tc) ?>"><?= htmlspecialchars($tc) ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
 

@@ -27,6 +27,7 @@ foreach ($bolsillos as $b) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Libro de <?= htmlspecialchars($empleado['nombre']) ?></title>
     <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
     <style>
@@ -91,25 +92,27 @@ foreach ($bolsillos as $b) {
                                 $pendientes = count(array_filter($bolsillo['documentos'], fn($d) => $d['pendiente_revision']));
                                 $estadoAlarma = BolsilloModel::calcularEstadoAlarma($bolsillo);
                                 ?>
-                                <button onclick='abrirBolsillo(<?= json_encode($bolsillo) ?>)'
+                                <button id="bolsilloBtn-<?= $bolsillo['id'] ?>"
+                                    onclick="abrirBolsilloPorId(<?= $bolsillo['id'] ?>)"
                                     class="text-left border rounded-xl p-4 hover:shadow transition relative
-                                    <?= $estadoAlarma === 'vencida' ? 'border-red-400 bg-red-50' : ($estadoAlarma === 'proxima' ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200') ?>">
+        <?= $estadoAlarma === 'vencida' ? 'border-red-400 bg-red-50' : ($estadoAlarma === 'proxima' ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200') ?>">
                                     <?php if ($pendientes > 0): ?>
                                         <span
                                             class="absolute -top-2 -right-2 bg-yellow-400 text-xs font-bold text-white rounded-full w-6 h-6 flex items-center justify-center">
                                             <?= $pendientes ?>
                                         </span>
                                     <?php endif; ?>
-                                    <?php if ($estadoAlarma === 'vencida'): ?>
-                                        <span class="text-xs text-red-600 font-semibold">🔴 Alarma vencida</span>
-                                    <?php elseif ($estadoAlarma === 'proxima'): ?>
-                                        <span class="text-xs text-yellow-600 font-semibold">🟡 Próxima a vencer</span>
-                                    <?php elseif ($bolsillo['alarma_activa']): ?>
-                                        <span class="text-xs text-gray-400">⏰ Alarma configurada</span>
-                                    <?php endif; ?>
+                                    <span id="bolsilloEstadoLabel-<?= $bolsillo['id'] ?>" class="text-xs font-semibold block">
+                                        <?php if ($estadoAlarma === 'vencida'): ?>
+                                            <span class="text-red-600">🔴 Alarma vencida</span>
+                                        <?php elseif ($estadoAlarma === 'proxima'): ?>
+                                            <span class="text-yellow-600">🟡 Próxima a vencer</span>
+                                        <?php elseif ($bolsillo['alarma_activa']): ?>
+                                            <span class="text-gray-400 font-normal">⏰ Alarma configurada</span>
+                                        <?php endif; ?>
+                                    </span>
                                     <p class="font-medium text-gray-800 mt-1">
-                                        <?= htmlspecialchars($bolsillo['nombre_completo']) ?>
-                                    </p>
+                                        <?= htmlspecialchars($bolsillo['nombre_completo']) ?></p>
                                     <p class="text-xs text-gray-400 mt-1"><?= $totalDocs ?> documento(s)</p>
                                 </button>
                             <?php endforeach; ?>
@@ -257,6 +260,9 @@ foreach ($bolsillos as $b) {
         </div>
     </div>
 
+    <script>
+        window.TODOS_LOS_BOLSILLOS = <?= json_encode($bolsillosPorSeccion) ?>;
+    </script>
     <script src="/chvb/public/assets/js/libro.js"></script>
 </body>
 

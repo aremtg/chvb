@@ -22,6 +22,7 @@ $alarmas = BolsilloModel::alarmasProximas();
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Panel de Alarmas</title>
     <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
 </head>
@@ -59,7 +60,8 @@ $alarmas = BolsilloModel::alarmasProximas();
                                     </td>
                                     <td class="px-4 py-3"><?= htmlspecialchars($al['nombre_completo']) ?></td>
                                     <td class="px-4 py-3 hidden lg:table-cell"><?= htmlspecialchars($al['alarma_tipo']) ?></td>
-                                    <td class="px-4 py-3"><?= htmlspecialchars(formatearFechaLarga($al['alarma_fecha'])) ?></td>
+                                    <td class="px-4 py-3">
+                                        <?= htmlspecialchars(EmpleadoModel::formatearFechaLarga($al['alarma_fecha'])) ?></td>
                                     <td class="px-4 py-3">
                                         <span
                                             class="px-2 py-1 rounded-lg text-xs font-medium <?= $vencida ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700' ?>">
@@ -67,8 +69,8 @@ $alarmas = BolsilloModel::alarmasProximas();
                                         </span>
                                     </td>
                                     <td class="px-4 py-3">
-                                        <a href="/chvb/public/libro.php?cedula=<?= urlencode($al['cedula_empleado']) ?>"
-                                            class="text-red-600 hover:underline text-xs">Ir al libro</a>
+                                        <a href="/chvb/public/libro.php?cedula=<?= urlencode($al['cedula_empleado']) ?>&bolsillo=<?= $al['id'] ?>"
+                                            class="text-red-600 hover:underline text-xs">ver bolsillo</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

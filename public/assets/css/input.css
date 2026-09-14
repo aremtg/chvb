@@ -38,3 +38,13 @@
 body {
   font-family: var(--font-poppins);
 }
+
+@layer utilities {
+  .notif-nueva {
+    animation: fadeInNotif 0.4s ease-out;
+  }
+}
+@keyframes fadeInNotif {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

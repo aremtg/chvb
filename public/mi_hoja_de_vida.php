@@ -26,6 +26,7 @@ foreach ($bolsillos as $b) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Hoja de Vida - CHVB</title>
     <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
     <style>

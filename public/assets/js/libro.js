@@ -3,6 +3,27 @@
 const cedula = new URLSearchParams(window.location.search).get("cedula");
 let bolsilloActual = null;
 
+function formatearFechaEs(fechaStr) {
+  if (!fechaStr) return "-";
+  const meses = [
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
+  ];
+  const [y, m, d] = fechaStr.split("-").map(Number);
+  if (!y || !m || !d) return fechaStr;
+  return `${d} de ${meses[m - 1]} de ${y}`;
+}
+
 function cambiarSeccion(seccion) {
   document
     .querySelectorAll(".seccion-contenido")
@@ -67,15 +88,16 @@ function actualizarInfoAlarma(bolsillo) {
   const diasAviso = bolsillo.alarma_dias_aviso || 35;
   const inicioAviso = new Date(fechaVence);
   inicioAviso.setDate(inicioAviso.getDate() - diasAviso);
+  const fechaTexto = formatearFechaEs(bolsillo.alarma_fecha);
 
   if (hoy >= fechaVence) {
-    infoAlarma.textContent = `🔴 Vencida el ${bolsillo.alarma_fecha}`;
+    infoAlarma.textContent = `🔴 Vencida el ${fechaTexto}`;
     infoAlarma.className = "text-xs font-semibold mt-1 text-red-600";
   } else if (hoy >= inicioAviso) {
-    infoAlarma.textContent = `🟡 Próxima a vencer: ${bolsillo.alarma_fecha}`;
+    infoAlarma.textContent = `🟡 Próxima a vencer: ${fechaTexto}`;
     infoAlarma.className = "text-xs font-semibold mt-1 text-yellow-600";
   } else {
-    infoAlarma.textContent = `Vence el ${bolsillo.alarma_fecha} (aviso ${diasAviso} días antes)`;
+    infoAlarma.textContent = `Vence el ${fechaTexto} (aviso ${diasAviso} días antes)`;
     infoAlarma.className = "text-xs font-medium mt-1 text-gray-500";
   }
 }
@@ -99,6 +121,73 @@ if (inputFechaInicioEl) {
 function cerrarBolsillo() {
   document.getElementById("modalBolsillo").classList.add("hidden");
   bolsilloActual = null;
+}
+
+function abrirBolsilloPorId(id) {
+  if (!window.TODOS_LOS_BOLSILLOS) return;
+  for (const seccion of Object.keys(window.TODOS_LOS_BOLSILLOS)) {
+    const encontrado = window.TODOS_LOS_BOLSILLOS[seccion].find(
+      (b) => b.id === id,
+    );
+    if (encontrado) {
+      abrirBolsillo(encontrado);
+      return;
+    }
+  }
+}
+
+function calcularEstadoAlarmaJS(bolsillo) {
+  if (!bolsillo.alarma_activa || !bolsillo.alarma_fecha) return "inactiva";
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const fecha = new Date(bolsillo.alarma_fecha + "T00:00:00");
+  const diasAviso = bolsillo.alarma_dias_aviso || 35;
+  if (hoy >= fecha) return "vencida";
+  const inicioAviso = new Date(fecha);
+  inicioAviso.setDate(inicioAviso.getDate() - diasAviso);
+  if (hoy >= inicioAviso) return "proxima";
+  return "vigente";
+}
+
+function actualizarTarjetaBolsillo(bolsillo) {
+  const btn = document.getElementById(`bolsilloBtn-${bolsillo.id}`);
+  const label = document.getElementById(`bolsilloEstadoLabel-${bolsillo.id}`);
+  if (!btn || !label) return;
+
+  const estado = calcularEstadoAlarmaJS(bolsillo);
+  btn.classList.remove(
+    "border-red-400",
+    "bg-red-50",
+    "border-yellow-400",
+    "bg-yellow-50",
+    "border-gray-200",
+  );
+
+  if (estado === "vencida") {
+    btn.classList.add("border-red-400", "bg-red-50");
+    label.innerHTML = '<span class="text-red-600">🔴 Alarma vencida</span>';
+  } else if (estado === "proxima") {
+    btn.classList.add("border-yellow-400", "bg-yellow-50");
+    label.innerHTML =
+      '<span class="text-yellow-600">🟡 Próxima a vencer</span>';
+  } else if (bolsillo.alarma_activa) {
+    btn.classList.add("border-gray-200");
+    label.innerHTML =
+      '<span class="text-gray-400 font-normal">⏰ Alarma configurada</span>';
+  } else {
+    btn.classList.add("border-gray-200");
+    label.innerHTML = "";
+  }
+
+  // Mantiene sincronizado el objeto global para que la próxima apertura (manual o por URL) use datos frescos
+  if (window.TODOS_LOS_BOLSILLOS) {
+    for (const seccion of Object.keys(window.TODOS_LOS_BOLSILLOS)) {
+      const idx = window.TODOS_LOS_BOLSILLOS[seccion].findIndex(
+        (b) => b.id === bolsillo.id,
+      );
+      if (idx !== -1) window.TODOS_LOS_BOLSILLOS[seccion][idx] = bolsillo;
+    }
+  }
 }
 
 const selectAlarmaEl = document.getElementById("selectAlarma");
@@ -266,6 +355,7 @@ async function eliminarDocumento(documentoId) {
 }
 
 // --- Reordenar documento ---
+// --- Reordenar documento (sin recargar la página, igual que renombrar) ---
 async function moverDocumento(documentoId, direccion) {
   const formData = new FormData();
   formData.append("documento_id", documentoId);
@@ -278,10 +368,9 @@ async function moverDocumento(documentoId, direccion) {
   const data = await res.json();
 
   if (data.ok) {
-    recargarBolsillo();
+    await refrescarBolsilloActual();
   }
 }
-
 // --- Alarma ---
 async function guardarAlarma() {
   const tipo = document.getElementById("selectAlarma").value;
@@ -311,6 +400,7 @@ async function guardarAlarma() {
     bolsilloActual.alarma_dias_aviso = data.dias_aviso;
     bolsilloActual.alarma_tipo = tipo;
     actualizarInfoAlarma(bolsilloActual);
+    actualizarTarjetaBolsillo(bolsilloActual);
   } else {
     alert(data.error || "Error al guardar la alarma.");
   }
@@ -331,6 +421,7 @@ async function quitarAlarma() {
     bolsilloActual.alarma_activa = 0;
     bolsilloActual.alarma_fecha = null;
     actualizarInfoAlarma(bolsilloActual);
+    actualizarTarjetaBolsillo(bolsilloActual);
   }
 }
 
@@ -384,3 +475,34 @@ function cerrarVisorPDF() {
   document.getElementById("modalVisorPDF").classList.add("hidden");
   document.getElementById("visorPDFIframe").src = ""; // libera memoria, deja de cargar el PDF
 }
+
+// Si la URL trae ?bolsillo=ID, abre automáticamente ese bolsillo UNA SOLA VEZ (notificaciones/alarmas)
+(function abrirBolsilloDesdeURL() {
+  const params = new URLSearchParams(window.location.search);
+  const bolsilloIdParam = params.get("bolsillo");
+
+  // Siempre limpiamos el parámetro de la URL, haya o no bolsillo que abrir,
+  // para que un F5 posterior NUNCA vuelva a forzar la apertura de este bolsillo.
+  if (bolsilloIdParam) {
+    params.delete("bolsillo");
+    const nuevaURL =
+      window.location.pathname +
+      (params.toString() ? "?" + params.toString() : "");
+    window.history.replaceState({}, "", nuevaURL);
+  }
+
+  if (!bolsilloIdParam || typeof window.TODOS_LOS_BOLSILLOS === "undefined")
+    return;
+
+  const idBuscado = parseInt(bolsilloIdParam, 10);
+  for (const seccion of Object.keys(window.TODOS_LOS_BOLSILLOS)) {
+    const encontrado = window.TODOS_LOS_BOLSILLOS[seccion].find(
+      (b) => b.id === idBuscado,
+    );
+    if (encontrado) {
+      cambiarSeccion(seccion);
+      abrirBolsillo(encontrado);
+      break;
+    }
+  }
+})();
