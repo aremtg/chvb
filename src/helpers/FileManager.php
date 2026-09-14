@@ -192,4 +192,60 @@ public static function guardarFoto(string $cedula, array $archivo): array {
 
         return true;
     }
+
+
+        public static function guardarFotoPermiso(string $cedula, array $archivo): array {
+        return self::guardarImagenGenerica($cedula, $archivo, 'permisos/fotos');
+    }
+
+    public static function guardarEvidenciaPermiso(string $cedula, array $archivo): array {
+        $carpeta = self::rutaBase($cedula) . '/permisos/evidencias';
+        if (!is_dir($carpeta)) mkdir($carpeta, 0777, true);
+
+        $tamanoMaximo = 20 * 1024 * 1024;
+        if ($archivo['size'] > $tamanoMaximo) return ['ok' => false, 'error' => 'El archivo de evidencia supera 20MB.'];
+
+        $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
+        $nombreFinal = 'evidencia_' . time() . '.' . preg_replace('/[^a-z0-9]/', '', $extension);
+        $rutaCompleta = $carpeta . '/' . $nombreFinal;
+
+        if (!move_uploaded_file($archivo['tmp_name'], $rutaCompleta)) {
+            return ['ok' => false, 'error' => 'No se pudo guardar la evidencia.'];
+        }
+
+        return ['ok' => true, 'ruta' => 'hv_' . $cedula . '/permisos/evidencias/' . $nombreFinal];
+    }
+
+    private static function guardarImagenGenerica(string $cedula, array $archivo, string $subcarpeta): array {
+        $tiposPermitidos = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+        $tamanoMaximo = 5 * 1024 * 1024;
+
+        if (!isset($archivo['error']) || $archivo['error'] !== UPLOAD_ERR_OK) {
+            return ['ok' => false, 'error' => 'Error al subir la imagen.'];
+        }
+        if ($archivo['size'] > $tamanoMaximo) {
+            return ['ok' => false, 'error' => 'La imagen no puede superar 5MB.'];
+        }
+
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $archivo['tmp_name']);
+        finfo_close($finfo);
+
+        if (!isset($tiposPermitidos[$mime])) {
+            return ['ok' => false, 'error' => 'Solo se permiten imágenes JPG, PNG o WEBP.'];
+        }
+
+        $carpeta = self::rutaBase($cedula) . '/' . $subcarpeta;
+        if (!is_dir($carpeta)) mkdir($carpeta, 0777, true);
+
+        $extension = $tiposPermitidos[$mime];
+        $nombreFinal = 'foto_' . time() . '.' . $extension;
+        $rutaCompleta = $carpeta . '/' . $nombreFinal;
+
+        if (!move_uploaded_file($archivo['tmp_name'], $rutaCompleta)) {
+            return ['ok' => false, 'error' => 'No se pudo guardar la imagen.'];
+        }
+
+        return ['ok' => true, 'ruta' => 'hv_' . $cedula . '/' . $subcarpeta . '/' . $nombreFinal];
+    }
 }
