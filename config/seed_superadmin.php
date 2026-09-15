@@ -33,5 +33,6 @@ if ($stmt->fetch()) {
 
 //bash
 //php -r "echo bin2hex(random_bytes(16));"
+//C:\xampp\htdocs\chvb
 
 //Copia el resultado (32 caracteres hexadecimales) y agrégalo a tu .env:

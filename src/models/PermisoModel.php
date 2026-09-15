@@ -1,5 +1,5 @@
 <?php
-// src/models/PermisoModel.php (nuevo archivo)
+// src/models/PermisoModel.php
 require_once __DIR__ . '/../../config/database.php';
 
 class PermisoModel {
@@ -39,7 +39,7 @@ class PermisoModel {
         return sprintf('PER-%d-%04d', $anio, $siguiente);
     }
 
-        public static function crear(array $datos, array $dias): int {
+    public static function crear(array $datos, array $dias): int {
         $pdo = getPDO();
         $pdo->beginTransaction();
         try {
@@ -88,10 +88,6 @@ class PermisoModel {
         }
     }
 
-    /**
-     * Reemplaza por completo el desglose de días de un permiso (se usa tanto al
-     * crear como al reenviar un permiso devuelto con fechas modificadas).
-     */
     private static function insertarDias(PDO $pdo, int $permisoId, array $dias): void {
         $sql = "INSERT INTO permisos_dias
                     (permiso_id, fecha, hora_inicio, hora_fin, es_festivo, festivo_nombre, incluido,
@@ -124,6 +120,28 @@ class PermisoModel {
     public static function obtenerDias(int $permisoId): array {
         $pdo = getPDO();
         $stmt = $pdo->prepare("SELECT * FROM permisos_dias WHERE permiso_id = :b1 ORDER BY fecha ASC");
+        $stmt->execute(['b1' => $permisoId]);
+        return $stmt->fetchAll();
+    }
+
+    public static function crearDevoluciones(int $permisoId, array $devoluciones): void {
+        if (empty($devoluciones)) return;
+        $pdo = getPDO();
+        $stmt = $pdo->prepare(
+            "INSERT INTO permisos_devoluciones (permiso_id, fecha, hora_inicio, hora_fin, total_horas)
+             VALUES (:b1, :b2, :b3, :b4, :b5)"
+        );
+        foreach ($devoluciones as $d) {
+            $stmt->execute([
+                'b1' => $permisoId, 'b2' => $d['fecha'], 'b3' => $d['hora_inicio'],
+                'b4' => $d['hora_fin'], 'b5' => $d['total_horas'],
+            ]);
+        }
+    }
+
+    public static function obtenerDevoluciones(int $permisoId): array {
+        $pdo = getPDO();
+        $stmt = $pdo->prepare("SELECT * FROM permisos_devoluciones WHERE permiso_id = :b1 ORDER BY fecha ASC");
         $stmt->execute(['b1' => $permisoId]);
         return $stmt->fetchAll();
     }
@@ -182,6 +200,48 @@ class PermisoModel {
         $pdo = getPDO();
         $stmt = $pdo->prepare("SELECT * FROM permisos WHERE cedula_empleado = :b1 ORDER BY fecha_solicitud DESC");
         $stmt->execute(['b1' => $cedula]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Lista permisos del empleado con filtros opcionales. Los DEVUELTOS siempre
+     * aparecen primero (anclados), porque requieren acción inmediata del empleado.
+     */
+    public static function listarPorEmpleadoConFiltros(string $cedula, array $filtros): array {
+        $pdo = getPDO();
+        $sql = "SELECT * FROM permisos WHERE cedula_empleado = :b1";
+        $params = ['b1' => $cedula];
+        $i = 2;
+
+        if (!empty($filtros['tipo_permiso'])) {
+            $sql .= " AND tipo_permiso = :b{$i}";
+            $params["b{$i}"] = $filtros['tipo_permiso'];
+            $i++;
+        }
+        if (!empty($filtros['estado'])) {
+            if ($filtros['estado'] === 'en_revision') {
+                $sql .= " AND estado IN ('en_proceso','por_firmar_reemplazo','por_firmar_jefe')";
+            } else {
+                $sql .= " AND estado = :b{$i}";
+                $params["b{$i}"] = $filtros['estado'];
+                $i++;
+            }
+        }
+        if (!empty($filtros['fecha_desde'])) {
+            $sql .= " AND DATE(fecha_solicitud) >= :b{$i}";
+            $params["b{$i}"] = $filtros['fecha_desde'];
+            $i++;
+        }
+        if (!empty($filtros['fecha_hasta'])) {
+            $sql .= " AND DATE(fecha_solicitud) <= :b{$i}";
+            $params["b{$i}"] = $filtros['fecha_hasta'];
+            $i++;
+        }
+
+        $sql .= " ORDER BY (estado = 'devuelto') DESC, fecha_solicitud DESC";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 

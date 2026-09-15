@@ -18,6 +18,13 @@ if (strlen($q) < 2) {
     exit;
 }
 
+$cedulaPropia = $_SESSION['empleado_cedula'] ?? null;
+
 $resultados = EmpleadoModel::listar($q);
-$simplificado = array_map(fn($e) => ['cedula' => $e['cedula'], 'nombre' => $e['nombre'], 'cargo' => $e['cargo']], $resultados);
+$simplificado = [];
+foreach ($resultados as $e) {
+    if ($cedulaPropia && $e['cedula'] === $cedulaPropia) continue; // no puedes elegirte a ti mismo
+    $simplificado[] = ['cedula' => $e['cedula'], 'nombre' => $e['nombre'], 'cargo' => $e['cargo']];
+}
+
 echo json_encode(array_slice($simplificado, 0, 10));

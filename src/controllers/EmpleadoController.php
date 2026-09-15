@@ -5,6 +5,7 @@ require_once __DIR__ . '/../helpers/FileManager.php';
 require_once __DIR__ . '/../models/BolsilloModel.php';
 require_once __DIR__ . '/../models/DocumentoModel.php';
 require_once __DIR__ . '/../models/NotificacionModel.php';
+require_once __DIR__ . '/../helpers/ReconciliadorArchivos.php';
 
 class EmpleadoController
 {
@@ -164,6 +165,7 @@ class EmpleadoController
         try {
             FileManager::crearEstructuraEmpleado($cedula);
             BolsilloModel::crearBolsillosParaEmpleado($cedula);
+            ReconciliadorArchivos::importarDocumentosExistentes($cedula);
         } catch (Exception $e) {
             EmpleadoModel::eliminar($cedula);
             FileManager::borrarEstructuraEmpleado($cedula);
@@ -175,8 +177,13 @@ class EmpleadoController
             if ($resultadoFoto['ok']) {
                 EmpleadoModel::actualizarFoto($cedula, $resultadoFoto['ruta']);
             }
+        } else {
+            // No subieron foto nueva: si la carpeta reutilizada ya tenía una, la detectamos y usamos
+            $fotoExistente = ReconciliadorArchivos::detectarFotoExistente($cedula);
+            if ($fotoExistente) {
+                EmpleadoModel::actualizarFoto($cedula, $fotoExistente);
+            }
         }
-
         $rolActor = $_SESSION['superadmin_rol'] ?? 'superadmin_talento_humano';
         if ($rolActor === 'auxiliar_talento_humano') {
             $usuarioNombre = $_SESSION['superadmin_username'];

@@ -37,53 +37,61 @@ $empleados = EmpleadoModel::listar($busqueda);
                 <p class="text-sm text-gray-400">No se encontraron empleados.</p>
             <?php else: ?>
                 <div class="space-y-3">
-                    <?php foreach ($empleados as $emp): ?>
-                        <?php $acceso = UsuarioEmpleadoModel::obtenerPorCedula($emp['cedula']); ?>
-                        <div class="bg-white rounded-lg shadow p-4 flex justify-between items-center">
-                            <div>
-                                <p class="font-medium text-gray-800"><?= htmlspecialchars($emp['nombre']) ?></p>
-                                <p class="text-xs text-gray-500">CC <?= htmlspecialchars($emp['cedula']) ?></p>
-                                <?php if ($acceso): ?>
-                                    <span
-                                        class="text-xs px-2 py-0.5 rounded <?= $acceso['activo'] ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600' ?>">
-                                        <?= $acceso['activo'] ? 'Acceso activo' : 'Acceso revocado' ?>
-                                    </span>
-                                <?php else: ?>
-                                    <span class="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-500">Sin acceso creado</span>
-                                <?php endif; ?>
-                            </div>
-                            <div class="flex flex-col items-end gap-2">
-                                <div class="flex gap-2">
-                                    <?php if ($acceso): ?>
-                                        <button onclick="verPin('<?= $emp['cedula'] ?>')" id="btnOjo-<?= $emp['cedula'] ?>"
-                                            class="text-sm border border-gray-300 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded-xl"
-                                            title="Ver PIN actual">
-                                            👁️
-                                        </button>
-                                    <?php endif; ?>
-                                    <button
-                                        onclick="abrirModalPin('<?= $emp['cedula'] ?>', '<?= htmlspecialchars($emp['nombre'], ENT_QUOTES) ?>')"
-                                        class="text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-xl">
-                                        <?= $acceso ? 'Resetear PIN' : 'Crear acceso' ?>
-                                    </button>
-                                    <?php if ($acceso && $acceso['activo']): ?>
-                                        <button onclick="revocarAcceso('<?= $emp['cedula'] ?>')"
-                                            class="text-sm border border-gray-300 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded-xl">
-                                            Revocar
-                                        </button>
-                                    <?php elseif ($acceso && !$acceso['activo']): ?>
-                                        <button onclick="reactivarAcceso('<?= $emp['cedula'] ?>')"
-                                            class="text-sm border border-green-300 text-green-600 hover:bg-green-50 px-3 py-1.5 rounded-xl">
-                                            Reactivar
-                                        </button>
-                                    <?php endif; ?>
-                                </div>
-                                <span id="pinMostrado-<?= $emp['cedula'] ?>"
-                                    class="text-sm font-mono font-bold text-gray-700"></span>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+    <?php foreach ($empleados as $emp):?>
+        <?php $acceso = UsuarioEmpleadoModel::obtenerPorCedula($emp['cedula']);?>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+            <div class="flex-1 min-w-0">
+                <p class="font-medium text-gray-800 truncate"><?= htmlspecialchars($emp['nombre'])?></p>
+                <p class="text-xs text-gray-500">CC <?= htmlspecialchars($emp['cedula'])?></p>
+                <div class="mt-1.5">
+                    <?php if ($acceso):?>
+                        <span class="inline-flex text-xs px-2 py-0.5 rounded <?= $acceso['activo']? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'?>">
+                            <?= $acceso['activo']? 'Acceso activo' : 'Acceso revocado'?>
+                        </span>
+                    <?php else:?>
+                        <span class="inline-flex text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-500">Sin acceso creado</span>
+                    <?php endif;?>
                 </div>
+            </div>
+
+            <div class="w-full sm:w-auto flex flex-col gap-2">
+                <div class="flex flex-wrap gap-2">
+                    <?php if ($acceso):?>
+                        <button onclick="verPin('<?= $emp['cedula']?>')" id="btnOjo-<?= $emp['cedula']?>"
+                            class="inline-flex items-center justify-center border border-gray-300 text-gray-600 hover:bg-gray-50 p-2.5 rounded-xl"
+                            title="Ver PIN actual">
+                            <span data-eye="open"><?= icon('eye', 'w-4 h-4')?></span>
+                            <span data-eye="closed" class="hidden"><?= icon('eye-off', 'w-4 h-4')?></span>
+                        </button>
+                    <?php endif;?>
+
+                    <button
+                        onclick="abrirModalPin('<?= $emp['cedula']?>', '<?= htmlspecialchars($emp['nombre'], ENT_QUOTES)?>')"
+                        class="flex-1 sm:flex-none text-sm bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl whitespace-nowrap">
+                        <?= $acceso? 'Resetear PIN' : 'Crear acceso'?>
+                    </button>
+
+                    <?php if ($acceso && $acceso['activo']):?>
+                        <button onclick="revocarAcceso('<?= $emp['cedula']?>')"
+                            class="flex-1 sm:flex-none text-sm border border-gray-300 text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-xl whitespace-nowrap">
+                            Revocar
+                        </button>
+                    <?php elseif ($acceso &&!$acceso['activo']):?>
+                        <button onclick="reactivarAcceso('<?= $emp['cedula']?>')"
+                            class="flex-1 sm:flex-none text-sm border border-green-300 text-green-600 hover:bg-green-50 px-4 py-2 rounded-xl whitespace-nowrap">
+                            Reactivar
+                        </button>
+                    <?php endif;?>
+                </div>
+
+                <span id="pinMostrado-<?= $emp['cedula']?>"
+                    class="text-sm font-mono font-bold text-gray-700 text-left sm:text-right break-all min-h-"></span>
+            </div>
+
+        </div>
+    <?php endforeach;?>
+</div>
             <?php endif; ?>
 
         </main>

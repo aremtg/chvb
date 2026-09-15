@@ -50,9 +50,10 @@ foreach ($bolsillos as $b) {
 </head>
 
 <body class="bg-gray-100 min-h-screen">
+    <?php require __DIR__ . '/../includes/sidebar_empleado.php'; ?>
 
-    <header class="bg-white shadow px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-3">
+    <div class="md:ml-64 pt-14 md:pt-0">
+        <header class="bg-white shadow px-6 py-4 flex items-center gap-3">
             <?php if (!empty($empleado['foto'])): ?>
                 <img src="/chvb/public/api/foto_ver.php?cedula=<?= urlencode($cedula) ?>"
                     class="w-12 h-12 rounded-full object-cover border border-gray-200">
@@ -61,44 +62,44 @@ foreach ($bolsillos as $b) {
             <?php endif; ?>
             <div>
                 <h1 class="text-lg font-bold text-gray-800"><?= htmlspecialchars($empleado['nombre']) ?></h1>
-                <p class="text-md text-gray-500">CC <?= htmlspecialchars($cedula) ?> · Solo lectura</p>
+                <p class="text-xs text-gray-500">CC <?= htmlspecialchars($cedula) ?> · Solo lectura</p>
             </div>
-        </div>
-        <a href="/chvb/public/logout_empleado.php" class="text-sm text-red-600 hover:underline">Cerrar sesión</a>
-    </header>
+        </header>
 
-    <main class="p-6 max-w-6xl mx-auto">
+        <main class="p-6 max-w-6xl mx-auto">
 
-        <div class="flex gap-2 mb-6">
-            <button onclick="cambiarSeccion('hoja_de_vida')" id="tab-hoja_de_vida"
-                class="tab-seccion px-4 py-2 rounded-t-lg font-medium bg-red-600 text-white">
-                Hoja de Vida
-            </button>
-            <button onclick="cambiarSeccion('documentos_contractuales')" id="tab-documentos_contractuales"
-                class="tab-seccion px-4 py-2 rounded-t-lg font-medium bg-white text-gray-600">
-                Documentos Contractuales
-            </button>
-        </div>
+            <div class="flex gap-2 mb-6">
+                <button onclick="cambiarSeccion('hoja_de_vida')" id="tab-hoja_de_vida"
+                    class="tab-seccion px-4 py-2 rounded-t-lg font-medium bg-red-600 text-white">
+                    Hoja de Vida
+                </button>
+                <button onclick="cambiarSeccion('documentos_contractuales')" id="tab-documentos_contractuales"
+                    class="tab-seccion px-4 py-2 rounded-t-lg font-medium bg-white text-gray-600">
+                    Documentos Contractuales
+                </button>
+            </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
-            <?php foreach (['hoja_de_vida', 'documentos_contractuales'] as $seccion): ?>
-                <div id="seccion-<?= $seccion ?>"
-                    class="seccion-contenido <?= $seccion !== 'hoja_de_vida' ? 'hidden' : '' ?>">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <?php foreach ($bolsillosPorSeccion[$seccion] as $bolsillo): ?>
-                            <button onclick='abrirBolsillo(<?= json_encode($bolsillo) ?>)'
-                                class="text-left border border-gray-200 rounded-lg p-4 hover:border-red-400 hover:shadow transition">
-                                <p class="font-medium text-gray-800"><?= htmlspecialchars($bolsillo['nombre_completo']) ?></p>
-                                <p class="text-xs text-gray-400 mt-1"><?= count($bolsillo['documentos']) ?> documento(s)</p>
-                            </button>
-                        <?php endforeach; ?>
+            <div class="bg-white rounded-lg shadow p-6">
+                <?php foreach (['hoja_de_vida', 'documentos_contractuales'] as $seccion): ?>
+                    <div id="seccion-<?= $seccion ?>"
+                        class="seccion-contenido <?= $seccion !== 'hoja_de_vida' ? 'hidden' : '' ?>">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <?php foreach ($bolsillosPorSeccion[$seccion] as $bolsillo): ?>
+                                <button onclick='abrirBolsillo(<?= json_encode($bolsillo) ?>)'
+                                    class="text-left border border-gray-200 rounded-lg p-4 hover:border-red-400 hover:shadow transition">
+                                    <p class="font-medium text-gray-800"><?= htmlspecialchars($bolsillo['nombre_completo']) ?>
+                                    </p>
+                                    <p class="text-xs text-gray-400 mt-1"><?= count($bolsillo['documentos']) ?> documento(s)</p>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    </main>
+                <?php endforeach; ?>
+            </div>
+        </main>
+    </div>
 
-    <!-- MODAL PÁGINA DEL BOLSILLO (solo lectura, subida solo si nombre === 'certificados') -->
+    <!-- MODAL PÁGINA DEL BOLSILLO -->
     <div id="modalBolsillo" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
         <div class="pagina-bolsillo bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b flex justify-between items-center sticky top-0 bg-white">
@@ -116,7 +117,8 @@ foreach ($bolsillos as $b) {
                         <button type="submit"
                             class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-1 rounded">Subir</button>
                     </form>
-                    <p class="text-xs text-gray-400 mt-1">Tu documento quedará marcado como pendiente de revisión por
+                    <p class="text-xs text-gray-400 mt-1">Tu documento quedará marcado como pendiente de revisión
+                        por
                         Talento Humano.</p>
                     <p id="errorSubida" class="text-xs text-red-600 mt-1 hidden"></p>
                 </div>
@@ -132,30 +134,30 @@ foreach ($bolsillos as $b) {
 
 
     <!-- MODAL VISOR PDF -->
-<div id="modalVisorPDF" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[60]">
-    <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl h-[90vh] flex flex-col">
-        <div class="px-4 py-3 border-b flex justify-between items-center">
-            <div>
-                <p id="visorTituloDocumento" class="font-medium text-gray-800 text-sm"></p>
-                <p id="visorContador" class="text-xs text-gray-400"></p>
+    <div id="modalVisorPDF" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[60]">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl h-[90vh] flex flex-col">
+            <div class="px-4 py-3 border-b flex justify-between items-center">
+                <div>
+                    <p id="visorTituloDocumento" class="font-medium text-gray-800 text-sm"></p>
+                    <p id="visorContador" class="text-xs text-gray-400"></p>
+                </div>
+                <button onclick="cerrarVisorPDF()" class="text-gray-400 hover:text-gray-700 text-xl">✕</button>
             </div>
-            <button onclick="cerrarVisorPDF()" class="text-gray-400 hover:text-gray-700 text-xl">✕</button>
-        </div>
-        <div class="flex-1 overflow-hidden bg-gray-100">
-            <iframe id="visorPDFIframe" src="" class="w-full h-full border-0"></iframe>
-        </div>
-        <div class="px-4 py-3 border-t flex justify-between items-center">
-            <button onclick="visorAnterior()" id="btnVisorAnterior"
-                class="px-4 py-2 rounded-xl border border-gray-300 text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed">
-                ← Anterior
-            </button>
-            <button onclick="visorSiguiente()" id="btnVisorSiguiente"
-                class="px-4 py-2 rounded-xl border border-gray-300 text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed">
-                Siguiente →
-            </button>
+            <div class="flex-1 overflow-hidden bg-gray-100">
+                <iframe id="visorPDFIframe" src="" class="w-full h-full border-0"></iframe>
+            </div>
+            <div class="px-4 py-3 border-t flex justify-between items-center">
+                <button onclick="visorAnterior()" id="btnVisorAnterior"
+                    class="px-4 py-2 rounded-xl border border-gray-300 text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed">
+                    ← Anterior
+                </button>
+                <button onclick="visorSiguiente()" id="btnVisorSiguiente"
+                    class="px-4 py-2 rounded-xl border border-gray-300 text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed">
+                    Siguiente →
+                </button>
+            </div>
         </div>
     </div>
-</div>
     <script src="/chvb/public/assets/js/mi_hoja_de_vida.js"></script>
 </body>
 

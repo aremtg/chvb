@@ -464,4 +464,18 @@ class PermisoController {
         $horas = round(($fin->getTimestamp() - $inicio->getTimestamp()) / 3600, 2);
         return ['ok' => true, 'total_horas' => $horas];
     }
+
+
+        /**
+     * Verifica que el empleado tenga los datos mínimos para poder crear un permiso.
+     * Nombre y cédula siempre existen (son NOT NULL desde el registro), pero celular
+     * y cargo pueden faltar en registros antiguos o incompletos — se revisan los 4
+     * de todas formas por seguridad, en caso de que el esquema cambie en el futuro.
+     */
+    public static function empleadoTieneDatosCompletos(array $empleado): bool {
+        return trim($empleado['nombre'] ?? '') !== ''
+            && trim($empleado['cedula'] ?? '') !== ''
+            && trim($empleado['celular'] ?? '') !== ''
+            && trim($empleado['cargo'] ?? '') !== '';
+    }
 }

@@ -146,30 +146,37 @@ async function abrirModalVer(cedula) {
   }
 
   const emp = data.empleado;
-  document.getElementById("contenidoVer").innerHTML = `
-        <div class="flex justify-center mb-3">
+document.getElementById("contenidoVer").innerHTML = `
+    <div class="space-y-4">
+        <div class="flex flex-col items-center text-center pb-4 border-b border-gray-100">
             ${
               emp.foto
                 ? `<img src="/chvb/public/api/foto_ver.php?cedula=${encodeURIComponent(emp.cedula)}" class="w-24 h-24 rounded-full object-cover border border-gray-200">`
-                : `<span class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-4xl">👤</span>`
+                : `<span class="w-24 h-24 rounded-full bg-gray-100 border flex items-center justify-center text-3xl">👤</span>`
             }
+            <p class="mt-3 font-semibold text-gray-900">${emp.nombre}</p>
+            <p class="text-sm text-gray-500">CC ${emp.cedula}</p>
         </div>
-        <p><strong>Nombre:</strong> ${emp.nombre}</p>
-        <p><strong>Cédula:</strong> ${emp.cedula}</p>
-        <p><strong>Cargo:</strong> ${emp.es_bombero_integral == 1 ? `Bombero integral con funciones de ${emp.cargo}` : emp.cargo}</p>
-        <p><strong>Sexo:</strong> ${emp.sexo === "F" ? "Femenino" : emp.sexo === "M" ? "Masculino" : "-"}</p>
-        <p><strong>Tipo de personal:</strong> ${emp.tipo_de_personal || "-"}</p>
-        <p><strong>Grupo:</strong> ${emp.grupo || "-"}</p>
-        <p><strong>EPS:</strong> ${emp.eps || "-"}</p>
-        <p><strong>Fondo de pensión:</strong> ${emp.pension || "-"}</p>
-        <p><strong>Salario básico:</strong> ${emp.salario_basico ? "$" + Number(emp.salario_basico).toLocaleString("es-CO") : "-"}</p>
-        <p><strong>Tipo de contrato:</strong> ${emp.tipo_de_contrato}</p>
-        <p><strong>Estado:</strong> ${emp.estado}</p>
-        <p><strong>Celular:</strong> ${emp.celular || "-"}</p>
-        <p><strong>Correo:</strong> ${emp.correo || "-"}</p>
-        <p><strong>Fecha de nacimiento:</strong> ${formatearFechaEs(emp.fecha_nacimiento)}</p>
-    `;
-  document.getElementById("modalVer").classList.remove("hidden");
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1">
+            <p class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="block text-xs text-gray-500">Cargo</span><span class="font-medium">${emp.es_bombero_integral == 1 ? `Bombero integral con funciones de ${emp.cargo}` : emp.cargo}</span></p>
+            <p class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="block text-xs text-gray-500">Tipo de personal</span><span class="font-medium">${emp.tipo_de_personal || "-"}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Grupo</span><span class="font-medium">${emp.grupo || "-"}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Sexo</span><span class="font-medium">${emp.sexo === "F" ? "Femenino" : emp.sexo === "M" ? "Masculino" : "-"}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Fecha de nacimiento</span><span class="font-medium">${formatearFechaEs(emp.fecha_nacimiento)}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Estado</span><span class="font-medium">${emp.estado}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">EPS</span><span class="font-medium">${emp.eps || "-"}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Fondo de pensión</span><span class="font-medium">${emp.pension || "-"}</span></p>
+            
+            <p class="p-3 rounded-xl bg-green-50 border border-green-100"><span class="block text-xs text-green-600">Salario básico</span><span class="font-semibold text-green-800">${emp.salario_basico ? "$" + Number(emp.salario_basico).toLocaleString("es-CO") : "-"}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Tipo de contrato</span><span class="font-medium">${emp.tipo_de_contrato}</span></p>
+            
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Celular</span><span class="font-medium">${emp.celular || "-"}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Correo</span><span class="font-medium break-all">${emp.correo || "-"}</span></p>
+        </div>
+    </div>
+`;
+document.getElementById("modalVer").classList.remove("hidden");
 }
 
 // --- Editar Empleado ---

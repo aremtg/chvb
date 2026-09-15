@@ -248,4 +248,26 @@ public static function guardarFoto(string $cedula, array $archivo): array {
 
         return ['ok' => true, 'ruta' => 'hv_' . $cedula . '/' . $subcarpeta . '/' . $nombreFinal];
     }
+
+    public static function guardarFotoPermisoBase64(string $cedula, string $dataUrl, string $subcarpeta): array {
+        if (!preg_match('/^data:image\/(png|jpeg);base64,(.+)$/', $dataUrl, $m)) {
+            return ['ok' => false, 'error' => 'Formato de foto inválido.'];
+        }
+        $extension = $m[1] === 'png' ? 'png' : 'jpg';
+        $binario = base64_decode($m[2]);
+        if ($binario === false) return ['ok' => false, 'error' => 'No se pudo decodificar la foto.'];
+
+        $carpeta = self::rutaBase($cedula) . '/' . $subcarpeta;
+        if (!is_dir($carpeta)) mkdir($carpeta, 0777, true);
+
+        $nombreFinal = 'foto_' . time() . '.' . $extension;
+        $rutaCompleta = $carpeta . '/' . $nombreFinal;
+
+        if (file_put_contents($rutaCompleta, $binario) === false) {
+            return ['ok' => false, 'error' => 'No se pudo guardar la foto.'];
+        }
+
+        return ['ok' => true, 'ruta' => 'hv_' . $cedula . '/' . $subcarpeta . '/' . $nombreFinal];
+    }
+
 }

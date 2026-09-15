@@ -10,6 +10,10 @@ if (!empty($_SESSION['superadmin_id'])) {
 
 $error = '';
 
+if (($_GET['motivo'] ?? '') === 'sesion_invalida') {
+    $error = 'Tu sesión ya no es válida (el usuario fue eliminado o modificado). Inicia sesión de nuevo.';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -29,12 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Iniciar sesión</title>
     <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
 </head>
+
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
     <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-sm">
         <img src="/chvb/public/assets/img/logo_chv.png" alt="Logo">
@@ -67,4 +73,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </p>
     </div>
 </body>
+
 </html>

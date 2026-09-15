@@ -52,7 +52,6 @@ $empleados = EmpleadoModel::listar($busqueda);
                             <th class="px-4 py-3 hidden md:table-cell">Bombero Integral</th>
                             <th class="px-4 py-3 hidden md:table-cell">Contrato</th>
                             <th class="px-4 py-3 hidden md:table-cell">Celular</th>
-                            <th class="px-4 py-3 hidden md:table-cell">Correo</th>
                             <th class="px-4 py-3">Estado</th>
                             <th class="px-4 py-3">Acciones</th>
                         </tr>
@@ -97,9 +96,6 @@ $empleados = EmpleadoModel::listar($busqueda);
                                 <td class="px-4 py-3 hidden md:table-cell">
                                     <?= htmlspecialchars($emp['celular'] ?: '-') ?>
                                 </td>
-                                <td class="px-4 py-3 hidden md:table-cell">
-                                    <?= htmlspecialchars($emp['correo'] ?: '-') ?>
-                                </td>
                                 <td class="px-4 py-3">
                                     <span
                                         class="px-2 py-1 rounded text-xs <?= $emp['estado'] === 'activo' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600' ?>">
@@ -107,28 +103,45 @@ $empleados = EmpleadoModel::listar($busqueda);
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 relative">
-                                    <button onclick="toggleMenu('<?= $emp['cedula'] ?>')"
-                                        class="text-gray-500 hover:text-gray-800 px-2">
-                                        <?= icon('more-vertical', 'w-5 h-5') ?>
-                                    </button>
-                                    <div id="menu-<?= $emp['cedula'] ?>"
-                                        class="hidden absolute right-4 z-10 bg-white border rounded-xl shadow-md w-44 text-sm overflow-hidden">
-                                        <button onclick="abrirModalVer('<?= $emp['cedula'] ?>')"
-                                            class="block w-full text-left px-4 py-2 hover:bg-gray-50">Ver
-                                            empleado</button>
-                                        <a href="/chvb/public/libro.php?cedula=<?= urlencode($emp['cedula']) ?>"
-                                            class="block px-4 py-2 hover:bg-gray-50">Ver libro</a>
-                                        <?php if (($_SESSION['superadmin_rol'] ?? '') !== 'teniente'): ?>
-                                            <button onclick="abrirModalEditar('<?= $emp['cedula'] ?>')"
-                                                class="block w-full text-left px-4 py-2 hover:bg-gray-50">Editar</button>
-                                            <a href="/chvb/public/api/empleados_zip.php?cedula=<?= urlencode($emp['cedula']) ?>"
-                                                class="block px-4 py-2 hover:bg-gray-50">Descargar ZIP</a>
-                                        <?php endif; ?>
-                                        <?php if (($_SESSION['superadmin_rol'] ?? '') === 'superadmin_talento_humano'): ?>
-                                            <button
-                                                onclick="abrirModalEliminar('<?= $emp['cedula'] ?>', '<?= htmlspecialchars($emp['nombre'], ENT_QUOTES) ?>')"
-                                                class="block w-full text-left px-4 py-2 hover:bg-red-50 text-red-600">Eliminar</button>
-                                        <?php endif; ?>
+                                    <div class="relative flex-shrink-0">
+                                        <button onclick="toggleMenu('<?= $emp['cedula'] ?>')"
+                                            class="inline-flex items-center justify-center p-2.5 text-gray-500 hover:text-gray-800 hover:bg-gray-50 bg-white border border-gray-200 rounded-xl transition">
+                                            <?= icon('more-vertical', 'w-5 h-5') ?>
+                                        </button>
+
+                                        <div id="menu-<?= $emp['cedula'] ?>"
+                                            class="hidden absolute right-0 top-full mt-2 z-20 w-56 max-w-[calc(100vw-2rem)] bg-white border border-gray-100 rounded-2xl shadow-xl shadow-black/5 p-1.5 text-sm overflow-hidden">
+
+                                            <button onclick="abrirModalVer('<?= $emp['cedula'] ?>')"
+                                                class="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-gray-700 hover:bg-gray-50 rounded-xl transition">
+                                                <?= icon('eye', 'w-4 h-4') ?> Ver empleado
+                                            </button>
+
+                                            <a href="/chvb/public/libro.php?cedula=<?= urlencode($emp['cedula']) ?>"
+                                                class="flex items-center gap-2.5 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-xl transition">
+                                                <?= icon('file-text', 'w-4 h-4') ?> Ver libro
+                                            </a>
+
+                                            <?php if (($_SESSION['superadmin_rol'] ?? '') !== 'teniente'): ?>
+                                                <button onclick="abrirModalEditar('<?= $emp['cedula'] ?>')"
+                                                    class="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-gray-700 hover:bg-gray-50 rounded-xl transition">
+                                                    <?= icon('pencil', 'w-4 h-4') ?> Editar
+                                                </button>
+                                                <a href="/chvb/public/api/empleados_zip.php?cedula=<?= urlencode($emp['cedula']) ?>"
+                                                    class="flex items-center gap-2.5 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-xl transition">
+                                                    <?= icon('download', 'w-4 h-4') ?> Descargar ZIP
+                                                </a>
+                                            <?php endif; ?>
+
+                                            <?php if (($_SESSION['superadmin_rol'] ?? '') === 'superadmin_talento_humano'): ?>
+                                                <div class="my-1 border-t border-gray-100"></div>
+                                                <button
+                                                    onclick="abrirModalEliminar('<?= $emp['cedula'] ?>', '<?= htmlspecialchars($emp['nombre'], ENT_QUOTES) ?>')"
+                                                    class="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-red-600 hover:bg-red-50 rounded-xl transition">
+                                                    <?= icon('trash-2', 'w-4 h-4') ?> Eliminar
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -148,139 +161,141 @@ $empleados = EmpleadoModel::listar($busqueda);
                     class="text-gray-400 hover:text-gray-700">✕</button>
             </div>
 
-            <form id="formCrear" class="p-6 space-y-4">
-                <div id="erroresCrear" class="hidden bg-red-100 text-red-700 text-sm rounded p-3"></div>
+            <form id="formCrear" class="p-5 sm:p-6 space-y-5 max-h- overflow-y-auto">
+    <div id="erroresCrear" class="hidden bg-red-50 border border-red-100 text-red-700 text-sm rounded-xl p-3"></div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
-                    <input type="text" name="nombre" required maxlength="150"
-                        class="w-full border border-gray-300 rounded px-3 py-2">
-                </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="sm:col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">Nombre completo</label>
+            <input type="text" name="nombre" required maxlength="150"
+                class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Cédula (máx. 10 caracteres, puede ser
-                        extranjera)</label>
-                    <input type="text" name="cedula" id="inputCedula" required maxlength="10"
-                        class="w-full border border-gray-300 rounded px-3 py-2">
-                    <p id="errorCedula" class="text-xs text-red-600 mt-1 hidden">La cédula no puede tener más de 10
-                        caracteres y puede ser extranjera (letras y números permitidos).</p>
-                </div>
+        <div class="sm:col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">Cédula (máx. 10 caracteres, puede ser extranjera)</label>
+            <input type="text" name="cedula" id="inputCedula" required maxlength="10"
+                class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
+            <p id="errorCedula" class="text- text-red-600 mt-1 hidden">La cédula no puede tener más de 10 caracteres y puede ser extranjera (letras y números permitidos).</p>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
-                    <select name="cargo" required class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="">Selecciona un cargo</option>
-                        <?php foreach (EmpleadoController::$cargosValidos as $c): ?>
-                            <option value="<?= htmlspecialchars($c) ?>"><?= htmlspecialchars($c) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div class="sm:col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">Cargo</label>
+            <select name="cargo" required class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
+                <option value="">Selecciona un cargo</option>
+                <?php foreach (EmpleadoController::$cargosValidos as $c):?>
+                    <option value="<?= htmlspecialchars($c)?>"><?= htmlspecialchars($c)?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
-                    <select name="sexo" class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="">Selecciona</option>
-                        <option value="F">Femenino</option>
-                        <option value="M">Masculino</option>
-                    </select>
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Sexo</label>
+            <select name="sexo" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <option value="">Selecciona</option>
+                <option value="F">Femenino</option>
+                <option value="M">Masculino</option>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de personal</label>
-                    <select name="tipo_de_personal" class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="">Selecciona</option>
-                        <?php foreach (EmpleadoController::$tiposDePersonal as $t): ?>
-                            <option value="<?= htmlspecialchars($t) ?>"><?= htmlspecialchars($t) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Fecha de nacimiento</label>
+            <input type="date" name="fecha_nacimiento" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Grupo</label>
-                    <select name="grupo" class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="">Selecciona</option>
-                        <?php foreach (EmpleadoController::$gruposValidos as $g): ?>
-                            <option value="<?= htmlspecialchars($g) ?>"><?= htmlspecialchars($g) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Tipo de personal</label>
+            <select name="tipo_de_personal" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <option value="">Selecciona</option>
+                <?php foreach (EmpleadoController::$tiposDePersonal as $t):?>
+                    <option value="<?= htmlspecialchars($t)?>"><?= htmlspecialchars($t)?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">EPS</label>
-                    <select name="eps" class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="">Selecciona</option>
-                        <?php foreach (EmpleadoController::$epsValidas as $e): ?>
-                            <option value="<?= htmlspecialchars($e) ?>"><?= htmlspecialchars($e) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Grupo</label>
+            <select name="grupo" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <option value="">Selecciona</option>
+                <?php foreach (EmpleadoController::$gruposValidos as $g):?>
+                    <option value="<?= htmlspecialchars($g)?>"><?= htmlspecialchars($g)?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Fondo de pensión</label>
-                    <select name="pension" class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="">Selecciona</option>
-                        <?php foreach (EmpleadoController::$pensionesValidas as $p): ?>
-                            <option value="<?= htmlspecialchars($p) ?>"><?= htmlspecialchars($p) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">EPS</label>
+            <select name="eps" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <option value="">Selecciona</option>
+                <?php foreach (EmpleadoController::$epsValidas as $e):?>
+                    <option value="<?= htmlspecialchars($e)?>"><?= htmlspecialchars($e)?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Salario básico</label>
-                    <input type="number" name="salario_basico" min="0" step="1000" placeholder="Ej: 1300000"
-                        class="w-full border border-gray-300 rounded px-3 py-2">
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Fondo de pensión</label>
+            <select name="pension" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <option value="">Selecciona</option>
+                <?php foreach (EmpleadoController::$pensionesValidas as $p):?>
+                    <option value="<?= htmlspecialchars($p)?>"><?= htmlspecialchars($p)?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
 
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" name="es_bombero_integral" id="bomberoIntegral" class="rounded">
-                    <label for="bomberoIntegral" class="text-sm text-gray-700">¿Es Bombero Integral?</label>
-                </div>
+        <div class="p-3 rounded-xl bg-green-50 border border-green-100">
+            <label class="block text-xs text-green-700 mb-1">Salario básico</label>
+            <input type="number" name="salario_basico" min="0" step="1000" placeholder="Ej: 1300000"
+                class="w-full border border-green-200 rounded-xl px-3.5 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-300">
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de contrato</label>
-                    <select name="tipo_de_contrato" required class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="">Selecciona</option>
-                        <?php foreach (EmpleadoController::$tiposDeContrato as $tc): ?>
-                            <option value="<?= htmlspecialchars($tc) ?>"><?= htmlspecialchars($tc) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Tipo de contrato</label>
+            <select name="tipo_de_contrato" required class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <option value="">Selecciona</option>
+                <?php foreach (EmpleadoController::$tiposDeContrato as $tc):?>
+                    <option value="<?= htmlspecialchars($tc)?>"><?= htmlspecialchars($tc)?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                    <select name="estado" class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="activo" selected>Activo</option>
-                        <option value="no activo">No activo</option>
-                    </select>
-                </div>
+        <div class="sm:col-span-2 flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-100">
+            <input type="checkbox" name="es_bombero_integral" id="bomberoIntegral" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+            <label for="bomberoIntegral" class="text-sm text-gray-700">¿Es Bombero Integral?</label>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Celular</label>
-                    <input type="tel" name="celular" maxlength="10" pattern="[0-9]{10}" placeholder="10 dígitos"
-                        class="w-full border border-gray-300 rounded px-3 py-2">
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Estado</label>
+            <select name="estado" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <option value="activo" selected>Activo</option>
+                <option value="no activo">No activo</option>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Correo</label>
-                    <input type="email" name="correo" class="w-full border border-gray-300 rounded px-3 py-2">
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Celular</label>
+            <input type="tel" name="celular" maxlength="10" pattern="[0-9]{10}" placeholder="10 dígitos"
+                class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de nacimiento</label>
-                    <input type="date" name="fecha_nacimiento" class="w-full border border-gray-300 rounded px-3 py-2">
-                </div>
+        <div class="sm:col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">Correo</label>
+            <input type="email" name="correo" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Foto de perfil (opcional)</label>
-                    <input type="file" name="foto" accept="image/*"
-                        class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-                </div>
+        <div class="sm:col-span-2 flex items-center gap-4 p-3 rounded-xl bg-gray-50 border border-gray-100">
+            <div class="w-14 h-14 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-xl">👤</div>
+            <div class="flex-1">
+                <label class="block text-xs text-gray-500 mb-1">Foto de perfil (opcional)</label>
+                <input type="file" name="foto" accept="image/*"
+                    class="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-gray-900 file:text-white">
+            </div>
+        </div>
+    </div>
 
-                <button type="submit"
-                    class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded transition">
-                    Crear Empleado
-                </button>
-            </form>
+    <button type="submit" class="w-full bg-gray-900 hover:bg-black text-white font-medium py-3 rounded-xl transition">
+        Crear Empleado
+    </button>
+</form>
         </div>
     </div>
 
@@ -331,154 +346,146 @@ $empleados = EmpleadoModel::listar($busqueda);
                     class="text-gray-400 hover:text-gray-700">✕</button>
             </div>
 
-            <form id="formEditar" class="p-6 space-y-4">
-                <div id="erroresEditar" class="hidden bg-red-100 text-red-700 text-sm rounded p-3"></div>
-                <input type="hidden" name="cedula_actual" id="editCedulaActual">
+            <form id="formEditar" class="p-5 sm:p-6 space-y-5 max-h- overflow-y-auto">
+    <div id="erroresEditar" class="hidden bg-red-50 border border-red-100 text-red-700 text-sm rounded-xl p-3"></div>
+    <input type="hidden" name="cedula_actual" id="editCedulaActual">
 
-                <div class="flex items-center gap-3">
-                    <img id="editFotoActual" src=""
-                        class="w-14 h-14 rounded-full object-cover border border-gray-200 hidden">
-                    <span id="editFotoPlaceholder"
-                        class="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-xl">👤</span>
-                    <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Cambiar foto (opcional)</label>
-                        <input type="file" name="foto" accept="image/*"
-                            class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-                    </div>
-                </div>
+    <!-- Foto -->
+    <div class="flex items-center gap-4 p-3 rounded-xl bg-gray-50 border border-gray-100">
+        <img id="editFotoActual" src="" class="w-14 h-14 rounded-xl object-cover border border-gray-200 hidden">
+        <span id="editFotoPlaceholder" class="w-14 h-14 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-xl">👤</span>
+        <div class="flex-1 min-w-0">
+            <label class="block text-xs text-gray-500 mb-1">Cambiar foto (opcional)</label>
+            <input type="file" name="foto" accept="image/*"
+                class="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-gray-900 file:text-white">
+        </div>
+    </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
-                    <input type="text" name="nombre" id="editNombre" required maxlength="150"
-                        class="w-full border border-gray-300 rounded px-3 py-2">
-                </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="sm:col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">Nombre completo</label>
+            <input type="text" name="nombre" id="editNombre" required maxlength="150"
+                class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Cédula (máx. 10 caracteres, puede ser
-                        extranjera)</label>
-                    <input type="text" name="cedula" id="editCedula" required maxlength="10"
-                        <?= ($_SESSION['superadmin_rol'] ?? '') === 'auxiliar_talento_humano' ? 'readonly' : '' ?>
-                        class="w-full border border-gray-300 rounded px-3 py-2 <?= ($_SESSION['superadmin_rol'] ?? '') === 'auxiliar_talento_humano' ? 'bg-gray-100 text-gray-500' : '' ?>">
-                    <p class="text-xs text-gray-400 mt-1">
-                        <?= ($_SESSION['superadmin_rol'] ?? '') === 'auxiliar_talento_humano'
-                            ? 'Solo el Super Administrador puede cambiar la cédula.'
-                            : 'Cambiar la cédula renombra la carpeta física y todos sus documentos. Úsalo con cuidado.' ?>
-                    </p>
-                </div>
+        <div class="sm:col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">Cédula (máx. 10 caracteres)</label>
+            <input type="text" name="cedula" id="editCedula" required maxlength="10"
+                <?= ($_SESSION['superadmin_rol']?? '') === 'auxiliar_talento_humano'? 'readonly' : ''?>
+                class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 <?= ($_SESSION['superadmin_rol']?? '') === 'auxiliar_talento_humano'? 'bg-gray-100 text-gray-500' : 'bg-white'?>">
+            <p class="text- text-gray-400 mt-1">
+                <?= ($_SESSION['superadmin_rol']?? '') === 'auxiliar_talento_humano'
+                   ? 'Solo el Super Administrador puede cambiar la cédula.'
+                    : 'Cambiar la cédula renombra la carpeta física y todos sus documentos.'?>
+            </p>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
-                    <select name="cargo" id="editCargo" required
-                        class="w-full border border-gray-300 rounded px-3 py-2">
-                        <?php foreach (EmpleadoController::$cargosValidos as $c): ?>
-                            <option value="<?= htmlspecialchars($c) ?>"><?= htmlspecialchars($c) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div class="sm:col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">Cargo</label>
+            <select name="cargo" id="editCargo" required class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
+                <?php foreach (EmpleadoController::$cargosValidos as $c):?>
+                    <option value="<?= htmlspecialchars($c)?>"><?= htmlspecialchars($c)?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
-                    <select name="sexo" id="editSexo" class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="">Selecciona</option>
-                        <option value="F">Femenino</option>
-                        <option value="M">Masculino</option>
-                    </select>
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Sexo</label>
+            <select name="sexo" id="editSexo" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <option value="">Selecciona</option>
+                <option value="F">Femenino</option>
+                <option value="M">Masculino</option>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de personal</label>
-                    <select name="tipo_de_personal" id="editTipoPersonal"
-                        class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="">Selecciona</option>
-                        <?php foreach (EmpleadoController::$tiposDePersonal as $t): ?>
-                            <option value="<?= htmlspecialchars($t) ?>"><?= htmlspecialchars($t) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Fecha de nacimiento</label>
+            <input type="date" name="fecha_nacimiento" id="editFechaNacimiento" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Grupo</label>
-                    <select name="grupo" id="editGrupo" class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="">Selecciona</option>
-                        <?php foreach (EmpleadoController::$gruposValidos as $g): ?>
-                            <option value="<?= htmlspecialchars($g) ?>"><?= htmlspecialchars($g) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Tipo de personal</label>
+            <select name="tipo_de_personal" id="editTipoPersonal" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <option value="">Selecciona</option>
+                <?php foreach (EmpleadoController::$tiposDePersonal as $t):?>
+                    <option value="<?= htmlspecialchars($t)?>"><?= htmlspecialchars($t)?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">EPS</label>
-                    <select name="eps" id="editEps" class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="">Selecciona</option>
-                        <?php foreach (EmpleadoController::$epsValidas as $e): ?>
-                            <option value="<?= htmlspecialchars($e) ?>"><?= htmlspecialchars($e) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Grupo</label>
+            <select name="grupo" id="editGrupo" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <option value="">Selecciona</option>
+                <?php foreach (EmpleadoController::$gruposValidos as $g):?>
+                    <option value="<?= htmlspecialchars($g)?>"><?= htmlspecialchars($g)?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Fondo de pensión</label>
-                    <select name="pension" id="editPension" class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="">Selecciona</option>
-                        <?php foreach (EmpleadoController::$pensionesValidas as $p): ?>
-                            <option value="<?= htmlspecialchars($p) ?>"><?= htmlspecialchars($p) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">EPS</label>
+            <select name="eps" id="editEps" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <option value="">Selecciona</option>
+                <?php foreach (EmpleadoController::$epsValidas as $e):?>
+                    <option value="<?= htmlspecialchars($e)?>"><?= htmlspecialchars($e)?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Salario básico</label>
-                    <input type="number" name="salario_basico" id="editSalario" min="0" step="1000"
-                        class="w-full border border-gray-300 rounded px-3 py-2">
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Fondo de pensión</label>
+            <select name="pension" id="editPension" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <option value="">Selecciona</option>
+                <?php foreach (EmpleadoController::$pensionesValidas as $p):?>
+                    <option value="<?= htmlspecialchars($p)?>"><?= htmlspecialchars($p)?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
 
+        <div class="p-3 rounded-xl bg-green-50 border border-green-100">
+            <label class="block text-xs text-green-700 mb-1">Salario básico</label>
+            <input type="number" name="salario_basico" id="editSalario" min="0" step="1000"
+                class="w-full border border-green-200 rounded-xl px-3.5 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-300">
+        </div>
 
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" name="es_bombero_integral" id="editBomberoIntegral" class="rounded">
-                    <label for="editBomberoIntegral" class="text-sm text-gray-700">¿Es Bombero Integral?</label>
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Tipo de contrato</label>
+            <select name="tipo_de_contrato" id="editContrato" required class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <?php foreach (EmpleadoController::$tiposDeContrato as $tc):?>
+                    <option value="<?= htmlspecialchars($tc)?>"><?= htmlspecialchars($tc)?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de contrato</label>
-                    <select name="tipo_de_contrato" id="editContrato" required
-                        class="w-full border border-gray-300 rounded px-3 py-2">
-                        <?php foreach (EmpleadoController::$tiposDeContrato as $tc): ?>
-                            <option value="<?= htmlspecialchars($tc) ?>"><?= htmlspecialchars($tc) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div class="sm:col-span-2 flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-100">
+            <input type="checkbox" name="es_bombero_integral" id="editBomberoIntegral" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+            <label for="editBomberoIntegral" class="text-sm text-gray-700">¿Es Bombero Integral?</label>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                    <select name="estado" id="editEstado" class="w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="activo">Activo</option>
-                        <option value="no activo">No activo</option>
-                    </select>
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Estado</label>
+            <select name="estado" id="editEstado" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+                <option value="activo">Activo</option>
+                <option value="no activo">No activo</option>
+            </select>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Celular</label>
-                    <input type="tel" name="celular" id="editCelular" maxlength="10" pattern="[0-9]{10}"
-                        class="w-full border border-gray-300 rounded px-3 py-2">
-                </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Celular</label>
+            <input type="tel" name="celular" id="editCelular" maxlength="10" pattern="[0-9]{10}" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Correo</label>
-                    <input type="email" name="correo" id="editCorreo"
-                        class="w-full border border-gray-300 rounded px-3 py-2">
-                </div>
+        <div class="sm:col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">Correo</label>
+            <input type="email" name="correo" id="editCorreo" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+        </div>
+    </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de nacimiento</label>
-                    <input type="date" name="fecha_nacimiento" id="editFechaNacimiento"
-                        class="w-full border border-gray-300 rounded px-3 py-2">
-                </div>
-
-                <button type="submit"
-                    class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-xl transition">
-                    Guardar Cambios
-                </button>
-            </form>
+    <button type="submit" class="w-full bg-gray-900 hover:bg-black text-white font-medium py-3 rounded-xl transition">
+        Guardar Cambios
+    </button>
+</form>
         </div>
     </div>
 

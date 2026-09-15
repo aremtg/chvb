@@ -2,32 +2,35 @@
 
 const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const DIAS_SEMANA_ES = ['D','L','M','X','J','V','S'];
+const HORARIO_CIVIL_INICIO = '07:00';
+const HORARIO_CIVIL_FIN = '17:24';
 
-let diasSeleccionados = []; // array de 'YYYY-MM-DD', en orden
 let mesCalendarioActual = new Date().getMonth();
 let anioCalendarioActual = new Date().getFullYear();
-let festivosCache = {}; // { 'YYYY': { 'YYYY-MM-DD': 'nombre' } }
-let ultimoResultadoCalculo = null; // guarda el último response de permisos_calcular_horas.php
+let festivosCache = {};
+
+// Mapa PERSISTENTE por fecha: única fuente de verdad de la selección.
+// { 'YYYY-MM-DD': { esFestivo, festivoNombre, decidido, incluido, diaCompleto,
+//                    horaInicio, horaFin, horasNetas, calculando } }
+let infoDias = {};
 
 // =====================================================================
-// CALENDARIO "BONITO" VANILLA — selección de días uno a uno
+// CALENDARIO — solo pinta/despinta, nunca decide inclusión de festivos aquí
 // =====================================================================
-
-function formatearFechaEs(fechaStr) {
-    const [y, m, d] = fechaStr.split('-').map(Number);
-    return `${d} de ${MESES_ES[m - 1]} de ${y}`;
-}
 
 async function asegurarFestivosDelAnio(anio) {
     if (festivosCache[anio]) return festivosCache[anio];
     const res = await fetch(`/chvb/public/api/festivos_verificar.php?anio=${anio}`);
     const data = await res.json();
     const mapa = {};
-    if (data.ok) {
-        data.festivos.forEach(f => { mapa[f.fecha] = f.nombre; });
-    }
+    if (data.ok) data.festivos.forEach(f => { mapa[f.fecha] = f.nombre; });
     festivosCache[anio] = mapa;
     return mapa;
+}
+
+function formatearFechaEs(fechaStr) {
+    const [y, m, d] = fechaStr.split('-').map(Number);
+    return `${d} de ${MESES_ES[m - 1]} de ${y}`;
 }
 
 async function renderCalendario() {
@@ -39,14 +42,13 @@ async function renderCalendario() {
     const diaSemanaInicio = primerDiaMes.getDay();
 
     let celdas = '';
-    for (let i = 0; i < diaSemanaInicio; i++) {
-        celdas += `<div></div>`;
-    }
+    for (let i = 0; i < diaSemanaInicio; i++) celdas += `<div></div>`;
 
     for (let dia = 1; dia <= diasEnMes; dia++) {
         const fechaStr = `${anioCalendarioActual}-${String(mesCalendarioActual + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
         const esFestivo = !!festivos[fechaStr];
-        const seleccionado = diasSeleccionados.includes(fechaStr);
+        const info = infoDias[fechaStr];
+        const seleccionado = !!info; // solo existe en infoDias si está seleccionado Y aceptado (festivo dicho "Sí", o no festivo)
 
         let clases = 'w-9 h-9 flex items-center justify-center rounded-xl text-sm cursor-pointer transition ';
         if (seleccionado) {
@@ -57,7 +59,7 @@ async function renderCalendario() {
             clases += 'hover:bg-gray-100 text-gray-700';
         }
 
-        celdas += `<button type="button" onclick="toggleDia('${fechaStr}')" class="${clases}" title="${esFestivo ? festivos[fechaStr] : ''}">${dia}</button>`;
+        celdas += `<button type="button" onclick="toggleDia('${fechaStr}', ${esFestivo}, '${(festivos[fechaStr] || '').replace(/'/g, "\\'")}')" class="${clases}" title="${esFestivo ? festivos[fechaStr] : ''}">${dia}</button>`;
     }
 
     contenedor.innerHTML = `
@@ -81,91 +83,40 @@ function cambiarMes(delta) {
     renderCalendario();
 }
 
-function toggleDia(fechaStr) {
-    const idx = diasSeleccionados.indexOf(fechaStr);
-    if (idx === -1) {
-        diasSeleccionados.push(fechaStr);
-    } else {
-        diasSeleccionados.splice(idx, 1);
-    }
-    diasSeleccionados.sort();
-    renderCalendario();
-    dispararRecalculo();
-}
-
-// =====================================================================
-// CÁLCULO EN VIVO — consulta al backend por cada día seleccionado
-// =====================================================================
-
-let temporizadorCalculo = null;
-function dispararRecalculo() {
-    clearTimeout(temporizadorCalculo);
-    temporizadorCalculo = setTimeout(ejecutarCalculo, 300); // debounce, evita ráfagas de peticiones
-}
-
-document.getElementById('horaInicio').addEventListener('change', dispararRecalculo);
-document.getElementById('horaFin').addEventListener('change', dispararRecalculo);
-
-async function ejecutarCalculo() {
-    const horaInicio = document.getElementById('horaInicio').value;
-    const horaFin = document.getElementById('horaFin').value;
-
-    if (diasSeleccionados.length === 0 || !horaInicio || !horaFin) {
-        document.getElementById('resumenDias').innerHTML = '';
-        document.getElementById('totalHorasDisplay').textContent = '0.00 h';
-        ultimoResultadoCalculo = null;
+/**
+ * Al tocar un día:
+ * - Si YA estaba seleccionado -> se quita por completo (deselección directa, sin preguntar nada).
+ * - Si NO estaba seleccionado y es festivo -> pregunta SIEMPRE con los datos de ESTE día
+ *   (nunca reutiliza una decisión vieja de otro día). Si responde "No", NO se agrega
+ *   a infoDias -> el día queda tal cual estaba (no pintado, no contado).
+ * - Si NO estaba seleccionado y NO es festivo -> se agrega directo.
+ */
+async function toggleDia(fechaStr, esFestivo, festivoNombre) {
+    if (infoDias[fechaStr]) {
+        delete infoDias[fechaStr];
+        renderCalendario();
+        renderListaDiasConfig();
+        recalcularTotales();
         return;
     }
 
-    // El backend calcula por rango continuo fecha_inicio->fecha_fin; como aquí
-    // permitimos días NO consecutivos, consultamos cada día seleccionado por
-    // separado (cada uno como su propio rango de un solo día) y combinamos.
-    const resumenDias = document.getElementById('resumenDias');
-    resumenDias.innerHTML = '<p class="text-xs text-gray-400">Calculando...</p>';
-
-    const diasCalculados = [];
-    let totalGeneral = 0;
-    let avisoTipoPersonal = false;
-
-    for (const fecha of diasSeleccionados) {
-        const params = new URLSearchParams({
-            fecha_inicio: fecha, hora_inicio: horaInicio,
-            fecha_fin: fecha, hora_fin: horaFin,
-        });
-        const res = await fetch(`/chvb/public/api/permisos_calcular_horas.php?${params}`);
-        const data = await res.json();
-
-        if (!data.ok) {
-            resumenDias.innerHTML = `<p class="text-xs text-red-600">${data.error}</p>`;
+    if (esFestivo) {
+        const confirmar = await preguntarFestivo(fechaStr, festivoNombre);
+        if (!confirmar) {
+            // "No": el día NO queda pintado ni contado. No se toca infoDias.
             return;
         }
-        if (data.aviso_tipo_personal) avisoTipoPersonal = true;
-
-        const dia = data.dias[0];
-        dia.incluido = true; // default, se ajusta abajo si es festivo
-        diasCalculados.push(dia);
     }
 
-    ultimoResultadoCalculo = { dias: diasCalculados, tipo_personal_usado: diasCalculados.length ? 'Civil' : null };
+    infoDias[fechaStr] = {
+        esFestivo, festivoNombre: esFestivo ? festivoNombre : null,
+        diaCompleto: true, horaInicio: null, horaFin: null,
+        horasNetas: 0, calculando: false,
+    };
 
-    const avisoDiv = document.getElementById('avisoTipoPersonal');
-    if (avisoTipoPersonal) {
-        avisoDiv.textContent = 'Avisa a Talento Humano que tu tipo de personal no está registrado; mientras tanto, este permiso se calculará como personal civil.';
-        avisoDiv.classList.remove('hidden');
-    } else {
-        avisoDiv.classList.add('hidden');
-    }
-
-    // Preguntar por cada festivo que aún no tenga decisión tomada
-    for (const dia of diasCalculados) {
-        if (dia.es_festivo && dia.incluido === true && dia._confirmadoPorUsuario !== true) {
-            const confirmar = await preguntarFestivo(dia.fecha, dia.festivo_nombre);
-            dia.incluido = confirmar;
-            dia._confirmadoPorUsuario = true;
-        }
-    }
-
-    pintarResumenDias(diasCalculados);
+    renderCalendario();
+    renderListaDiasConfig();
+    recalcularDia(fechaStr);
 }
 
 function preguntarFestivo(fecha, nombreFestivo) {
@@ -188,33 +139,156 @@ function preguntarFestivo(fecha, nombreFestivo) {
     });
 }
 
-function pintarResumenDias(dias) {
-    const resumenDias = document.getElementById('resumenDias');
-    let total = 0;
+renderCalendario();
 
-    resumenDias.innerHTML = dias.map(d => {
-        if (d.incluido) total += d.horas_netas;
-        const colorFila = d.es_festivo
-            ? (d.incluido ? 'bg-green-50 border-green-300' : 'bg-gray-50 border-gray-200')
-            : 'bg-white border-gray-200';
+// =====================================================================
+// CONFIGURACIÓN DE HORARIO POR DÍA (día completo o rango personalizado)
+// =====================================================================
+
+function fechasOrdenadas() {
+    return Object.keys(infoDias).sort();
+}
+
+function renderListaDiasConfig() {
+    const contenedor = document.getElementById('listaDiasConfig');
+    const fechas = fechasOrdenadas();
+
+    if (fechas.length === 0) {
+        contenedor.innerHTML = '<p class="text-xs text-gray-400">Selecciona al menos un día en el calendario.</p>';
+        return;
+    }
+
+    contenedor.innerHTML = fechas.map(f => {
+        const info = infoDias[f];
+        const idSeguro = f.replace(/-/g, '_');
         return `
-            <div class="flex justify-between items-center border rounded-xl px-3 py-2 ${colorFila}">
-                <span>${formatearFechaEs(d.fecha)} ${d.es_festivo ? `<span class="text-xs">(${d.festivo_nombre}${d.incluido ? '' : ', no contado'})</span>` : ''}</span>
-                <span class="font-medium">${d.incluido ? d.horas_netas.toFixed(2) : '0.00'} h</span>
+            <div class="border border-gray-200 rounded-xl p-3 ${info.esFestivo ? 'bg-green-50 border-green-300' : ''}">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-gray-800">${formatearFechaEs(f)}${info.esFestivo ? ` <span class="text-xs text-green-700">(${info.festivoNombre})</span>` : ''}</span>
+                    <span class="text-sm font-bold text-red-600">${info.calculando ? '...' : info.horasNetas.toFixed(2) + ' h'}</span>
+                </div>
+                <label class="flex items-center gap-2 text-sm mb-2">
+                    <input type="checkbox" ${info.diaCompleto ? 'checked' : ''} onchange="toggleDiaCompleto('${f}', this.checked)" class="rounded">
+                    Día completo (falto toda la jornada)
+                </label>
+                <div id="horasPersonalizadas_${idSeguro}" class="grid grid-cols-2 gap-2 ${info.diaCompleto ? 'hidden' : ''}">
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-0.5">Desde</label>
+                        <input type="time" value="${info.horaInicio || ''}" onchange="actualizarHoraDia('${f}', 'horaInicio', this.value)" class="w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-0.5">Hasta</label>
+                        <input type="time" value="${info.horaFin || ''}" onchange="actualizarHoraDia('${f}', 'horaFin', this.value)" class="w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm">
+                    </div>
+                </div>
             </div>
         `;
     }).join('');
-
-    document.getElementById('totalHorasDisplay').textContent = total.toFixed(2) + ' h';
-
-    if (diasSeleccionados.length > 0) {
-        document.getElementById('fechaInicioHidden').value = diasSeleccionados[0];
-        document.getElementById('fechaFinHidden').value = diasSeleccionados[diasSeleccionados.length - 1];
-    }
-    document.getElementById('diasConfirmadosHidden').value = JSON.stringify(dias);
 }
 
-renderCalendario();
+function toggleDiaCompleto(fecha, marcado) {
+    infoDias[fecha].diaCompleto = marcado;
+    if (marcado) {
+        infoDias[fecha].horaInicio = null;
+        infoDias[fecha].horaFin = null;
+    }
+    renderListaDiasConfig();
+    recalcularDia(fecha);
+}
+
+function actualizarHoraDia(fecha, campo, valor) {
+    infoDias[fecha][campo] = valor;
+    if (infoDias[fecha].horaInicio && infoDias[fecha].horaFin) {
+        recalcularDia(fecha);
+    }
+}
+
+let tipoPersonalGlobal = null; // se obtiene del primer cálculo exitoso
+
+async function recalcularDia(fecha) {
+    const info = infoDias[fecha];
+    if (!info) return;
+
+    let horaInicio, horaFin;
+    if (info.diaCompleto) {
+        horaInicio = HORARIO_CIVIL_INICIO;
+        horaFin = HORARIO_CIVIL_FIN;
+        // Para Bombero "día completo" se interpreta como el turno completo del día (00:00-23:59);
+        // el backend decide el descuento según tipo_de_personal, así que enviamos el rango más amplio posible
+        // solo si ya sabemos que es Bombero; si aún no lo sabemos, usamos el horario civil por defecto
+        // (se corrige automáticamente en el primer cálculo con el tipo real del backend).
+        if (tipoPersonalGlobal === 'Bombero') {
+            horaInicio = '00:00';
+            horaFin = '23:59';
+        }
+    } else {
+        if (!info.horaInicio || !info.horaFin) return; // aún no completa el rango manual
+        horaInicio = info.horaInicio;
+        horaFin = info.horaFin;
+    }
+
+    info.calculando = true;
+    renderListaDiasConfig();
+
+    const params = new URLSearchParams({ fecha_inicio: fecha, hora_inicio: horaInicio, fecha_fin: fecha, hora_fin: horaFin });
+    const res = await fetch(`/chvb/public/api/permisos_calcular_horas.php?${params}`);
+    const data = await res.json();
+
+    info.calculando = false;
+
+    if (!data.ok) {
+        alert(data.error || 'Error al calcular las horas de este día.');
+        renderListaDiasConfig();
+        return;
+    }
+
+    if (data.dias[0].es_festivo === false) {
+        // no afecta nada, solo informativo
+    }
+
+    tipoPersonalGlobal = data.tipo_personal_usado || tipoPersonalGlobal;
+
+    const avisoDiv = document.getElementById('avisoTipoPersonal');
+    if (data.aviso_tipo_personal) {
+        avisoDiv.textContent = 'Avisa a Talento Humano que tu tipo de personal no está registrado; mientras tanto, este permiso se calculará como personal civil.';
+        avisoDiv.classList.remove('hidden');
+    }
+
+    const diaCalculado = data.dias[0];
+    info.horaInicio = horaInicio;
+    info.horaFin = horaFin;
+    info.horasBrutas = diaCalculado.horas_brutas;
+    info.horasDescuentoAlmuerzo = diaCalculado.horas_descuento_almuerzo;
+    info.horasNetas = diaCalculado.horas_netas;
+
+    renderListaDiasConfig();
+    recalcularTotales();
+}
+
+function recalcularTotales() {
+    const fechas = fechasOrdenadas();
+    const total = fechas.reduce((acc, f) => acc + (infoDias[f].horasNetas || 0), 0);
+    document.getElementById('totalHorasDisplay').textContent = total.toFixed(2) + ' h';
+
+    if (fechas.length > 0) {
+        document.getElementById('fechaInicioHidden').value = fechas[0];
+        document.getElementById('fechaFinHidden').value = fechas[fechas.length - 1];
+    }
+
+    const diasParaEnviar = fechas.map(f => {
+        const info = infoDias[f];
+        return {
+            fecha: f, hora_inicio: info.horaInicio, hora_fin: info.horaFin,
+            es_festivo: info.esFestivo, festivo_nombre: info.festivoNombre, incluido: true,
+            horas_brutas: info.horasBrutas || 0,
+            horas_descuento_almuerzo: info.horasDescuentoAlmuerzo || 0,
+            horas_netas: info.horasNetas || 0,
+        };
+    });
+    document.getElementById('diasConfirmadosHidden').value = JSON.stringify(diasParaEnviar);
+
+    actualizarResumenDevoluciones();
+}
 
 // =====================================================================
 // CHECKS: remunerado automático, compensatorio / devolución excluyentes
@@ -223,9 +297,7 @@ renderCalendario();
 const tipoPermisoEl = document.getElementById('tipoPermiso');
 const remuneradoEl = document.getElementById('remunerado');
 let remuneradoTocadoManualmente = false;
-
 remuneradoEl.addEventListener('change', () => { remuneradoTocadoManualmente = true; });
-
 tipoPermisoEl.addEventListener('change', () => {
     if (!remuneradoTocadoManualmente) {
         remuneradoEl.checked = ['Vacaciones', 'Mision institucional'].includes(tipoPermisoEl.value);
@@ -239,10 +311,7 @@ const cajaDevolucion = document.getElementById('cajaDevolucion');
 
 esCompensatorioEl.addEventListener('change', () => {
     cajaCompensatorio.classList.toggle('hidden', !esCompensatorioEl.checked);
-    if (esCompensatorioEl.checked) {
-        esDevolucionEl.checked = false;
-        cajaDevolucion.classList.add('hidden');
-    }
+    if (esCompensatorioEl.checked) { esDevolucionEl.checked = false; cajaDevolucion.classList.add('hidden'); }
 });
 
 esDevolucionEl.addEventListener('change', () => {
@@ -250,30 +319,84 @@ esDevolucionEl.addEventListener('change', () => {
     if (esDevolucionEl.checked) {
         esCompensatorioEl.checked = false;
         cajaCompensatorio.classList.add('hidden');
+        if (filasDevolucion.length === 0) agregarFilaDevolucion();
     }
 });
 
-['devolucionFecha', 'devolucionHoraInicio', 'devolucionHoraFin'].forEach(id => {
-    document.getElementById(id).addEventListener('change', calcularHorasDevolucion);
-});
+// =====================================================================
+// DEVOLUCIONES MÚLTIPLES (bug #5)
+// =====================================================================
 
-async function calcularHorasDevolucion() {
-    const fecha = document.getElementById('devolucionFecha').value;
-    const horaInicio = document.getElementById('devolucionHoraInicio').value;
-    const horaFin = document.getElementById('devolucionHoraFin').value;
-    if (!fecha || !horaInicio || !horaFin) return;
+let filasDevolucion = []; // [{id, fecha, horaInicio, horaFin, horas}]
+let contadorFilaDevolucion = 0;
 
-    const params = new URLSearchParams({ fecha, hora_inicio: horaInicio, hora_fin: horaFin });
-    const res = await fetch(`/chvb/public/api/permisos_calcular_devolucion.php?${params}`);
-    const data = await res.json();
+function agregarFilaDevolucion() {
+    contadorFilaDevolucion++;
+    filasDevolucion.push({ id: contadorFilaDevolucion, fecha: '', horaInicio: '', horaFin: '', horas: 0 });
+    renderListaDevoluciones();
+}
 
-    if (data.ok) {
-        document.getElementById('devolucionTotalDisplay').textContent = data.total_horas.toFixed(2) + ' h';
+function quitarFilaDevolucion(id) {
+    filasDevolucion = filasDevolucion.filter(f => f.id !== id);
+    renderListaDevoluciones();
+}
+
+function renderListaDevoluciones() {
+    const contenedor = document.getElementById('listaDevoluciones');
+    contenedor.innerHTML = filasDevolucion.map(f => `
+        <div class="border border-gray-200 rounded-xl p-3 grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
+            <div>
+                <label class="block text-xs text-gray-500 mb-0.5">Fecha</label>
+                <input type="date" value="${f.fecha}" onchange="actualizarFilaDevolucion(${f.id}, 'fecha', this.value)" class="w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-0.5">Desde</label>
+                <input type="time" value="${f.horaInicio}" onchange="actualizarFilaDevolucion(${f.id}, 'horaInicio', this.value)" class="w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-0.5">Hasta</label>
+                <input type="time" value="${f.horaFin}" onchange="actualizarFilaDevolucion(${f.id}, 'horaFin', this.value)" class="w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm">
+            </div>
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-medium">${f.horas.toFixed(2)} h</span>
+                <button type="button" onclick="quitarFilaDevolucion(${f.id})" class="text-red-500 hover:text-red-700 text-sm">✕</button>
+            </div>
+        </div>
+    `).join('');
+    actualizarResumenDevoluciones();
+}
+
+async function actualizarFilaDevolucion(id, campo, valor) {
+    const fila = filasDevolucion.find(f => f.id === id);
+    if (!fila) return;
+    fila[campo] = valor;
+
+    if (fila.fecha && fila.horaInicio && fila.horaFin) {
+        const params = new URLSearchParams({ fecha: fila.fecha, hora_inicio: fila.horaInicio, hora_fin: fila.horaFin });
+        const res = await fetch(`/chvb/public/api/permisos_calcular_devolucion.php?${params}`);
+        const data = await res.json();
+        fila.horas = data.ok ? data.total_horas : 0;
     }
+    renderListaDevoluciones();
+}
+
+function actualizarResumenDevoluciones() {
+    if (!esDevolucionEl.checked) return;
+    const fechasPermiso = fechasOrdenadas();
+    const requeridas = fechasPermiso.reduce((acc, f) => acc + (infoDias[f].horasNetas || 0), 0);
+    const cubiertas = filasDevolucion.reduce((acc, f) => acc + (f.horas || 0), 0);
+
+    document.getElementById('devolucionRequeridaDisplay').textContent = requeridas.toFixed(2) + ' h';
+    document.getElementById('devolucionCubiertaDisplay').textContent = cubiertas.toFixed(2) + ' h';
+
+    document.getElementById('devolucionesHidden').value = JSON.stringify(
+        filasDevolucion.filter(f => f.fecha && f.horaInicio && f.horaFin)
+            .map(f => ({ fecha: f.fecha, hora_inicio: f.horaInicio, hora_fin: f.horaFin, total_horas: f.horas }))
+    );
 }
 
 // =====================================================================
-// SELECTS BUSCABLES: reemplazo y jefe
+// SELECTS BUSCABLES: reemplazo y jefe (corrige bug #3)
 // =====================================================================
 
 const tieneReemplazoEl = document.getElementById('tieneReemplazo');
@@ -282,11 +405,12 @@ tieneReemplazoEl.addEventListener('change', () => {
     cajaReemplazo.classList.toggle('hidden', !tieneReemplazoEl.checked);
     if (!tieneReemplazoEl.checked) {
         document.getElementById('cedulaReemplazoHidden').value = '';
-        document.getElementById('reemplazoSeleccionado').textContent = '';
+        document.getElementById('buscadorReemplazo').value = '';
+        document.getElementById('buscadorReemplazo').readOnly = false;
     }
 });
 
-function configurarBuscadorEmpleado(inputId, resultadosId, hiddenId, seleccionadoId) {
+function configurarBuscadorEmpleado(inputId, resultadosId, hiddenId) {
     const input = document.getElementById(inputId);
     const resultadosDiv = document.getElementById(resultadosId);
     let temporizador = null;
@@ -301,16 +425,14 @@ function configurarBuscadorEmpleado(inputId, resultadosId, hiddenId, seleccionad
             const res = await fetch(`/chvb/public/api/empleados_buscar.php?q=${encodeURIComponent(q)}`);
             const data = await res.json();
 
-            if (data.length === 0) {
-                resultadosDiv.innerHTML = '<p class="p-2 text-xs text-gray-400">Sin resultados.</p>';
-            } else {
-                resultadosDiv.innerHTML = data.map(e => `
-                    <button type="button" onclick="seleccionarEmpleado('${inputId}','${resultadosId}','${hiddenId}','${seleccionadoId}','${e.cedula}','${e.nombre.replace(/'/g, "\\'")}')"
+            resultadosDiv.innerHTML = data.length === 0
+                ? '<p class="p-2 text-xs text-gray-400">Sin resultados.</p>'
+                : data.map(e => `
+                    <button type="button" onclick="seleccionarEmpleado('${inputId}','${resultadosId}','${hiddenId}','${e.cedula}','${e.nombre.replace(/'/g, "\\'")}')"
                         class="block w-full text-left px-3 py-2 hover:bg-gray-50 text-sm border-b border-gray-100 last:border-0">
                         ${e.nombre} <span class="text-gray-400">(${e.cedula})</span>
                     </button>
                 `).join('');
-            }
             resultadosDiv.classList.remove('hidden');
         }, 300);
     });
@@ -322,22 +444,43 @@ function configurarBuscadorEmpleado(inputId, resultadosId, hiddenId, seleccionad
     });
 }
 
-function seleccionarEmpleado(inputId, resultadosId, hiddenId, seleccionadoId, cedula, nombre) {
+// Al seleccionar: el input visible se BLOQUEA con el nombre (nunca se vacía),
+// así el campo nunca queda "vacío" de cara al usuario ni genera confusión.
+function seleccionarEmpleado(inputId, resultadosId, hiddenId, cedula, nombre) {
     document.getElementById(hiddenId).value = cedula;
-    document.getElementById(inputId).value = '';
+    const input = document.getElementById(inputId);
+    input.value = `${nombre} (${cedula})`;
+    input.readOnly = true;
     document.getElementById(resultadosId).classList.add('hidden');
-    document.getElementById(seleccionadoId).innerHTML = `Seleccionado: <strong>${nombre}</strong> (${cedula}) <button type="button" onclick="document.getElementById('${hiddenId}').value=''; document.getElementById('${seleccionadoId}').innerHTML='';" class="text-red-600 hover:underline ml-1">quitar</button>`;
+
+    if (inputId === 'buscadorJefe') document.getElementById('errorJefe').classList.add('hidden');
+
+    // Botón para permitir cambiar la selección
+    if (!document.getElementById(`btnCambiar_${inputId}`)) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.id = `btnCambiar_${inputId}`;
+        btn.className = 'text-xs text-red-600 hover:underline mt-1';
+        btn.textContent = 'Cambiar selección';
+        btn.onclick = () => {
+            document.getElementById(hiddenId).value = '';
+            input.value = '';
+            input.readOnly = false;
+            btn.remove();
+            input.focus();
+        };
+        input.insertAdjacentElement('afterend', btn);
+    }
 }
 
-configurarBuscadorEmpleado('buscadorReemplazo', 'resultadosReemplazo', 'cedulaReemplazoHidden', 'reemplazoSeleccionado');
-configurarBuscadorEmpleado('buscadorJefe', 'resultadosJefe', 'cedulaJefeHidden', 'jefeSeleccionado');
+configurarBuscadorEmpleado('buscadorReemplazo', 'resultadosReemplazo', 'cedulaReemplazoHidden');
+configurarBuscadorEmpleado('buscadorJefe', 'resultadosJefe', 'cedulaJefeHidden');
 
 // =====================================================================
-// FIRMA: canvas o archivo, con opción de reutilizar la guardada
+// FIRMA: canvas o guardada
 // =====================================================================
 
 const canvasFirma = inicializarCanvasFirma('canvasFirma');
-
 const usarFirmaGuardadaEl = document.getElementById('usarFirmaGuardada');
 const cajaFirmaNueva = document.getElementById('cajaFirmaNueva');
 if (usarFirmaGuardadaEl) {
@@ -354,20 +497,23 @@ const panelFirmaArchivo = document.getElementById('panelFirmaArchivo');
 tabFirmaCanvas.addEventListener('click', () => {
     panelFirmaCanvas.classList.remove('hidden');
     panelFirmaArchivo.classList.add('hidden');
-    tabFirmaCanvas.classList.replace('border', 'bg-red-600');
-    tabFirmaCanvas.classList.add('bg-red-600', 'text-white');
-    tabFirmaArchivo.classList.remove('bg-red-600', 'text-white');
-    tabFirmaArchivo.classList.add('border', 'border-gray-300', 'text-gray-600');
+    tabFirmaCanvas.className = 'text-xs px-3 py-1.5 rounded-xl bg-red-600 text-white';
+    tabFirmaArchivo.className = 'text-xs px-3 py-1.5 rounded-xl border border-gray-300 text-gray-600';
 });
 tabFirmaArchivo.addEventListener('click', () => {
     panelFirmaArchivo.classList.remove('hidden');
     panelFirmaCanvas.classList.add('hidden');
-    tabFirmaArchivo.classList.add('bg-red-600', 'text-white');
-    tabFirmaCanvas.classList.remove('bg-red-600', 'text-white');
-    tabFirmaCanvas.classList.add('border', 'border-gray-300', 'text-gray-600');
+    tabFirmaArchivo.className = 'text-xs px-3 py-1.5 rounded-xl bg-red-600 text-white';
+    tabFirmaCanvas.className = 'text-xs px-3 py-1.5 rounded-xl border border-gray-300 text-gray-600';
 });
 
 document.getElementById('btnLimpiarFirma').addEventListener('click', () => canvasFirma.limpiar());
+
+// =====================================================================
+// FOTO POR CÁMARA (bug #4)
+// =====================================================================
+
+const capturaFoto = inicializarCapturaFoto('capturaFotoSolicitante');
 
 // =====================================================================
 // ENVÍO DEL FORMULARIO
@@ -377,35 +523,61 @@ document.getElementById('formPermiso').addEventListener('submit', async (e) => {
     e.preventDefault();
     const erroresForm = document.getElementById('erroresForm');
     erroresForm.classList.add('hidden');
+    const listaErrores = [];
 
-    if (diasSeleccionados.length === 0) {
-        erroresForm.textContent = 'Selecciona al menos un día en el calendario.';
+    if (fechasOrdenadas().length === 0) listaErrores.push('Selecciona al menos un día en el calendario.');
+
+    for (const f of fechasOrdenadas()) {
+        const info = infoDias[f];
+        if (!info.diaCompleto && (!info.horaInicio || !info.horaFin)) {
+            listaErrores.push(`Falta configurar el horario del día ${formatearFechaEs(f)}.`);
+        }
+    }
+
+    if (!document.getElementById('cedulaJefeHidden').value) {
+        listaErrores.push('Debes seleccionar un jefe inmediato de la lista de resultados.');
+        document.getElementById('errorJefe').classList.remove('hidden');
+    }
+    if (tieneReemplazoEl.checked && !document.getElementById('cedulaReemplazoHidden').value) {
+        listaErrores.push('Debes seleccionar el empleado de reemplazo de la lista de resultados.');
+    }
+
+    if (esDevolucionEl.checked) {
+        const requeridas = fechasOrdenadas().reduce((acc, f) => acc + (infoDias[f].horasNetas || 0), 0);
+        const cubiertas = filasDevolucion.reduce((acc, f) => acc + (f.horas || 0), 0);
+        if (filasDevolucion.length === 0) listaErrores.push('Agrega al menos una fecha de devolución.');
+        else if (cubiertas < requeridas) listaErrores.push(`Las fechas de devolución solo cubren ${cubiertas.toFixed(2)}h de las ${requeridas.toFixed(2)}h solicitadas.`);
+    }
+
+    if (!capturaFoto.tieneFoto()) {
+        listaErrores.push('Debes tomar tu foto con la cámara antes de enviar.');
+    }
+
+    const usaFirmaGuardada = usarFirmaGuardadaEl && usarFirmaGuardadaEl.checked;
+    const usandoTabArchivo = !panelFirmaArchivo.classList.contains('hidden');
+    if (!usaFirmaGuardada) {
+        if (usandoTabArchivo) {
+            if (!document.getElementById('inputFirmaArchivo').files[0]) listaErrores.push('Sube tu imagen de firma.');
+        } else if (canvasFirma.estaVacio()) {
+            listaErrores.push('Dibuja tu firma antes de guardar.');
+        }
+    }
+
+    if (listaErrores.length > 0) {
+        erroresForm.innerHTML = listaErrores.join('<br>');
         erroresForm.classList.remove('hidden');
+        window.scrollTo(0, 0);
         return;
     }
 
     const formData = new FormData(e.target);
+    formData.set('foto_solicitante_base64', capturaFoto.obtenerDataURL());
 
-    // Firma: guardada, canvas, o archivo
-    const usaGuardada = usarFirmaGuardadaEl && usarFirmaGuardadaEl.checked;
-    if (usaGuardada) {
-        // No se envía nada nuevo; el backend usará la firma existente si no llega ninguna.
-        // (Ver ajuste de permisos_crear.php más abajo para soportar este caso.)
+    if (usaFirmaGuardada) {
         formData.append('usar_firma_guardada', '1');
-    } else if (!panelFirmaArchivo.classList.contains('hidden')) {
-        const archivo = document.getElementById('inputFirmaArchivo').files[0];
-        if (!archivo) {
-            erroresForm.textContent = 'Sube tu imagen de firma o cambia a la pestaña de dibujar.';
-            erroresForm.classList.remove('hidden');
-            return;
-        }
-        formData.append('firma_solicitante_archivo', archivo);
+    } else if (usandoTabArchivo) {
+        formData.append('firma_solicitante_archivo', document.getElementById('inputFirmaArchivo').files[0]);
     } else {
-        if (canvasFirma.estaVacio()) {
-            erroresForm.textContent = 'Dibuja tu firma antes de guardar.';
-            erroresForm.classList.remove('hidden');
-            return;
-        }
         formData.append('firma_solicitante_base64', canvasFirma.obtenerDataURL());
     }
 
@@ -416,7 +588,7 @@ document.getElementById('formPermiso').addEventListener('submit', async (e) => {
         if (data.ok) {
             window.location.href = `/chvb/public/permisos.php?id=${data.id}`;
         } else {
-            erroresForm.innerHTML = data.errores ? data.errores.join('<br>') : data.error;
+            erroresForm.innerHTML = data.errores ? data.errores.join('<br>') : (data.error || 'Error desconocido.');
             erroresForm.classList.remove('hidden');
             window.scrollTo(0, 0);
         }
@@ -424,4 +596,7 @@ document.getElementById('formPermiso').addEventListener('submit', async (e) => {
         erroresForm.textContent = 'Error de conexión con el servidor.';
         erroresForm.classList.remove('hidden');
     }
+
+
+    
 });

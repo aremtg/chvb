@@ -23,17 +23,7 @@ $alarmas = BolsilloModel::alarmasProximas();
 
     <div class="md:ml-64 pt-14 md:pt-0">
         <header class="bg-white shadow px-6 py-4 flex justify-end items-center">
-            <?php $totalNotificaciones = count($cumpleanos) + count($alarmas); ?>
-            <span class="relative text-gray-500"
-                title="<?= count($cumpleanos) ?> cumpleaños próximos, <?= count($alarmas) ?> alarmas próximas">
-                🔔
-                <?php if ($totalNotificaciones > 0): ?>
-                    <span
-                        class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        <?= $totalNotificaciones ?>
-                    </span>
-                <?php endif; ?>
-            </span>
+           
         </header>
         <main class="p-6 max-w-6xl mx-auto space-y-6">
 

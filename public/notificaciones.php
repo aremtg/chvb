@@ -46,7 +46,7 @@ $notificaciones = NotificacionModel::listar();
                     data-ultimo-id="<?= !empty($notificaciones) ? (int) $notificaciones[0]['id'] : 0 ?>">
                     <?php foreach ($notificaciones as $n): ?>
                         <li id="notif-<?= $n['id'] ?>" data-leida="<?= $n['leida'] ?>" class="p-4 flex justify-between items-start gap-3 border-l-4 transition-colors
-    <?= $n['leida'] ? 'border-transparent bg-white' : 'border-blue-500 bg-blue-50' ?>">
+                        <?= $n['leida'] ? 'border-transparent bg-white' : 'border-blue-500 bg-blue-50' ?>">
                             <div class="flex items-start gap-3 flex-1">
                                 <button onclick="toggleLeida(<?= $n['id'] ?>)" id="dot-<?= $n['id'] ?>"
                                     title="Marcar como leído / no leído"

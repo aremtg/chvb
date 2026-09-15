@@ -67,21 +67,34 @@ async function reactivarAcceso(cedula) {
 
 async function verPin(cedula) {
   const span = document.getElementById(`pinMostrado-${cedula}`);
+  const btn = document.getElementById(`btnOjo-${cedula}`);
+  const iconOpen = btn.querySelector('[data-eye="open"]');
+  const iconClosed = btn.querySelector('[data-eye="closed"]');
 
-  // Si ya está mostrado, ocultarlo al volver a hacer clic
+  // Si ya está mostrado, ocultarlo
   if (span.textContent !== "") {
     span.textContent = "";
+    iconOpen.classList.remove("hidden");
+    iconClosed.classList.add("hidden");
+    btn.title = "Ver PIN actual";
     return;
   }
 
-  const res = await fetch(
-    `/chvb/public/api/usuarios_empleados_ver_pin.php?cedula=${encodeURIComponent(cedula)}`,
-  );
-  const data = await res.json();
+  try {
+    const res = await fetch(
+      `/chvb/public/api/usuarios_empleados_ver_pin.php?cedula=${encodeURIComponent(cedula)}`
+    );
+    const data = await res.json();
 
-  if (data.ok) {
-    span.textContent = `PIN: ${data.pin}`;
-  } else {
-    alert(data.error);
+    if (data.ok) {
+      span.textContent = `PIN: ${data.pin}`;
+      iconOpen.classList.add("hidden");
+      iconClosed.classList.remove("hidden");
+      btn.title = "Ocultar PIN";
+    } else {
+      alert(data.error);
+    }
+  } catch (e) {
+    alert("Error de conexión");
   }
 }
