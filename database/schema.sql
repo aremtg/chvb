@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 14-09-2026 a las 23:18:55
+-- Tiempo de generación: 17-09-2026 a las 03:16:39
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -98,6 +98,50 @@ CREATE TABLE `festivos_colombia` (
   `anio` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Volcado de datos para la tabla `festivos_colombia`
+--
+
+INSERT INTO `festivos_colombia` (`id`, `fecha`, `nombre`, `anio`) VALUES
+(1, '2026-01-01', 'Año Nuevo', 2026),
+(2, '2026-01-12', 'Reyes Magos', 2026),
+(3, '2026-03-23', 'Día de San José', 2026),
+(4, '2026-04-02', 'Jueves Santo', 2026),
+(5, '2026-04-03', 'Viernes Santo', 2026),
+(6, '2026-05-01', 'Día del Trabajo', 2026),
+(7, '2026-05-18', 'Ascensión de Jesús', 2026),
+(8, '2026-06-08', 'Corpus Christi', 2026),
+(9, '2026-06-15', 'Sagrado Corazón', 2026),
+(10, '2026-06-29', 'San Pedro y San Pablo', 2026),
+(11, '2026-07-13', 'Día de Nuestra Señora de Chiquinquirá', 2026),
+(12, '2026-07-20', 'Día de la Independencia', 2026),
+(13, '2026-08-07', 'Batalla de Boyacá', 2026),
+(14, '2026-08-17', 'Asunción de la Virgen', 2026),
+(15, '2026-10-12', 'Día de la Raza', 2026),
+(16, '2026-11-02', 'Todos los Santos', 2026),
+(17, '2026-11-16', 'Independencia de Cartagena', 2026),
+(18, '2026-12-08', 'Inmaculada Concepción', 2026),
+(19, '2026-12-25', 'Navidad', 2026),
+(20, '2027-01-01', 'Año Nuevo', 2027),
+(21, '2027-01-11', 'Reyes Magos', 2027),
+(22, '2027-03-22', 'Día de San José', 2027),
+(23, '2027-03-25', 'Jueves Santo', 2027),
+(24, '2027-03-26', 'Viernes Santo', 2027),
+(25, '2027-05-01', 'Día del Trabajo', 2027),
+(26, '2027-05-10', 'Ascensión de Jesús', 2027),
+(27, '2027-05-31', 'Corpus Christi', 2027),
+(28, '2027-06-07', 'Sagrado Corazón', 2027),
+(29, '2027-07-05', 'San Pedro y San Pablo', 2027),
+(30, '2027-07-12', 'Día de Nuestra Señora de Chiquinquirá', 2027),
+(31, '2027-07-20', 'Día de la Independencia', 2027),
+(32, '2027-08-07', 'Batalla de Boyacá', 2027),
+(33, '2027-08-16', 'Asunción de la Virgen', 2027),
+(34, '2027-10-18', 'Día de la Raza', 2027),
+(35, '2027-11-01', 'Todos los Santos', 2027),
+(36, '2027-11-15', 'Independencia de Cartagena', 2027),
+(37, '2027-12-08', 'Inmaculada Concepción', 2027),
+(38, '2027-12-25', 'Navidad', 2027);
+
 -- --------------------------------------------------------
 
 --
@@ -147,15 +191,16 @@ CREATE TABLE `permisos` (
   `motivo` text NOT NULL,
   `fecha_inicio` date NOT NULL,
   `hora_inicio` time NOT NULL,
-  `fecha_fin` date NOT NULL,
-  `hora_fin` time NOT NULL,
-  `total_horas` decimal(6,2) NOT NULL,
+  `fecha_fin` date DEFAULT NULL,
+  `hora_fin` time DEFAULT NULL,
+  `total_horas` decimal(6,2) DEFAULT NULL,
   `incluye_festivo` tinyint(1) DEFAULT 0,
   `festivo_confirmado` tinyint(1) DEFAULT 0,
   `remunerado` tinyint(1) NOT NULL DEFAULT 0,
   `es_compensatorio` tinyint(1) NOT NULL DEFAULT 0,
   `fecha_horas_extra` date DEFAULT NULL,
   `es_devolucion` tinyint(1) NOT NULL DEFAULT 0,
+  `es_salida_pendiente_regreso` tinyint(1) NOT NULL DEFAULT 0,
   `devolucion_fecha` date DEFAULT NULL,
   `devolucion_hora_inicio` time DEFAULT NULL,
   `devolucion_hora_fin` time DEFAULT NULL,
@@ -170,7 +215,7 @@ CREATE TABLE `permisos` (
   `foto_jefe` varchar(255) DEFAULT NULL,
   `firma_jefe` varchar(255) DEFAULT NULL,
   `evidencia_archivo` varchar(255) DEFAULT NULL,
-  `estado` enum('en_proceso','por_firmar_reemplazo','por_firmar_jefe','firmado','devuelto','rechazado') NOT NULL DEFAULT 'en_proceso',
+  `estado` enum('en_proceso','por_firmar_reemplazo','por_firmar_jefe','firmado','devuelto','rechazado','aprobado_pendiente_regreso') NOT NULL DEFAULT 'en_proceso',
   `motivo_devolucion` text DEFAULT NULL,
   `motivo_rechazo` text DEFAULT NULL,
   `version` int(11) NOT NULL DEFAULT 1,
@@ -187,6 +232,21 @@ CREATE TABLE `permisos` (
 CREATE TABLE `permisos_consecutivos` (
   `anio` int(11) NOT NULL,
   `ultimo_numero` int(11) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `permisos_devoluciones`
+--
+
+CREATE TABLE `permisos_devoluciones` (
+  `id` int(11) NOT NULL,
+  `permiso_id` int(11) NOT NULL,
+  `fecha` date NOT NULL,
+  `hora_inicio` time NOT NULL,
+  `hora_fin` time NOT NULL,
+  `total_horas` decimal(6,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -225,6 +285,17 @@ CREATE TABLE `permisos_historial` (
   `actor_cedula_o_usuario` varchar(50) NOT NULL,
   `detalle` varchar(500) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `presencia_empleados`
+--
+
+CREATE TABLE `presencia_empleados` (
+  `cedula` varchar(10) NOT NULL,
+  `ultima_actividad` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -322,6 +393,13 @@ ALTER TABLE `permisos_consecutivos`
   ADD PRIMARY KEY (`anio`);
 
 --
+-- Indices de la tabla `permisos_devoluciones`
+--
+ALTER TABLE `permisos_devoluciones`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_permiso` (`permiso_id`);
+
+--
 -- Indices de la tabla `permisos_dias`
 --
 ALTER TABLE `permisos_dias`
@@ -335,6 +413,12 @@ ALTER TABLE `permisos_dias`
 ALTER TABLE `permisos_historial`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_permiso` (`permiso_id`);
+
+--
+-- Indices de la tabla `presencia_empleados`
+--
+ALTER TABLE `presencia_empleados`
+  ADD PRIMARY KEY (`cedula`);
 
 --
 -- Indices de la tabla `usuarios`
@@ -370,7 +454,7 @@ ALTER TABLE `documentos`
 -- AUTO_INCREMENT de la tabla `festivos_colombia`
 --
 ALTER TABLE `festivos_colombia`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT de la tabla `firmas_guardadas`
@@ -388,6 +472,12 @@ ALTER TABLE `notificaciones`
 -- AUTO_INCREMENT de la tabla `permisos`
 --
 ALTER TABLE `permisos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `permisos_devoluciones`
+--
+ALTER TABLE `permisos_devoluciones`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -451,6 +541,12 @@ ALTER TABLE `permisos`
   ADD CONSTRAINT `permisos_ibfk_3` FOREIGN KEY (`cedula_jefe`) REFERENCES `empleados` (`cedula`) ON UPDATE CASCADE;
 
 --
+-- Filtros para la tabla `permisos_devoluciones`
+--
+ALTER TABLE `permisos_devoluciones`
+  ADD CONSTRAINT `permisos_devoluciones_ibfk_1` FOREIGN KEY (`permiso_id`) REFERENCES `permisos` (`id`) ON DELETE CASCADE;
+
+--
 -- Filtros para la tabla `permisos_dias`
 --
 ALTER TABLE `permisos_dias`
@@ -461,6 +557,12 @@ ALTER TABLE `permisos_dias`
 --
 ALTER TABLE `permisos_historial`
   ADD CONSTRAINT `permisos_historial_ibfk_1` FOREIGN KEY (`permiso_id`) REFERENCES `permisos` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `presencia_empleados`
+--
+ALTER TABLE `presencia_empleados`
+  ADD CONSTRAINT `presencia_empleados_ibfk_1` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `usuarios_empleados`
