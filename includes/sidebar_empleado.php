@@ -8,6 +8,7 @@ $linksSidebarEmpleado = [
     ['url' => '/chvb/public/mi_hoja_de_vida.php', 'label' => 'Mi hoja de vida', 'icon' => 'user'],
     ['url' => '/chvb/public/permiso_nuevo.php', 'label' => 'Crear permiso', 'icon' => 'plus'],
     ['url' => '/chvb/public/permisos.php', 'label' => 'Todos mis permisos', 'icon' => 'file-text', 'esPermisos' => true],
+    ['url' => '/chvb/public/permisos_reemplazo_jefe.php', 'label' => 'Por firmar', 'icon' => 'alarm-clock'],
 ];
 
 $totalNoLeidasInicial = $cedulaSesion ? NotificacionModel::contarNoLeidasParaEmpleado($cedulaSesion) : 0;
@@ -17,15 +18,15 @@ $totalNoLeidasInicial = $cedulaSesion ? NotificacionModel::contarNoLeidasParaEmp
     <?= icon('menu', 'w-6 h-6 text-gray-700') ?>
 </button>
 
-<div id="overlaySidebarEmpleado" onclick="document.getElementById('sidebarMovilEmpleado').classList.add('-translate-x-full')"
+<div id="overlaySidebarEmpleado"
+    onclick="document.getElementById('sidebarMovilEmpleado').classList.add('-translate-x-full')"
     class="md:hidden hidden fixed inset-0 bg-black/40 z-30"></div>
 
-<aside id="sidebarMovilEmpleado"
-    class="w-64 bg-white border-r border-gray-200 p-4 fixed inset-y-0 left-0 z-40 overflow-y-auto
+<aside id="sidebarMovilEmpleado" class="w-64 bg-white border-r border-gray-200 p-4 fixed inset-y-0 left-0 z-40 overflow-y-auto
            -translate-x-full md:translate-x-0 transition-transform duration-200">
     <div class="flex items-center justify-between mb-4 px-2">
         <div>
-           <div>
+            <div>
                 <img src="/chvb/public/assets/img/logo_chv.png" alt="Logo">
             </div>
             <p class="text-xs text-gray-400">Portal del Empleado</p>
@@ -38,8 +39,7 @@ $totalNoLeidasInicial = $cedulaSesion ? NotificacionModel::contarNoLeidasParaEmp
     <nav class="space-y-1">
         <?php foreach ($linksSidebarEmpleado as $link): ?>
             <?php $activo = $paginaActual === basename($link['url']); ?>
-            <a href="<?= $link['url'] ?>"
-                class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition
+            <a href="<?= $link['url'] ?>" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition
                 <?= $activo ? 'bg-red-600 text-white' : 'text-gray-600 hover:bg-gray-100' ?>">
                 <?= icon($link['icon'], 'w-5 h-5') ?>
                 <span class="flex-1"><?= $link['label'] ?></span>
@@ -56,7 +56,8 @@ $totalNoLeidasInicial = $cedulaSesion ? NotificacionModel::contarNoLeidasParaEmp
     <div class="mt-8 pt-4 border-t border-gray-100 px-2">
         <p class="text-xs text-gray-400">Sesión</p>
         <p class="text-sm text-gray-700 font-medium truncate"><?= htmlspecialchars($cedulaSesion) ?></p>
-        <a href="/chvb/public/logout_empleado.php" class="text-xs text-red-600 hover:underline flex items-center gap-1 mt-1">
+        <a href="/chvb/public/logout_empleado.php"
+            class="text-xs text-red-600 hover:underline flex items-center gap-1 mt-1">
             <?= icon('log-out', 'w-3.5 h-3.5') ?> Cerrar sesión
         </a>
     </div>
@@ -69,7 +70,7 @@ $totalNoLeidasInicial = $cedulaSesion ? NotificacionModel::contarNoLeidasParaEmp
         overlaySidebarEmpEl.classList.toggle('hidden', sidebarMovilEmpEl.classList.contains('-translate-x-full'));
     }).observe(sidebarMovilEmpEl, { attributes: true, attributeFilter: ['class'] });
 
-    window.actualizarBadgeSidebarEmpleado = async function() {
+    window.actualizarBadgeSidebarEmpleado = async function () {
         try {
             const res = await fetch('/chvb/public/api/permisos_notificaciones_contar.php');
             const data = await res.json();
@@ -87,4 +88,9 @@ $totalNoLeidasInicial = $cedulaSesion ? NotificacionModel::contarNoLeidasParaEmp
     setInterval(() => {
         if (document.visibilityState === 'visible') window.actualizarBadgeSidebarEmpleado();
     }, 8000);
+
+    if (window.location.pathname.includes('/public/') && document.getElementById('sidebarMovilEmpleado')) {
+        setInterval(() => fetch('/chvb/public/api/presencia_ping.php'), 20000);
+        fetch('/chvb/public/api/presencia_ping.php');
+    }
 </script>

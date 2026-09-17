@@ -1,9 +1,10 @@
 <?php
 // src/controllers/PermisoController.php (nuevo archivo)
 
-class PermisoController {
+class PermisoController
+{
 
-        /**
+    /**
      * Calcula horas netas de un permiso.
      *
      * Personal Civil (administrativo): jornada real de referencia es 07:00-12:00 y
@@ -23,7 +24,7 @@ class PermisoController {
      * única fuente de verdad, se llama tanto en el endpoint de "calcular en vivo"
      * como justo antes de guardar en PermisoModel::crear()/actualizar().
      */
-        /**
+    /**
      * Genera el desglose día por día del permiso solicitado. Cada día:
      * - Si es festivo: se marca es_festivo=true y 'requiere_confirmacion'=true.
      *   El frontend debe preguntar "¿Seguro que vas a contar ese festivo?" y,
@@ -36,7 +37,8 @@ class PermisoController {
      * - Si tipo_de_personal viene vacío/null, se trata como Civil y se marca
      *   'aviso_tipo_personal' para que el frontend muestre el aviso corto.
      */
-    public static function calcularHorasPorDias(string $fechaInicio, string $horaInicio, string $fechaFin, string $horaFin, ?string $tipoPersonal): array {
+    public static function calcularHorasPorDias(string $fechaInicio, string $horaInicio, string $fechaFin, string $horaFin, ?string $tipoPersonal): array
+    {
         try {
             $inicio = new DateTime("$fechaInicio $horaInicio");
             $fin = new DateTime("$fechaFin $horaFin");
@@ -55,9 +57,9 @@ class PermisoController {
         }
 
         require_once __DIR__ . '/../models/FestivoModel.php';
-        FestivoModel::asegurarAnioPoblado((int)$inicio->format('Y'));
-        if ((int)$fin->format('Y') !== (int)$inicio->format('Y')) {
-            FestivoModel::asegurarAnioPoblado((int)$fin->format('Y'));
+        FestivoModel::asegurarAnioPoblado((int) $inicio->format('Y'));
+        if ((int) $fin->format('Y') !== (int) $inicio->format('Y')) {
+            FestivoModel::asegurarAnioPoblado((int) $fin->format('Y'));
         }
         $festivosEnRango = FestivoModel::obtenerEnRango($inicio->format('Y-m-d'), $fin->format('Y-m-d'));
         $mapaFestivos = [];
@@ -130,13 +132,14 @@ class PermisoController {
      * se confía en las banderas 'incluido' porque son decisiones explícitas del
      * usuario, y se revalida cada día contra el cálculo real en backend.
      */
-    public static function recalcularConfirmado(array $diasConfirmados, string $tipoPersonal): array {
+    public static function recalcularConfirmado(array $diasConfirmados, string $tipoPersonal): array
+    {
         $totalHoras = 0.0;
         $diasFinal = [];
 
         foreach ($diasConfirmados as $dia) {
             $incluido = !empty($dia['incluido']);
-            $horasNetas = $incluido ? (float)$dia['horas_netas'] : 0.0;
+            $horasNetas = $incluido ? (float) $dia['horas_netas'] : 0.0;
             $totalHoras += $horasNetas;
 
             $diasFinal[] = [
@@ -146,8 +149,8 @@ class PermisoController {
                 'es_festivo' => !empty($dia['es_festivo']),
                 'festivo_nombre' => $dia['festivo_nombre'] ?? null,
                 'incluido' => $incluido,
-                'horas_brutas' => (float)$dia['horas_brutas'],
-                'horas_descuento_almuerzo' => (float)$dia['horas_descuento_almuerzo'],
+                'horas_brutas' => (float) $dia['horas_brutas'],
+                'horas_descuento_almuerzo' => (float) $dia['horas_descuento_almuerzo'],
                 'horas_netas' => $horasNetas,
             ];
         }
@@ -155,7 +158,7 @@ class PermisoController {
         return ['dias' => $diasFinal, 'total_horas' => round($totalHoras, 2)];
     }
 
-        // =====================================================================
+    // =====================================================================
     // FLUJO DE ESTADOS
     // =====================================================================
 
@@ -163,15 +166,19 @@ class PermisoController {
      * Determina el actor actual (empleado dueño / reemplazo / jefe / talento humano)
      * a partir de la sesión activa, para decidir permisos sobre un permiso puntual.
      */
-    private static function identificarActor(array $permiso): array {
+    private static function identificarActor(array $permiso): array
+    {
         if (!empty($_SESSION['superadmin_id'])) {
             return ['tipo' => 'talento_humano', 'id' => $_SESSION['superadmin_username']];
         }
         if (!empty($_SESSION['empleado_cedula'])) {
             $cedula = $_SESSION['empleado_cedula'];
-            if ($cedula === $permiso['cedula_empleado']) return ['tipo' => 'empleado', 'id' => $cedula];
-            if ($cedula === $permiso['cedula_reemplazo']) return ['tipo' => 'reemplazo', 'id' => $cedula];
-            if ($cedula === $permiso['cedula_jefe']) return ['tipo' => 'jefe', 'id' => $cedula];
+            if ($cedula === $permiso['cedula_empleado'])
+                return ['tipo' => 'empleado', 'id' => $cedula];
+            if ($cedula === $permiso['cedula_reemplazo'])
+                return ['tipo' => 'reemplazo', 'id' => $cedula];
+            if ($cedula === $permiso['cedula_jefe'])
+                return ['tipo' => 'jefe', 'id' => $cedula];
             return ['tipo' => 'ajeno', 'id' => $cedula];
         }
         return ['tipo' => 'anonimo', 'id' => ''];
@@ -181,9 +188,12 @@ class PermisoController {
      * ¿Puede este actor editar el permiso en su estado actual?
      * en_proceso: dueño o TH. devuelto: dueño o TH. Cualquier otro estado: solo TH.
      */
-    private static function puedeEditar(array $permiso, array $actor): bool {
-        if ($actor['tipo'] === 'talento_humano') return true;
-        if ($actor['tipo'] !== 'empleado') return false;
+    private static function puedeEditar(array $permiso, array $actor): bool
+    {
+        if ($actor['tipo'] === 'talento_humano')
+            return true;
+        if ($actor['tipo'] !== 'empleado')
+            return false;
         return in_array($permiso['estado'], ['en_proceso', 'devuelto'], true);
     }
 
@@ -192,9 +202,11 @@ class PermisoController {
      * Exige que ya exista foto y firma del solicitante (se piden al crear, pero se
      * revalida aquí por si el flujo de UI cambia en el futuro).
      */
-    public static function enviar(int $permisoId, int $versionActual): array {
+    public static function enviar(int $permisoId, int $versionActual): array
+    {
         $permiso = PermisoModel::obtenerPorId($permisoId);
-        if (!$permiso) return ['ok' => false, 'error' => 'Permiso no encontrado.'];
+        if (!$permiso)
+            return ['ok' => false, 'error' => 'Permiso no encontrado.'];
 
         $actor = self::identificarActor($permiso);
         if (!self::puedeEditar($permiso, $actor)) {
@@ -207,7 +219,8 @@ class PermisoController {
         $nuevoEstado = $permiso['tiene_reemplazo'] == 1 ? 'por_firmar_reemplazo' : 'por_firmar_jefe';
 
         $actualizado = PermisoModel::actualizarConVersion($permisoId, $versionActual, ['estado' => $nuevoEstado]);
-        if (!$actualizado) return ['ok' => false, 'error' => 'conflicto_version'];
+        if (!$actualizado)
+            return ['ok' => false, 'error' => 'conflicto_version'];
 
         PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], $nuevoEstado, $actor['tipo'], $actor['id'], 'Permiso enviado');
 
@@ -216,7 +229,15 @@ class PermisoController {
         return ['ok' => true, 'estado' => $nuevoEstado];
     }
 
-    private static function notificarEnvio(array $permiso, string $nuevoEstado): void {
+    public static function notificarEnvioPublico(int $permisoId): void
+    {
+        $permiso = PermisoModel::obtenerPorId($permisoId);
+        if ($permiso)
+            self::notificarEnvio($permiso, $permiso['estado']);
+    }
+
+    private static function notificarEnvio(array $permiso, string $nuevoEstado): void
+    {
         require_once __DIR__ . '/../models/NotificacionModel.php';
         $tipoTexto = $permiso['tipo_permiso'];
         $mensaje = "\"{$permiso['nombre_empleado_snapshot']}\" te pidió un permiso de {$tipoTexto}";
@@ -239,16 +260,19 @@ class PermisoController {
      * el filtro de "para quién es" lo hace la consulta de la bandeja, no la FK.
      * Ver PermisoModel + vistas: se filtra por cedula_empleado = mi cédula.
      */
-    private static function notificarAEmpleado(string $cedulaDestino, string $mensaje, string $enlace): void {
+    private static function notificarAEmpleado(string $cedulaDestino, string $mensaje, string $enlace): void
+    {
         require_once __DIR__ . '/../models/NotificacionModel.php';
         // Reutilizamos NotificacionModel::crear con cedula_empleado = destinatario real
         // y usuario_id = 0 reservado para "sistema" (ver ajuste de FK abajo, sección aparte).
         NotificacionModel::crearParaEmpleado($cedulaDestino, $mensaje, $enlace, 'permiso');
     }
 
-    public static function firmarReemplazo(int $permisoId, int $versionActual, string $firmaRuta, ?string $fotoRuta): array {
+    public static function firmarReemplazo(int $permisoId, int $versionActual, string $firmaRuta, ?string $fotoRuta): array
+    {
         $permiso = PermisoModel::obtenerPorId($permisoId);
-        if (!$permiso) return ['ok' => false, 'error' => 'Permiso no encontrado.'];
+        if (!$permiso)
+            return ['ok' => false, 'error' => 'Permiso no encontrado.'];
 
         $actor = self::identificarActor($permiso);
         if ($actor['tipo'] !== 'reemplazo' && $actor['tipo'] !== 'talento_humano') {
@@ -259,10 +283,12 @@ class PermisoController {
         }
 
         $campos = ['firma_reemplazo' => $firmaRuta, 'estado' => 'por_firmar_jefe'];
-        if ($fotoRuta) $campos['foto_reemplazo'] = $fotoRuta;
+        if ($fotoRuta)
+            $campos['foto_reemplazo'] = $fotoRuta;
 
         $actualizado = PermisoModel::actualizarConVersion($permisoId, $versionActual, $campos);
-        if (!$actualizado) return ['ok' => false, 'error' => 'conflicto_version'];
+        if (!$actualizado)
+            return ['ok' => false, 'error' => 'conflicto_version'];
 
         PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], 'por_firmar_jefe', $actor['tipo'], $actor['id'], 'Reemplazo firmó');
 
@@ -277,9 +303,11 @@ class PermisoController {
         return ['ok' => true, 'estado' => 'por_firmar_jefe'];
     }
 
-    public static function firmarJefe(int $permisoId, int $versionActual, string $firmaRuta, ?string $fotoRuta): array {
+    public static function firmarJefe(int $permisoId, int $versionActual, string $firmaRuta, ?string $fotoRuta): array
+    {
         $permiso = PermisoModel::obtenerPorId($permisoId);
-        if (!$permiso) return ['ok' => false, 'error' => 'Permiso no encontrado.'];
+        if (!$permiso)
+            return ['ok' => false, 'error' => 'Permiso no encontrado.'];
 
         $actor = self::identificarActor($permiso);
         if ($actor['tipo'] !== 'jefe' && $actor['tipo'] !== 'talento_humano') {
@@ -289,28 +317,32 @@ class PermisoController {
             return ['ok' => false, 'error' => 'Este permiso no está pendiente de tu firma en este momento.'];
         }
 
-        $campos = ['firma_jefe' => $firmaRuta, 'estado' => 'firmado'];
-        if ($fotoRuta) $campos['foto_jefe'] = $fotoRuta;
+        $estadoFinal = $permiso['es_salida_pendiente_regreso'] == 1 ? 'aprobado_pendiente_regreso' : 'firmado';
+        $campos = ['firma_jefe' => $firmaRuta, 'estado' => $estadoFinal];
+        if ($fotoRuta)
+            $campos['foto_jefe'] = $fotoRuta;
 
         $actualizado = PermisoModel::actualizarConVersion($permisoId, $versionActual, $campos);
-        if (!$actualizado) return ['ok' => false, 'error' => 'conflicto_version'];
+        if (!$actualizado)
+            return ['ok' => false, 'error' => 'conflicto_version'];
 
-        PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], 'firmado', $actor['tipo'], $actor['id'], 'Jefe firmó, permiso finalizado');
+        $detalle = $estadoFinal === 'aprobado_pendiente_regreso' ? 'Jefe autorizó la salida; queda pendiente registrar la llegada' : 'Jefe firmó, permiso finalizado';
+        PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], $estadoFinal, $actor['tipo'], $actor['id'], $detalle);
 
         require_once __DIR__ . '/../models/NotificacionModel.php';
-        NotificacionModel::crearParaEmpleado(
-            $permiso['cedula_empleado'],
-            "Tu permiso de {$permiso['tipo_permiso']} fue firmado y aprobado",
-            "/chvb/public/permisos.php?id={$permisoId}",
-            'permiso'
-        );
+        $mensajeFinal = $estadoFinal === 'aprobado_pendiente_regreso'
+            ? "Tu salida de {$permiso['tipo_permiso']} fue aprobada. Cuando regreses, registra tu llegada."
+            : "Tu permiso de {$permiso['tipo_permiso']} fue firmado y aprobado";
+        NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], $mensajeFinal, "/chvb/public/permisos.php?id={$permisoId}", 'permiso');
 
-        return ['ok' => true, 'estado' => 'firmado'];
+        return ['ok' => true, 'estado' => $estadoFinal];
     }
 
-    public static function devolver(int $permisoId, int $versionActual, string $motivo): array {
+    public static function devolver(int $permisoId, int $versionActual, string $motivo): array
+    {
         $permiso = PermisoModel::obtenerPorId($permisoId);
-        if (!$permiso) return ['ok' => false, 'error' => 'Permiso no encontrado.'];
+        if (!$permiso)
+            return ['ok' => false, 'error' => 'Permiso no encontrado.'];
 
         $actor = self::identificarActor($permiso);
         if ($actor['tipo'] !== 'jefe' && $actor['tipo'] !== 'talento_humano') {
@@ -327,7 +359,8 @@ class PermisoController {
             'estado' => 'devuelto',
             'motivo_devolucion' => $motivo,
         ]);
-        if (!$actualizado) return ['ok' => false, 'error' => 'conflicto_version'];
+        if (!$actualizado)
+            return ['ok' => false, 'error' => 'conflicto_version'];
 
         PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], 'devuelto', $actor['tipo'], $actor['id'], $motivo);
 
@@ -342,9 +375,11 @@ class PermisoController {
         return ['ok' => true, 'estado' => 'devuelto'];
     }
 
-    public static function rechazar(int $permisoId, int $versionActual, string $motivo): array {
+    public static function rechazar(int $permisoId, int $versionActual, string $motivo): array
+    {
         $permiso = PermisoModel::obtenerPorId($permisoId);
-        if (!$permiso) return ['ok' => false, 'error' => 'Permiso no encontrado.'];
+        if (!$permiso)
+            return ['ok' => false, 'error' => 'Permiso no encontrado.'];
 
         $actor = self::identificarActor($permiso);
         if ($actor['tipo'] !== 'jefe' && $actor['tipo'] !== 'talento_humano') {
@@ -361,7 +396,8 @@ class PermisoController {
             'estado' => 'rechazado',
             'motivo_rechazo' => $motivo,
         ]);
-        if (!$actualizado) return ['ok' => false, 'error' => 'conflicto_version'];
+        if (!$actualizado)
+            return ['ok' => false, 'error' => 'conflicto_version'];
 
         PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], 'rechazado', $actor['tipo'], $actor['id'], $motivo);
         // NO se elimina el registro: sigue existiendo con estado 'rechazado', visible en el historial del empleado.
@@ -384,9 +420,11 @@ class PermisoController {
      * Si solo cambia el motivo (u otro campo no relacionado a fecha/hora), las firmas
      * ya puestas se conservan.
      */
-    public static function actualizarCampos(int $permisoId, int $versionActual, array $camposNuevos): array {
+    public static function actualizarCampos(int $permisoId, int $versionActual, array $camposNuevos): array
+    {
         $permiso = PermisoModel::obtenerPorId($permisoId);
-        if (!$permiso) return ['ok' => false, 'error' => 'Permiso no encontrado.'];
+        if (!$permiso)
+            return ['ok' => false, 'error' => 'Permiso no encontrado.'];
 
         $actor = self::identificarActor($permiso);
         if (!self::puedeEditar($permiso, $actor)) {
@@ -395,7 +433,7 @@ class PermisoController {
 
         $cambianFechas = false;
         foreach (['fecha_inicio', 'hora_inicio', 'fecha_fin', 'hora_fin'] as $campoFecha) {
-            if (isset($camposNuevos[$campoFecha]) && (string)$camposNuevos[$campoFecha] !== (string)$permiso[$campoFecha]) {
+            if (isset($camposNuevos[$campoFecha]) && (string) $camposNuevos[$campoFecha] !== (string) $permiso[$campoFecha]) {
                 $cambianFechas = true;
                 break;
             }
@@ -403,7 +441,7 @@ class PermisoController {
 
         $detalleHistorial = 'Edición de campos';
 
-                if ($cambianFechas) {
+        if ($cambianFechas) {
             // Requiere que el frontend haya enviado 'dias_confirmados' (el desglose ya
             // revisado por el usuario, con festivos confirmados o excluidos) junto con
             // el cambio de fechas. Si no vino, es un error de integración del frontend.
@@ -434,8 +472,9 @@ class PermisoController {
             $detalleHistorial = 'Motivo u otros datos editados, firmas conservadas';
         }
 
-                $actualizado = PermisoModel::actualizarConVersion($permisoId, $versionActual, $camposNuevos);
-        if (!$actualizado) return ['ok' => false, 'error' => 'conflicto_version'];
+        $actualizado = PermisoModel::actualizarConVersion($permisoId, $versionActual, $camposNuevos);
+        if (!$actualizado)
+            return ['ok' => false, 'error' => 'conflicto_version'];
 
         if ($cambianFechas) {
             PermisoModel::reemplazarDias($permisoId, $recalculo['dias']);
@@ -449,7 +488,8 @@ class PermisoController {
      * Calcula horas de devolución (mismo motor, sin descuento de almuerzo nunca,
      * porque una devolución es tiempo trabajado de más, no jornada laboral normal).
      */
-    public static function calcularHorasDevolucion(string $fecha, string $horaInicio, string $horaFin): array {
+    public static function calcularHorasDevolucion(string $fecha, string $horaInicio, string $horaFin): array
+    {
         try {
             $inicio = new DateTime("$fecha $horaInicio");
             $fin = new DateTime("$fecha $horaFin");
@@ -466,16 +506,32 @@ class PermisoController {
     }
 
 
-        /**
+    /**
      * Verifica que el empleado tenga los datos mínimos para poder crear un permiso.
      * Nombre y cédula siempre existen (son NOT NULL desde el registro), pero celular
      * y cargo pueden faltar en registros antiguos o incompletos — se revisan los 4
      * de todas formas por seguridad, en caso de que el esquema cambie en el futuro.
      */
-    public static function empleadoTieneDatosCompletos(array $empleado): bool {
+    public static function empleadoTieneDatosCompletos(array $empleado): bool
+    {
         return trim($empleado['nombre'] ?? '') !== ''
             && trim($empleado['cedula'] ?? '') !== ''
             && trim($empleado['celular'] ?? '') !== ''
             && trim($empleado['cargo'] ?? '') !== '';
+    }
+
+    /** Convierte 6.5 -> "6 h 30 min", 1.0 -> "1 h", 0.5 -> "30 min". */
+    public static function formatearHoras(?float $horasDecimal): string
+    {
+        if ($horasDecimal === null)
+            return 'Pendiente';
+        $totalMinutos = (int) round($horasDecimal * 60);
+        $h = intdiv($totalMinutos, 60);
+        $m = $totalMinutos % 60;
+        if ($h > 0 && $m > 0)
+            return "{$h} h {$m} min";
+        if ($h > 0)
+            return "{$h} h";
+        return "{$m} min";
     }
 }

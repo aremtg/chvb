@@ -17,6 +17,7 @@ if ($rolActual === 'teniente') {
     ];
 
     if ($rolActual === 'superadmin_talento_humano') {
+        $linksSidebar[] = ['url' => '/chvb/public/permisos_th.php', 'label' => 'Permisos', 'icon' => 'file-text'];
         $linksSidebar[] = [
             'url' => '/chvb/public/notificaciones.php',
             'label' => 'Notificaciones',

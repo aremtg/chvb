@@ -1,42 +1,71 @@
 // public/assets/js/permisos.js
 
-const MESES_ES_P = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MESES_ES_P = [
+  "enero",
+  "febrero",
+  "marzo",
+  "abril",
+  "mayo",
+  "junio",
+  "julio",
+  "agosto",
+  "septiembre",
+  "octubre",
+  "noviembre",
+  "diciembre",
+];
 
 function formatearFechaEsP(fechaStr) {
-    if (!fechaStr) return '-';
-    const soloFecha = fechaStr.split(' ')[0].split('T')[0];
-    const [y, m, d] = soloFecha.split('-').map(Number);
-    if (!y || !m || !d) return fechaStr;
-    return `${d} de ${MESES_ES_P[m - 1]} de ${y}`;
+  if (!fechaStr) return "-";
+  const soloFecha = fechaStr.split(" ")[0].split("T")[0];
+  const [y, m, d] = soloFecha.split("-").map(Number);
+  if (!y || !m || !d) return fechaStr;
+  return `${d} de ${MESES_ES_P[m - 1]} de ${y}`;
 }
 
 function etiquetaEstado(estado) {
-    const mapa = {
-        'en_proceso': { texto: 'Borrador', clase: 'bg-gray-100 text-gray-600' },
-        'por_firmar_reemplazo': { texto: 'En revisión (reemplazo)', clase: 'bg-yellow-100 text-yellow-700' },
-        'por_firmar_jefe': { texto: 'En revisión (jefe)', clase: 'bg-yellow-100 text-yellow-700' },
-        'firmado': { texto: 'Firmado', clase: 'bg-green-100 text-green-700' },
-        'devuelto': { texto: 'Devuelto — pendiente de editar', clase: 'bg-orange-100 text-orange-700' },
-        'rechazado': { texto: 'Rechazado', clase: 'bg-red-100 text-red-700' },
-    };
-    return mapa[estado] || { texto: estado, clase: 'bg-gray-100 text-gray-600' };
+  const mapa = {
+    en_proceso: { texto: "Borrador", clase: "bg-gray-100 text-gray-600" },
+    por_firmar_reemplazo: {
+      texto: "En revisión (reemplazo)",
+      clase: "bg-yellow-100 text-yellow-700",
+    },
+    por_firmar_jefe: {
+      texto: "En revisión (jefe)",
+      clase: "bg-yellow-100 text-yellow-700",
+    },
+    firmado: { texto: "Firmado", clase: "bg-green-100 text-green-700" },
+    devuelto: {
+      texto: "Devuelto — pendiente de editar",
+      clase: "bg-orange-100 text-orange-700",
+    },
+    rechazado: { texto: "Rechazado", clase: "bg-red-100 text-red-700" },
+  };
+  return mapa[estado] || { texto: estado, clase: "bg-gray-100 text-gray-600" };
 }
 
 function renderPermisos(permisos) {
-    const contenedor = document.getElementById('listaPermisos');
+  const contenedor = document.getElementById("listaPermisos");
 
-    if (permisos.length === 0) {
-        contenedor.innerHTML = '<p class="text-sm text-gray-400 text-center py-6">No hay permisos que coincidan con el filtro.</p>';
-        return;
-    }
+  if (permisos.length === 0) {
+    contenedor.innerHTML =
+      '<p class="text-sm text-gray-400 text-center py-6">No hay permisos que coincidan con el filtro.</p>';
+    return;
+  }
 
-    contenedor.innerHTML = permisos.map(p => {
-        const est = etiquetaEstado(p.estado);
-        const esDevuelto = p.estado === 'devuelto';
-        const urlDestino = esDevuelto ? `/chvb/public/permiso_editar.php?id=${p.id}` : `/chvb/public/permiso_ver.php?id=${p.id}`;
+  contenedor.innerHTML = permisos
+    .map((p) => {
+      const est = etiquetaEstado(p.estado);
+      const esDevuelto = p.estado === "devuelto";
+      const esPendienteRegreso = p.estado === "aprobado_pendiente_regreso";
+      const urlDestino = esDevuelto
+        ? `/chvb/public/permiso_editar.php?id=${p.id}`
+        : esPendienteRegreso
+          ? `/chvb/public/permiso_registrar_llegada.php?id=${p.id}`
+          : `/chvb/public/permiso_ver.php?id=${p.id}`;
 
-        return `
-            <a href="${urlDestino}" class="block bg-white rounded-xl shadow p-4 hover:shadow-md transition ${esDevuelto ? 'border-2 border-orange-300' : ''}">
+      return `
+            <a href="${urlDestino}" class="block bg-white rounded-xl shadow p-4 hover:shadow-md transition ${esDevuelto ? "border-2 border-orange-300" : ""}">
                 <div class="flex justify-between items-start gap-3">
                     <div>
                         <p class="font-medium text-gray-800">${p.consecutivo} — ${p.tipo_permiso}</p>
@@ -44,29 +73,37 @@ function renderPermisos(permisos) {
                     </div>
                     <span class="text-xs font-medium px-2 py-1 rounded-lg shrink-0 ${est.clase}">${est.texto}</span>
                 </div>
-                ${esDevuelto ? '<p class="text-xs text-orange-700 mt-2">⚠ Toca para editar y reenviar</p>' : ''}
+                ${esDevuelto ? '<p class="text-xs text-orange-700 mt-2">⚠ Toca para editar y reenviar</p>' : ""}
+                ${esPendienteRegreso ? '<p class="text-xs text-blue-700 mt-2">📍 Toca para registrar tu llegada</p>' : ""}
             </a>
         `;
-    }).join('');
+    })
+    .join("");
 }
 
 async function aplicarFiltros() {
-    const params = new URLSearchParams({
-        tipo_permiso: document.getElementById('filtroTipo').value,
-        estado: document.getElementById('filtroEstado').value,
-        fecha_desde: document.getElementById('filtroFechaDesde').value,
-        fecha_hasta: document.getElementById('filtroFechaHasta').value,
-    });
+  const params = new URLSearchParams({
+    tipo_permiso: document.getElementById("filtroTipo").value,
+    estado: document.getElementById("filtroEstado").value,
+    fecha_desde: document.getElementById("filtroFechaDesde").value,
+    fecha_hasta: document.getElementById("filtroFechaHasta").value,
+  });
 
-    const res = await fetch(`/chvb/public/api/permisos_listar_propios.php?${params}`);
-    const data = await res.json();
-    if (data.ok) renderPermisos(data.permisos);
+  const res = await fetch(
+    `/chvb/public/api/permisos_listar_propios.php?${params}`,
+  );
+  const data = await res.json();
+  if (data.ok) renderPermisos(data.permisos);
 }
 
-['filtroTipo', 'filtroEstado', 'filtroFechaDesde', 'filtroFechaHasta'].forEach(id => {
-    document.getElementById(id).addEventListener('change', aplicarFiltros);
-});
+["filtroTipo", "filtroEstado", "filtroFechaDesde", "filtroFechaHasta"].forEach(
+  (id) => {
+    document.getElementById(id).addEventListener("change", aplicarFiltros);
+  },
+);
 
 // Carga inicial: usa los datos que ya vinieron renderizados desde PHP (sin petición extra)
-const permisosIniciales = JSON.parse(document.getElementById('listaPermisos').dataset.permisosIniciales || '[]');
+const permisosIniciales = JSON.parse(
+  document.getElementById("listaPermisos").dataset.permisosIniciales || "[]",
+);
 renderPermisos(permisosIniciales);

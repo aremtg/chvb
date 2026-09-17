@@ -77,10 +77,16 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                             <textarea name="motivo" id="motivo" required rows="3"
                                 class="w-full border border-gray-300 rounded-xl px-3 py-2"></textarea>
                         </div>
+                        <div id="cajaSalidaPendiente" class="hidden">
+                            <label class="flex items-center gap-2 text-sm">
+                                <input type="checkbox" id="esSalidaPendiente" class="rounded">
+                                No sé mi hora de llegada / Regreso por confirmar
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Calendario y horario POR DÍA -->
-                    <div class="bg-white rounded-xl shadow p-4 space-y-4">
+                    <div id="bloqueCalendarioNormal" class="bg-white rounded-xl shadow p-4 space-y-4">
                         <p class="text-sm font-medium text-gray-700">1. Selecciona los días</p>
                         <div id="calendarioBonito" class="border border-gray-200 rounded-xl p-3"></div>
 
@@ -97,6 +103,24 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                             <span class="text-sm text-gray-600">Total de horas</span>
                             <span id="totalHorasDisplay" class="text-lg font-bold text-red-600">0.00 h</span>
                         </div>
+                    </div>
+
+                    <div id="bloqueSalidaPendiente" class="hidden bg-white rounded-xl shadow p-4 space-y-4">
+                        <p class="text-sm font-medium text-gray-700">Datos de la salida</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de salida</label>
+                                <input type="date" id="fechaSalidaUnica"
+                                    class="w-full border border-gray-300 rounded-xl px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Hora de salida</label>
+                                <input type="time" id="horaSalidaUnica"
+                                    class="w-full border border-gray-300 rounded-xl px-3 py-2">
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500">Cuando regreses, entra a "Todos mis permisos" y usa "Registrar
+                            llegada" para completar la hora y la evidencia. Las horas se calcularán en ese momento.</p>
                     </div>
 
                     <!-- Checks: remunerado / compensatorio / devolución -->

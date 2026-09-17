@@ -36,3 +36,11 @@ if ($stmt->fetch()) {
 //C:\xampp\htdocs\chvb
 
 //Copia el resultado (32 caracteres hexadecimales) y agrégalo a tu .env:
+
+
+//DB_HOST=127.0.0.1
+// DB_NAME=chvb
+// DB_USER=root
+// DB_PASS=
+// APP_URL=http://localhost/chvb/public
+// UPLOADS_PATH=C:/xampp/htdocs/chvb/uploads

@@ -58,12 +58,19 @@ try {
         $errores[] = 'No puedes marcar compensatorio y devolución al mismo tiempo.';
     if ($esCompensatorio && !$fechaHorasExtra)
         $errores[] = 'Debes indicar la fecha en que hiciste las horas extra.';
-    if (!$diasConfirmadosJson)
-        $errores[] = 'Falta el desglose de días calculado.';
+    $esSalidaPendiente = isset($_POST['es_salida_pendiente_regreso']) && $tipoPermiso === 'Permiso';
 
-    $diasConfirmados = json_decode($diasConfirmadosJson, true);
-    if (!is_array($diasConfirmados) || empty($diasConfirmados)) {
-        $errores[] = 'El desglose de días es inválido.';
+    if (!$esSalidaPendiente) {
+        if (!$diasConfirmadosJson)
+            $errores[] = 'Falta el desglose de días calculado.';
+        $diasConfirmados = json_decode($diasConfirmadosJson, true);
+        if (!is_array($diasConfirmados) || empty($diasConfirmados)) {
+            $errores[] = 'El desglose de días es inválido.';
+        }
+    } else {
+        $diasConfirmados = [];
+        if (empty($fechaInicio) || empty($_POST['hora_inicio'] ?? ''))
+            $errores[] = 'Falta la fecha/hora de salida.';
     }
 
     $devoluciones = [];
@@ -80,7 +87,9 @@ try {
     }
 
     $tipoPersonal = !empty($empleado['tipo_de_personal']) ? $empleado['tipo_de_personal'] : 'Civil';
-    $recalculo = PermisoController::recalcularConfirmado($diasConfirmados, $tipoPersonal);
+    $recalculo = $esSalidaPendiente
+        ? ['dias' => [], 'total_horas' => null]
+        : PermisoController::recalcularConfirmado($diasConfirmados, $tipoPersonal);
 
     // Recalcular devoluciones en backend (nunca confiar en el total del frontend)
     $devolucionesRecalculadas = [];
@@ -147,8 +156,9 @@ try {
 
     $consecutivo = PermisoModel::generarConsecutivo();
 
-    $primerDia = $recalculo['dias'][0];
-    $ultimoDia = $recalculo['dias'][count($recalculo['dias']) - 1];
+    $horaInicioReal = $esSalidaPendiente ? ($_POST['hora_inicio'] ?? '') : $recalculo['dias'][0]['hora_inicio'];
+    $fechaFinReal = $esSalidaPendiente ? null : $recalculo['dias'][count($recalculo['dias']) - 1]['fecha'];
+    $horaFinReal = $esSalidaPendiente ? null : $recalculo['dias'][count($recalculo['dias']) - 1]['hora_fin'];
 
     $permisoId = PermisoModel::crear([
         'consecutivo' => $consecutivo,
@@ -158,10 +168,10 @@ try {
         'celular_empleado_snapshot' => $empleado['celular'],
         'tipo_permiso' => $tipoPermiso,
         'motivo' => $motivo,
-        'fecha_inicio' => $primerDia['fecha'],
-        'hora_inicio' => $primerDia['hora_inicio'],
-        'fecha_fin' => $ultimoDia['fecha'],
-        'hora_fin' => $ultimoDia['hora_fin'],
+        'fecha_inicio' => $fechaInicio,
+        'hora_inicio' => $horaInicioReal,
+        'fecha_fin' => $fechaFinReal,
+        'hora_fin' => $horaFinReal,
         'total_horas' => $recalculo['total_horas'],
         'incluye_festivo' => array_reduce($recalculo['dias'], fn($c, $d) => $c || $d['es_festivo'], false) ? 1 : 0,
         'festivo_confirmado' => 1,
@@ -173,6 +183,7 @@ try {
         'devolucion_hora_inicio' => null,
         'devolucion_hora_fin' => null,
         'devolucion_total_horas' => $esDevolucion ? $totalDevolucionHoras : null,
+        'es_salida_pendiente_regreso' => $esSalidaPendiente ? 1 : 0,
         'tiene_reemplazo' => $tieneReemplazo,
         'cedula_reemplazo' => $tieneReemplazo ? $cedulaReemplazo : null,
         'cedula_jefe' => $cedulaJefe,
@@ -185,7 +196,22 @@ try {
         PermisoModel::crearDevoluciones($permisoId, $devolucionesRecalculadas);
     }
 
-    NotificacionModel::crearParaEmpleado($cedula, "Tu permiso {$consecutivo} fue guardado como borrador. Envíalo cuando esté listo.", "/chvb/public/permisos.php?id={$permisoId}", 'permiso');
+    // Envío automático: el permiso nace directo en la fase de firmas, sin pasar por borrador.
+    $estadoInicial = $tieneReemplazo ? 'por_firmar_reemplazo' : 'por_firmar_jefe';
+    PermisoModel::actualizarConVersion($permisoId, 1, ['estado' => $estadoInicial]);
+    PermisoModel::registrarHistorial($permisoId, 1, 'en_proceso', $estadoInicial, 'empleado', $cedula, 'Permiso creado y enviado automáticamente');
+
+    require_once __DIR__ . '/../../src/controllers/PermisoController.php';
+    PermisoController::notificarEnvioPublico($permisoId);
+
+    NotificacionModel::crearParaTalentoHumano(
+        null,
+        $empleado['nombre'],
+        $cedula,
+        'permiso_nuevo',
+        "\"{$empleado['nombre']}\" creó un permiso de {$tipoPermiso} ({$consecutivo})",
+        "/chvb/public/permisos_th.php?id={$permisoId}"
+    );
 
     echo json_encode(['ok' => true, 'id' => $permisoId, 'consecutivo' => $consecutivo]);
 

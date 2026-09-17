@@ -115,4 +115,18 @@ class NotificacionModel
         $stmt->execute(['b1' => $cedula]);
         return (int)$stmt->fetch()['total'];
     }
+
+        /**
+     * Notificación a Talento Humano generada por un EMPLEADO (no por un auxiliar
+     * con sesión de usuarios), por eso usuario_id puede ser NULL. Reutiliza el
+     * mismo mecanismo de polling/badge/sonido ya construido para el superadmin.
+     */
+    public static function crearParaTalentoHumano(?int $usuarioId, string $actorNombre, string $cedulaEmpleado, string $campo, string $mensaje, ?string $enlace = null): void {
+        $pdo = getPDO();
+        $stmt = $pdo->prepare(
+            "INSERT INTO notificaciones (usuario_id, destinatario_tipo, usuario_nombre, cedula_empleado, campo, mensaje, enlace)
+             VALUES (:b1, 'talento_humano', :b2, :b3, :b4, :b5, :b6)"
+        );
+        $stmt->execute(['b1' => $usuarioId, 'b2' => $actorNombre, 'b3' => $cedulaEmpleado, 'b4' => $campo, 'b5' => $mensaje, 'b6' => $enlace]);
+    }
 }

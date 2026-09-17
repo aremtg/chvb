@@ -262,4 +262,67 @@ class PermisoModel {
         $stmt = $pdo->query("SELECT * FROM permisos ORDER BY fecha_solicitud DESC");
         return $stmt->fetchAll();
     }
+
+        /**
+     * Listado para Talento Humano (solo lectura) con todos los filtros del punto 4.
+     * $filtros: fecha_desde, fecha_hasta, cedula_jefe, cedula_empleado, tipo_permiso,
+     * estado ('rechazado'|'firmado'|'en_proceso'), orden_horas ('asc'|'desc').
+     */
+    public static function listarParaTalentoHumano(array $filtros): array {
+        $pdo = getPDO();
+        $sql = "SELECT p.*, jefe.nombre AS nombre_jefe
+                FROM permisos p
+                LEFT JOIN empleados jefe ON jefe.cedula = p.cedula_jefe
+                WHERE 1=1";
+        $params = [];
+        $i = 1;
+
+        if (!empty($filtros['fecha_desde'])) {
+            $sql .= " AND DATE(p.fecha_solicitud) >= :b{$i}"; $params["b{$i}"] = $filtros['fecha_desde']; $i++;
+        }
+        if (!empty($filtros['fecha_hasta'])) {
+            $sql .= " AND DATE(p.fecha_solicitud) <= :b{$i}"; $params["b{$i}"] = $filtros['fecha_hasta']; $i++;
+        }
+        if (!empty($filtros['cedula_jefe'])) {
+            $sql .= " AND p.cedula_jefe = :b{$i}"; $params["b{$i}"] = $filtros['cedula_jefe']; $i++;
+        }
+        if (!empty($filtros['cedula_empleado'])) {
+            $sql .= " AND p.cedula_empleado = :b{$i}"; $params["b{$i}"] = $filtros['cedula_empleado']; $i++;
+        }
+        if (!empty($filtros['tipo_permiso'])) {
+            $sql .= " AND p.tipo_permiso = :b{$i}"; $params["b{$i}"] = $filtros['tipo_permiso']; $i++;
+        }
+        if (!empty($filtros['estado'])) {
+            if ($filtros['estado'] === 'en_proceso') {
+                $sql .= " AND p.estado IN ('en_proceso','por_firmar_reemplazo','por_firmar_jefe','aprobado_pendiente_regreso')";
+            } else {
+                $sql .= " AND p.estado = :b{$i}"; $params["b{$i}"] = $filtros['estado']; $i++;
+            }
+        }
+
+        if (!empty($filtros['orden_horas'])) {
+            $direccion = $filtros['orden_horas'] === 'asc' ? 'ASC' : 'DESC';
+            $sql .= " ORDER BY p.total_horas {$direccion}";
+        } else {
+            $sql .= " ORDER BY p.fecha_solicitud DESC";
+        }
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+    /** Solo permisos actualizados después de $desde, para el polling parcial de TH. */
+    public static function listarActualizadosDesde(string $desdeISO): array {
+        $pdo = getPDO();
+        $stmt = $pdo->prepare(
+            "SELECT p.*, jefe.nombre AS nombre_jefe
+             FROM permisos p
+             LEFT JOIN empleados jefe ON jefe.cedula = p.cedula_jefe
+             WHERE p.fecha_actualizacion > :b1
+             ORDER BY p.fecha_actualizacion ASC"
+        );
+        $stmt->execute(['b1' => $desdeISO]);
+        return $stmt->fetchAll();
+    }
 }
