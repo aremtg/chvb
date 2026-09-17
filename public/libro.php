@@ -191,6 +191,7 @@ foreach ($bolsillos as $b) {
                     <div class="bg-gray-50 rounded-xl p-4">
                         <p class="text-sm font-medium text-gray-700 mb-2">Adjuntar PDF</p>
                         <form id="formSubirPDF" class="flex flex-col sm:flex-row gap-2">
+                            <?= csrfCampoHTML() ?>
                             <input type="file" name="archivo" accept="application/pdf" required
                                 class="flex-1 text-sm border border-gray-300 rounded px-2 py-1">
                             <button type="submit"
@@ -243,6 +244,7 @@ foreach ($bolsillos as $b) {
                 <h2 class="font-bold text-gray-800">Renombrar documento</h2>
             </div>
             <form id="formRenombrar" class="p-6 space-y-4">
+                <?= csrfCampoHTML() ?>
                 <input type="hidden" id="renombrarDocumentoId">
                 <div id="errorRenombrar" class="hidden bg-red-100 text-red-700 text-sm rounded-xl p-3"></div>
                 <div>

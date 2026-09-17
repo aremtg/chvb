@@ -59,19 +59,19 @@ class FileManager {
         $base = self::rutaBase($cedula);
 
         if (!is_dir($base)) {
-            mkdir($base, 0777, true);
+            mkdir($base, 0755, true);
         }
 
         foreach (self::bolsillosPorSeccion() as $seccion => $bolsillos) {
             $rutaSeccion = $base . '/' . $seccion;
             if (!is_dir($rutaSeccion)) {
-                mkdir($rutaSeccion, 0777, true);
+                mkdir($rutaSeccion, 0755, true);
             }
 
             foreach ($bolsillos as $slug => $nombreCompleto) {
                 $rutaBolsillo = $rutaSeccion . '/' . $slug . '_hv_' . $cedula;
                 if (!is_dir($rutaBolsillo)) {
-                    mkdir($rutaBolsillo, 0777, true);
+                    mkdir($rutaBolsillo, 0755, true);
                 }
             }
         }
@@ -133,7 +133,7 @@ public static function guardarFoto(string $cedula, array $archivo): array {
 
     $carpetaPerfil = self::rutaCarpetaPerfil($cedula);
     if (!is_dir($carpetaPerfil)) {
-        mkdir($carpetaPerfil, 0777, true);
+        mkdir($carpetaPerfil, 0755, true);
     }
 
     // Borrar foto anterior (cualquier extensión) antes de guardar la nueva
@@ -200,13 +200,23 @@ public static function guardarFoto(string $cedula, array $archivo): array {
 
     public static function guardarEvidenciaPermiso(string $cedula, array $archivo): array {
         $carpeta = self::rutaBase($cedula) . '/permisos/evidencias';
-        if (!is_dir($carpeta)) mkdir($carpeta, 0777, true);
+        if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
 
         $tamanoMaximo = 20 * 1024 * 1024;
         if ($archivo['size'] > $tamanoMaximo) return ['ok' => false, 'error' => 'El archivo de evidencia supera 20MB.'];
 
-        $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
-        $nombreFinal = 'evidencia_' . time() . '.' . preg_replace('/[^a-z0-9]/', '', $extension);
+        $mimesPermitidos = [
+            'image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'application/pdf' => 'pdf',
+        ];
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeReal = finfo_file($finfo, $archivo['tmp_name']);
+        finfo_close($finfo);
+        if (!isset($mimesPermitidos[$mimeReal])) {
+            return ['ok' => false, 'error' => 'Solo se permiten imágenes o PDF como evidencia.'];
+        }
+
+        $extension = $mimesPermitidos[$mimeReal];
+        $nombreFinal = 'evidencia_' . time() . '.' . $extension;
         $rutaCompleta = $carpeta . '/' . $nombreFinal;
 
         if (!move_uploaded_file($archivo['tmp_name'], $rutaCompleta)) {
@@ -236,7 +246,7 @@ public static function guardarFoto(string $cedula, array $archivo): array {
         }
 
         $carpeta = self::rutaBase($cedula) . '/' . $subcarpeta;
-        if (!is_dir($carpeta)) mkdir($carpeta, 0777, true);
+        if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
 
         $extension = $tiposPermitidos[$mime];
         $nombreFinal = 'foto_' . time() . '.' . $extension;
@@ -258,7 +268,7 @@ public static function guardarFoto(string $cedula, array $archivo): array {
         if ($binario === false) return ['ok' => false, 'error' => 'No se pudo decodificar la foto.'];
 
         $carpeta = self::rutaBase($cedula) . '/' . $subcarpeta;
-        if (!is_dir($carpeta)) mkdir($carpeta, 0777, true);
+        if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
 
         $nombreFinal = 'foto_' . time() . '.' . $extension;
         $rutaCompleta = $carpeta . '/' . $nombreFinal;

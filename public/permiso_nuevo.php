@@ -50,6 +50,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                 <div id="erroresForm" class="hidden bg-red-100 text-red-700 text-sm rounded-xl p-3"></div>
 
                 <form id="formPermiso" class="space-y-6">
+                    <?= csrfCampoHTML() ?>
 
                     <!-- Datos automáticos -->
                     <div class="bg-white rounded-xl shadow p-4 grid grid-cols-2 gap-3 text-sm">

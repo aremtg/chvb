@@ -27,8 +27,9 @@ function getPDO(): PDO {
 
         try {
             $pdo = new PDO($dsn, $user, $pass, $opciones);
-        } catch (PDOException $e) {
-            die("Error de conexión a la base de datos: " . $e->getMessage());
+                } catch (PDOException $e) {
+            error_log('Error de conexión a la base de datos: ' . $e->getMessage());
+            die('No se pudo conectar a la base de datos. Contacta al administrador.');
         }
     }
 

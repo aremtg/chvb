@@ -162,6 +162,7 @@ $empleados = EmpleadoModel::listar($busqueda);
             </div>
 
             <form id="formCrear" class="p-5 sm:p-6 space-y-5 max-h- overflow-y-auto">
+                <?= csrfCampoHTML() ?>
     <div id="erroresCrear" class="hidden bg-red-50 border border-red-100 text-red-700 text-sm rounded-xl p-3"></div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -306,6 +307,7 @@ $empleados = EmpleadoModel::listar($busqueda);
                 <h2 class="font-bold text-gray-800">Eliminar Empleado</h2>
             </div>
             <form id="formEliminar" class="p-6 space-y-4">
+                <?= csrfCampoHTML() ?>
                 <p class="text-sm text-gray-600">
                     Vas a eliminar a <strong id="nombreEliminar"></strong>. Esta acción borra su carpeta física y no se
                     puede deshacer.
@@ -347,6 +349,7 @@ $empleados = EmpleadoModel::listar($busqueda);
             </div>
 
             <form id="formEditar" class="p-5 sm:p-6 space-y-5 max-h- overflow-y-auto">
+                <?= csrfCampoHTML() ?>
     <div id="erroresEditar" class="hidden bg-red-50 border border-red-100 text-red-700 text-sm rounded-xl p-3"></div>
     <input type="hidden" name="cedula_actual" id="editCedulaActual">
 

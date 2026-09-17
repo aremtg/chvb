@@ -112,6 +112,7 @@ foreach ($bolsillos as $b) {
                 <div id="cajaSubirCertificado" class="hidden bg-gray-50 rounded p-4">
                     <p class="text-sm font-medium text-gray-700 mb-2">Adjuntar certificado (PDF)</p>
                     <form id="formSubirPDF" class="flex flex-col sm:flex-row gap-2">
+                        <?= csrfCampoHTML() ?>
                         <input type="file" name="archivo" accept="application/pdf" required
                             class="flex-1 text-sm border border-gray-300 rounded px-2 py-1">
                         <button type="submit"

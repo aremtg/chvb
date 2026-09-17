@@ -105,6 +105,7 @@ $empleados = EmpleadoModel::listar($busqueda);
                 <p class="text-sm text-gray-500" id="nombrePinModal"></p>
             </div>
             <form id="formPin" class="p-6 space-y-4">
+                <?= csrfCampoHTML() ?>
                 <input type="hidden" name="cedula" id="cedulaPinModal">
                 <div id="errorPin" class="hidden bg-red-100 text-red-700 text-sm rounded p-3"></div>
                 <div>

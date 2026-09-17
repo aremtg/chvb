@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../src/models/BolsilloModel.php';
 
 header('Content-Type: application/json');
 requireEmpleado();
+validarCSRF();
 
 $cedula = $_SESSION['empleado_cedula']; // nunca confiar en un valor enviado por el cliente
 

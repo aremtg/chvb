@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../src/models/NotificacionModel.php';
 header('Content-Type: application/json');
 ini_set('display_errors', '0'); // evita que un warning de PHP rompa el JSON de respuesta
 requireEmpleado();
+validarCSRF();
 
 try {
     $cedula = $_SESSION['empleado_cedula'];

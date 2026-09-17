@@ -27,6 +27,7 @@ if (!$permiso || $permiso['cedula_empleado'] !== $cedula || $permiso['estado'] !
         <p class="text-sm text-gray-600">Saliste el <?= htmlspecialchars($permiso['fecha_inicio']) ?> a las <?= htmlspecialchars($permiso['hora_inicio']) ?>.</p>
         <div id="errorLlegada" class="hidden bg-red-100 text-red-700 text-sm rounded-xl p-3"></div>
         <form id="formLlegada" class="space-y-4">
+            <?= csrfCampoHTML() ?>
             <input type="hidden" id="permisoIdLlegada" value="<?= $id ?>">
             <input type="hidden" id="versionLlegada" value="<?= $permiso['version'] ?>">
             <div class="grid grid-cols-2 gap-3">

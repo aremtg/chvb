@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../src/helpers/FileManager.php';
 
 header('Content-Type: application/json');
 requireEmpleado();
+validarCSRF();
 
 $id = (int)($_POST['id'] ?? 0);
 $version = (int)($_POST['version'] ?? 0);

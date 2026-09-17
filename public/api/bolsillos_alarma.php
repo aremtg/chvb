@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../src/controllers/LibroController.php';
 
 header('Content-Type: application/json');
 requireSuperAdmin();
+validarCSRF();
 bloquearSiSoloLectura();
 
 $bolsilloId = (int)($_POST['bolsillo_id'] ?? 0);

@@ -9,6 +9,7 @@ require_once __DIR__ . '/../../src/models/NotificacionModel.php';
 header('Content-Type: application/json');
 ini_set('display_errors', '0');
 requireEmpleado();
+validarCSRF();
 
 try {
     $cedula = $_SESSION['empleado_cedula'];
