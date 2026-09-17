@@ -241,7 +241,7 @@ class PermisoController
         require_once __DIR__ . '/../models/NotificacionModel.php';
         $tipoTexto = $permiso['tipo_permiso'];
         $mensaje = "\"{$permiso['nombre_empleado_snapshot']}\" te pidió un permiso de {$tipoTexto}";
-        $enlace = "/chvb/public/permisos_reemplazo_jefe.php?id={$permiso['id']}";
+        $enlace = "/chvb/public/permiso_ver.php?id={$permiso['id']}";
 
         // Se notifica a reemplazo (si aplica) Y a jefe desde el envío, aunque el
         // jefe no pueda firmar todavía hasta que el reemplazo firme primero.
@@ -296,7 +296,7 @@ class PermisoController
         NotificacionModel::crearParaEmpleado(
             $permiso['cedula_jefe'],
             "El reemplazo de \"{$permiso['nombre_empleado_snapshot']}\" ya firmó, el permiso está listo para tu firma",
-            "/chvb/public/permisos_reemplazo_jefe.php?id={$permisoId}",
+            "/chvb/public/permiso_ver.php?id={$permisoId}",
             'permiso'
         );
 

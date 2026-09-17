@@ -1,4 +1,5 @@
 // public/assets/js/libro.js
+const csrfTokenLibro = document.body.dataset.csrf || "";
 
 const cedula = new URLSearchParams(window.location.search).get("cedula");
 let bolsilloActual = null;
@@ -266,7 +267,7 @@ document
       "nuevo_nombre",
       document.getElementById("inputNuevoNombre").value,
     );
-
+    formData.append("csrf_token", csrfTokenLibro);
     try {
       const res = await fetch("/chvb/public/api/documentos_renombrar.php", {
         method: "POST",
@@ -340,6 +341,7 @@ async function eliminarDocumento(documentoId) {
   const formData = new FormData();
   formData.append("documento_id", documentoId);
   formData.append("cedula", cedula);
+  formData.append("csrf_token", csrfTokenLibro);
 
   const res = await fetch("/chvb/public/api/documentos_eliminar.php", {
     method: "POST",
@@ -360,6 +362,7 @@ async function moverDocumento(documentoId, direccion) {
   const formData = new FormData();
   formData.append("documento_id", documentoId);
   formData.append("direccion", direccion);
+  formData.append("csrf_token", csrfTokenLibro);
 
   const res = await fetch("/chvb/public/api/documentos_reordenar.php", {
     method: "POST",
@@ -386,6 +389,7 @@ async function guardarAlarma() {
     formData.append("valor_custom", valorCustom);
     formData.append("unidad_custom", unidadCustom);
   }
+  formData.append("csrf_token", csrfTokenLibro);
 
   const res = await fetch("/chvb/public/api/bolsillos_alarma.php", {
     method: "POST",
@@ -410,6 +414,7 @@ async function quitarAlarma() {
   const formData = new FormData();
   formData.append("bolsillo_id", bolsilloActual.id);
   formData.append("accion", "desactivar");
+  formData.append("csrf_token", csrfTokenLibro);
 
   const res = await fetch("/chvb/public/api/bolsillos_alarma.php", {
     method: "POST",

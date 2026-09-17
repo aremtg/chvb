@@ -54,7 +54,7 @@ foreach ($bolsillos as $b) {
     </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen" data-solo-lectura="<?= $esSoloLectura ? '1' : '0' ?>">
+<body class="bg-gray-100 min-h-screen" data-solo-lectura="<?= $esSoloLectura ? '1' : '0' ?>" data-csrf="<?= htmlspecialchars(csrfToken()) ?>">
     <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 
     <div class="md:ml-64 pt-14 md:pt-0">

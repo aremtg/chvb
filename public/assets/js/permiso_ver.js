@@ -192,6 +192,7 @@ async function enviarPermiso() {
   const formData = new FormData();
   formData.append("id", permisoActual.id);
   formData.append("version", permisoActual.version);
+  formData.append("csrf_token", document.getElementById("csrfToken").value);
   const res = await fetch("/chvb/public/api/permisos_enviar.php", {
     method: "POST",
     body: formData,
@@ -228,6 +229,7 @@ function abrirModalAccion(accion, rol) {
   if (accion === "firmar" && !capturaFotoAccion)
     capturaFotoAccion = inicializarCapturaFoto("capturaFotoAccion");
   document.getElementById("modalAccionPermiso").classList.remove("hidden");
+  if (accion === "firmar") canvasAccion.redimensionar();
 }
 
 document
@@ -243,6 +245,7 @@ document
     const formData = new FormData();
     formData.append("id", permisoActual.id);
     formData.append("version", permisoActual.version);
+    formData.append("csrf_token", document.getElementById("csrfToken").value);
 
     let url = "";
     if (accionActualV === "firmar") {

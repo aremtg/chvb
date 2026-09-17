@@ -33,9 +33,18 @@ let infoDias = {};
 
 async function asegurarFestivosDelAnio(anio) {
   if (festivosCache[anio]) return festivosCache[anio];
+  
+  // SE AGREGARON LOS HEADERS CON EL TOKEN CSRF AQUÍ:
   const res = await fetch(
     `/chvb/public/api/festivos_verificar.php?anio=${anio}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ""
+      }
+    }
   );
+  
   const data = await res.json();
   const mapa = {};
   if (data.ok)
@@ -45,6 +54,7 @@ async function asegurarFestivosDelAnio(anio) {
   festivosCache[anio] = mapa;
   return mapa;
 }
+
 
 function formatearFechaEs(fechaStr) {
   const [y, m, d] = fechaStr.split("-").map(Number);

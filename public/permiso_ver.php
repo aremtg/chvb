@@ -25,6 +25,7 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
 </head>
 <body class="bg-[#f5f6f7] min-h-screen antialiased">
 <?php require __DIR__. '/../includes/sidebar_empleado.php';?>
+<input type="hidden" id="csrfToken" value="<?= htmlspecialchars(csrfToken()) ?>">
 <div class="md:ml-64 pt-14 md:pt-0">
     <!-- Header pro -->
     <header class="bg-white border-b border-gray-100 sticky top-0 z-20">

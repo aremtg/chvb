@@ -44,6 +44,7 @@ async function revocarAcceso(cedula) {
 
   const formData = new FormData();
   formData.append("cedula", cedula);
+  formData.append("csrf_token", document.getElementById("csrfToken").value);
 
   const res = await fetch("/chvb/public/api/usuarios_empleados_revocar.php", {
     method: "POST",
@@ -56,6 +57,7 @@ async function revocarAcceso(cedula) {
 async function reactivarAcceso(cedula) {
   const formData = new FormData();
   formData.append("cedula", cedula);
+  formData.append("csrf_token", document.getElementById("csrfToken").value);
 
   const res = await fetch("/chvb/public/api/usuarios_empleados_reactivar.php", {
     method: "POST",

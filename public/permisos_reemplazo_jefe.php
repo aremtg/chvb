@@ -18,6 +18,7 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
 </head>
 <body class="bg-gray-100 min-h-screen">
 <?php require __DIR__ . '/../includes/sidebar_empleado.php'; ?>
+<input type="hidden" id="csrfToken" value="<?= htmlspecialchars(csrfToken()) ?>">
 <div class="md:ml-64 pt-14 md:pt-0">
     <header class="bg-white shadow px-6 py-4"><h1 class="text-lg font-bold text-gray-800">Permisos por firmar</h1></header>
     <main class="p-4 md:p-6 max-w-3xl mx-auto">

@@ -67,5 +67,8 @@ function inicializarCanvasFirma(canvasId) {
         obtenerDataURL() {
             return canvas.toDataURL('image/png');
         },
+        redimensionar() {
+            ajustarTamano();
+        },
     };
 }
