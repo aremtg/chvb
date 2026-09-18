@@ -30,7 +30,7 @@ class ReconciliadorArchivos {
                     continue;
                 }
 
-                DocumentoModel::crear((int) $bolsillo['id'], $nombreArchivoFisico, $rutaRelativa, false);
+                DocumentoModel::crear((int) $bolsillo['id'], $nombreArchivoFisico, $rutaRelativa, null, 'panel');
                 $importados++;
             }
         }

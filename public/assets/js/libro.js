@@ -218,7 +218,6 @@ function renderDocumentos(documentos) {
             <button onclick="abrirVisorPDF(${index})" class="flex items-center gap-2 text-left flex-1 text-red-600 hover:underline">
                 <span class="text-gray-400 no-underline">${index + 1}.</span>
                 <span>${doc.nombre_archivo}</span>
-                ${doc.pendiente_revision == 1 ? '<span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-lg no-underline">Pendiente revisión</span>' : ""}
             </button>
             ${
               soloLectura

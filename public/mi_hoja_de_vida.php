@@ -18,6 +18,8 @@ $bolsillos = BolsilloModel::listarPorEmpleado($cedula);
 $bolsillosPorSeccion = ['hoja_de_vida' => [], 'documentos_contractuales' => []];
 foreach ($bolsillos as $b) {
     $b['documentos'] = DocumentoModel::listarPorBolsillo((int) $b['id']);
+    foreach ($b['documentos'] as &$doc) { $doc['puede_eliminar_empleado'] = DocumentoModel::puedeEliminarEmpleado($doc, $cedula); }
+    unset($doc);
     $bolsillosPorSeccion[$b['seccion']][] = $b;
 }
 ?>
@@ -49,7 +51,7 @@ foreach ($bolsillos as $b) {
     </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen" data-csrf="<?= htmlspecialchars(csrfToken()) ?>">
     <?php require __DIR__ . '/../includes/sidebar_empleado.php'; ?>
 
     <div class="md:ml-64 pt-14 md:pt-0">
@@ -118,9 +120,7 @@ foreach ($bolsillos as $b) {
                         <button type="submit"
                             class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-1 rounded">Subir</button>
                     </form>
-                    <p class="text-xs text-gray-400 mt-1">Tu documento quedará marcado como pendiente de revisión
-                        por
-                        Talento Humano.</p>
+                    <p class="text-xs text-gray-400 mt-1">El PDF se enviará automáticamente a Talento Humano y al auxiliar.</p>
                     <p id="errorSubida" class="text-xs text-red-600 mt-1 hidden"></p>
                 </div>
 

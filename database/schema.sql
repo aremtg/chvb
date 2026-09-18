@@ -55,8 +55,9 @@ CREATE TABLE `documentos` (
   `nombre_archivo` varchar(255) NOT NULL,
   `ruta` varchar(500) NOT NULL COMMENT 'ruta relativa dentro de uploads/',
   `orden` int(11) NOT NULL DEFAULT 1,
-  `pendiente_revision` tinyint(1) DEFAULT 0,
-  `fecha_subida` timestamp NOT NULL DEFAULT current_timestamp()
+  `fecha_subida` timestamp NOT NULL DEFAULT current_timestamp(),
+  `subido_por_cedula` varchar(10) DEFAULT NULL,
+  `subido_por_tipo` enum('empleado','panel') NOT NULL DEFAULT 'panel'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -589,10 +590,3 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-ALTER TABLE permisos
-  MODIFY estado ENUM('en_proceso','por_firmar_reemplazo','por_firmar_jefe','por_firmar_jefe_final','firmado','devuelto','devuelto_regreso','rechazado','aprobado_pendiente_regreso','anulado') NOT NULL DEFAULT 'en_proceso',
-  ADD COLUMN foto_jefe_prefirmado VARCHAR(255) NULL AFTER firma_jefe,
-  ADD COLUMN firma_jefe_prefirmado VARCHAR(255) NULL AFTER foto_jefe_prefirmado,
-  ADD COLUMN motivo_anulacion TEXT NULL AFTER motivo_rechazo,
-  ADD COLUMN anulado_por VARCHAR(50) NULL AFTER motivo_anulacion,
-  ADD COLUMN fecha_anulacion TIMESTAMP NULL AFTER anulado_por;

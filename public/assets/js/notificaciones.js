@@ -29,7 +29,7 @@ function construirNotificacionLi(n) {
 
     let enlaceHtml = '';
     if (n.enlace) {
-        const etiqueta = n.enlace.includes('libro.php') ? 'ver bolsillo' : 'ver empleado';
+        const etiqueta = n.enlace.includes('documentos_ver.php') ? 'ver pdf' : (n.enlace.includes('libro.php') ? 'ver bolsillo' : 'ver empleado');
         enlaceHtml = ` <a href="${n.enlace}" onclick="marcarLeidaPorEnlace(${n.id})" class="text-red-600 hover:underline">${etiqueta}</a>`;
     }
 

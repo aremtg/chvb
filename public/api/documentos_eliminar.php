@@ -10,4 +10,4 @@ bloquearSiSoloLectura();
 $documentoId = (int)($_POST['documento_id'] ?? 0);
 $cedula = trim($_POST['cedula'] ?? '');
 
-echo json_encode(LibroController::eliminarDocumento($documentoId, $cedula));
+echo json_encode(LibroController::eliminarDocumento($documentoId, $cedula, false));

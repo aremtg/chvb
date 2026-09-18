@@ -17,7 +17,7 @@ if ($rolActual === 'teniente') {
         ['url' => '/chvb/public/usuarios_empleados.php', 'label' => 'Usuarios Empleados', 'icon' => 'key'],
     ];
 
-    if ($rolActual === 'superadmin_talento_humano') {
+    if (in_array($rolActual, ['superadmin_talento_humano','auxiliar_talento_humano'], true)) {
         $linksSidebar[] = ['url' => '/chvb/public/permisos_th.php', 'label' => 'Permisos', 'icon' => 'file-text'];
         $linksSidebar[] = [
             'url' => '/chvb/public/notificaciones.php',
@@ -28,7 +28,7 @@ if ($rolActual === 'teniente') {
     }
 }
 
-$totalNoLeidasInicial = $rolActual === 'superadmin_talento_humano' ? NotificacionModel::contarNoLeidas() : 0;
+$totalNoLeidasInicial = in_array($rolActual, ['superadmin_talento_humano','auxiliar_talento_humano'], true) ? NotificacionModel::contarNoLeidas() : 0;
 ?>
 <button onclick="document.getElementById('sidebarMovil').classList.remove('-translate-x-full')"
     class="md:hidden fixed top-3 left-3 z-40 bg-white border border-gray-200 rounded-xl p-2 shadow">
@@ -93,7 +93,7 @@ $totalNoLeidasInicial = $rolActual === 'superadmin_talento_humano' ? Notificacio
         overlaySidebarEl.classList.toggle('hidden', sidebarMovilEl.classList.contains('-translate-x-full'));
     }).observe(sidebarMovilEl, { attributes: true, attributeFilter: ['class'] });
 
-    <?php if ($rolActual === 'superadmin_talento_humano'): ?>
+    <?php if (in_array($rolActual, ['superadmin_talento_humano','auxiliar_talento_humano'], true)): ?>
         // --- Badge de notificaciones en tiempo real (funciona en TODAS las páginas) ---
         let ultimoTotalNoLeidas = <?= $totalNoLeidasInicial ?>;
         let primeraLecturaBadge = true;

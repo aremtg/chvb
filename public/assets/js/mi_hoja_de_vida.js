@@ -47,12 +47,15 @@ function renderDocumentos(documentos) {
     documentos.forEach((doc, index) => {
         const li = document.createElement('li');
         li.className = 'p-3 flex items-center justify-between text-sm';
+        const botonEliminar = doc.puede_eliminar_empleado
+            ? `<button onclick="eliminarDocumentoEmpleado(${doc.id})" class="text-red-400 hover:text-red-600 px-2" title="Eliminar dentro de las primeras 24 horas">✕</button>`
+            : '';
         li.innerHTML = `
             <button onclick="abrirVisorPDF(${index})" class="flex items-center gap-2 text-left flex-1 text-red-600 hover:underline">
                 <span class="text-gray-400 no-underline">${index + 1}.</span>
                 <span>${doc.nombre_archivo}</span>
-                ${doc.pendiente_revision == 1 ? '<span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-lg no-underline">Pendiente revisión</span>' : ''}
             </button>
+            ${botonEliminar}
         `;
         lista.appendChild(li);
     });
@@ -124,4 +127,16 @@ function visorSiguiente() {
 function cerrarVisorPDF() {
     document.getElementById('modalVisorPDF').classList.add('hidden');
     document.getElementById('visorPDFIframe').src = '';
+}
+async function eliminarDocumentoEmpleado(documentoId) {
+    if (!confirm('¿Eliminar este PDF? Solo puedes eliminarlo durante las primeras 24 horas después de subirlo.')) return;
+    const formData = new FormData();
+    formData.append('documento_id', documentoId);
+    formData.append('csrf_token', document.body.dataset.csrf || '');
+    try {
+        const res = await fetch('./api/empleado_eliminar_documento.php', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (!data.ok) { alert(data.error || 'No se pudo eliminar el PDF.'); return; }
+        window.location.reload();
+    } catch (e) { alert('Error de conexión con el servidor.'); }
 }

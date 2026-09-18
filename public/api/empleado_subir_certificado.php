@@ -30,6 +30,6 @@ if (!isset($_FILES['archivo'])) {
     exit;
 }
 
-// pendienteRevision = true, forzado, según tu regla de negocio
-$resultado = LibroController::subirDocumento((int)$bolsilloCertificados['id'], $cedula, $_FILES['archivo'], true);
+// Los PDF subidos por el empleado quedan identificados como propios para permitir eliminación durante 24 horas.
+$resultado = LibroController::subirDocumento((int)$bolsilloCertificados['id'], $cedula, $_FILES['archivo'], $cedula, 'empleado');
 echo json_encode($resultado);

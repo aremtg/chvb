@@ -15,7 +15,7 @@ class LibroController
     /**
      * Sube un PDF a un bolsillo específico, tanto físico como en BD.
      */
-    public static function subirDocumento(int $bolsilloId, string $cedula, array $archivo, bool $pendienteRevision = false): array
+    public static function subirDocumento(int $bolsilloId, string $cedula, array $archivo, ?string $subidoPorCedula = null, string $subidoPorTipo = 'panel'): array
     {
         $bolsillo = BolsilloModel::obtenerPorId($bolsilloId);
         if (!$bolsillo || $bolsillo['cedula_empleado'] !== $cedula) {
@@ -57,10 +57,19 @@ class LibroController
         // Ruta relativa para guardar en BD (no la ruta absoluta de Windows)
         $rutaRelativa = 'hv_' . $cedula . '/' . $bolsillo['seccion'] . '/' . $bolsillo['nombre'] . '_hv_' . $cedula . '/' . $nombreFinal;
 
-        $id = DocumentoModel::crear($bolsilloId, $archivo['name'], $rutaRelativa, $pendienteRevision);
+        $id = DocumentoModel::crear($bolsilloId, $archivo['name'], $rutaRelativa, $subidoPorCedula, $subidoPorTipo);
 
-        $rolActor = $_SESSION['superadmin_rol'] ?? null;
-        if ($rolActor && $rolActor !== 'superadmin_talento_humano' && isset($_SESSION['superadmin_id'])) {
+        if ($subidoPorTipo === 'empleado') {
+            $empleado = EmpleadoModel::obtenerPorCedula($cedula);
+            $nombreEmpleado = $empleado['nombre'] ?? $cedula;
+            $enlacePdf = "/chvb/public/api/documentos_ver.php?id=" . $id;
+            NotificacionModel::crearParaRolesTalentoHumano(
+                $cedula,
+                'documento',
+                "El empleado \"{$nombreEmpleado}\" subió {$archivo['name']} al bolsillo {$bolsillo['nombre_completo']}",
+                $enlacePdf
+            );
+        } elseif (isset($_SESSION['superadmin_id'])) {
             $usuarioNombre = $_SESSION['superadmin_username'];
             $empleado = EmpleadoModel::obtenerPorCedula($cedula);
             $nombreEmpleado = $empleado['nombre'] ?? $cedula;
@@ -77,21 +86,39 @@ class LibroController
         return ['ok' => true, 'id' => $id];
     }
 
-    public static function eliminarDocumento(int $documentoId, string $cedula): array
+    public static function eliminarDocumento(int $documentoId, string $cedula, bool $esEmpleado = false): array
     {
         $doc = DocumentoModel::obtenerPorId($documentoId);
-        if (!$doc) {
-            return ['ok' => false, 'error' => 'Documento no encontrado.'];
+        if (!$doc) return ['ok' => false, 'error' => 'Documento no encontrado.'];
+
+        $bolsillo = BolsilloModel::obtenerPorId((int)$doc['bolsillo_id']);
+        if (!$bolsillo || $bolsillo['cedula_empleado'] !== $cedula) {
+            return ['ok' => false, 'error' => 'Este documento no pertenece a este empleado.'];
+        }
+
+        if ($esEmpleado && !DocumentoModel::puedeEliminarEmpleado($doc, $cedula)) {
+            return ['ok' => false, 'error' => 'Solo puedes eliminar tus propios PDF durante las primeras 24 horas después de subirlos.'];
         }
 
         $uploadsPath = FileManager::rutaUploads();
         $rutaFisica = $uploadsPath . '/' . $doc['ruta'];
-
-        if (is_file($rutaFisica)) {
-            unlink($rutaFisica);
+        if (is_file($rutaFisica) && !unlink($rutaFisica)) {
+            return ['ok' => false, 'error' => 'No se pudo eliminar el archivo del servidor.'];
         }
 
         DocumentoModel::eliminar($documentoId);
+
+        if ($esEmpleado) {
+            $empleado = EmpleadoModel::obtenerPorCedula($cedula);
+            $nombreEmpleado = $empleado['nombre'] ?? $cedula;
+            NotificacionModel::crearParaRolesTalentoHumano(
+                $cedula,
+                'documento_eliminado',
+                "El empleado \"{$nombreEmpleado}\" eliminó {$doc['nombre_archivo']} del bolsillo {$bolsillo['nombre_completo']}",
+                "/chvb/public/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . (int)$bolsillo['id']
+            );
+        }
+
         return ['ok' => true];
     }
 

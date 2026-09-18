@@ -28,42 +28,46 @@ class NotificacionModel
     public static function listar(): array {
     self::purgarExpiradas();
     $pdo = getPDO();
-    $stmt = $pdo->query("SELECT * FROM notificaciones WHERE destinatario_tipo = 'talento_humano' ORDER BY created_at DESC");
+    $stmt = $pdo->prepare("SELECT * FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND (usuario_id = :usuario_id OR usuario_id IS NULL) ORDER BY created_at DESC");
+    $stmt->execute(['usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
     return $stmt->fetchAll();
 }
 
     public static function contar(): int {
     self::purgarExpiradas();
     $pdo = getPDO();
-    $stmt = $pdo->query("SELECT COUNT(*) as total FROM notificaciones WHERE destinatario_tipo = 'talento_humano'");
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND (usuario_id = :usuario_id OR usuario_id IS NULL)");
+    $stmt->execute(['usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
     return (int)$stmt->fetch()['total'];
 }
 
     public static function marcar(int $id, bool $leida): void
     {
         $pdo = getPDO();
-        $stmt = $pdo->prepare("UPDATE notificaciones SET leida = :leida WHERE id = :id");
-        $stmt->execute(['leida' => $leida ? 1 : 0, 'id' => $id]);
+        $stmt = $pdo->prepare("UPDATE notificaciones SET leida = :leida WHERE id = :id AND usuario_id = :usuario_id");
+        $stmt->execute(['leida' => $leida ? 1 : 0, 'id' => $id, 'usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
     }
 
    public static function contarNoLeidas(): int {
     self::purgarExpiradas();
     $pdo = getPDO();
-    $stmt = $pdo->query("SELECT COUNT(*) as total FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND leida = 0");
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND leida = 0 AND (usuario_id = :usuario_id OR usuario_id IS NULL)");
+    $stmt->execute(['usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
     return (int)$stmt->fetch()['total'];
 }
 
     public static function eliminar(int $id): void
     {
         $pdo = getPDO();
-        $stmt = $pdo->prepare("DELETE FROM notificaciones WHERE id = :id");
-        $stmt->execute(['id' => $id]);
+        $stmt = $pdo->prepare("DELETE FROM notificaciones WHERE id = :id AND usuario_id = :usuario_id");
+        $stmt->execute(['id' => $id, 'usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
     }
 
     public static function eliminarTodas(): void
     {
         $pdo = getPDO();
-        $pdo->exec("DELETE FROM notificaciones");
+        $stmt = $pdo->prepare("DELETE FROM notificaciones WHERE usuario_id = :usuario_id");
+        $stmt->execute(['usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
     }
 
     private static function purgarExpiradas(): void
@@ -81,6 +85,24 @@ class NotificacionModel
      * devuelto/rechazado/firmado", etc. Reutiliza la misma tabla y el mismo
      * mecanismo de polling/badge/sonido ya construido, filtrando por destinatario_tipo.
      */
+    public static function crearParaRolesTalentoHumano(string $cedulaEmpleado, string $campo, string $mensaje, ?string $enlace = null): void
+    {
+        $pdo = getPDO();
+        $stmtUsuarios = $pdo->query("SELECT id, username FROM usuarios WHERE rol IN ('superadmin_talento_humano','auxiliar_talento_humano')");
+        $usuarios = $stmtUsuarios->fetchAll();
+        $stmt = $pdo->prepare("INSERT INTO notificaciones (usuario_id, destinatario_tipo, usuario_nombre, cedula_empleado, campo, mensaje, enlace) VALUES (:usuario_id, 'talento_humano', :usuario_nombre, :cedula, :campo, :mensaje, :enlace)");
+        foreach ($usuarios as $u) {
+            $stmt->execute([
+                'usuario_id' => (int)$u['id'],
+                'usuario_nombre' => $u['username'],
+                'cedula' => $cedulaEmpleado,
+                'campo' => $campo,
+                'mensaje' => $mensaje,
+                'enlace' => $enlace,
+            ]);
+        }
+    }
+
     public static function crearParaEmpleado(string $cedulaDestino, string $mensaje, ?string $enlace, string $campo): void {
         $pdo = getPDO();
         $stmt = $pdo->prepare(

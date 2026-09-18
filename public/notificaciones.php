@@ -4,8 +4,7 @@ require_once __DIR__ . '/../src/models/NotificacionModel.php';
 require_once __DIR__ . '/../src/models/EmpleadoModel.php';
 requireSuperAdmin();
 
-// Solo el Super Admin ve este panel
-if (($_SESSION['superadmin_rol'] ?? '') !== 'superadmin_talento_humano') {
+if (!in_array(($_SESSION['superadmin_rol'] ?? ''), ['superadmin_talento_humano','auxiliar_talento_humano'], true)) {
     header('Location: ./dashboard.php');
     exit;
 }
@@ -58,7 +57,7 @@ $notificaciones = NotificacionModel::listar();
                                             <a href="<?= htmlspecialchars($n['enlace']) ?>"
                                                 onclick="marcarLeidaPorEnlace(<?= $n['id'] ?>)"
                                                 class="text-red-600 hover:underline">
-                                                <?= str_contains($n['enlace'], 'libro.php') ? 'ver bolsillo' : 'ver empleado' ?>
+                                                <?= str_contains($n['enlace'], 'documentos_ver.php') ? 'ver pdf' : (str_contains($n['enlace'], 'libro.php') ? 'ver bolsillo' : 'ver empleado') ?>
                                             </a>
                                         <?php endif; ?>
                                     </p>

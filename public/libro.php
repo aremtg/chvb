@@ -89,19 +89,12 @@ foreach ($bolsillos as $b) {
                             <?php foreach ($bolsillosPorSeccion[$seccion] as $bolsillo): ?>
                                 <?php
                                 $totalDocs = count($bolsillo['documentos']);
-                                $pendientes = count(array_filter($bolsillo['documentos'], fn($d) => $d['pendiente_revision']));
-                                $estadoAlarma = BolsilloModel::calcularEstadoAlarma($bolsillo);
+                                                                $estadoAlarma = BolsilloModel::calcularEstadoAlarma($bolsillo);
                                 ?>
                                 <button id="bolsilloBtn-<?= $bolsillo['id'] ?>"
                                     onclick="abrirBolsilloPorId(<?= $bolsillo['id'] ?>)"
                                     class="text-left border rounded-xl p-4 hover:shadow transition relative
         <?= $estadoAlarma === 'vencida' ? 'border-red-400 bg-red-50' : ($estadoAlarma === 'proxima' ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200') ?>">
-                                    <?php if ($pendientes > 0): ?>
-                                        <span
-                                            class="absolute -top-2 -right-2 bg-yellow-400 text-xs font-bold text-white rounded-full w-6 h-6 flex items-center justify-center">
-                                            <?= $pendientes ?>
-                                        </span>
-                                    <?php endif; ?>
                                     <span id="bolsilloEstadoLabel-<?= $bolsillo['id'] ?>" class="text-xs font-semibold block">
                                         <?php if ($estadoAlarma === 'vencida'): ?>
                                             <span class="text-red-600">🔴 Alarma vencida</span>

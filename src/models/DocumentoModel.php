@@ -22,20 +22,21 @@ class DocumentoModel
         return ((int) ($r['maximo'] ?? 0)) + 1;
     }
 
-    public static function crear(int $bolsilloId, string $nombreArchivo, string $ruta, bool $pendienteRevision = false): int
+    public static function crear(int $bolsilloId, string $nombreArchivo, string $ruta, ?string $subidoPorCedula = null, string $subidoPorTipo = 'panel'): int
     {
         $pdo = getPDO();
         $orden = self::siguienteOrden($bolsilloId);
         $stmt = $pdo->prepare(
-            "INSERT INTO documentos (bolsillo_id, nombre_archivo, ruta, orden, pendiente_revision)
-             VALUES (:bolsillo_id, :nombre, :ruta, :orden, :pendiente)"
+            "INSERT INTO documentos (bolsillo_id, nombre_archivo, ruta, orden, subido_por_cedula, subido_por_tipo)
+             VALUES (:bolsillo_id, :nombre, :ruta, :orden, :subido_por_cedula, :subido_por_tipo)"
         );
         $stmt->execute([
             'bolsillo_id' => $bolsilloId,
             'nombre' => $nombreArchivo,
             'ruta' => $ruta,
             'orden' => $orden,
-            'pendiente' => $pendienteRevision ? 1 : 0,
+            'subido_por_cedula' => $subidoPorCedula,
+            'subido_por_tipo' => $subidoPorTipo,
         ]);
         return (int) $pdo->lastInsertId();
     }
@@ -74,11 +75,16 @@ class DocumentoModel
         }
     }
 
-    public static function marcarRevisado(int $id): void
+    public static function puedeEliminarEmpleado(array $doc, string $cedula): bool
     {
-        $pdo = getPDO();
-        $stmt = $pdo->prepare("UPDATE documentos SET pendiente_revision = 0 WHERE id = :id");
-        $stmt->execute(['id' => $id]);
+        if (($doc['subido_por_tipo'] ?? '') !== 'empleado' || ($doc['subido_por_cedula'] ?? '') !== $cedula) {
+            return false;
+        }
+        if (empty($doc['fecha_subida'])) {
+            return false;
+        }
+        $subida = strtotime($doc['fecha_subida']);
+        return $subida !== false && (time() - $subida) < 24 * 60 * 60;
     }
 
     public static function actualizarRutasPorCambioCedula(string $cedulaAnterior, string $cedulaNueva): void
@@ -86,10 +92,11 @@ class DocumentoModel
         $pdo = getPDO();
         $sql = "UPDATE documentos d
             INNER JOIN bolsillos b ON d.bolsillo_id = b.id
-            SET d.ruta = REPLACE(d.ruta, CONCAT('hv_', :anterior, '/'), CONCAT('hv_', :nueva, '/'))
-            WHERE b.cedula_empleado = :nueva2";
+            SET d.ruta = REPLACE(d.ruta, CONCAT('hv_', :anterior, '/'), CONCAT('hv_', :nueva, '/')),
+                d.subido_por_cedula = CASE WHEN d.subido_por_cedula = :anterior2 THEN :nueva_set ELSE d.subido_por_cedula END
+            WHERE b.cedula_empleado = :nueva_where";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute(['anterior' => $cedulaAnterior, 'nueva' => $cedulaNueva, 'nueva2' => $cedulaNueva]);
+        $stmt->execute(['anterior' => $cedulaAnterior, 'nueva' => $cedulaNueva, 'anterior2' => $cedulaAnterior, 'nueva_set' => $cedulaNueva, 'nueva_where' => $cedulaNueva]);
     }
 
     public static function actualizarNombreYRuta(int $id, string $nombreArchivo, string $ruta): void {
