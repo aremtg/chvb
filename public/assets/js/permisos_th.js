@@ -47,7 +47,7 @@ function pintarPermiso(p) {
 
 async function cargarInicial() {
     const params = construirParams();
-    const res = await fetch(`/chvb/public/api/permisos_th_listar.php?${params}`);
+    const res = await fetch(`./api/permisos_th_listar.php?${params}`);
     const data = await res.json();
     if (data.ok) {
         document.getElementById('listaPermisosTH').innerHTML = '';
@@ -73,13 +73,13 @@ function construirParams() {
 });
 
 async function actualizarPresencia() {
-    const res = await fetch('/chvb/public/api/presencia_estado.php');
+    const res = await fetch('./api/presencia_estado.php');
     const data = await res.json();
     if (data.ok) cedulasEnLinea = new Set(data.en_linea);
 }
 
 async function polling() {
-    const res = await fetch(`/chvb/public/api/permisos_th_actualizados.php?desde=${encodeURIComponent(ultimaActualizacion)}`);
+    const res = await fetch(`./api/permisos_th_actualizados.php?desde=${encodeURIComponent(ultimaActualizacion)}`);
     const data = await res.json();
     if (data.ok) {
         data.permisos.forEach(pintarPermiso);

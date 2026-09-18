@@ -12,7 +12,7 @@ $permisos = PermisoModel::listarPorEmpleadoConFiltros($cedula, []);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Permisos - CHVB</title>
-    <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
 <?php require __DIR__ . '/../includes/sidebar_empleado.php'; ?>
@@ -61,6 +61,6 @@ $permisos = PermisoModel::listarPorEmpleadoConFiltros($cedula, []);
     </main>
 </div>
 
-<script src="/chvb/public/assets/js/permisos.js"></script>
+<script src="./assets/js/permisos.js"></script>
 </body>
 </html>

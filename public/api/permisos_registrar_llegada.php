@@ -48,8 +48,8 @@ try {
     PermisoModel::reemplazarDias($id, $recalculo['dias']);
     PermisoModel::registrarHistorial($id, $version, 'aprobado_pendiente_regreso', 'firmado', 'empleado', $cedula, 'Llegada registrada con evidencia, horas calculadas: ' . $recalculo['total_horas']);
 
-    NotificacionModel::crearParaEmpleado($permiso['cedula_jefe'], "\"{$permiso['nombre_empleado_snapshot']}\" registró su llegada y completó el cierre con evidencia ({$permiso['consecutivo']})", "/chvb/public/permisos_reemplazo_jefe.php?id={$id}", 'permiso');
-    NotificacionModel::crearParaTalentoHumano(null, $permiso['nombre_empleado_snapshot'], $cedula, 'permiso_cierre', "\"{$permiso['nombre_empleado_snapshot']}\" completó el cierre del permiso {$permiso['consecutivo']} con evidencia", "/chvb/public/permisos_th.php?id={$id}");
+    NotificacionModel::crearParaEmpleado($permiso['cedula_jefe'], "\"{$permiso['nombre_empleado_snapshot']}\" registró su llegada y completó el cierre con evidencia ({$permiso['consecutivo']})", "./permisos_reemplazo_jefe.php?id={$id}", 'permiso');
+    NotificacionModel::crearParaTalentoHumano(null, $permiso['nombre_empleado_snapshot'], $cedula, 'permiso_cierre', "\"{$permiso['nombre_empleado_snapshot']}\" completó el cierre del permiso {$permiso['consecutivo']} con evidencia", "./permisos_th.php?id={$id}");
 
     echo json_encode(['ok' => true, 'total_horas' => $recalculo['total_horas']]);
 } catch (Throwable $e) {

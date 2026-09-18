@@ -13,6 +13,22 @@ class FirmaModel {
     }
 
     /** Guarda/reemplaza la firma reutilizable del empleado (UPSERT manual, tabla con UNIQUE en cedula). */
+    /** Actualiza la ruta de la firma reutilizable tras cambiar la cédula. */
+    public static function actualizarRutaPorCambioCedula(string $cedulaAnterior, string $cedulaNueva): void
+    {
+        $pdo = getPDO();
+        $stmt = $pdo->prepare(
+            "UPDATE firmas_guardadas
+             SET ruta_imagen = REPLACE(ruta_imagen, :vieja, :nueva)
+             WHERE cedula = :cedula AND ruta_imagen IS NOT NULL"
+        );
+        $stmt->execute([
+            'vieja' => 'hv_' . $cedulaAnterior . '/',
+            'nueva' => 'hv_' . $cedulaNueva . '/',
+            'cedula' => $cedulaNueva,
+        ]);
+    }
+
     public static function guardarComoActiva(string $cedula, string $rutaImagen): void {
         $pdo = getPDO();
         $existente = self::obtenerPorCedula($cedula);

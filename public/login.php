@@ -4,7 +4,7 @@ require_once __DIR__ . '/../src/controllers/AuthController.php';
 
 // Si ya está logueado, mándalo directo al dashboard
 if (!empty($_SESSION['superadmin_id'])) {
-    header('Location: /chvb/public/dashboard.php');
+    header('Location: ./dashboard.php');
     exit;
 }
 
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $resultado = AuthController::login($username, $password);
         if ($resultado['ok']) {
-            header('Location: /chvb/public/dashboard.php');
+            header('Location: ./dashboard.php');
             exit;
         } else {
             $error = $resultado['error'];
@@ -38,12 +38,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Iniciar sesión</title>
-    <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
     <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-sm">
-        <img src="/chvb/public/assets/img/logo_chv.png" alt="Logo">
+        <img src="./assets/img/logo_chv.png" alt="Logo">
         <p class="text-sm text-gray-500 mb-6 text-center">Control Hojas de Vida Bomberos Yopal</p>
 
         <?php if ($error): ?>
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </button>
         </form>
         <p class="text-xs text-gray-400 mt-4 text-center">
-            <a href="/chvb/public/login_empleado.php" class="hover:underline">Acceso para empleados</a>
+            <a href="./login_empleado.php" class="hover:underline">Acceso para empleados</a>
         </p>
     </div>
 </body>

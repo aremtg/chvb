@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../src/helpers/FileManager.php';
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../src/models/DocumentoModel.php';
 
@@ -12,7 +13,7 @@ if (!$doc) {
     exit('Documento no encontrado.');
 }
 
-$uploadsPath = rtrim($_ENV['UPLOADS_PATH'], '/');
+$uploadsPath = FileManager::rutaUploads();
 $ruta = $uploadsPath . '/' . $doc['ruta'];
 
 if (!is_file($ruta)) {

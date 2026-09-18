@@ -24,7 +24,7 @@ $alarmas = BolsilloModel::alarmasProximas();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Panel de Alarmas</title>
-    <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 
 <body class="bg-gray-100 min-h-screen">
@@ -70,7 +70,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                                         </span>
                                     </td>
                                     <td class="px-4 py-3">
-                                        <a href="/chvb/public/libro.php?cedula=<?= urlencode($al['cedula_empleado']) ?>&bolsillo=<?= $al['id'] ?>"
+                                        <a href="./libro.php?cedula=<?= urlencode($al['cedula_empleado']) ?>&bolsillo=<?= $al['id'] ?>"
                                             class="text-red-600 hover:underline text-xs">ver bolsillo</a>
                                     </td>
                                 </tr>

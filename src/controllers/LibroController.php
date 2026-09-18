@@ -84,7 +84,7 @@ class LibroController
             return ['ok' => false, 'error' => 'Documento no encontrado.'];
         }
 
-        $uploadsPath = rtrim($_ENV['UPLOADS_PATH'], '/');
+        $uploadsPath = FileManager::rutaUploads();
         $rutaFisica = $uploadsPath . '/' . $doc['ruta'];
 
         if (is_file($rutaFisica)) {
@@ -122,7 +122,7 @@ class LibroController
         $nombreLimpio = preg_replace('/[^A-Za-z0-9_\-]/', '_', pathinfo($nuevoNombre, PATHINFO_FILENAME));
         $nuevoNombreFisico = $nombreLimpio . '_' . time() . '.pdf';
 
-        $uploadsPath = rtrim($_ENV['UPLOADS_PATH'], '/');
+        $uploadsPath = FileManager::rutaUploads();
         $rutaFisicaActual = $uploadsPath . '/' . $doc['ruta'];
 
         if (!is_file($rutaFisicaActual)) {

@@ -10,10 +10,10 @@ document.getElementById('formLlegada').addEventListener('submit', async (e) => {
     formData.append('hora_fin', document.getElementById('horaLlegada').value);
     formData.append('evidencia', document.getElementById('evidenciaLlegada').files[0]);
 
-    const res = await fetch('/chvb/public/api/permisos_registrar_llegada.php', { method: 'POST', body: formData });
+    const res = await fetch('./api/permisos_registrar_llegada.php', { method: 'POST', body: formData });
     const data = await res.json();
     if (data.ok) {
-        window.location.href = '/chvb/public/permisos.php';
+        window.location.href = './permisos.php';
     } else {
         error.textContent = data.error || 'Error al registrar la llegada.';
         error.classList.remove('hidden');

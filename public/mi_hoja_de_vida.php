@@ -10,7 +10,7 @@ $empleado = EmpleadoModel::obtenerPorCedula($cedula);
 
 if (!$empleado) {
     // Caso raro: el acceso existe pero el empleado fue borrado. Cerramos sesión por seguridad.
-    header('Location: /chvb/public/logout_empleado.php');
+    header('Location: ./logout_empleado.php');
     exit;
 }
 
@@ -28,7 +28,7 @@ foreach ($bolsillos as $b) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Hoja de Vida - CHVB</title>
-    <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/tailwind.css">
     <style>
         .pagina-bolsillo {
             transform-origin: left center;
@@ -55,7 +55,7 @@ foreach ($bolsillos as $b) {
     <div class="md:ml-64 pt-14 md:pt-0">
         <header class="bg-white shadow px-6 py-4 flex items-center gap-3">
             <?php if (!empty($empleado['foto'])): ?>
-                <img src="/chvb/public/api/foto_ver.php?cedula=<?= urlencode($cedula) ?>"
+                <img src="./api/foto_ver.php?cedula=<?= urlencode($cedula) ?>"
                     class="w-12 h-12 rounded-full object-cover border border-gray-200">
             <?php else: ?>
                 <span class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl">👤</span>
@@ -159,7 +159,7 @@ foreach ($bolsillos as $b) {
             </div>
         </div>
     </div>
-    <script src="/chvb/public/assets/js/mi_hoja_de_vida.js"></script>
+    <script src="./assets/js/mi_hoja_de_vida.js"></script>
 </body>
 
 </html>

@@ -32,7 +32,7 @@ function render() {
                 <p class="font-medium text-gray-800">${p.consecutivo} — ${p.nombre_empleado_snapshot}</p>
                 <p class="text-xs text-gray-500">${p.tipo_permiso} · ${p.total_horas ? parseFloat(p.total_horas).toFixed(2) + " h" : "Regreso pendiente"}</p>
                 <div class="flex gap-2 mt-3 flex-wrap">
-                    <a href="/chvb/public/permiso_ver.php?id=${p.id}" class="text-xs border border-gray-300 px-3 py-1.5 rounded-xl text-gray-700">Ver detalle completo</a>
+                    <a href="./permiso_ver.php?id=${p.id}" class="text-xs border border-gray-300 px-3 py-1.5 rounded-xl text-gray-700">Ver detalle completo</a>
                     <button onclick="abrirModalFirma(${p.id}, ${p.version}, '${rol}', 'firmar')" class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-xl">Firmar</button>
                     <button onclick="abrirModalFirma(${p.id}, ${p.version}, '${rol}', 'devolver')" class="text-xs border border-gray-300 px-3 py-1.5 rounded-xl">Devolver</button>
                     ${rol === "jefe" ? `<button onclick="abrirModalFirma(${p.id}, ${p.version}, '${rol}', 'rechazar')" class="text-xs text-red-600 hover:underline px-3 py-1.5">Rechazar</button>` : ""}
@@ -43,7 +43,7 @@ function render() {
   if (historial.length > 0) {
     html += '<h3 class="text-sm font-medium text-gray-600 pt-4">Historial</h3>';
     historial.forEach((p) => {
-      html += `<a href="/chvb/public/permiso_ver.php?id=${p.id}" class="block bg-white rounded-xl shadow p-3 text-sm text-gray-600 hover:bg-gray-50">${p.consecutivo} — ${p.nombre_empleado_snapshot} (${p.estado})</a>`;
+      html += `<a href="./permiso_ver.php?id=${p.id}" class="block bg-white rounded-xl shadow p-3 text-sm text-gray-600 hover:bg-gray-50">${p.consecutivo} — ${p.nombre_empleado_snapshot} (${p.estado})</a>`;
     });
   }
   cont.innerHTML = html;
@@ -99,8 +99,8 @@ document
     if (accionActual === "firmar") {
       url =
         rol === "reemplazo"
-          ? "/chvb/public/api/permisos_firmar_reemplazo.php"
-          : "/chvb/public/api/permisos_firmar_jefe.php";
+          ? "./api/permisos_firmar_reemplazo.php"
+          : "./api/permisos_firmar_jefe.php";
       const usarGuardada = document.getElementById("usarFirmaGuardadaBandeja");
       if (usarGuardada && usarGuardada.checked) {
         formData.append("usar_firma_guardada", "1");
@@ -114,7 +114,7 @@ document
       if (capturaFotoBandeja.tieneFoto())
         formData.append("foto_base64", capturaFotoBandeja.obtenerDataURL());
     } else if (accionActual === "devolver") {
-      url = "/chvb/public/api/permisos_devolver.php";
+      url = "./api/permisos_devolver.php";
       const motivo = document.getElementById("motivoBandeja").value.trim();
       if (!motivo) {
         error.textContent = "Indica el motivo.";
@@ -123,7 +123,7 @@ document
       }
       formData.append("motivo", motivo);
     } else {
-      url = "/chvb/public/api/permisos_rechazar.php";
+      url = "./api/permisos_rechazar.php";
       const motivo = document.getElementById("motivoBandeja").value.trim();
       if (!motivo) {
         error.textContent = "Indica el motivo.";

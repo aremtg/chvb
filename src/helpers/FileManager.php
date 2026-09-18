@@ -47,9 +47,26 @@ class FileManager {
         ];
     }
 
+    /**
+     * Obtiene la carpeta raíz de archivos subidos.
+     *
+     * Si UPLOADS_PATH está configurado, se respeta. Si está vacío o no existe,
+     * se usa la carpeta /uploads del propio proyecto. Esto evita depender de
+     * rutas específicas de XAMPP, Laragon, Windows o Linux.
+     */
+    public static function rutaUploads(): string {
+        $configurada = $_SERVER['UPLOADS_PATH'] ?? $_ENV['UPLOADS_PATH'] ?? '';
+        $configurada = trim((string)$configurada);
+
+        if ($configurada !== '') {
+            return rtrim($configurada, '/\\');
+        }
+
+        return dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads';
+    }
+
     public static function rutaBase(string $cedula): string {
-        $uploadsPath = rtrim($_ENV['UPLOADS_PATH'], '/');
-        return $uploadsPath . '/hv_' . $cedula;
+        return self::rutaUploads() . DIRECTORY_SEPARATOR . 'hv_' . $cedula;
     }
 
     /**

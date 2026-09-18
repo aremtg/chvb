@@ -6,7 +6,7 @@ requireSuperAdmin();
 
 // Solo el Super Admin ve este panel
 if (($_SESSION['superadmin_rol'] ?? '') !== 'superadmin_talento_humano') {
-    header('Location: /chvb/public/dashboard.php');
+    header('Location: ./dashboard.php');
     exit;
 }
 
@@ -19,7 +19,7 @@ $notificaciones = NotificacionModel::listar();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Notificaciones</title>
-    <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 
 <body class="bg-gray-100 min-h-screen">
@@ -77,7 +77,7 @@ $notificaciones = NotificacionModel::listar();
         </main>
     </div>
 
-    <script src="/chvb/public/assets/js/notificaciones.js"></script>
+    <script src="./assets/js/notificaciones.js"></script>
 </body>
 
 </html>

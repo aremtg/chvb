@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../includes/session.php';
 requireSuperAdmin();
 if (($_SESSION['superadmin_rol'] ?? '') === 'teniente') {
-    header('Location: /chvb/public/dashboard.php');
+    header('Location: ./dashboard.php');
     exit;
 }
 ?>
@@ -12,7 +12,7 @@ if (($_SESSION['superadmin_rol'] ?? '') === 'teniente') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Permisos - Talento Humano</title>
-    <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
 <?php require __DIR__ . '/../includes/sidebar.php'; ?>
@@ -74,6 +74,6 @@ if (($_SESSION['superadmin_rol'] ?? '') === 'teniente') {
         <div id="listaPermisosTH" class="space-y-3"></div>
     </main>
 </div>
-<script src="/chvb/public/assets/js/permisos_th.js"></script>
+<script src="./assets/js/permisos_th.js"></script>
 </body>
 </html>

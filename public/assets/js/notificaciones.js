@@ -49,7 +49,7 @@ function construirNotificacionLi(n) {
 
 async function revisarNotificacionesNuevas() {
     try {
-        const res = await fetch(`/chvb/public/api/notificaciones_listar.php?desde_id=${ultimoIdConocido}`);
+        const res = await fetch(`./api/notificaciones_listar.php?desde_id=${ultimoIdConocido}`);
         const data = await res.json();
 
         if (data.ok && data.notificaciones.length > 0) {
@@ -101,7 +101,7 @@ async function marcarLeidaEnServidor(id, leida) {
     const formData = new FormData();
     formData.append('id', id);
     formData.append('leida', leida ? '1' : '0');
-    await fetch('/chvb/public/api/notificaciones_marcar.php', { method: 'POST', body: formData, keepalive: true });
+    await fetch('./api/notificaciones_marcar.php', { method: 'POST', body: formData, keepalive: true });
     if (window.actualizarBadgeSidebar) window.actualizarBadgeSidebar();
 }
 
@@ -133,7 +133,7 @@ async function eliminarNotificacion(id) {
     const formData = new FormData();
     formData.append('id', id);
 
-    const res = await fetch('/chvb/public/api/notificaciones_eliminar.php', { method: 'POST', body: formData });
+    const res = await fetch('./api/notificaciones_eliminar.php', { method: 'POST', body: formData });
     const data = await res.json();
 
     if (data.ok) {
@@ -146,7 +146,7 @@ async function eliminarNotificacion(id) {
 async function eliminarTodasNotificaciones() {
     if (!confirm('¿Eliminar todas las notificaciones? Esta acción no se puede deshacer.')) return;
 
-    const res = await fetch('/chvb/public/api/notificaciones_eliminar_todas.php', { method: 'POST' });
+    const res = await fetch('./api/notificaciones_eliminar_todas.php', { method: 'POST' });
     const data = await res.json();
 
     if (data.ok) {

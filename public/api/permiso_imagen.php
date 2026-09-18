@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../src/helpers/FileManager.php';
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../src/models/PermisoModel.php';
 
@@ -25,7 +26,7 @@ if ($esEmpleado) {
 $rutaRelativa = $permiso[$campo] ?? null;
 if (!$rutaRelativa) { http_response_code(404); exit('No hay imagen para este campo.'); }
 
-$uploadsPath = rtrim($_ENV['UPLOADS_PATH'] ?? $_SERVER['UPLOADS_PATH'], '/');
+$uploadsPath = FileManager::rutaUploads();
 $rutaCompleta = $uploadsPath . '/' . $rutaRelativa;
 
 if (!is_file($rutaCompleta)) { http_response_code(404); exit('Archivo no encontrado en disco.'); }

@@ -58,7 +58,7 @@ let permisoActual = null;
 
 async function cargarPermiso() {
   const res = await fetch(
-    `/chvb/public/api/permiso_detalle.php?id=${permisoId}`,
+    `./api/permiso_detalle.php?id=${permisoId}`,
   );
   const data = await res.json();
   if (!data.ok) {
@@ -82,7 +82,7 @@ function render() {
   if (esDueno && (p.estado === "en_proceso" || p.estado === "devuelto")) {
     acciones += `<button onclick="enviarPermiso()" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-xl">Enviar permiso</button>`;
     if (p.estado === "devuelto") {
-      acciones += `<a href="/chvb/public/permiso_editar.php?id=${p.id}" class="border border-gray-300 text-sm px-4 py-2 rounded-xl text-gray-700">Editar</a>`;
+      acciones += `<a href="./permiso_editar.php?id=${p.id}" class="border border-gray-300 text-sm px-4 py-2 rounded-xl text-gray-700">Editar</a>`;
     }
   }
   if (esReemplazoPendiente || esJefePendiente) {
@@ -93,7 +93,7 @@ function render() {
       acciones += `<button onclick="abrirModalAccion('rechazar','${rol}')" class="text-red-600 hover:underline text-sm px-2 py-2">Rechazar</button>`;
   }
   if (p.estado === "aprobado_pendiente_regreso" && esDueno) {
-    acciones += `<a href="/chvb/public/permiso_registrar_llegada.php?id=${p.id}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-xl">Registrar llegada</a>`;
+    acciones += `<a href="./permiso_registrar_llegada.php?id=${p.id}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-xl">Registrar llegada</a>`;
   }
 
   let diasHtml = "";
@@ -132,7 +132,7 @@ function render() {
     .join("");
 
   function imgUrl(campo) {
-    return `/chvb/public/api/permiso_imagen.php?id=${p.id}&campo=${campo}`;
+    return `./api/permiso_imagen.php?id=${p.id}&campo=${campo}`;
   }
   function bloqueFirmante(titulo, campoFoto, campoFirma, cedulaCampo) {
     if (!p[campoFirma]) return "";
@@ -193,7 +193,7 @@ async function enviarPermiso() {
   formData.append("id", permisoActual.id);
   formData.append("version", permisoActual.version);
   formData.append("csrf_token", document.getElementById("csrfToken").value);
-  const res = await fetch("/chvb/public/api/permisos_enviar.php", {
+  const res = await fetch("./api/permisos_enviar.php", {
     method: "POST",
     body: formData,
   });
@@ -251,8 +251,8 @@ document
     if (accionActualV === "firmar") {
       url =
         rolActualV === "reemplazo"
-          ? "/chvb/public/api/permisos_firmar_reemplazo.php"
-          : "/chvb/public/api/permisos_firmar_jefe.php";
+          ? "./api/permisos_firmar_reemplazo.php"
+          : "./api/permisos_firmar_jefe.php";
       const usarGuardada = document.getElementById("usarFirmaGuardadaAccion");
       if (usarGuardada && usarGuardada.checked) {
         formData.append("usar_firma_guardada", "1");
@@ -268,8 +268,8 @@ document
     } else {
       url =
         accionActualV === "devolver"
-          ? "/chvb/public/api/permisos_devolver.php"
-          : "/chvb/public/api/permisos_rechazar.php";
+          ? "./api/permisos_devolver.php"
+          : "./api/permisos_rechazar.php";
       const motivo = document.getElementById("motivoAccion").value.trim();
       if (!motivo) {
         error.textContent = "Indica el motivo.";

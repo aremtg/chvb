@@ -15,7 +15,7 @@ $empleados = EmpleadoModel::listar($busqueda);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Empleados</title>
-    <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 
 <body class="bg-gray-100 min-h-screen">
@@ -71,7 +71,7 @@ $empleados = EmpleadoModel::listar($busqueda);
                                 <td class="px-4 py-3 font-medium text-gray-800">
                                     <div class="flex items-center gap-2">
                                         <?php if (!empty($emp['foto'])): ?>
-                                            <img src="/chvb/public/api/foto_ver.php?cedula=<?= urlencode($emp['cedula']) ?>"
+                                            <img src="./api/foto_ver.php?cedula=<?= urlencode($emp['cedula']) ?>"
                                                 class="w-8 h-8 rounded-full object-cover border border-gray-200">
                                         <?php else: ?>
                                             <span
@@ -118,7 +118,7 @@ $empleados = EmpleadoModel::listar($busqueda);
                                                 <?= icon('eye', 'w-4 h-4') ?> Ver empleado
                                             </button>
 
-                                            <a href="/chvb/public/libro.php?cedula=<?= urlencode($emp['cedula']) ?>"
+                                            <a href="./libro.php?cedula=<?= urlencode($emp['cedula']) ?>"
                                                 class="flex items-center gap-2.5 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-xl transition">
                                                 <?= icon('file-text', 'w-4 h-4') ?> Ver libro
                                             </a>
@@ -128,7 +128,7 @@ $empleados = EmpleadoModel::listar($busqueda);
                                                     class="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-gray-700 hover:bg-gray-50 rounded-xl transition">
                                                     <?= icon('pencil', 'w-4 h-4') ?> Editar
                                                 </button>
-                                                <a href="/chvb/public/api/empleados_zip.php?cedula=<?= urlencode($emp['cedula']) ?>"
+                                                <a href="./api/empleados_zip.php?cedula=<?= urlencode($emp['cedula']) ?>"
                                                     class="flex items-center gap-2.5 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-xl transition">
                                                     <?= icon('download', 'w-4 h-4') ?> Descargar ZIP
                                                 </a>
@@ -493,7 +493,7 @@ $empleados = EmpleadoModel::listar($busqueda);
         </div>
     </div>
 
-    <script src="/chvb/public/assets/js/empleados.js"></script>
+    <script src="./assets/js/empleados.js"></script>
 </body>
 
 </html>

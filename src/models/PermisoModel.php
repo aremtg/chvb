@@ -117,6 +117,42 @@ class PermisoModel {
         }
     }
 
+    /**
+     * Actualiza las rutas físicas de todos los archivos de permisos cuando
+     * cambia la cédula de un empleado. Las rutas se guardan como texto, por
+     * lo que ON UPDATE CASCADE no puede modificarlas.
+     *
+     * Se actualizan también fotos/firmas del empleado cuando este aparece como
+     * reemplazo o jefe en permisos de otras personas.
+     */
+    public static function actualizarRutasPorCambioCedula(string $cedulaAnterior, string $cedulaNueva): void
+    {
+        $pdo = getPDO();
+        $campos = [
+            'foto_solicitante', 'firma_solicitante', 'foto_reemplazo',
+            'firma_reemplazo', 'foto_jefe', 'firma_jefe', 'evidencia_archivo'
+        ];
+
+        $sets = [];
+        $params = [];
+        foreach ($campos as $i => $campo) {
+            $sets[] = "$campo = REPLACE($campo, ?, ?)";
+            $params[] = 'hv_' . $cedulaAnterior . '/';
+            $params[] = 'hv_' . $cedulaNueva . '/';
+        }
+
+        $where = [];
+        foreach ($campos as $campo) {
+            $where[] = "$campo LIKE ?";
+            $params[] = '%hv_' . $cedulaAnterior . '/%';
+        }
+
+        $sql = "UPDATE permisos SET " . implode(', ', $sets) .
+               " WHERE " . implode(' OR ', $where);
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+    }
+
     public static function obtenerDias(int $permisoId): array {
         $pdo = getPDO();
         $stmt = $pdo->prepare("SELECT * FROM permisos_dias WHERE permiso_id = :b1 ORDER BY fecha ASC");

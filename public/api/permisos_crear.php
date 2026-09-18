@@ -211,7 +211,7 @@ try {
         $cedula,
         'permiso_nuevo',
         "\"{$empleado['nombre']}\" creó un permiso de {$tipoPermiso} ({$consecutivo})",
-        "/chvb/public/permisos_th.php?id={$permisoId}"
+        "./permisos_th.php?id={$permisoId}"
     );
 
     echo json_encode(['ok' => true, 'id' => $permisoId, 'consecutivo' => $consecutivo]);

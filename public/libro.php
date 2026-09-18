@@ -11,7 +11,7 @@ $cedula = trim($_GET['cedula'] ?? '');
 $empleado = EmpleadoModel::obtenerPorCedula($cedula);
 
 if (!$empleado) {
-    header('Location: /chvb/public/empleados.php');
+    header('Location: ./empleados.php');
     exit;
 }
 
@@ -29,7 +29,7 @@ foreach ($bolsillos as $b) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Libro de <?= htmlspecialchars($empleado['nombre']) ?></title>
-    <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/tailwind.css">
     <style>
         .pagina-bolsillo {
             transform-origin: left center;
@@ -59,7 +59,7 @@ foreach ($bolsillos as $b) {
 
     <div class="md:ml-64 pt-14 md:pt-0">
         <header class="bg-white shadow px-6 py-4">
-            <a href="/chvb/public/empleados.php" class="text-sm text-red-600 hover:underline">&larr; Volver</a>
+            <a href="./empleados.php" class="text-sm text-red-600 hover:underline">&larr; Volver</a>
             <h1 class="text-lg font-bold text-gray-800 mt-1">
                 <?= htmlspecialchars($empleado['nombre']) ?>
                 <span class="text-sm font-normal text-gray-400">(CC <?= htmlspecialchars($cedula) ?>)</span>
@@ -265,7 +265,7 @@ foreach ($bolsillos as $b) {
     <script>
         window.TODOS_LOS_BOLSILLOS = <?= json_encode($bolsillosPorSeccion) ?>;
     </script>
-    <script src="/chvb/public/assets/js/libro.js"></script>
+    <script src="./assets/js/libro.js"></script>
 </body>
 
 </html>

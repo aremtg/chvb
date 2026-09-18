@@ -59,10 +59,10 @@ function renderPermisos(permisos) {
       const esDevuelto = p.estado === "devuelto";
       const esPendienteRegreso = p.estado === "aprobado_pendiente_regreso";
       const urlDestino = esDevuelto
-        ? `/chvb/public/permiso_editar.php?id=${p.id}`
+        ? `./permiso_editar.php?id=${p.id}`
         : esPendienteRegreso
-          ? `/chvb/public/permiso_registrar_llegada.php?id=${p.id}`
-          : `/chvb/public/permiso_ver.php?id=${p.id}`;
+          ? `./permiso_registrar_llegada.php?id=${p.id}`
+          : `./permiso_ver.php?id=${p.id}`;
 
       return `
             <a href="${urlDestino}" class="block bg-white rounded-xl shadow p-4 hover:shadow-md transition ${esDevuelto ? "border-2 border-orange-300" : ""}">
@@ -90,7 +90,7 @@ async function aplicarFiltros() {
   });
 
   const res = await fetch(
-    `/chvb/public/api/permisos_listar_propios.php?${params}`,
+    `./api/permisos_listar_propios.php?${params}`,
   );
   const data = await res.json();
   if (data.ok) renderPermisos(data.permisos);

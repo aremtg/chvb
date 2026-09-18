@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../src/helpers/FileManager.php';
 // public/api/empleado_ver_documento.php
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../src/models/DocumentoModel.php';
@@ -21,7 +22,7 @@ if (!$bolsillo || $bolsillo['cedula_empleado'] !== $cedula) {
     exit('No tienes permiso para ver este documento.');
 }
 
-$uploadsPath = rtrim($_ENV['UPLOADS_PATH'], '/');
+$uploadsPath = FileManager::rutaUploads();
 $ruta = $uploadsPath . '/' . $doc['ruta'];
 
 if (!is_file($ruta)) {

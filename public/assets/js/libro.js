@@ -269,7 +269,7 @@ document
     );
     formData.append("csrf_token", csrfTokenLibro);
     try {
-      const res = await fetch("/chvb/public/api/documentos_renombrar.php", {
+      const res = await fetch("./api/documentos_renombrar.php", {
         method: "POST",
         body: formData,
       });
@@ -290,7 +290,7 @@ document
 
 async function refrescarBolsilloActual() {
   const res = await fetch(
-    `/chvb/public/api/bolsillo_obtener.php?id=${bolsilloActual.id}`,
+    `./api/bolsillo_obtener.php?id=${bolsilloActual.id}`,
   );
   const data = await res.json();
   if (data.ok) {
@@ -313,7 +313,7 @@ if (formSubirPDFEl) {
     formData.append("cedula", cedula);
 
     try {
-      const res = await fetch("/chvb/public/api/documentos_subir.php", {
+      const res = await fetch("./api/documentos_subir.php", {
         method: "POST",
         body: formData,
       });
@@ -343,7 +343,7 @@ async function eliminarDocumento(documentoId) {
   formData.append("cedula", cedula);
   formData.append("csrf_token", csrfTokenLibro);
 
-  const res = await fetch("/chvb/public/api/documentos_eliminar.php", {
+  const res = await fetch("./api/documentos_eliminar.php", {
     method: "POST",
     body: formData,
   });
@@ -364,7 +364,7 @@ async function moverDocumento(documentoId, direccion) {
   formData.append("direccion", direccion);
   formData.append("csrf_token", csrfTokenLibro);
 
-  const res = await fetch("/chvb/public/api/documentos_reordenar.php", {
+  const res = await fetch("./api/documentos_reordenar.php", {
     method: "POST",
     body: formData,
   });
@@ -391,7 +391,7 @@ async function guardarAlarma() {
   }
   formData.append("csrf_token", csrfTokenLibro);
 
-  const res = await fetch("/chvb/public/api/bolsillos_alarma.php", {
+  const res = await fetch("./api/bolsillos_alarma.php", {
     method: "POST",
     body: formData,
   });
@@ -416,7 +416,7 @@ async function quitarAlarma() {
   formData.append("accion", "desactivar");
   formData.append("csrf_token", csrfTokenLibro);
 
-  const res = await fetch("/chvb/public/api/bolsillos_alarma.php", {
+  const res = await fetch("./api/bolsillos_alarma.php", {
     method: "POST",
     body: formData,
   });
@@ -450,7 +450,7 @@ function abrirVisorPDF(index) {
 function mostrarDocumentoEnVisor() {
   const doc = documentosVisor[indiceVisorActual];
   document.getElementById("visorPDFIframe").src =
-    `/chvb/public/api/documentos_ver.php?id=${doc.id}`;
+    `./api/documentos_ver.php?id=${doc.id}`;
   document.getElementById("visorTituloDocumento").textContent =
     doc.nombre_archivo;
   document.getElementById("visorContador").textContent =

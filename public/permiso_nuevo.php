@@ -18,7 +18,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuevo Permiso - CHVB</title>
-    <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 
 <body class="bg-gray-100 min-h-screen">
@@ -40,7 +40,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                         de
                         permisos.
                     </p>
-                    <a href="/chvb/public/mi_hoja_de_vida.php"
+                    <a href="./mi_hoja_de_vida.php"
                         class="inline-block mt-4 text-red-600 hover:underline text-sm">&larr; Volver</a>
                 </div>
             <?php else: ?>
@@ -207,7 +207,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                             <label class="block text-sm font-medium text-gray-700 mb-1">Tu firma</label>
                             <?php if ($firmaGuardada): ?>
                                 <div class="flex items-center gap-3 mb-2 p-2 border border-gray-200 rounded-xl">
-                                    <img src="/chvb/public/api/firma_ver.php?cedula=<?= urlencode($cedula) ?>"
+                                    <img src="./api/firma_ver.php?cedula=<?= urlencode($cedula) ?>"
                                         class="h-14 border rounded bg-white">
                                     <label class="flex items-center gap-2 text-sm">
                                         <input type="checkbox" id="usarFirmaGuardada" checked class="rounded"> Usar mi firma
@@ -255,9 +255,9 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
         </main>
     </div>
 
-    <script src="/chvb/public/assets/js/camera_capture.js"></script>
-    <script src="/chvb/public/assets/js/firma_canvas.js"></script>
-    <script src="/chvb/public/assets/js/permiso_nuevo.js"></script>
+    <script src="./assets/js/camera_capture.js"></script>
+    <script src="./assets/js/firma_canvas.js"></script>
+    <script src="./assets/js/permiso_nuevo.js"></script>
 </body>
 
 </html>

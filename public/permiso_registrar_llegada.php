@@ -8,7 +8,7 @@ $id = (int)($_GET['id'] ?? 0);
 $permiso = PermisoModel::obtenerPorId($id);
 
 if (!$permiso || $permiso['cedula_empleado'] !== $cedula || $permiso['estado'] !== 'aprobado_pendiente_regreso') {
-    header('Location: /chvb/public/permisos.php');
+    header('Location: ./permisos.php');
     exit;
 }
 ?>
@@ -17,7 +17,7 @@ if (!$permiso || $permiso['cedula_empleado'] !== $cedula || $permiso['estado'] !
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar llegada - CHVB</title>
-    <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
 <?php require __DIR__ . '/../includes/sidebar_empleado.php'; ?>
@@ -42,6 +42,6 @@ if (!$permiso || $permiso['cedula_empleado'] !== $cedula || $permiso['estado'] !
         </form>
     </main>
 </div>
-<script src="/chvb/public/assets/js/permiso_registrar_llegada.js"></script>
+<script src="./assets/js/permiso_registrar_llegada.js"></script>
 </body>
 </html>

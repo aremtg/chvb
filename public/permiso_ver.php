@@ -9,7 +9,7 @@ $id = (int)($_GET['id']?? 0);
 $permiso = PermisoModel::obtenerPorId($id);
 
 if (!$permiso ||!in_array($cedula, [$permiso['cedula_empleado'], $permiso['cedula_reemplazo'], $permiso['cedula_jefe']], true)) {
-    header('Location: /chvb/public/permisos.php');
+    header('Location: ./permisos.php');
     exit;
 }
 
@@ -21,7 +21,7 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Permiso <?= htmlspecialchars($permiso['consecutivo'])?> - CHVB</title>
-    <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 <body class="bg-[#f5f6f7] min-h-screen antialiased">
 <?php require __DIR__. '/../includes/sidebar_empleado.php';?>
@@ -31,7 +31,7 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
     <header class="bg-white border-b border-gray-100 sticky top-0 z-20">
         <div class="px-4 md:px-8 py-4 flex items-center justify-between gap-4">
             <div>
-                <a href="/chvb/public/permisos.php" class="inline-flex items-center gap-1.5 text- font-medium text-gray-500 hover:text-gray-800 transition">
+                <a href="./permisos.php" class="inline-flex items-center gap-1.5 text- font-medium text-gray-500 hover:text-gray-800 transition">
                     <span>←</span> Mis permisos
                 </a>
                 <h1 class="text- font-bold tracking-tight text-gray-900 mt-1"><?= htmlspecialchars($permiso['consecutivo'])?></h1>
@@ -98,8 +98,8 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
     </div>
 </div>
 
-<script src="/chvb/public/assets/js/camera_capture.js"></script>
-<script src="/chvb/public/assets/js/firma_canvas.js"></script>
-<script src="/chvb/public/assets/js/permiso_ver.js"></script>
+<script src="./assets/js/camera_capture.js"></script>
+<script src="./assets/js/firma_canvas.js"></script>
+<script src="./assets/js/permiso_ver.js"></script>
 </body>
 </html>

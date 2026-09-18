@@ -14,7 +14,7 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Permisos por firmar - CHVB</title>
-    <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
 <?php require __DIR__ . '/../includes/sidebar_empleado.php'; ?>
@@ -58,8 +58,8 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
     </div>
 </div>
 
-<script src="/chvb/public/assets/js/camera_capture.js"></script>
-<script src="/chvb/public/assets/js/firma_canvas.js"></script>
-<script src="/chvb/public/assets/js/permisos_reemplazo_jefe.js"></script>
+<script src="./assets/js/camera_capture.js"></script>
+<script src="./assets/js/firma_canvas.js"></script>
+<script src="./assets/js/permisos_reemplazo_jefe.js"></script>
 </body>
 </html>

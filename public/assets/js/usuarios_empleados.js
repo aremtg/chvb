@@ -16,7 +16,7 @@ document.getElementById("formPin").addEventListener("submit", async (e) => {
   const formData = new FormData(e.target);
 
   try {
-    const res = await fetch("/chvb/public/api/usuarios_empleados_crear.php", {
+    const res = await fetch("./api/usuarios_empleados_crear.php", {
       method: "POST",
       body: formData,
     });
@@ -46,7 +46,7 @@ async function revocarAcceso(cedula) {
   formData.append("cedula", cedula);
   formData.append("csrf_token", document.getElementById("csrfToken").value);
 
-  const res = await fetch("/chvb/public/api/usuarios_empleados_revocar.php", {
+  const res = await fetch("./api/usuarios_empleados_revocar.php", {
     method: "POST",
     body: formData,
   });
@@ -59,7 +59,7 @@ async function reactivarAcceso(cedula) {
   formData.append("cedula", cedula);
   formData.append("csrf_token", document.getElementById("csrfToken").value);
 
-  const res = await fetch("/chvb/public/api/usuarios_empleados_reactivar.php", {
+  const res = await fetch("./api/usuarios_empleados_reactivar.php", {
     method: "POST",
     body: formData,
   });
@@ -84,7 +84,7 @@ async function verPin(cedula) {
 
   try {
     const res = await fetch(
-      `/chvb/public/api/usuarios_empleados_ver_pin.php?cedula=${encodeURIComponent(cedula)}`
+      `./api/usuarios_empleados_ver_pin.php?cedula=${encodeURIComponent(cedula)}`
     );
     const data = await res.json();
 

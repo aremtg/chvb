@@ -36,7 +36,7 @@ async function asegurarFestivosDelAnio(anio) {
   
   // SE AGREGARON LOS HEADERS CON EL TOKEN CSRF AQUÍ:
   const res = await fetch(
-    `/chvb/public/api/festivos_verificar.php?anio=${anio}`,
+    `./api/festivos_verificar.php?anio=${anio}`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -290,7 +290,7 @@ async function recalcularDia(fecha) {
     hora_fin: horaFin,
   });
   const res = await fetch(
-    `/chvb/public/api/permisos_calcular_horas.php?${params}`,
+    `./api/permisos_calcular_horas.php?${params}`,
   );
   const data = await res.json();
 
@@ -489,7 +489,7 @@ async function actualizarFilaDevolucion(id, campo, valor) {
       hora_fin: fila.horaFin,
     });
     const res = await fetch(
-      `/chvb/public/api/permisos_calcular_devolucion.php?${params}`,
+      `./api/permisos_calcular_devolucion.php?${params}`,
     );
     const data = await res.json();
     fila.horas = data.ok ? data.total_horas : 0;
@@ -554,7 +554,7 @@ function configurarBuscadorEmpleado(inputId, resultadosId, hiddenId) {
 
     temporizador = setTimeout(async () => {
       const res = await fetch(
-        `/chvb/public/api/empleados_buscar.php?q=${encodeURIComponent(q)}`,
+        `./api/empleados_buscar.php?q=${encodeURIComponent(q)}`,
       );
       const data = await res.json();
 
@@ -785,14 +785,14 @@ document.getElementById("formPermiso").addEventListener("submit", async (e) => {
   }
 
   try {
-    const res = await fetch("/chvb/public/api/permisos_crear.php", {
+    const res = await fetch("./api/permisos_crear.php", {
       method: "POST",
       body: formData,
     });
     const data = await res.json();
 
     if (data.ok) {
-      window.location.href = `/chvb/public/permisos.php?id=${data.id}`;
+      window.location.href = `./permisos.php?id=${data.id}`;
     } else {
       erroresForm.innerHTML = data.errores
         ? data.errores.join("<br>")

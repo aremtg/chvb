@@ -4,6 +4,8 @@ require_once __DIR__ . '/../models/EmpleadoModel.php';
 require_once __DIR__ . '/../helpers/FileManager.php';
 require_once __DIR__ . '/../models/BolsilloModel.php';
 require_once __DIR__ . '/../models/DocumentoModel.php';
+require_once __DIR__ . '/../models/PermisoModel.php';
+require_once __DIR__ . '/../models/FirmaModel.php';
 require_once __DIR__ . '/../models/NotificacionModel.php';
 require_once __DIR__ . '/../helpers/ReconciliadorArchivos.php';
 
@@ -238,11 +240,22 @@ class EmpleadoController
             if (!FileManager::renombrarEstructuraEmpleado($cedulaActual, $cedulaNueva)) {
                 return ['ok' => false, 'errores' => ['No se pudo renombrar la carpeta física del empleado. No se guardó ningún cambio.']];
             }
+            $pdo = getPDO();
             try {
+                $pdo->beginTransaction();
+
                 EmpleadoModel::actualizarCedula($cedulaActual, $cedulaNueva);
                 DocumentoModel::actualizarRutasPorCambioCedula($cedulaActual, $cedulaNueva);
+                PermisoModel::actualizarRutasPorCambioCedula($cedulaActual, $cedulaNueva);
+                FirmaModel::actualizarRutaPorCambioCedula($cedulaActual, $cedulaNueva);
                 EmpleadoModel::actualizarRutaFotoPorCambioCedula($cedulaActual, $cedulaNueva);
+
+                $pdo->commit();
             } catch (Exception $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                // La BD queda con la cédula anterior y restauramos la carpeta física.
                 FileManager::renombrarEstructuraEmpleado($cedulaNueva, $cedulaActual);
                 return ['ok' => false, 'errores' => ['Error actualizando la base de datos: ' . $e->getMessage()]];
             }

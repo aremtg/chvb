@@ -15,7 +15,7 @@ $alarmas = BolsilloModel::alarmasProximas();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Dashboard</title>
-    <link rel="stylesheet" href="/chvb/public/assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 
 <body class="bg-gray-100 min-h-screen">
@@ -28,12 +28,12 @@ $alarmas = BolsilloModel::alarmasProximas();
         <main class="p-6 max-w-6xl mx-auto space-y-6">
 
             <div class="flex gap-3">
-                <a href="/chvb/public/empleados.php"
+                <a href="./empleados.php"
                     class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-md transition">
                     Hojas de Vida
                 </a>
                 <?php if (($_SESSION['superadmin_rol'] ?? '') !== 'teniente'): ?>
-                    <a href="/chvb/public/alarmas.php"
+                    <a href="./alarmas.php"
                         class="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 rounded-xl transition">
                         Panel de Alarmas <?= count($alarmas) > 0 ? '(' . count($alarmas) . ')' : '' ?>
                     </a>
@@ -97,7 +97,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                             <?php endforeach; ?>
                         </ul>
                         <?php if (count($alarmas) > 5): ?>
-                            <a href="/chvb/public/alarmas.php" class="text-sm text-red-600 hover:underline mt-3 inline-block">
+                            <a href="./alarmas.php" class="text-sm text-red-600 hover:underline mt-3 inline-block">
                                 Ver todas (<?= count($alarmas) ?>) &rarr;
                             </a>
                         <?php endif; ?>

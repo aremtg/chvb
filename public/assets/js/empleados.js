@@ -73,7 +73,7 @@ formCrear.addEventListener("submit", async (e) => {
   const formData = new FormData(formCrear);
 
   try {
-    const res = await fetch("/chvb/public/api/empleados_crear.php", {
+    const res = await fetch("./api/empleados_crear.php", {
       method: "POST",
       body: formData,
     });
@@ -112,7 +112,7 @@ formEliminar.addEventListener("submit", async (e) => {
   const formData = new FormData(formEliminar);
 
   try {
-    const res = await fetch("/chvb/public/api/empleados_eliminar.php", {
+    const res = await fetch("./api/empleados_eliminar.php", {
       method: "POST",
       body: formData,
     });
@@ -136,7 +136,7 @@ async function abrirModalVer(cedula) {
     .querySelectorAll('[id^="menu-"]')
     .forEach((m) => m.classList.add("hidden"));
   const res = await fetch(
-    `/chvb/public/api/empleados_obtener.php?cedula=${encodeURIComponent(cedula)}`,
+    `./api/empleados_obtener.php?cedula=${encodeURIComponent(cedula)}`,
   );
   const data = await res.json();
 
@@ -151,7 +151,7 @@ document.getElementById("contenidoVer").innerHTML = `
         <div class="flex flex-col items-center text-center pb-4 border-b border-gray-100">
             ${
               emp.foto
-                ? `<img src="/chvb/public/api/foto_ver.php?cedula=${encodeURIComponent(emp.cedula)}" class="w-24 h-24 rounded-full object-cover border border-gray-200">`
+                ? `<img src="./api/foto_ver.php?cedula=${encodeURIComponent(emp.cedula)}" class="w-24 h-24 rounded-full object-cover border border-gray-200">`
                 : `<span class="w-24 h-24 rounded-full bg-gray-100 border flex items-center justify-center text-3xl">👤</span>`
             }
             <p class="mt-3 font-semibold text-gray-900">${emp.nombre}</p>
@@ -185,7 +185,7 @@ async function abrirModalEditar(cedula) {
     .querySelectorAll('[id^="menu-"]')
     .forEach((m) => m.classList.add("hidden"));
   const res = await fetch(
-    `/chvb/public/api/empleados_obtener.php?cedula=${encodeURIComponent(cedula)}`,
+    `./api/empleados_obtener.php?cedula=${encodeURIComponent(cedula)}`,
   );
   const data = await res.json();
 
@@ -218,7 +218,7 @@ async function abrirModalEditar(cedula) {
   const editFoto = document.getElementById("editFotoActual");
   const editFotoPlaceholder = document.getElementById("editFotoPlaceholder");
   if (emp.foto) {
-    editFoto.src = `/chvb/public/api/foto_ver.php?cedula=${encodeURIComponent(emp.cedula)}`;
+    editFoto.src = `./api/foto_ver.php?cedula=${encodeURIComponent(emp.cedula)}`;
     editFoto.classList.remove("hidden");
     editFotoPlaceholder.classList.add("hidden");
   } else {
@@ -239,7 +239,7 @@ document.getElementById("formEditar").addEventListener("submit", async (e) => {
   const formData = new FormData(formEditar);
 
   try {
-    const res = await fetch("/chvb/public/api/empleados_actualizar.php", {
+    const res = await fetch("./api/empleados_actualizar.php", {
       method: "POST",
       body: formData,
     });

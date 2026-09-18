@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../src/helpers/FileManager.php';
 // limpia cualquier espacio basura
 if (ob_get_length()) ob_end_clean();
 ob_start();
@@ -29,7 +30,7 @@ if (!$emp || empty($emp['foto'])) {
     exit('Sin foto');
 }
 
-$base = rtrim($_SERVER['UPLOADS_PATH'] ?? $_ENV['UPLOADS_PATH'] ?? 'C:/laragon/www/chvb/uploads', '/\\');
+$base = FileManager::rutaUploads();
 $ruta = $base . '/' . ltrim($emp['foto'], '/\\');
 $ruta = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $ruta);
 

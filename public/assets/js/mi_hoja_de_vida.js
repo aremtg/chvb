@@ -69,7 +69,7 @@ document
 
     try {
       const res = await fetch(
-        "/chvb/public/api/empleado_subir_certificado.php",
+        "./api/empleado_subir_certificado.php",
         { method: "POST", body: formData },
       );
       const data = await res.json();
@@ -99,7 +99,7 @@ function abrirVisorPDF(index) {
 
 function mostrarDocumentoEnVisor() {
     const doc = documentosVisor[indiceVisorActual];
-    document.getElementById('visorPDFIframe').src = `/chvb/public/api/empleado_ver_documento.php?id=${doc.id}`;
+    document.getElementById('visorPDFIframe').src = `./api/empleado_ver_documento.php?id=${doc.id}`;
     document.getElementById('visorTituloDocumento').textContent = doc.nombre_archivo;
     document.getElementById('visorContador').textContent = `Documento ${indiceVisorActual + 1} de ${documentosVisor.length}`;
 
