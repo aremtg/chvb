@@ -1,5 +1,10 @@
 <?php
-// src/controllers/PermisoController.php (nuevo archivo)
+// src/controllers/PermisoController.php
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../models/PermisoModel.php';
+require_once __DIR__ . '/../models/NotificacionModel.php';
+require_once __DIR__ . '/../models/EmpleadoModel.php';
+require_once __DIR__ . '/../models/FirmaModel.php';
 
 class PermisoController
 {
