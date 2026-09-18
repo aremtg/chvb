@@ -6,7 +6,19 @@ requireSuperAdmin();
 
 
 $busqueda = trim($_GET['q'] ?? '');
-$empleados = EmpleadoModel::listar($busqueda);
+
+$porPagina = 9;
+$pagina = max(1, (int) ($_GET['page'] ?? 1));
+
+$totalEmpleados = EmpleadoModel::contar($busqueda);
+$totalPaginas = max(1, (int) ceil($totalEmpleados / $porPagina));
+
+if ($pagina > $totalPaginas) {
+    $pagina = $totalPaginas;
+}
+
+$offset = ($pagina - 1) * $porPagina;
+$empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -28,6 +40,24 @@ $empleados = EmpleadoModel::listar($busqueda);
         </header>
 
         <main class="p-6">
+
+            <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <p class="text-sm text-gray-600">
+                    Total de empleados:
+                    <span class="font-bold text-gray-800"><?= number_format($totalEmpleados, 0, ',', '.') ?></span>
+                    <?php if ($totalEmpleados > 0): ?>
+                        <span class="text-gray-400">
+                            · Mostrando <?= count($empleados) ?> de <?= number_format($totalEmpleados, 0, ',', '.') ?>
+                        </span>
+                    <?php endif; ?>
+                </p>
+
+                <?php if ($totalPaginas > 1): ?>
+                    <p class="text-xs text-gray-400">
+                        Página <?= $pagina ?> de <?= $totalPaginas ?>
+                    </p>
+                <?php endif; ?>
+            </div>
 
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                 <form method="GET" class="flex-1 max-w-md">
@@ -111,7 +141,7 @@ $empleados = EmpleadoModel::listar($busqueda);
                                         </button>
 
                                         <div id="menu-<?= $emp['cedula'] ?>"
-                                            class="hidden absolute right-0 top-full mt-2 z-20 w-56 max-w-[calc(100vw-2rem)] bg-white border border-gray-100 rounded-2xl shadow-xl shadow-black/5 p-1.5 text-sm overflow-hidden">
+                                            class="hidden fixed z-[60] w-56 max-w-[calc(100vw-2rem)] bg-white border border-gray-100 rounded-2xl shadow-xl shadow-black/5 p-1.5 text-sm overflow-hidden">
 
                                             <button onclick="abrirModalVer('<?= $emp['cedula'] ?>')"
                                                 class="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-gray-700 hover:bg-gray-50 rounded-xl transition">
@@ -150,6 +180,68 @@ $empleados = EmpleadoModel::listar($busqueda);
                     </tbody>
                 </table>
             </div>
+
+            <?php if ($totalPaginas > 1): ?>
+                <?php
+                $urlPagina = function (int $numero) use ($busqueda): string {
+                    $params = ['page' => $numero];
+                    if ($busqueda !== '') {
+                        $params['q'] = $busqueda;
+                    }
+                    return '?' . http_build_query($params);
+                };
+
+                $inicio = max(1, $pagina - 2);
+                $fin = min($totalPaginas, $pagina + 2);
+                ?>
+
+                <nav class="mt-5 flex flex-wrap items-center justify-center gap-1" aria-label="Paginación de empleados">
+                    <?php if ($pagina > 1): ?>
+                        <a href="<?= htmlspecialchars($urlPagina($pagina - 1)) ?>"
+                           class="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">
+                            ← Anterior
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if ($inicio > 1): ?>
+                        <a href="<?= htmlspecialchars($urlPagina(1)) ?>"
+                           class="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">
+                            1
+                        </a>
+                        <?php if ($inicio > 2): ?>
+                            <span class="px-2 text-gray-400">…</span>
+                        <?php endif; ?>
+                    <?php endif; ?>
+
+                    <?php for ($i = $inicio; $i <= $fin; $i++): ?>
+                        <?php if ($i === $pagina): ?>
+                            <span class="px-3 py-2 rounded-lg bg-red-600 text-white font-semibold"><?= $i ?></span>
+                        <?php else: ?>
+                            <a href="<?= htmlspecialchars($urlPagina($i)) ?>"
+                               class="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">
+                                <?= $i ?>
+                            </a>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+
+                    <?php if ($fin < $totalPaginas): ?>
+                        <?php if ($fin < $totalPaginas - 1): ?>
+                            <span class="px-2 text-gray-400">…</span>
+                        <?php endif; ?>
+                        <a href="<?= htmlspecialchars($urlPagina($totalPaginas)) ?>"
+                           class="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">
+                            <?= $totalPaginas ?>
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if ($pagina < $totalPaginas): ?>
+                        <a href="<?= htmlspecialchars($urlPagina($pagina + 1)) ?>"
+                           class="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">
+                            Siguiente →
+                        </a>
+                    <?php endif; ?>
+                </nav>
+            <?php endif; ?>
         </main>
     </div>
 

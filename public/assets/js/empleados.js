@@ -21,24 +21,114 @@ function formatearFechaEs(fechaStr) {
   return `${d} de ${meses[m - 1]} de ${y}`;
 }
 
-function toggleMenu(cedula) {
-  document.querySelectorAll('[id^="menu-"]').forEach((m) => {
-    if (m.id !== `menu-${cedula}`) m.classList.add("hidden");
-  });
-  document.getElementById(`menu-${cedula}`).classList.toggle("hidden");
+function posicionarMenuAcciones(menu, boton) {
+  if (!menu || !boton) return;
+
+  menu.classList.remove("hidden");
+
+  const rect = boton.getBoundingClientRect();
+  const margen = 8;
+  const ancho = Math.min(224, window.innerWidth - margen * 2);
+
+  menu.style.width = `${ancho}px`;
+  menu.style.maxWidth = `calc(100vw - ${margen * 2}px)`;
+  menu.style.right = "auto";
+  menu.style.left = "auto";
+
+  const alto = menu.offsetHeight;
+
+  let left = rect.right - ancho;
+
+  left = Math.max(
+    margen,
+    Math.min(left, window.innerWidth - ancho - margen)
+  );
+
+  const espacioAbajo = window.innerHeight - rect.bottom - margen;
+  const espacioArriba = rect.top - margen;
+
+  let top;
+
+  // Si no cabe abajo, intenta abrirlo hacia arriba.
+  if (espacioAbajo < alto && espacioArriba >= alto) {
+    top = rect.top - alto - margen;
+  } else {
+    top = rect.bottom + margen;
+  }
+
+  // Nunca permitir que salga de la pantalla.
+  top = Math.max(
+    margen,
+    Math.min(top, window.innerHeight - alto - margen)
+  );
+
+  menu.style.left = `${left}px`;
+  menu.style.top = `${top}px`;
 }
+
+function toggleMenu(cedula) {
+  const menuActual = document.getElementById(`menu-${cedula}`);
+
+  if (!menuActual) return;
+
+  const estabaOculto = menuActual.classList.contains("hidden");
+
+  document.querySelectorAll('[id^="menu-"]').forEach((m) => {
+    m.classList.add("hidden");
+    m.style.left = "";
+    m.style.top = "";
+    m.style.width = "";
+  });
+
+  if (!estabaOculto) return;
+
+  const boton = document.querySelector(
+    `button[onclick="toggleMenu('${CSS.escape(cedula)}')"]`
+  );
+
+  posicionarMenuAcciones(menuActual, boton);
+}
+
+function recolocarMenuAccionesAbierto() {
+  const abierto = document.querySelector(
+    '[id^="menu-"]:not(.hidden)'
+  );
+
+  if (!abierto) return;
+
+  const id = abierto.id.replace(/^menu-/, "");
+
+  const boton = document.querySelector(
+    `button[onclick="toggleMenu('${CSS.escape(id)}')"]`
+  );
+
+  posicionarMenuAcciones(abierto, boton);
+}
+
+window.addEventListener(
+  "resize",
+  recolocarMenuAccionesAbierto
+);
+
+window.addEventListener(
+  "scroll",
+  recolocarMenuAccionesAbierto,
+  { passive: true }
+);
 
 document.addEventListener("click", (e) => {
   if (
     !e.target.closest('[id^="menu-"]') &&
     !e.target.closest('button[onclick^="toggleMenu"]')
   ) {
-    document
-      .querySelectorAll('[id^="menu-"]')
-      .forEach((m) => m.classList.add("hidden"));
+    document.querySelectorAll('[id^="menu-"]').forEach((m) => {
+      m.classList.add("hidden");
+      m.style.left = "";
+      m.style.top = "";
+      m.style.width = "";
+    });
   }
 });
-
 // --- Validación en vivo de cédula ---
 const inputCedula = document.getElementById("inputCedula");
 const errorCedula = document.getElementById("errorCedula");

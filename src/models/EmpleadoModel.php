@@ -42,9 +42,37 @@ class EmpleadoModel
         return (bool) $stmt->fetch();
     }
 
-    public static function listar(string $busqueda = ''): array
+    public static function contar(string $busqueda = ''): int
     {
         $pdo = getPDO();
+
+        $sql = "SELECT COUNT(*) FROM empleados";
+        $params = [];
+
+        if ($busqueda !== '') {
+            $sql .= " WHERE cedula LIKE :b1 OR nombre LIKE :b2 OR cargo LIKE :b3 OR celular LIKE :b4 OR correo LIKE :b5";
+            $valor = '%' . $busqueda . '%';
+            $params = [
+                'b1' => $valor,
+                'b2' => $valor,
+                'b3' => $valor,
+                'b4' => $valor,
+                'b5' => $valor,
+            ];
+        }
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    public static function listar(string $busqueda = '', int $limite = 10, int $offset = 0): array
+    {
+        $pdo = getPDO();
+
+        $limite = max(1, min(100, $limite));
+        $offset = max(0, $offset);
 
         $sql = "SELECT * FROM empleados";
         $params = [];
@@ -61,12 +89,19 @@ class EmpleadoModel
             ];
         }
 
-        $sql .= " ORDER BY nombre ASC";
+        $sql .= " ORDER BY nombre ASC LIMIT :limite OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
+        foreach ($params as $clave => $valor) {
+            $stmt->bindValue(':' . $clave, $valor, PDO::PARAM_STR);
+        }
+        $stmt->bindValue(':limite', $limite, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
         return $stmt->fetchAll();
     }
+
     public static function obtenerPorCedula(string $cedula): ?array
     {
         $pdo = getPDO();
@@ -87,7 +122,7 @@ class EmpleadoModel
      * Calcula si el cumpleaños cae dentro de los próximos N días (ignorando el año).
      * Devuelve ['cumple' => bool, 'dias_faltantes' => int|null, 'fecha_texto' => string|null]
      */
-    public static function infoCumpleanos(?string $fechaNacimiento, int $diasVentana = 7): array
+    public static function infoCumpleanos(?string $fechaNacimiento, int $diasVentana = 15): array
     {
         if (!$fechaNacimiento) {
             return ['cumple' => false, 'dias_faltantes' => null, 'fecha_texto' => null];
@@ -133,7 +168,7 @@ class EmpleadoModel
      * Trae empleados cuyo cumpleaños (mes-día, ignorando año) cae dentro de los próximos $dias días.
      * Maneja el cruce de año (ej: hoy 28-dic, ventana llega hasta 04-ene).
      */
-    public static function proximosCumpleanos(int $dias = 7): array
+    public static function proximosCumpleanos(int $dias = 15): array
     {
         $pdo = getPDO();
         $sql = "SELECT *, DATE_FORMAT(fecha_nacimiento, '%m-%d') AS mes_dia
@@ -158,6 +193,38 @@ class EmpleadoModel
 
         // Ordenar por días faltantes ascendente (el más próximo primero)
         usort($resultado, fn($a, $b) => $a['dias_faltantes'] <=> $b['dias_faltantes']);
+
+        return $resultado;
+    }
+
+    /**
+     * Devuelve todos los empleados activos que cumplen años en un mes/año concreto.
+     * El año de nacimiento se ignora: solo se usa mes y día.
+     */
+    public static function cumpleanosDelMes(int $anio, int $mes): array
+    {
+        if ($mes < 1 || $mes > 12) {
+            throw new InvalidArgumentException('Mes inválido.');
+        }
+
+        $pdo = getPDO();
+        $stmt = $pdo->prepare(
+            "SELECT cedula, nombre, cargo, fecha_nacimiento
+             FROM empleados
+             WHERE fecha_nacimiento IS NOT NULL
+               AND estado = 'activo'
+               AND MONTH(fecha_nacimiento) = :mes
+             ORDER BY DAY(fecha_nacimiento) ASC, nombre ASC"
+        );
+        $stmt->execute(['mes' => $mes]);
+
+        $resultado = [];
+        foreach ($stmt->fetchAll() as $emp) {
+            $fecha = new DateTime($emp['fecha_nacimiento']);
+            $emp['dia_cumpleanos'] = (int) $fecha->format('d');
+            $emp['mes_cumpleanos'] = (int) $fecha->format('m');
+            $resultado[] = $emp;
+        }
 
         return $resultado;
     }
