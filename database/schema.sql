@@ -214,10 +214,15 @@ CREATE TABLE `permisos` (
   `firma_reemplazo` varchar(255) DEFAULT NULL,
   `foto_jefe` varchar(255) DEFAULT NULL,
   `firma_jefe` varchar(255) DEFAULT NULL,
+  `foto_jefe_prefirmado` varchar(255) DEFAULT NULL,
+  `firma_jefe_prefirmado` varchar(255) DEFAULT NULL,
   `evidencia_archivo` varchar(255) DEFAULT NULL,
-  `estado` enum('en_proceso','por_firmar_reemplazo','por_firmar_jefe','firmado','devuelto','rechazado','aprobado_pendiente_regreso') NOT NULL DEFAULT 'en_proceso',
+  `estado` enum('en_proceso','por_firmar_reemplazo','por_firmar_jefe','por_firmar_jefe_final','firmado','devuelto','devuelto_regreso','rechazado','aprobado_pendiente_regreso','anulado') NOT NULL DEFAULT 'en_proceso',
   `motivo_devolucion` text DEFAULT NULL,
   `motivo_rechazo` text DEFAULT NULL,
+  `motivo_anulacion` text DEFAULT NULL,
+  `anulado_por` varchar(50) DEFAULT NULL,
+  `fecha_anulacion` timestamp NULL DEFAULT NULL,
   `version` int(11) NOT NULL DEFAULT 1,
   `fecha_solicitud` timestamp NOT NULL DEFAULT current_timestamp(),
   `fecha_actualizacion` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -584,3 +589,10 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+ALTER TABLE permisos
+  MODIFY estado ENUM('en_proceso','por_firmar_reemplazo','por_firmar_jefe','por_firmar_jefe_final','firmado','devuelto','devuelto_regreso','rechazado','aprobado_pendiente_regreso','anulado') NOT NULL DEFAULT 'en_proceso',
+  ADD COLUMN foto_jefe_prefirmado VARCHAR(255) NULL AFTER firma_jefe,
+  ADD COLUMN firma_jefe_prefirmado VARCHAR(255) NULL AFTER foto_jefe_prefirmado,
+  ADD COLUMN motivo_anulacion TEXT NULL AFTER motivo_rechazo,
+  ADD COLUMN anulado_por VARCHAR(50) NULL AFTER motivo_anulacion,
+  ADD COLUMN fecha_anulacion TIMESTAMP NULL AFTER anulado_por;

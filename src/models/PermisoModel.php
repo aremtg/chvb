@@ -130,7 +130,7 @@ class PermisoModel {
         $pdo = getPDO();
         $campos = [
             'foto_solicitante', 'firma_solicitante', 'foto_reemplazo',
-            'firma_reemplazo', 'foto_jefe', 'firma_jefe', 'evidencia_archivo'
+            'firma_reemplazo', 'foto_jefe', 'firma_jefe', 'foto_jefe_prefirmado', 'firma_jefe_prefirmado', 'evidencia_archivo'
         ];
 
         $sets = [];
@@ -290,6 +290,19 @@ class PermisoModel {
             "SELECT * FROM permisos WHERE cedula_reemplazo = :b1 OR cedula_jefe = :b2 ORDER BY fecha_solicitud DESC"
         );
         $stmt->execute(['b1' => $cedula, 'b2' => $cedula]);
+        return $stmt->fetchAll();
+    }
+
+
+    public static function listarPorCedulaEnHistorial(string $cedula): array {
+        $pdo = getPDO();
+        $stmt = $pdo->prepare(
+            "SELECT p.* FROM permisos p
+             INNER JOIN permisos_historial h ON h.permiso_id = p.id
+             WHERE h.actor_tipo = 'reemplazo' AND h.actor_cedula_o_usuario = :b1
+             ORDER BY p.fecha_solicitud DESC"
+        );
+        $stmt->execute(['b1' => $cedula]);
         return $stmt->fetchAll();
     }
 

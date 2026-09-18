@@ -276,146 +276,133 @@ class PermisoController
     public static function firmarReemplazo(int $permisoId, int $versionActual, string $firmaRuta, ?string $fotoRuta): array
     {
         $permiso = PermisoModel::obtenerPorId($permisoId);
-        if (!$permiso)
-            return ['ok' => false, 'error' => 'Permiso no encontrado.'];
-
+        if (!$permiso) return ['ok' => false, 'error' => 'Permiso no encontrado.'];
         $actor = self::identificarActor($permiso);
-        if ($actor['tipo'] !== 'reemplazo' && $actor['tipo'] !== 'talento_humano') {
-            return ['ok' => false, 'error' => 'No eres el reemplazo asignado a este permiso.'];
-        }
-        if ($permiso['estado'] !== 'por_firmar_reemplazo') {
-            return ['ok' => false, 'error' => 'Este permiso no está pendiente de tu firma en este momento.'];
-        }
+        if ($actor['tipo'] !== 'reemplazo') return ['ok' => false, 'error' => 'No eres el reemplazo asignado a este permiso.'];
+        if ($permiso['estado'] !== 'por_firmar_reemplazo') return ['ok' => false, 'error' => 'Este permiso no está pendiente de tu firma en este momento.'];
 
-        $campos = ['firma_reemplazo' => $firmaRuta, 'estado' => 'por_firmar_jefe'];
-        if ($fotoRuta)
-            $campos['foto_reemplazo'] = $fotoRuta;
+        $nuevoEstado = ($permiso['es_salida_pendiente_regreso'] == 1) ? 'por_firmar_jefe' : 'por_firmar_jefe';
+        $campos = ['firma_reemplazo' => $firmaRuta, 'estado' => $nuevoEstado];
+        if ($fotoRuta) $campos['foto_reemplazo'] = $fotoRuta;
+        if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, $campos)) return ['ok' => false, 'error' => 'conflicto_version'];
 
-        $actualizado = PermisoModel::actualizarConVersion($permisoId, $versionActual, $campos);
-        if (!$actualizado)
-            return ['ok' => false, 'error' => 'conflicto_version'];
-
-        PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], 'por_firmar_jefe', $actor['tipo'], $actor['id'], 'Reemplazo firmó');
-
-        require_once __DIR__ . '/../models/NotificacionModel.php';
-        NotificacionModel::crearParaEmpleado(
-            $permiso['cedula_jefe'],
-            "El reemplazo de \"{$permiso['nombre_empleado_snapshot']}\" ya firmó, el permiso está listo para tu firma",
-            "/chvb/public/permiso_ver.php?id={$permisoId}",
-            'permiso'
-        );
-
-        return ['ok' => true, 'estado' => 'por_firmar_jefe'];
+        PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], $nuevoEstado, 'reemplazo', $actor['id'], 'Reemplazo firmó');
+        NotificacionModel::crearParaEmpleado($permiso['cedula_jefe'], "El reemplazo de \"{$permiso['nombre_empleado_snapshot']}\" ya firmó, el permiso está listo para tu firma", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
+        return ['ok' => true, 'estado' => $nuevoEstado];
     }
 
     public static function firmarJefe(int $permisoId, int $versionActual, string $firmaRuta, ?string $fotoRuta): array
     {
         $permiso = PermisoModel::obtenerPorId($permisoId);
-        if (!$permiso)
-            return ['ok' => false, 'error' => 'Permiso no encontrado.'];
-
+        if (!$permiso) return ['ok' => false, 'error' => 'Permiso no encontrado.'];
         $actor = self::identificarActor($permiso);
-        if ($actor['tipo'] !== 'jefe' && $actor['tipo'] !== 'talento_humano') {
-            return ['ok' => false, 'error' => 'No eres el jefe asignado a este permiso.'];
+        if ($actor['tipo'] !== 'jefe') return ['ok' => false, 'error' => 'No eres el jefe asignado a este permiso.'];
+
+        $estado = $permiso['estado'];
+        if (!in_array($estado, ['por_firmar_jefe','por_firmar_jefe_final'], true)) {
+            return ['ok' => false, 'error' => 'Este permiso no está pendiente de tu firma.'];
         }
-        if ($permiso['estado'] !== 'por_firmar_jefe') {
-            return ['ok' => false, 'error' => 'Este permiso no está pendiente de tu firma en este momento.'];
+
+        // En fase final (regreso), esta es la firma definitiva. La prefirma se conserva.
+        if ($estado === 'por_firmar_jefe_final') {
+            $campos = ['firma_jefe' => $firmaRuta, 'estado' => 'firmado'];
+            if ($fotoRuta) $campos['foto_jefe'] = $fotoRuta;
+            $detalle = 'Jefe realizó la firma final después del registro de llegada';
+        } elseif ((int)$permiso['es_salida_pendiente_regreso'] === 1) {
+            $campos = ['firma_jefe_prefirmado' => $firmaRuta, 'estado' => 'aprobado_pendiente_regreso'];
+            if ($fotoRuta) $campos['foto_jefe_prefirmado'] = $fotoRuta;
+            $detalle = 'Jefe prefirma la salida; queda pendiente registrar la llegada';
+        } else {
+            $campos = ['firma_jefe' => $firmaRuta, 'estado' => 'firmado'];
+            if ($fotoRuta) $campos['foto_jefe'] = $fotoRuta;
+            $detalle = 'Jefe firmó, permiso finalizado';
         }
 
-        $estadoFinal = $permiso['es_salida_pendiente_regreso'] == 1 ? 'aprobado_pendiente_regreso' : 'firmado';
-        $campos = ['firma_jefe' => $firmaRuta, 'estado' => $estadoFinal];
-        if ($fotoRuta)
-            $campos['foto_jefe'] = $fotoRuta;
+        if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, $campos)) return ['ok' => false, 'error' => 'conflicto_version'];
+        $nuevoEstado = $campos['estado'];
+        PermisoModel::registrarHistorial($permisoId, $versionActual, $estado, $nuevoEstado, 'jefe', $actor['id'], $detalle);
 
-        $actualizado = PermisoModel::actualizarConVersion($permisoId, $versionActual, $campos);
-        if (!$actualizado)
-            return ['ok' => false, 'error' => 'conflicto_version'];
-
-        $detalle = $estadoFinal === 'aprobado_pendiente_regreso' ? 'Jefe autorizó la salida; queda pendiente registrar la llegada' : 'Jefe firmó, permiso finalizado';
-        PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], $estadoFinal, $actor['tipo'], $actor['id'], $detalle);
-
-        require_once __DIR__ . '/../models/NotificacionModel.php';
-        $mensajeFinal = $estadoFinal === 'aprobado_pendiente_regreso'
-            ? "Tu salida de {$permiso['tipo_permiso']} fue aprobada. Cuando regreses, registra tu llegada."
-            : "Tu permiso de {$permiso['tipo_permiso']} fue firmado y aprobado";
-        NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], $mensajeFinal, "/chvb/public/permisos.php?id={$permisoId}", 'permiso');
-
-        return ['ok' => true, 'estado' => $estadoFinal];
+        if ($nuevoEstado === 'aprobado_pendiente_regreso') {
+            NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu salida de {$permiso['tipo_permiso']} fue autorizada. Cuando regreses registra fecha, hora y evidencia opcional.", "/chvb/public/permisos.php?id={$permisoId}", 'permiso');
+        } else {
+            NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso de {$permiso['tipo_permiso']} fue firmado y aprobado.", "/chvb/public/permisos.php?id={$permisoId}", 'permiso');
+        }
+        return ['ok' => true, 'estado' => $nuevoEstado];
     }
 
     public static function devolver(int $permisoId, int $versionActual, string $motivo): array
     {
         $permiso = PermisoModel::obtenerPorId($permisoId);
-        if (!$permiso)
-            return ['ok' => false, 'error' => 'Permiso no encontrado.'];
-
+        if (!$permiso) return ['ok' => false, 'error' => 'Permiso no encontrado.'];
         $actor = self::identificarActor($permiso);
-        if ($actor['tipo'] !== 'jefe' && $actor['tipo'] !== 'talento_humano') {
-            return ['ok' => false, 'error' => 'Solo el jefe o Talento Humano pueden devolver un permiso.'];
-        }
-        if (!in_array($permiso['estado'], ['por_firmar_reemplazo', 'por_firmar_jefe'], true)) {
-            return ['ok' => false, 'error' => 'Este permiso no se puede devolver en su estado actual.'];
-        }
-        if (trim($motivo) === '') {
-            return ['ok' => false, 'error' => 'Debes indicar el motivo de la devolución.'];
-        }
+        if (trim($motivo) === '') return ['ok' => false, 'error' => 'Debes indicar el motivo de la devolución.'];
 
-        $actualizado = PermisoModel::actualizarConVersion($permisoId, $versionActual, [
-            'estado' => 'devuelto',
-            'motivo_devolucion' => $motivo,
-        ]);
-        if (!$actualizado)
-            return ['ok' => false, 'error' => 'conflicto_version'];
+        $estadoActual = $permiso['estado'];
+        $permitido = ($actor['tipo'] === 'reemplazo' && $estadoActual === 'por_firmar_reemplazo')
+            || ($actor['tipo'] === 'jefe' && in_array($estadoActual, ['por_firmar_jefe','por_firmar_jefe_final'], true));
+        if (!$permitido) return ['ok' => false, 'error' => 'No puedes devolver este permiso en su estado actual.'];
 
-        PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], 'devuelto', $actor['tipo'], $actor['id'], $motivo);
-
-        require_once __DIR__ . '/../models/NotificacionModel.php';
-        NotificacionModel::crearParaEmpleado(
-            $permiso['cedula_empleado'],
-            "Tu permiso de {$permiso['tipo_permiso']} fue devuelto: {$motivo}",
-            "/chvb/public/permisos.php?id={$permisoId}",
-            'permiso'
-        );
-
-        return ['ok' => true, 'estado' => 'devuelto'];
+        $nuevoEstado = $estadoActual === 'por_firmar_jefe_final' ? 'devuelto_regreso' : 'devuelto';
+        if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, ['estado' => $nuevoEstado, 'motivo_devolucion' => $motivo])) return ['ok' => false, 'error' => 'conflicto_version'];
+        PermisoModel::registrarHistorial($permisoId, $versionActual, $estadoActual, $nuevoEstado, $actor['tipo'], $actor['id'], $motivo);
+        NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso de {$permiso['tipo_permiso']} fue devuelto: {$motivo}", "/chvb/public/permisos.php?id={$permisoId}", 'permiso');
+        return ['ok' => true, 'estado' => $nuevoEstado];
     }
 
     public static function rechazar(int $permisoId, int $versionActual, string $motivo): array
     {
         $permiso = PermisoModel::obtenerPorId($permisoId);
-        if (!$permiso)
-            return ['ok' => false, 'error' => 'Permiso no encontrado.'];
-
+        if (!$permiso) return ['ok' => false, 'error' => 'Permiso no encontrado.'];
         $actor = self::identificarActor($permiso);
-        if ($actor['tipo'] !== 'jefe' && $actor['tipo'] !== 'talento_humano') {
-            return ['ok' => false, 'error' => 'Solo el jefe o Talento Humano pueden rechazar un permiso.'];
-        }
-        if (!in_array($permiso['estado'], ['por_firmar_reemplazo', 'por_firmar_jefe'], true)) {
-            return ['ok' => false, 'error' => 'Este permiso no se puede rechazar en su estado actual.'];
-        }
-        if (trim($motivo) === '') {
-            return ['ok' => false, 'error' => 'Debes indicar el motivo del rechazo.'];
-        }
-
-        $actualizado = PermisoModel::actualizarConVersion($permisoId, $versionActual, [
-            'estado' => 'rechazado',
-            'motivo_rechazo' => $motivo,
-        ]);
-        if (!$actualizado)
-            return ['ok' => false, 'error' => 'conflicto_version'];
-
-        PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], 'rechazado', $actor['tipo'], $actor['id'], $motivo);
-        // NO se elimina el registro: sigue existiendo con estado 'rechazado', visible en el historial del empleado.
-
-        require_once __DIR__ . '/../models/NotificacionModel.php';
-        NotificacionModel::crearParaEmpleado(
-            $permiso['cedula_empleado'],
-            "Tu permiso de {$permiso['tipo_permiso']} fue rechazado: {$motivo}",
-            "/chvb/public/permisos.php?id={$permisoId}",
-            'permiso'
-        );
-
+        if ($actor['tipo'] !== 'jefe') return ['ok' => false, 'error' => 'Solo el jefe puede rechazar un permiso.'];
+        if (!in_array($permiso['estado'], ['por_firmar_reemplazo','por_firmar_jefe'], true)) return ['ok' => false, 'error' => 'El rechazo solo está disponible antes de la firma final.'];
+        if (trim($motivo) === '') return ['ok' => false, 'error' => 'Debes indicar el motivo del rechazo.'];
+        if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, ['estado' => 'rechazado', 'motivo_rechazo' => $motivo])) return ['ok' => false, 'error' => 'conflicto_version'];
+        PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], 'rechazado', 'jefe', $actor['id'], $motivo);
+        NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso de {$permiso['tipo_permiso']} fue rechazado: {$motivo}", "/chvb/public/permisos.php?id={$permisoId}", 'permiso');
         return ['ok' => true, 'estado' => 'rechazado'];
+    }
+
+    public static function anular(int $permisoId, int $versionActual, string $motivo): array
+    {
+        $permiso = PermisoModel::obtenerPorId($permisoId);
+        if (!$permiso) return ['ok' => false, 'error' => 'Permiso no encontrado.'];
+        if ($permiso['estado'] !== 'firmado') return ['ok' => false, 'error' => 'Solo se puede anular un permiso que ya tenga firma final.'];
+        $rol = $_SESSION['superadmin_rol'] ?? '';
+        if (!in_array($rol, ['teniente','superadmin_talento_humano','auxiliar_talento_humano'], true)) return ['ok' => false, 'error' => 'No tienes autorización para anular permisos.'];
+        $motivo = trim($motivo);
+        if ($motivo === '') return ['ok' => false, 'error' => 'El motivo de anulación es obligatorio.'];
+        $actor = $_SESSION['superadmin_username'] ?? $rol;
+        if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, ['estado' => 'anulado','motivo_anulacion' => $motivo,'anulado_por' => $actor,'fecha_anulacion' => date('Y-m-d H:i:s')])) return ['ok' => false, 'error' => 'conflicto_version'];
+        PermisoModel::registrarHistorial($permisoId, $versionActual, 'firmado', 'anulado', 'talento_humano', $actor, $motivo);
+        NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso {$permiso['consecutivo']} fue anulado: {$motivo}", "/chvb/public/permisos.php?id={$permisoId}", 'permiso');
+        return ['ok' => true, 'estado' => 'anulado'];
+    }
+
+    /** Registro de llegada: solo fecha/hora/evidencia y pasa a firma final del jefe. */
+    public static function registrarLlegada(int $permisoId, int $versionActual, string $fechaFin, string $horaFin, ?string $rutaEvidencia): array
+    {
+        $permiso = PermisoModel::obtenerPorId($permisoId);
+        if (!$permiso) return ['ok' => false, 'error' => 'Permiso no encontrado.'];
+        $cedula = $_SESSION['empleado_cedula'] ?? '';
+        if ($cedula !== $permiso['cedula_empleado']) return ['ok' => false, 'error' => 'No eres el solicitante de este permiso.'];
+        if (!in_array($permiso['estado'], ['aprobado_pendiente_regreso','devuelto_regreso'], true)) return ['ok' => false, 'error' => 'Este permiso no está en fase de registro de llegada.'];
+        if ($fechaFin === '' || $horaFin === '') return ['ok' => false, 'error' => 'La fecha y hora de llegada son obligatorias.'];
+
+        $empleado = EmpleadoModel::obtenerPorCedula($cedula);
+        $tipoPersonal = !empty($empleado['tipo_de_personal']) ? $empleado['tipo_de_personal'] : 'Civil';
+        $calculo = self::calcularHorasPorDias($permiso['fecha_inicio'], $permiso['hora_inicio'], $fechaFin, $horaFin, $tipoPersonal);
+        if (!$calculo['ok']) return ['ok' => false, 'error' => $calculo['error']];
+        $recalculo = self::recalcularConfirmado($calculo['dias'], $tipoPersonal);
+
+        $campos = ['fecha_fin'=>$fechaFin,'hora_fin'=>$horaFin,'total_horas'=>$recalculo['total_horas'],'estado'=>'por_firmar_jefe_final'];
+        if ($rutaEvidencia !== null) $campos['evidencia_archivo'] = $rutaEvidencia;
+        if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, $campos)) return ['ok'=>false,'error'=>'conflicto_version'];
+        PermisoModel::reemplazarDias($permisoId, $recalculo['dias']);
+        PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], 'por_firmar_jefe_final', 'empleado', $cedula, 'Llegada registrada; pasa directamente al jefe para firma final');
+        NotificacionModel::crearParaEmpleado($permiso['cedula_jefe'], "El permiso {$permiso['consecutivo']} tiene llegada registrada y requiere tu firma final.", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
+        NotificacionModel::crearParaTalentoHumano(null, $permiso['nombre_empleado_snapshot'], $cedula, 'permiso_cierre', "{$permiso['nombre_empleado_snapshot']} registró la llegada del permiso {$permiso['consecutivo']}", "./permisos_th.php?id={$permisoId}");
+        return ['ok'=>true,'total_horas'=>$recalculo['total_horas']];
     }
 
     /**

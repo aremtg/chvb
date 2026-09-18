@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../src/models/PermisoModel.php';
 $id = (int)($_GET['id'] ?? 0);
 $campo = $_GET['campo'] ?? ''; // foto_solicitante | firma_solicitante | foto_reemplazo | firma_reemplazo | foto_jefe | firma_jefe | evidencia_archivo
 
-$camposValidos = ['foto_solicitante','firma_solicitante','foto_reemplazo','firma_reemplazo','foto_jefe','firma_jefe','evidencia_archivo'];
+$camposValidos = ['foto_solicitante','firma_solicitante','foto_reemplazo','firma_reemplazo','foto_jefe','firma_jefe','foto_jefe_prefirmado','firma_jefe_prefirmado','evidencia_archivo'];
 if (!in_array($campo, $camposValidos, true)) { http_response_code(400); exit('Campo inválido.'); }
 
 $permiso = PermisoModel::obtenerPorId($id);
@@ -26,8 +26,8 @@ if ($esEmpleado) {
 $rutaRelativa = $permiso[$campo] ?? null;
 if (!$rutaRelativa) { http_response_code(404); exit('No hay imagen para este campo.'); }
 
-$uploadsPath = FileManager::rutaUploads();
-$rutaCompleta = $uploadsPath . '/' . $rutaRelativa;
+$rutaCompleta = FileManager::rutaAbsolutaDesdeRelativa($rutaRelativa);
+if ($rutaCompleta === null) { http_response_code(404); exit('Ruta de archivo inválida.'); }
 
 if (!is_file($rutaCompleta)) { http_response_code(404); exit('Archivo no encontrado en disco.'); }
 

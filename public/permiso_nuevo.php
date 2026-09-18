@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../src/models/EmpleadoModel.php';
 require_once __DIR__ . '/../src/models/FirmaModel.php';
+require_once __DIR__ . '/../src/models/PermisoModel.php';
 requireEmpleado();
 
 require_once __DIR__ . '/../src/controllers/PermisoController.php';
@@ -9,6 +10,12 @@ require_once __DIR__ . '/../src/controllers/PermisoController.php';
 $cedula = $_SESSION['empleado_cedula'];
 $empleado = EmpleadoModel::obtenerPorCedula($cedula);
 $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
+
+$editarId = (int)($_GET['editar'] ?? 0);
+$permisoEditar = $editarId ? PermisoModel::obtenerPorId($editarId) : null;
+if ($editarId && (!$permisoEditar || $permisoEditar['cedula_empleado'] !== $cedula || $permisoEditar['estado'] !== 'devuelto')) {
+    header('Location: ./permisos.php'); exit;
+}
 $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($empleado);
 ?>
 <!DOCTYPE html>
@@ -17,7 +24,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuevo Permiso - CHVB</title>
+    <title><?= $editarId ? 'Editar permiso' : 'Nuevo Permiso' ?> - CHVB</title>
     <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 
@@ -26,7 +33,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
 
     <div class="md:ml-64 pt-14 md:pt-0">
         <header class="bg-white shadow px-6 py-4">
-            <h1 class="text-lg font-bold text-gray-800">Nueva solicitud de permiso</h1>
+            <h1 class="text-lg font-bold text-gray-800"><?= $editarId ? 'Editar y reenviar permiso' : 'Nueva solicitud de permiso' ?></h1>
         </header>
 
         <main class="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
@@ -51,6 +58,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
 
                 <form id="formPermiso" class="space-y-6">
                     <?= csrfCampoHTML() ?>
+                    <?php if ($editarId): ?><input type="hidden" id="permisoEditarId" value="<?= $editarId ?>"><input type="hidden" id="permisoEditarVersion" value="<?= (int)$permisoEditar['version'] ?>"><?php endif; ?>
 
                     <!-- Datos automáticos -->
                     <div class="bg-white rounded-xl shadow p-4 grid grid-cols-2 gap-3 text-sm">
@@ -247,7 +255,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
 
                     <button type="submit"
                         class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition">
-                        Guardar solicitud
+                        <?= $editarId ? 'Guardar cambios y reenviar' : 'Guardar solicitud' ?>
                     </button>
                 </form>
 
@@ -255,6 +263,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
         </main>
     </div>
 
+    <script>window.PERMISO_EDITAR = <?= $editarId ? json_encode(['id'=>$editarId,'version'=>(int)$permisoEditar['version'],'permiso'=>$permisoEditar,'dias'=>PermisoModel::obtenerDias($editarId),'devoluciones'=>PermisoModel::obtenerDevoluciones($editarId)], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) : 'null' ?>;</script>
     <script src="./assets/js/camera_capture.js"></script>
     <script src="./assets/js/firma_canvas.js"></script>
     <script src="./assets/js/permiso_nuevo.js"></script>

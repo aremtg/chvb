@@ -96,6 +96,16 @@ class NotificacionModel
         ]);
     }
 
+    public static function eliminarPendientesDePermisoParaEmpleado(string $cedula, int $permisoId): void {
+        $pdo = getPDO();
+        $stmt = $pdo->prepare(
+            "DELETE FROM notificaciones
+             WHERE destinatario_tipo = 'empleado' AND cedula_empleado = :b1
+             AND enlace LIKE :b2"
+        );
+        $stmt->execute(['b1' => $cedula, 'b2' => '%id=' . $permisoId]);
+    }
+
     public static function listarParaEmpleado(string $cedula): array {
         self::purgarExpiradas();
         $pdo = getPDO();

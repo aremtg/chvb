@@ -44,6 +44,9 @@ $permisos = PermisoModel::listarPorEmpleadoConFiltros($cedula, []);
                     <option value="devuelto">Devueltos (para editar)</option>
                     <option value="firmado">Firmados</option>
                     <option value="rechazado">Rechazados</option>
+                    <option value="anulado">Anulados</option>
+                    <option value="aprobado_pendiente_regreso">Regreso pendiente</option>
+                    <option value="por_firmar_jefe_final">Pendientes de firma final</option>
                 </select>
             </div>
             <div>

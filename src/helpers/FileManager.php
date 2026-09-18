@@ -211,7 +211,19 @@ public static function guardarFoto(string $cedula, array $archivo): array {
     }
 
 
-        public static function guardarFotoPermiso(string $cedula, array $archivo): array {
+        public static function rutaAbsolutaDesdeRelativa(string $rutaRelativa): ?string {
+        $rutaRelativa = ltrim(str_replace(['\\','\0'], ['/',''], $rutaRelativa), '/');
+        if (str_contains($rutaRelativa, '..')) return null;
+        $base = realpath(self::rutaUploads());
+        if ($base === false) return null;
+        $ruta = realpath($base . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $rutaRelativa));
+        if ($ruta === false) return null;
+        $baseNorm = rtrim(str_replace('\\','/', $base), '/') . '/';
+        $rutaNorm = str_replace('\\','/', $ruta);
+        return str_starts_with($rutaNorm, $baseNorm) ? $ruta : null;
+    }
+
+    public static function guardarFotoPermiso(string $cedula, array $archivo): array {
         return self::guardarImagenGenerica($cedula, $archivo, 'permisos/fotos');
     }
 

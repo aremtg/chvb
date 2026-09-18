@@ -4,11 +4,6 @@ require_once __DIR__ . '/../../src/models/PermisoModel.php';
 
 header('Content-Type: application/json');
 requireSuperAdmin();
-if (($_SESSION['superadmin_rol'] ?? '') === 'teniente') {
-    http_response_code(403);
-    echo json_encode(['ok' => false, 'error' => 'No autorizado.']);
-    exit;
-}
 
 $filtros = [
     'fecha_desde' => $_GET['fecha_desde'] ?? '',

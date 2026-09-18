@@ -11,7 +11,7 @@ function esRolPara(p) {
     p.estado === "por_firmar_reemplazo"
   )
     return "reemplazo";
-  if (p.cedula_jefe === cedulaPropia && p.estado === "por_firmar_jefe")
+  if (p.cedula_jefe === cedulaPropia && ["por_firmar_jefe", "por_firmar_jefe_final"].includes(p.estado))
     return "jefe";
   return null;
 }
@@ -35,7 +35,7 @@ function render() {
                     <a href="./permiso_ver.php?id=${p.id}" class="text-xs border border-gray-300 px-3 py-1.5 rounded-xl text-gray-700">Ver detalle completo</a>
                     <button onclick="abrirModalFirma(${p.id}, ${p.version}, '${rol}', 'firmar')" class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-xl">Firmar</button>
                     <button onclick="abrirModalFirma(${p.id}, ${p.version}, '${rol}', 'devolver')" class="text-xs border border-gray-300 px-3 py-1.5 rounded-xl">Devolver</button>
-                    ${rol === "jefe" ? `<button onclick="abrirModalFirma(${p.id}, ${p.version}, '${rol}', 'rechazar')" class="text-xs text-red-600 hover:underline px-3 py-1.5">Rechazar</button>` : ""}
+                    ${rol === "jefe" && p.estado === "por_firmar_jefe" ? `<button onclick="abrirModalFirma(${p.id}, ${p.version}, '${rol}', 'rechazar')" class="text-xs text-red-600 hover:underline px-3 py-1.5">Rechazar</button>` : ""}
                 </div>
             </div>`;
   });

@@ -35,10 +35,8 @@ function etiquetaEstado(estado) {
       clase: "bg-yellow-100 text-yellow-700",
     },
     firmado: { texto: "Firmado", clase: "bg-green-100 text-green-700" },
-    devuelto: {
-      texto: "Devuelto — pendiente de editar",
-      clase: "bg-orange-100 text-orange-700",
-    },
+    devuelto: { texto: "Devuelto — pendiente de editar", clase: "bg-orange-100 text-orange-700" },
+    devuelto_regreso: { texto: "Llegada devuelta — corregir", clase: "bg-orange-100 text-orange-700" },
     rechazado: { texto: "Rechazado", clase: "bg-red-100 text-red-700" },
   };
   return mapa[estado] || { texto: estado, clase: "bg-gray-100 text-gray-600" };
@@ -57,23 +55,24 @@ function renderPermisos(permisos) {
     .map((p) => {
       const est = etiquetaEstado(p.estado);
       const esDevuelto = p.estado === "devuelto";
+      const esDevueltoRegreso = p.estado === "devuelto_regreso";
       const esPendienteRegreso = p.estado === "aprobado_pendiente_regreso";
       const urlDestino = esDevuelto
-        ? `./permiso_editar.php?id=${p.id}`
-        : esPendienteRegreso
+        ? `./permiso_nuevo.php?editar=${p.id}`
+        : (esDevueltoRegreso || esPendienteRegreso)
           ? `./permiso_registrar_llegada.php?id=${p.id}`
           : `./permiso_ver.php?id=${p.id}`;
 
       return `
-            <a href="${urlDestino}" class="block bg-white rounded-xl shadow p-4 hover:shadow-md transition ${esDevuelto ? "border-2 border-orange-300" : ""}">
+            <a href="${urlDestino}" class="block bg-white rounded-xl shadow p-4 hover:shadow-md transition ${esDevuelto || esDevueltoRegreso ? "border-2 border-orange-300" : ""}">
                 <div class="flex justify-between items-start gap-3">
                     <div>
                         <p class="font-medium text-gray-800">${p.consecutivo} — ${p.tipo_permiso}</p>
-                        <p class="text-xs text-gray-500 mt-0.5">Solicitado: ${formatearFechaEsP(p.fecha_solicitud)} · ${parseFloat(p.total_horas).toFixed(2)} h</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Solicitado: ${formatearFechaEsP(p.fecha_solicitud)} · ${p.total_horas == null ? "Regreso pendiente" : parseFloat(p.total_horas).toFixed(2) + " h"}</p>
                     </div>
                     <span class="text-xs font-medium px-2 py-1 rounded-lg shrink-0 ${est.clase}">${est.texto}</span>
                 </div>
-                ${esDevuelto ? '<p class="text-xs text-orange-700 mt-2">⚠ Toca para editar y reenviar</p>' : ""}
+                ${esDevuelto ? '<p class="text-xs text-orange-700 mt-2">⚠ Toca para editar y reenviar</p>' : esDevueltoRegreso ? '<p class="text-xs text-orange-700 mt-2">⚠ Corrige la llegada y vuelve al jefe para firma final</p>' : ""}
                 ${esPendienteRegreso ? '<p class="text-xs text-blue-700 mt-2">📍 Toca para registrar tu llegada</p>' : ""}
             </a>
         `;

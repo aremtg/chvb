@@ -1,10 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/session.php';
 requireSuperAdmin();
-if (($_SESSION['superadmin_rol'] ?? '') === 'teniente') {
-    header('Location: ./dashboard.php');
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -18,9 +14,10 @@ if (($_SESSION['superadmin_rol'] ?? '') === 'teniente') {
 <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 <div class="md:ml-64 pt-14 md:pt-0">
     <header class="bg-white shadow px-6 py-4">
-        <h1 class="text-lg font-bold text-gray-800">Permisos (solo lectura)</h1>
+        <h1 class="text-lg font-bold text-gray-800">Permisos</h1>
     </header>
 
+    <input type="hidden" id="csrfToken" value="<?= htmlspecialchars(csrfToken()) ?>">
     <main class="p-4 md:p-6 space-y-4">
 
         <!-- Filtros -->
@@ -51,6 +48,7 @@ if (($_SESSION['superadmin_rol'] ?? '') === 'teniente') {
                     <option value="firmado">Firmados/Aprobados</option>
                     <option value="rechazado">Rechazados</option>
                     <option value="devuelto">Devueltos</option>
+                    <option value="anulado">Anulados</option>
                 </select>
             </div>
             <div>

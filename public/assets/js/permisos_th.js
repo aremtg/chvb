@@ -34,6 +34,7 @@ function pintarPermiso(p) {
             ${p.tipo_permiso} · Jefe: ${p.nombre_jefe || '-'} · ${formatearHorasJS(p.total_horas)} · Solicitado ${fechaTH(p.fecha_solicitud)}
         </p>
         <span class="inline-block text-xs font-medium px-2 py-1 rounded-lg mt-2 ${clase}">${texto}</span>
+        ${p.estado === 'firmado' ? `<button type="button" onclick="anularPermiso(${p.id}, ${p.version})" class="block mt-3 text-xs text-red-600 hover:underline">Anular permiso firmado</button>` : ''}
     `;
     if (el) { el.innerHTML = html; el.classList.add('ring-2','ring-blue-300'); setTimeout(() => el.classList.remove('ring-2','ring-blue-300'), 1500); }
     else {
@@ -90,3 +91,11 @@ async function polling() {
 cargarInicial();
 actualizarPresencia();
 setInterval(() => { if (document.visibilityState === 'visible') { polling(); actualizarPresencia(); } }, 6000);
+async function anularPermiso(id, version) {
+    const motivo = window.prompt('Escribe el motivo obligatorio de la anulación:');
+    if (motivo === null) return;
+    if (!motivo.trim()) { alert('El motivo de anulación es obligatorio.'); return; }
+    const fd = new FormData(); fd.append('id', id); fd.append('version', version); fd.append('motivo', motivo.trim()); fd.append('csrf_token', document.getElementById('csrfToken').value);
+    const r = await fetch('./api/permisos_anular.php', {method:'POST', body:fd}); const d=await r.json();
+    if(d.ok) cargarInicial(); else alert(d.error || 'No se pudo anular.');
+}

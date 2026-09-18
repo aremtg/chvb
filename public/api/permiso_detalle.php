@@ -14,6 +14,12 @@ if (!$permiso) { echo json_encode(['ok' => false, 'error' => 'Permiso no encontr
 if ($esEmpleado) {
     $cedula = $_SESSION['empleado_cedula'];
     $autorizado = in_array($cedula, [$permiso['cedula_empleado'], $permiso['cedula_reemplazo'], $permiso['cedula_jefe']], true);
+    if (!$autorizado) {
+        $pdoHist = getPDO();
+        $stHist = $pdoHist->prepare("SELECT 1 FROM permisos_historial WHERE permiso_id=:b1 AND actor_tipo='reemplazo' AND actor_cedula_o_usuario=:b2 LIMIT 1");
+        $stHist->execute(['b1'=>$id,'b2'=>$cedula]);
+        $autorizado = (bool)$stHist->fetchColumn();
+    }
     if (!$autorizado) { http_response_code(403); echo json_encode(['ok' => false, 'error' => 'No autorizado.']); exit; }
 }
 

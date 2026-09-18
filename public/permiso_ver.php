@@ -8,11 +8,14 @@ $cedula = $_SESSION['empleado_cedula'];
 $id = (int)($_GET['id']?? 0);
 $permiso = PermisoModel::obtenerPorId($id);
 
-if (!$permiso ||!in_array($cedula, [$permiso['cedula_empleado'], $permiso['cedula_reemplazo'], $permiso['cedula_jefe']], true)) {
-    header('Location: ./permisos.php');
-    exit;
-}
 
+$pdoTmp = getPDO();
+$stmtTmp = $pdoTmp->prepare("SELECT 1 FROM permisos_historial WHERE permiso_id = :b1 AND actor_tipo = 'reemplazo' AND actor_cedula_o_usuario = :b2 LIMIT 1");
+$stmtTmp->execute(['b1'=>$id,'b2'=>$cedula]);
+$esReemplazoHistorico = (bool)$stmtTmp->fetchColumn();
+if (!$permiso || (!in_array($cedula, [$permiso['cedula_empleado'], $permiso['cedula_reemplazo'], $permiso['cedula_jefe']], true) && !$esReemplazoHistorico)) {
+    header('Location: ./permisos.php'); exit;
+}
 $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
 ?>
 <!DOCTYPE html>

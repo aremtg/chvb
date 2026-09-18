@@ -46,10 +46,10 @@ function etiquetaEstadoV(e) {
     firmado: ["Firmado", "bg-green-100 text-green-700"],
     devuelto: ["Devuelto", "bg-orange-100 text-orange-700"],
     rechazado: ["Rechazado", "bg-red-100 text-red-700"],
-    aprobado_pendiente_regreso: [
-      "Aprobado — regreso pendiente",
-      "bg-blue-100 text-blue-700",
-    ],
+    aprobado_pendiente_regreso: ["Aprobado — regreso pendiente", "bg-blue-100 text-blue-700"],
+    por_firmar_jefe_final: ["Pendiente de firma final del jefe", "bg-yellow-100 text-yellow-700"],
+    devuelto_regreso: ["Llegada devuelta — corregir", "bg-orange-100 text-orange-700"],
+    anulado: ["Anulado", "bg-red-100 text-red-700"],
   };
   return m[e] || [e, "bg-gray-100 text-gray-600"];
 }
@@ -76,7 +76,7 @@ function render() {
   const esReemplazoPendiente =
     p.cedula_reemplazo === cedulaPropia && p.estado === "por_firmar_reemplazo";
   const esJefePendiente =
-    p.cedula_jefe === cedulaPropia && p.estado === "por_firmar_jefe";
+    p.cedula_jefe === cedulaPropia && ["por_firmar_jefe", "por_firmar_jefe_final"].includes(p.estado);
 
   let acciones = "";
   if (esDueno && (p.estado === "en_proceso" || p.estado === "devuelto")) {
@@ -89,10 +89,10 @@ function render() {
     const rol = esReemplazoPendiente ? "reemplazo" : "jefe";
     acciones += `<button onclick="abrirModalAccion('firmar','${rol}')" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-xl">Firmar</button>`;
     acciones += `<button onclick="abrirModalAccion('devolver','${rol}')" class="border border-gray-300 text-sm px-4 py-2 rounded-xl text-gray-700">Devolver</button>`;
-    if (rol === "jefe")
+    if (rol === "jefe" && p.estado === "por_firmar_jefe")
       acciones += `<button onclick="abrirModalAccion('rechazar','${rol}')" class="text-red-600 hover:underline text-sm px-2 py-2">Rechazar</button>`;
   }
-  if (p.estado === "aprobado_pendiente_regreso" && esDueno) {
+  if (["aprobado_pendiente_regreso", "devuelto_regreso"].includes(p.estado) && esDueno) {
     acciones += `<a href="./permiso_registrar_llegada.php?id=${p.id}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-xl">Registrar llegada</a>`;
   }
 

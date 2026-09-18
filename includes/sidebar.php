@@ -7,6 +7,7 @@ if ($rolActual === 'teniente') {
     $linksSidebar = [
         ['url' => '/chvb/public/dashboard.php', 'label' => 'Inicio', 'icon' => 'home'],
         ['url' => '/chvb/public/empleados.php', 'label' => 'Hojas de Vida', 'icon' => 'folder'],
+        ['url' => '/chvb/public/permisos_th.php', 'label' => 'Permisos', 'icon' => 'file-text'],
     ];
 } else {
     $linksSidebar = [

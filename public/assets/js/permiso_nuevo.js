@@ -393,7 +393,7 @@ esCompensatorioEl.addEventListener("change", () => {
 
 esDevolucionEl.addEventListener("change", () => {
   cajaDevolucion.classList.toggle("hidden", !esDevolucionEl.checked);
-  if (esDevolucionEl.checked && !modoSalidaPendiente) {
+  if (esDevolucionEl.checked && !document.getElementById("esSalidaPendiente").checked) {
     esCompensatorioEl.checked = false;
     cajaCompensatorio.classList.add("hidden");
     if (filasDevolucion.length === 0) agregarFilaDevolucion();
@@ -672,6 +672,57 @@ document
 const capturaFoto = inicializarCapturaFoto("capturaFotoSolicitante");
 
 // =====================================================================
+// MODO EDICIÓN: precarga el mismo formulario y conserva el consecutivo.
+// =====================================================================
+const permisoEdicion = window.PERMISO_EDITAR || null;
+if (permisoEdicion) {
+  const p = permisoEdicion.permiso;
+  document.getElementById('tipoPermiso').value = p.tipo_permiso || '';
+  document.getElementById('motivo').value = p.motivo || '';
+  document.getElementById('remunerado').checked = p.remunerado == 1;
+  document.getElementById('esCompensatorio').checked = p.es_compensatorio == 1;
+  document.getElementById('fechaHorasExtra').value = p.fecha_horas_extra || '';
+  document.getElementById('esDevolucion').checked = p.es_devolucion == 1;
+  document.getElementById('tieneReemplazo').checked = p.tiene_reemplazo == 1;
+  cajaReemplazo.classList.toggle('hidden', !tieneReemplazoEl.checked);
+  document.getElementById('cedulaReemplazoHidden').value = p.cedula_reemplazo || '';
+  document.getElementById('cedulaJefeHidden').value = p.cedula_jefe || '';
+  const cargarEmpleado = async (cedula, inputId, hiddenId) => {
+    if (!cedula) return;
+    try {
+      const r = await fetch(`./api/empleados_obtener.php?cedula=${encodeURIComponent(cedula)}`);
+      const d = await r.json(); const e = d.empleado || d;
+      if (e && e.nombre) { document.getElementById(inputId).value = `${e.nombre} (${cedula})`; document.getElementById(inputId).readOnly = true; }
+    } catch (_) {}
+  };
+  cargarEmpleado(p.cedula_reemplazo, 'buscadorReemplazo', 'cedulaReemplazoHidden');
+  cargarEmpleado(p.cedula_jefe, 'buscadorJefe', 'cedulaJefeHidden');
+  document.getElementById('esSalidaPendiente').checked = p.es_salida_pendiente_regreso == 1;
+  document.getElementById('cajaSalidaPendiente').classList.toggle('hidden', p.tipo_permiso !== 'Permiso');
+  if (p.es_salida_pendiente_regreso == 1) {
+    document.getElementById('fechaSalidaUnica').value = p.fecha_inicio || '';
+    document.getElementById('horaSalidaUnica').value = (p.hora_inicio || '').substring(0,5);
+    aplicarModoSalidaPendiente(true);
+  } else {
+    infoDias = {};
+    (permisoEdicion.dias || []).forEach(d => {
+      infoDias[d.fecha] = {esFestivo: d.es_festivo == 1, festivoNombre: d.festivo_nombre, diaCompleto: false,
+        horaInicio: (d.hora_inicio || '').substring(0,5), horaFin: (d.hora_fin || '').substring(0,5),
+        horasNetas: parseFloat(d.horas_netas || 0), horasBrutas: parseFloat(d.horas_brutas || 0),
+        horasDescuentoAlmuerzo: parseFloat(d.horas_descuento_almuerzo || 0), calculando:false};
+    });
+    mesCalendarioActual = new Date(p.fecha_inicio + 'T00:00:00').getMonth();
+    anioCalendarioActual = new Date(p.fecha_inicio + 'T00:00:00').getFullYear();
+    renderCalendario(); renderListaDiasConfig(); recalcularTotales();
+  }
+  if (p.es_devolucion == 1) {
+    filasDevolucion = (permisoEdicion.devoluciones || []).map((d, i) => ({id: ++contadorFilaDevolucion, fecha:d.fecha, horaInicio:d.hora_inicio.substring(0,5), horaFin:d.hora_fin.substring(0,5), horas:parseFloat(d.total_horas||0)}));
+    renderListaDevoluciones(); cajaDevolucion.classList.remove('hidden');
+  }
+  if (usarFirmaGuardadaEl) { usarFirmaGuardadaEl.checked = false; cajaFirmaNueva.classList.remove('hidden'); }
+}
+
+// =====================================================================
 // ENVÍO DEL FORMULARIO
 // =====================================================================
 
@@ -735,17 +786,18 @@ document.getElementById("formPermiso").addEventListener("submit", async (e) => {
       );
   }
 
-  if (!capturaFoto.tieneFoto()) {
+  if (!permisoEdicion && !capturaFoto.tieneFoto()) {
     listaErrores.push("Debes tomar tu foto con la cámara antes de enviar.");
   }
 
   const usaFirmaGuardada = usarFirmaGuardadaEl && usarFirmaGuardadaEl.checked;
   const usandoTabArchivo = !panelFirmaArchivo.classList.contains("hidden");
-  if (!usaFirmaGuardada) {
+  if (!usaFirmaGuardada && (!permisoEdicion || usandoTabArchivo || !canvasFirma.estaVacio())) {
     if (usandoTabArchivo) {
-      if (!document.getElementById("inputFirmaArchivo").files[0])
-        listaErrores.push("Sube tu imagen de firma.");
-    } else if (canvasFirma.estaVacio()) {
+      if (!document.getElementById("inputFirmaArchivo").files[0]) listaErrores.push("Sube tu imagen de firma.");
+    } else if (!canvasFirma.estaVacio()) {
+      // se enviará la nueva firma
+    } else if (!permisoEdicion) {
       listaErrores.push("Dibuja tu firma antes de guardar.");
     }
   }
@@ -758,7 +810,7 @@ document.getElementById("formPermiso").addEventListener("submit", async (e) => {
   }
 
   const formData = new FormData(e.target);
-  formData.set("foto_solicitante_base64", capturaFoto.obtenerDataURL());
+  if (capturaFoto.tieneFoto()) formData.set("foto_solicitante_base64", capturaFoto.obtenerDataURL());
 
   if (modoSalidaPendiente) {
     formData.append("es_salida_pendiente_regreso", "1");
@@ -780,11 +832,22 @@ document.getElementById("formPermiso").addEventListener("submit", async (e) => {
       "firma_solicitante_archivo",
       document.getElementById("inputFirmaArchivo").files[0],
     );
-  } else {
+  } else if (!canvasFirma.estaVacio()) {
     formData.append("firma_solicitante_base64", canvasFirma.obtenerDataURL());
   }
 
   try {
+    if (permisoEdicion) {
+      formData.append("id", permisoEdicion.id);
+      formData.append("version", permisoEdicion.version);
+      // En edición la foto/firma son opcionales si el usuario quiere conservar las actuales.
+      if (!capturaFoto.tieneFoto()) formData.delete("foto_solicitante_base64");
+      const res = await fetch("./api/permisos_editar.php", { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.ok) { window.location.href = `./permiso_ver.php?id=${data.id}`; return; }
+      erroresForm.innerHTML = data.errores ? data.errores.join("<br>") : (data.error || "Error desconocido.");
+      erroresForm.classList.remove("hidden"); window.scrollTo(0,0); return;
+    }
     const res = await fetch("./api/permisos_crear.php", {
       method: "POST",
       body: formData,
