@@ -51,20 +51,6 @@ $alarmas = BolsilloModel::alarmasProximas();
            
         </header>
         <main class="p-6 max-w-6xl mx-auto space-y-6">
-
-            <div class="flex gap-3">
-                <a href="./empleados.php"
-                    class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-md transition">
-                    Hojas de Vida
-                </a>
-                <?php if (($_SESSION['superadmin_rol'] ?? '') !== 'teniente'): ?>
-                    <a href="./alarmas.php"
-                        class="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 rounded-xl transition">
-                        Panel de Alarmas <?= count($alarmas) > 0 ? '(' . count($alarmas) . ')' : '' ?>
-                    </a>
-                <?php endif; ?>
-            </div>
-
             <!-- CALENDARIO DE CUMPLEAÑOS -->
             <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -81,10 +67,14 @@ $alarmas = BolsilloModel::alarmasProximas();
                     </div>
 
                     <div class="flex items-center gap-1 self-start sm:self-auto">
+                        <a href="?anio=<?= date('Y')?>&mes=<?= date('n')?>"
+   class="ml-1.5 px-3 h-8 rounded-lg border border-gray-200 bg-white text-sm font-semibold text-gray-700 flex items-center justify-center">
+   Este mes
+</a>
                         <a href="?anio=<?= $mesAnterior->format('Y') ?>&mes=<?= $mesAnterior->format('n') ?>"
                             class="w-8 h-8 rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 flex items-center justify-center transition"
                             aria-label="Mes anterior">
-                            <?= icon('chevron-left', 'w-4 h-4') ?>
+                            <?= icon('chevron-left', 'w-5 h-5') ?>
                         </a>
                         <div class="min-w-[130px] text-center text-sm font-semibold text-gray-700">
                             <?= htmlspecialchars($nombreMesCalendario . ' ' . $anioCalendario) ?>
@@ -92,7 +82,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                         <a href="?anio=<?= $mesSiguiente->format('Y') ?>&mes=<?= $mesSiguiente->format('n') ?>"
                             class="w-8 h-8 rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 flex items-center justify-center transition"
                             aria-label="Mes siguiente">
-                            <?= icon('chevron-right', 'w-4 h-4') ?>
+                            <?= icon('chevron-right', 'w-5 h-5') ?>
                         </a>
                     </div>
                 </div>
@@ -135,9 +125,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                             <span class="inline-flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-red-600"></span> Hay cumpleaños
                             </span>
-                            <span class="inline-flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full border border-red-300"></span> Hoy
-                            </span>
+                           
                         </div>
                     </div>
 

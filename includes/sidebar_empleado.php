@@ -15,7 +15,7 @@ $totalNoLeidasInicial = $cedulaSesion ? NotificacionModel::contarNoLeidasParaEmp
 ?>
 <button onclick="document.getElementById('sidebarMovilEmpleado').classList.remove('-translate-x-full')"
     class="md:hidden fixed top-3 left-3 z-40 bg-white border border-gray-200 rounded-xl p-2 shadow">
-    <?= icon('menu', 'w-6 h-6 text-gray-700') ?>
+    <?= icon('menu', 'w-5 h-5 text-gray-700') ?>
 </button>
 
 <div id="overlaySidebarEmpleado"
