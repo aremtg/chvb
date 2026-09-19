@@ -154,7 +154,7 @@ function render() {
         <div class="bg-white rounded-xl shadow p-4">
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="font-medium text-gray-800">${p.tipo_permiso}</p>
+                    <p class="font-medium text-gray-800">Tipo: ${p.tipo_permiso}</p>
                     <p class="text-xs text-gray-500">${p.nombre_empleado_snapshot} · ${p.cargo_empleado_snapshot}</p>
                 </div>
                 <span class="text-xs font-medium px-2 py-1 rounded-lg ${claseEstado}">${textoEstado}</span>

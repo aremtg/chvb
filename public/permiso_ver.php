@@ -39,9 +39,7 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
                 </a>
                 <h1 class="text- font-bold tracking-tight text-gray-900 mt-1"><?= htmlspecialchars($permiso['consecutivo'])?></h1>
             </div>
-            <div class="w-9 h-9 rounded-full bg-gray-900 text-white flex items-center justify-center text-sm font-bold">
-                <?= strtoupper(substr($cedula, -2))?>
-            </div>
+            
         </div>
     </header>
 

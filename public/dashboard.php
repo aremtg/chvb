@@ -91,7 +91,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                     <!-- Calendario compacto -->
                     <div>
                         <div class="grid grid-cols-7 gap-1 mb-1">
-                            <?php foreach (['L', 'M', 'X', 'J', 'V', 'S', 'D'] as $diaSemana): ?>
+                            <?php foreach (['L', 'Ma', 'Mi', 'J', 'V', 'S', 'D'] as $diaSemana): ?>
                                 <div class="text-center text-[10px] sm:text-xs font-semibold text-gray-400 py-1">
                                     <?= $diaSemana ?>
                                 </div>
@@ -110,13 +110,14 @@ $alarmas = BolsilloModel::alarmasProximas();
                                     && (int) date('n') === $mesCalendario
                                     && (int) date('j') === $dia);
                                 ?>
-                                <div class="min-h-[38px] sm:min-h-[42px] rounded-lg flex flex-col items-center justify-center border <?= $tieneCumpleanos ? 'border-red-200 bg-red-50' : 'border-gray-50 bg-gray-50/40' ?> <?= $esHoy ? 'ring-2 ring-red-200' : '' ?>">
+                                <div class="min-h-[38px] sm:min-h-[42px] rounded-lg flex flex-col items-center justify-center border <?= $tieneCumpleanos ? ' border-red-200 bg-red-50' : 'border-gray-50 bg-gray-50/40' ?> <?= $esHoy ? 'ring-2 ring-red-400' : '' ?>">
                                     <span class="text-xs sm:text-sm font-semibold <?= $tieneCumpleanos ? 'text-red-600' : 'text-gray-600' ?>">
                                         <?= $dia ?>
                                     </span>
                                     <?php if ($tieneCumpleanos): ?>
                                         <span class="mt-0.5 w-1.5 h-1.5 rounded-full bg-red-600"></span>
                                     <?php endif; ?>
+                                    
                                 </div>
                             <?php endfor; ?>
                         </div>
@@ -174,7 +175,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                     <div class="px-5 py-3 border-t border-gray-100 bg-red-50/40">
                         <p class="text-xs text-gray-500">
                             <span class="font-semibold text-red-600">Próximos 15 días:</span>
-                            <?= count($cumpleanosProximos) ?> cumpleaños programado(s).
+                            <?= count($cumpleanosProximos) ?> cumpleañeros.
                         </p>
                     </div>
                 <?php endif; ?>
