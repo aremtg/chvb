@@ -219,7 +219,7 @@ class EmpleadoController
                 $usuarioNombre,
                 $cedula,
                 'creacion',
-                "\"{$usuarioNombre}\" creó un nuevo empleado llamado {$nombreEmpleado}, con cédula {$cedula}",
+                "\"{$usuarioNombre}\" creó un nuevo empleado llamado \"{$nombreEmpleado}\", con cédula {$cedula}",
                 "/chvb/public/empleados.php?q=" . urlencode($cedula)
             );
         }

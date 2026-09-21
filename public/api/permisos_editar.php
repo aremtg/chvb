@@ -68,10 +68,10 @@ try {
     PermisoModel::registrarHistorial($id,$version,'devuelto',$campos['estado'],'empleado',$cedula,'Permiso editado y reenviado; se conserva el mismo consecutivo.');
     if($anteriorReemplazo && $anteriorReemplazo!==$nuevoReemplazo){
       NotificacionModel::eliminarPendientesDePermisoParaEmpleado($anteriorReemplazo,$id);
-      NotificacionModel::crearParaEmpleado($anteriorReemplazo,'Ya no eres reemplazo del permiso '.$p['consecutivo'],'/chvb/public/permiso_ver.php?id='.$id,'permiso');
+      NotificacionModel::crearParaEmpleado($anteriorReemplazo, 'Ya no eres reemplazo del permiso "' . $p['consecutivo'] . '"', '/chvb/public/permiso_ver.php?id=' . $id, 'permiso');
       PermisoModel::registrarHistorial($id,$versionNueva,'devuelto','devuelto','reemplazo',$anteriorReemplazo,'Ya no eres reemplazo de este permiso.');
     }
-    if($nuevoReemplazo) NotificacionModel::crearParaEmpleado($nuevoReemplazo,'Tienes un permiso pendiente de firma como reemplazo: '.$p['consecutivo'],'/chvb/public/permiso_ver.php?id='.$id,'permiso');
-    NotificacionModel::crearParaEmpleado($jefe,'Tienes un permiso pendiente de firma: '.$p['consecutivo'],'/chvb/public/permiso_ver.php?id='.$id,'permiso');
+    if($nuevoReemplazo) NotificacionModel::crearParaEmpleado($nuevoReemplazo, 'Tienes un permiso pendiente de firma como reemplazo: "' . $p['consecutivo'] . '"', '/chvb/public/permiso_ver.php?id=' . $id, 'permiso');
+    NotificacionModel::crearParaEmpleado($jefe, 'Tienes un permiso pendiente de firma: "' . $p['consecutivo'] . '"', '/chvb/public/permiso_ver.php?id=' . $id, 'permiso');
     echo json_encode(['ok'=>true,'id'=>$id,'consecutivo'=>$p['consecutivo'],'estado'=>$campos['estado']]);
 } catch(Throwable $e){ http_response_code(500); echo json_encode(['ok'=>false,'error'=>$e->getMessage()]); }

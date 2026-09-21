@@ -210,8 +210,8 @@ try {
         $empleado['nombre'],
         $cedula,
         'permiso_nuevo',
-        "\"{$empleado['nombre']}\" creó un permiso de {$tipoPermiso} ({$consecutivo})",
-        "./permisos_th.php?id={$permisoId}"
+        "\"{$empleado['nombre']}\" creó un permiso de \"{$tipoPermiso}\" (\"{$consecutivo}\")",
+        "./permiso_ver.php?id={$permisoId}"
     );
 
     echo json_encode(['ok' => true, 'id' => $permisoId, 'consecutivo' => $consecutivo]);

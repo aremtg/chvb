@@ -245,7 +245,7 @@ class PermisoController
     {
         require_once __DIR__ . '/../models/NotificacionModel.php';
         $tipoTexto = $permiso['tipo_permiso'];
-        $mensaje = "\"{$permiso['nombre_empleado_snapshot']}\" te pidió un permiso de {$tipoTexto}";
+        $mensaje = "\"{$permiso['nombre_empleado_snapshot']}\" te pidió un permiso de \"{$tipoTexto}\"";
         $enlace = "/chvb/public/permiso_ver.php?id={$permiso['id']}";
 
         // Se notifica a reemplazo (si aplica) Y a jefe desde el envío, aunque el
@@ -287,7 +287,7 @@ class PermisoController
         if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, $campos)) return ['ok' => false, 'error' => 'conflicto_version'];
 
         PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], $nuevoEstado, 'reemplazo', $actor['id'], 'Reemplazo firmó');
-        NotificacionModel::crearParaEmpleado($permiso['cedula_jefe'], "El reemplazo de \"{$permiso['nombre_empleado_snapshot']}\" ya firmó, el permiso está listo para tu firma", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
+        NotificacionModel::crearParaEmpleado($permiso['cedula_jefe'], "El reemplazo de \"{$permiso['nombre_empleado_snapshot']}\" ya firmó, el permiso \"{$permiso['consecutivo']}\" está listo para tu firma", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
         return ['ok' => true, 'estado' => $nuevoEstado];
     }
 
@@ -323,9 +323,9 @@ class PermisoController
         PermisoModel::registrarHistorial($permisoId, $versionActual, $estado, $nuevoEstado, 'jefe', $actor['id'], $detalle);
 
         if ($nuevoEstado === 'aprobado_pendiente_regreso') {
-            NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu salida de {$permiso['tipo_permiso']} fue autorizada. Cuando regreses registra fecha, hora y evidencia opcional.", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
+            NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu salida de \"{$permiso['tipo_permiso']}\" fue autorizada. Cuando regreses registra fecha, hora y evidencia opcional.", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
         } else {
-            NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso de {$permiso['tipo_permiso']} fue firmado y aprobado.", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
+            NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso de \"{$permiso['tipo_permiso']}\" fue firmado y aprobado.", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
         }
         return ['ok' => true, 'estado' => $nuevoEstado];
     }
@@ -345,7 +345,7 @@ class PermisoController
         $nuevoEstado = $estadoActual === 'por_firmar_jefe_final' ? 'devuelto_regreso' : 'devuelto';
         if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, ['estado' => $nuevoEstado, 'motivo_devolucion' => $motivo])) return ['ok' => false, 'error' => 'conflicto_version'];
         PermisoModel::registrarHistorial($permisoId, $versionActual, $estadoActual, $nuevoEstado, $actor['tipo'], $actor['id'], $motivo);
-        NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso de {$permiso['tipo_permiso']} fue devuelto: {$motivo}", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
+        NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso de \"{$permiso['tipo_permiso']}\" fue devuelto: {$motivo}", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
         return ['ok' => true, 'estado' => $nuevoEstado];
     }
 
@@ -359,7 +359,7 @@ class PermisoController
         if (trim($motivo) === '') return ['ok' => false, 'error' => 'Debes indicar el motivo del rechazo.'];
         if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, ['estado' => 'rechazado', 'motivo_rechazo' => $motivo])) return ['ok' => false, 'error' => 'conflicto_version'];
         PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], 'rechazado', 'jefe', $actor['id'], $motivo);
-        NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso de {$permiso['tipo_permiso']} fue rechazado: {$motivo}", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
+        NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso de \"{$permiso['tipo_permiso']}\" fue rechazado: {$motivo}", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
         return ['ok' => true, 'estado' => 'rechazado'];
     }
 
@@ -375,7 +375,7 @@ class PermisoController
         $actor = $_SESSION['superadmin_username'] ?? $rol;
         if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, ['estado' => 'anulado','motivo_anulacion' => $motivo,'anulado_por' => $actor,'fecha_anulacion' => date('Y-m-d H:i:s')])) return ['ok' => false, 'error' => 'conflicto_version'];
         PermisoModel::registrarHistorial($permisoId, $versionActual, 'firmado', 'anulado', 'talento_humano', $actor, $motivo);
-        NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso {$permiso['consecutivo']} fue anulado: {$motivo}", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
+        NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso \"{$permiso['consecutivo']}\" fue anulado: {$motivo}", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
         return ['ok' => true, 'estado' => 'anulado'];
     }
 
@@ -400,8 +400,8 @@ class PermisoController
         if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, $campos)) return ['ok'=>false,'error'=>'conflicto_version'];
         PermisoModel::reemplazarDias($permisoId, $recalculo['dias']);
         PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], 'por_firmar_jefe_final', 'empleado', $cedula, 'Llegada registrada; pasa directamente al jefe para firma final');
-        NotificacionModel::crearParaEmpleado($permiso['cedula_jefe'], "El permiso {$permiso['consecutivo']} tiene llegada registrada y requiere tu firma final.", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
-        NotificacionModel::crearParaTalentoHumano(null, $permiso['nombre_empleado_snapshot'], $cedula, 'permiso_cierre', "{$permiso['nombre_empleado_snapshot']} registró la llegada del permiso {$permiso['consecutivo']}", "./permisos_th.php?id={$permisoId}");
+        NotificacionModel::crearParaEmpleado($permiso['cedula_jefe'], "El permiso \"{$permiso['consecutivo']}\" tiene llegada registrada y requiere tu firma final.", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
+        NotificacionModel::crearParaTalentoHumano(null, $permiso['nombre_empleado_snapshot'], $cedula, 'permiso_cierre', "\"{$permiso['nombre_empleado_snapshot']}\" registró la llegada del permiso \"{$permiso['consecutivo']}\"", "./permisos_th.php?id={$permisoId}");
         return ['ok'=>true,'total_horas'=>$recalculo['total_horas']];
     }
 

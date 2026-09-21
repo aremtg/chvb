@@ -17,8 +17,57 @@ function formatearFechaHoraEs(fechaHoraStr) {
 
 function escaparHTML(texto) {
     const div = document.createElement('div');
-    div.textContent = texto;
+    div.textContent = texto ?? '';
     return div.innerHTML;
+}
+
+// Las notificaciones guardan sus entidades importantes entre comillas para
+// distinguirlas del resto del texto. En la interfaz se eliminan las comillas
+// y esas entidades se muestran en negrita. También se contemplan mensajes
+// antiguos que todavía no tenían las entidades entre comillas.
+function formatearMensajeNotificacion(mensaje) {
+    let html = escaparHTML(mensaje);
+
+    const partes = [];
+    const marcador = /"([^"\n]*)"/g;
+    let ultimo = 0;
+    let match;
+
+    while ((match = marcador.exec(html)) !== null) {
+        partes.push(html.slice(ultimo, match.index));
+        partes.push(`<strong class="font-semibold text-gray-900">${match[1]}</strong>`);
+        ultimo = marcador.lastIndex;
+    }
+    partes.push(html.slice(ultimo));
+    html = partes.join('');
+
+    // Compatibilidad con notificaciones históricas creadas antes de esta mejora.
+    html = html.replace(
+        /(subió )(?!")([^\s<,;:]+\.pdf)/gi,
+        (_, inicio, nombre) => `${inicio}<strong class="font-semibold text-gray-900">${nombre}</strong>`
+    );
+    html = html.replace(
+        /(eliminó )(?!")([^\s<,;:]+\.pdf)/gi,
+        (_, inicio, nombre) => `${inicio}<strong class="font-semibold text-gray-900">${nombre}</strong>`
+    );
+    html = html.replace(
+        /(permiso de )(?!")([^(.]+)(\s*\(([^)]+)\))/gi,
+        (_, inicio, tipo, bloque, consecutivo) =>
+            `${inicio}<strong class="font-semibold text-gray-900">${tipo.trim()}</strong>${bloque.replace(consecutivo, `<strong class="font-semibold text-gray-900">${consecutivo}</strong>`)}`
+    );
+    html = html.replace(
+        /(al bolsillo )(?!")([^.,<]+)/gi,
+        (_, inicio, nombre) => `${inicio}<strong class="font-semibold text-gray-900">${nombre.trim()}</strong>`
+    );
+    return html;
+}
+
+function etiquetaEnlaceNotificacion(enlace) {
+    if (!enlace) return '';
+    if (enlace.includes('permiso_ver.php')) return 'Ver permiso';
+    if (enlace.includes('documentos_ver.php')) return 'Ver PDF';
+    if (enlace.includes('libro.php')) return 'Ver bolsillo';
+    return 'Ver empleado';
 }
 
 function construirNotificacionLi(n) {
@@ -29,7 +78,7 @@ function construirNotificacionLi(n) {
 
     let enlaceHtml = '';
     if (n.enlace) {
-        const etiqueta = n.enlace.includes('permiso_ver.php') ? 'ver permiso' : (n.enlace.includes('documentos_ver.php') ? 'ver pdf' : (n.enlace.includes('libro.php') ? 'ver bolsillo' : 'ver empleado'));
+        const etiqueta = etiquetaEnlaceNotificacion(n.enlace);
         enlaceHtml = ` <a href="${n.enlace}" onclick="marcarLeidaPorEnlace(${n.id})" class="text-red-600 hover:underline">${etiqueta}</a>`;
     }
 
@@ -38,7 +87,7 @@ function construirNotificacionLi(n) {
             <button onclick="toggleLeida(${n.id})" id="dot-${n.id}" title="Marcar como leído / no leído"
                 class="mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 bg-blue-500"></button>
             <div class="text-sm">
-                <p class="text-gray-800" onclick="marcarLeidaPorInteraccion(${n.id})">${escaparHTML(n.mensaje)}${enlaceHtml}</p>
+                <p class="text-gray-800" onclick="marcarLeidaPorInteraccion(${n.id})"><span class="notif-mensaje">${formatearMensajeNotificacion(n.mensaje)}</span>${enlaceHtml}</p>
                 <p class="text-xs text-gray-400 mt-1">${formatearFechaHoraEs(n.created_at)}</p>
             </div>
         </div>
@@ -67,6 +116,17 @@ async function revisarNotificacionesNuevas() {
         // Silencioso
     }
 }
+
+
+function formatearNotificacionesExistentes() {
+    document.querySelectorAll('.notif-mensaje').forEach((elemento) => {
+        elemento.innerHTML = formatearMensajeNotificacion(elemento.textContent);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    formatearNotificacionesExistentes();
+});
 
 setInterval(() => {
     if (document.visibilityState === 'visible') {
@@ -113,7 +173,7 @@ function marcarLeidaPorInteraccion(id) {
     marcarLeidaEnServidor(id, true);
 }
 
-// Clic en el enlace "ver bolsillo/ver empleado": marca como leída y deja que navegue con normalidad
+// Clic en el enlace "Ver permiso/Ver bolsillo/Ver empleado": marca como leída y deja que navegue con normalidad
 function marcarLeidaPorEnlace(id) {
     pintarEstadoLeido(id, true);
     marcarLeidaEnServidor(id, true);

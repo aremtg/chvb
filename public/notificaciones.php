@@ -52,12 +52,12 @@ $notificaciones = NotificacionModel::listar();
                                     class="mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 <?= $n['leida'] ? 'bg-gray-300' : 'bg-blue-500' ?>"></button>
                                 <div class="text-sm">
                                     <p class="text-gray-800" onclick="marcarLeidaPorInteraccion(<?= $n['id'] ?>)">
-                                        <?= htmlspecialchars($n['mensaje']) ?>
+                                        <span class="notif-mensaje"><?= htmlspecialchars($n['mensaje']) ?></span>
                                         <?php if (!empty($n['enlace'])): ?>
                                             <a href="<?= htmlspecialchars($n['enlace']) ?>"
                                                 onclick="marcarLeidaPorEnlace(<?= $n['id'] ?>)"
                                                 class="text-red-600 hover:underline">
-                                                <?= str_contains($n['enlace'], 'permiso_ver.php') ? 'ver permiso' : (str_contains($n['enlace'], 'documentos_ver.php') ? 'ver pdf' : (str_contains($n['enlace'], 'libro.php') ? 'ver bolsillo' : 'ver empleado')) ?>
+                                                <?= str_contains($n['enlace'], 'permiso_ver.php') ? 'Ver permiso' : (str_contains($n['enlace'], 'documentos_ver.php') ? 'Ver PDF' : (str_contains($n['enlace'], 'libro.php') ? 'Ver bolsillo' : 'Ver empleado')) ?>
                                             </a>
                                         <?php endif; ?>
                                     </p>

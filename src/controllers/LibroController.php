@@ -66,7 +66,7 @@ class LibroController
             NotificacionModel::crearParaRolesTalentoHumano(
                 $cedula,
                 'documento',
-                "El empleado \"{$nombreEmpleado}\" subió {$archivo['name']} al bolsillo {$bolsillo['nombre_completo']}",
+                "El empleado \"{$nombreEmpleado}\" subió \"{$archivo['name']}\" al bolsillo \"{$bolsillo['nombre_completo']}\"",
                 $enlacePdf
             );
         } elseif (isset($_SESSION['superadmin_id'])) {
@@ -78,7 +78,7 @@ class LibroController
                 $usuarioNombre,
                 $cedula,
                 'documento',
-                "\"{$usuarioNombre}\" subió un nuevo PDF {$archivo['name']} en la hoja de vida de \"{$nombreEmpleado}\"",
+                "\"{$usuarioNombre}\" subió un nuevo PDF \"{$archivo['name']}\" en la hoja de vida de \"{$nombreEmpleado}\"",
                 "/chvb/public/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . $bolsilloId
             );
         }
@@ -114,7 +114,7 @@ class LibroController
             NotificacionModel::crearParaRolesTalentoHumano(
                 $cedula,
                 'documento_eliminado',
-                "El empleado \"{$nombreEmpleado}\" eliminó {$doc['nombre_archivo']} del bolsillo {$bolsillo['nombre_completo']}",
+                "El empleado \"{$nombreEmpleado}\" eliminó \"{$doc['nombre_archivo']}\" del bolsillo \"{$bolsillo['nombre_completo']}\"",
                 "/chvb/public/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . (int)$bolsillo['id']
             );
         }
@@ -176,7 +176,7 @@ class LibroController
                 $usuarioNombre,
                 $cedula,
                 'documento',
-                "\"{$usuarioNombre}\" editó un pdf del bolsillo {$bolsillo['nombre_completo']}",
+                "\"{$usuarioNombre}\" editó un pdf del bolsillo \"{$bolsillo['nombre_completo']}\"",
                 "/chvb/public/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . $bolsillo['id']
             );
         }
