@@ -61,7 +61,7 @@ $totalNoLeidasInicial = in_array($rolActual, ['superadmin_talento_humano','auxil
                 <span class="flex-1"><?= $link['label'] ?></span>
                 <?php if (!empty($link['esNotificaciones'])): ?>
                     <span id="badgeNotifSidebar"
-                        class="bg-red-600 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center <?= $totalNoLeidasInicial > 0 ? '' : 'hidden' ?> <?= $activo ? 'bg-white text-red-600' : '' ?>">
+                        class="bg-red-600 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center <?= $totalNoLeidasInicial > 0 ? '' : 'hidden' ?> <?= $activo ? 'bg-white !text-red-600' : '' ?>">
                         <?= $totalNoLeidasInicial ?>
                     </span>
                 <?php endif; ?>
