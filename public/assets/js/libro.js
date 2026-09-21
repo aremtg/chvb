@@ -104,10 +104,24 @@ function actualizarInfoAlarma(bolsillo) {
 }
 
 function usarFechaHoy() {
-  document.getElementById("inputFechaInicio").value = "";
-  const btn = document.getElementById("btnDesdeHoy");
-  btn.classList.add("bg-red-600", "text-white", "border-red-600");
-  btn.classList.remove("border-gray-300", "hover:bg-gray-100");
+    document.getElementById("inputFechaInicio").value = "";
+
+    const btn = document.getElementById("btnDesdeHoy");
+
+    // Estado activo
+    btn.classList.remove(
+        "bg-white",
+        "text-gray-600",
+        "border-gray-200",
+        "hover:bg-gray-50"
+    );
+
+    btn.classList.add(
+        "bg-red-600",
+        "text-white",
+        "border-red-600",
+        "hover:bg-red-700"
+    );
 }
 
 const inputFechaInicioEl = document.getElementById("inputFechaInicio");

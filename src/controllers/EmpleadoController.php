@@ -211,18 +211,13 @@ class EmpleadoController
                 EmpleadoModel::actualizarFoto($cedula, $fotoExistente);
             }
         }
-        $rolActor = $_SESSION['superadmin_rol'] ?? 'superadmin_talento_humano';
-        if ($rolActor === 'auxiliar_talento_humano') {
-            $usuarioNombre = $_SESSION['superadmin_username'];
-            NotificacionModel::crear(
-                $_SESSION['superadmin_id'],
-                $usuarioNombre,
-                $cedula,
-                'creacion',
-                "\"{$usuarioNombre}\" creó un nuevo empleado llamado \"{$nombreEmpleado}\", con cédula {$cedula}",
-                "/chvb/public/empleados.php?q=" . urlencode($cedula)
-            );
-        }
+        $usuarioNombre = $_SESSION['superadmin_username'] ?? 'Auxiliar';
+        NotificacionModel::crearParaSuperAdminsDesdeAuxiliar(
+            $cedula,
+            'creacion',
+            "\"{$usuarioNombre}\" creó un nuevo empleado llamado \"{$nombreEmpleado}\", con cédula {$cedula}",
+            "/chvb/public/empleados.php?q=" . urlencode($cedula)
+        );
 
         return ['ok' => true];
     }
@@ -318,9 +313,7 @@ class EmpleadoController
 
                 if ($esAuxiliar) {
                     $usuarioNombre = $_SESSION['superadmin_username'];
-                    NotificacionModel::crear(
-                        $_SESSION['superadmin_id'],
-                        $usuarioNombre,
+                    NotificacionModel::crearParaSuperAdminsDesdeAuxiliar(
                         $cedulaFinal,
                         'foto',
                         "\"{$usuarioNombre}\" cambió la foto de perfil de \"{$datosNuevos['nombre']}\"",
@@ -347,6 +340,7 @@ class EmpleadoController
         $campos = [
             'nombre' => ['etiqueta' => 'el nombre', 'formato' => fn($v) => $v],
             'cargo' => ['etiqueta' => 'el cargo', 'formato' => fn($v) => $v],
+            'celular' => ['etiqueta' => 'el celular', 'formato' => fn($v) => $v ?: 'sin celular'],
             'correo' => ['etiqueta' => 'el correo', 'formato' => fn($v) => $v ?: 'sin correo'],
             'estado' => ['etiqueta' => 'el estado', 'formato' => fn($v) => $v],
             'es_bombero_integral' => ['etiqueta' => 'el campo bombero integral', 'formato' => fn($v) => $v == 1 ? 'Sí' : 'No'],
@@ -379,7 +373,7 @@ class EmpleadoController
                 $mensaje = "\"{$usuarioNombre}\" editó {$conf['etiqueta']} de \"{$nombreEmpleadoActual}\": antes \"{$textoAnterior}\", ahora \"{$textoNuevo}\"";
             }
 
-            NotificacionModel::crear($usuarioId, $usuarioNombre, $cedula, $campo, $mensaje, $enlace);
+            NotificacionModel::crearParaSuperAdminsDesdeAuxiliar($cedula, $campo, $mensaje, $enlace);
         }
     }
     /**

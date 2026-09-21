@@ -359,6 +359,16 @@ class PermisoController
         if (trim($motivo) === '') return ['ok' => false, 'error' => 'Debes indicar el motivo del rechazo.'];
         if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, ['estado' => 'rechazado', 'motivo_rechazo' => $motivo])) return ['ok' => false, 'error' => 'conflicto_version'];
         PermisoModel::registrarHistorial($permisoId, $versionActual, $permiso['estado'], 'rechazado', 'jefe', $actor['id'], $motivo);
+        $jefe = EmpleadoModel::obtenerPorCedula($actor['id']);
+        $nombreJefe = $jefe['nombre'] ?? $actor['id'];
+        NotificacionModel::crearParaTalentoHumano(
+            null,
+            $nombreJefe,
+            $permiso['cedula_empleado'],
+            'permiso_rechazado',
+            "El jefe \"{$nombreJefe}\" rechazó el permiso \"{$permiso['consecutivo']}\" del empleado \"{$permiso['nombre_empleado_snapshot']}\". Motivo: {$motivo}",
+            "/chvb/public/permiso_ver.php?id={$permisoId}"
+        );
         NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso de \"{$permiso['tipo_permiso']}\" fue rechazado: {$motivo}", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
         return ['ok' => true, 'estado' => 'rechazado'];
     }
@@ -375,6 +385,13 @@ class PermisoController
         $actor = $_SESSION['superadmin_username'] ?? $rol;
         if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, ['estado' => 'anulado','motivo_anulacion' => $motivo,'anulado_por' => $actor,'fecha_anulacion' => date('Y-m-d H:i:s')])) return ['ok' => false, 'error' => 'conflicto_version'];
         PermisoModel::registrarHistorial($permisoId, $versionActual, 'firmado', 'anulado', 'talento_humano', $actor, $motivo);
+        NotificacionModel::crearParaSuperAdminsSinPropiaAccion(
+            $permiso['cedula_empleado'],
+            $actor,
+            'permiso_anulado',
+            "Talento Humano \"{$actor}\" anuló el permiso \"{$permiso['consecutivo']}\" del empleado \"{$permiso['nombre_empleado_snapshot']}\". Motivo: {$motivo}",
+            "/chvb/public/permiso_ver.php?id={$permisoId}"
+        );
         NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso \"{$permiso['consecutivo']}\" fue anulado: {$motivo}", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');
         return ['ok' => true, 'estado' => 'anulado'];
     }

@@ -73,9 +73,7 @@ class LibroController
             $usuarioNombre = $_SESSION['superadmin_username'];
             $empleado = EmpleadoModel::obtenerPorCedula($cedula);
             $nombreEmpleado = $empleado['nombre'] ?? $cedula;
-            NotificacionModel::crear(
-                $_SESSION['superadmin_id'],
-                $usuarioNombre,
+            NotificacionModel::crearParaSuperAdminsDesdeAuxiliar(
                 $cedula,
                 'documento',
                 "\"{$usuarioNombre}\" subió un nuevo PDF \"{$archivo['name']}\" en la hoja de vida de \"{$nombreEmpleado}\"",
@@ -107,6 +105,17 @@ class LibroController
         }
 
         DocumentoModel::eliminar($documentoId);
+
+        if (!$esEmpleado && (($_SESSION['superadmin_rol'] ?? '') === 'auxiliar_talento_humano')) {
+            $empleado = EmpleadoModel::obtenerPorCedula($cedula);
+            $nombreEmpleado = $empleado['nombre'] ?? $cedula;
+            NotificacionModel::crearParaSuperAdminsDesdeAuxiliar(
+                $cedula,
+                'documento_eliminado',
+                "\"" . ($_SESSION['superadmin_username'] ?? 'Auxiliar') . "\" eliminó el PDF \"{$doc['nombre_archivo']}\" del bolsillo \"{$bolsillo['nombre_completo']}\" de \"{$nombreEmpleado}\"",
+                "/chvb/public/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . (int)$bolsillo['id']
+            );
+        }
 
         if ($esEmpleado) {
             $empleado = EmpleadoModel::obtenerPorCedula($cedula);
@@ -171,9 +180,7 @@ class LibroController
         $rolActor = $_SESSION['superadmin_rol'] ?? 'superadmin_talento_humano';
         if ($rolActor === 'auxiliar_talento_humano') {
             $usuarioNombre = $_SESSION['superadmin_username'];
-            NotificacionModel::crear(
-                $_SESSION['superadmin_id'],
-                $usuarioNombre,
+            NotificacionModel::crearParaSuperAdminsDesdeAuxiliar(
                 $cedula,
                 'documento',
                 "\"{$usuarioNombre}\" editó un pdf del bolsillo \"{$bolsillo['nombre_completo']}\"",
@@ -200,6 +207,17 @@ class LibroController
         } elseif ($direccion === 'abajo' && $index < count($docs) - 1) {
             $vecino = $docs[$index + 1];
             DocumentoModel::intercambiarOrden($doc['id'], $doc['orden'], $vecino['id'], $vecino['orden']);
+        }
+
+        if (($_SESSION['superadmin_rol'] ?? '') === 'auxiliar_talento_humano' && $index !== false) {
+            $bolsillo = BolsilloModel::obtenerPorId((int)$doc['bolsillo_id']);
+            $cedulaEmpleado = $bolsillo['cedula_empleado'] ?? '';
+            NotificacionModel::crearParaSuperAdminsDesdeAuxiliar(
+                $cedulaEmpleado,
+                'documento_orden',
+                "\"" . ($_SESSION['superadmin_username'] ?? 'Auxiliar') . "\" cambió el orden del PDF \"{$doc['nombre_archivo']}\"",
+                "/chvb/public/libro.php?cedula=" . urlencode($cedulaEmpleado) . "&bolsillo=" . (int)$doc['bolsillo_id']
+            );
         }
 
         return ['ok' => true];
@@ -269,6 +287,17 @@ class LibroController
             $diasAviso
         );
 
+        if (($_SESSION['superadmin_rol'] ?? '') === 'auxiliar_talento_humano') {
+            $bolsillo = BolsilloModel::obtenerPorId($bolsilloId);
+            $cedulaEmpleado = $bolsillo['cedula_empleado'] ?? '';
+            NotificacionModel::crearParaSuperAdminsDesdeAuxiliar(
+                $cedulaEmpleado,
+                'alarma',
+                "\"" . ($_SESSION['superadmin_username'] ?? 'Auxiliar') . "\" configuró una alarma en el bolsillo \"" . ($bolsillo['nombre_completo'] ?? $bolsilloId) . "\"",
+                "/chvb/public/libro.php?cedula=" . urlencode($cedulaEmpleado) . "&bolsillo=" . $bolsilloId
+            );
+        }
+
         return [
             'ok' => true,
             'fecha' => $fecha->format('Y-m-d'),
@@ -280,6 +309,16 @@ class LibroController
     public static function desactivarAlarma(int $bolsilloId): array
     {
         BolsilloModel::actualizarAlarma($bolsilloId, null, null, false);
+        if (($_SESSION['superadmin_rol'] ?? '') === 'auxiliar_talento_humano') {
+            $bolsillo = BolsilloModel::obtenerPorId($bolsilloId);
+            $cedulaEmpleado = $bolsillo['cedula_empleado'] ?? '';
+            NotificacionModel::crearParaSuperAdminsDesdeAuxiliar(
+                $cedulaEmpleado,
+                'alarma',
+                "\"" . ($_SESSION['superadmin_username'] ?? 'Auxiliar') . "\" desactivó la alarma del bolsillo \"" . ($bolsillo['nombre_completo'] ?? $bolsilloId) . "\"",
+                "/chvb/public/libro.php?cedula=" . urlencode($cedulaEmpleado) . "&bolsillo=" . $bolsilloId
+            );
+        }
         return ['ok' => true];
     }
 

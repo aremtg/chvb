@@ -259,7 +259,9 @@ document.getElementById("contenidoVer").innerHTML = `
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">ARL</span><span class="font-medium">${emp.arl || "-"}</span></p>
             
             <p class="p-3 rounded-xl bg-green-50 border border-green-100"><span class="block text-xs text-green-600">Salario básico</span><span class="font-semibold text-green-800">${emp.salario_basico ? "$" + Number(emp.salario_basico).toLocaleString("es-CO") : "-"}</span></p>
-            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Tipo de contrato</span><span class="font-medium">${emp.tipo_de_contrato}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Tipo de contrato</span><span class="font-medium">${emp.tipo_de_contrato || "-"}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Fecha de inicio del contrato</span><span class="font-medium">${formatearFechaEs(emp.fecha_inicio_contrato)}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Fecha de fin del contrato</span><span class="font-medium">${formatearFechaEs(emp.fecha_fin_contrato)}</span></p>
             
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Celular</span><span class="font-medium">${emp.celular || "-"}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Correo</span><span class="font-medium break-all">${emp.correo || "-"}</span></p>

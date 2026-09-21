@@ -80,6 +80,75 @@ class NotificacionModel
 
 
         /**
+     * Envía una notificación de una acción realizada por el Auxiliar
+     * exclusivamente a los Super Administradores. El Auxiliar nunca se
+     * incluye como destinatario, evitando notificaciones propias.
+     */
+    public static function crearParaSuperAdminsDesdeAuxiliar(
+        string $cedulaEmpleado,
+        string $campo,
+        string $mensaje,
+        ?string $enlace = null
+    ): void {
+        $rolActor = $_SESSION['superadmin_rol'] ?? '';
+        if ($rolActor !== 'auxiliar_talento_humano') {
+            return;
+        }
+
+        self::crearParaSuperAdminsSinPropiaAccion(
+            $cedulaEmpleado,
+            $_SESSION['superadmin_username'] ?? 'Auxiliar',
+            $campo,
+            $mensaje,
+            $enlace
+        );
+    }
+
+    /**
+     * Envía una notificación a los Super Administradores, excluyendo al
+     * usuario de Talento Humano que ejecutó la acción, si la sesión pertenece
+     * a uno de ellos. El Auxiliar nunca es destinatario de estas alertas.
+     */
+    public static function crearParaSuperAdminsSinPropiaAccion(
+        string $cedulaEmpleado,
+        string $actorNombre,
+        string $campo,
+        string $mensaje,
+        ?string $enlace = null
+    ): void {
+        $pdo = getPDO();
+        $actorId = (int)($_SESSION['superadmin_id'] ?? 0);
+        $sql = "SELECT id, username FROM usuarios WHERE rol = 'superadmin_talento_humano'";
+        if ($actorId > 0 && (($_SESSION['superadmin_rol'] ?? '') === 'superadmin_talento_humano')) {
+            $sql .= " AND id <> :actor_id";
+        }
+        $stmtUsuarios = $pdo->prepare($sql);
+        if ($actorId > 0 && (($_SESSION['superadmin_rol'] ?? '') === 'superadmin_talento_humano')) {
+            $stmtUsuarios->execute(['actor_id' => $actorId]);
+        } else {
+            $stmtUsuarios->execute();
+        }
+        $usuarios = $stmtUsuarios->fetchAll();
+        if (!$usuarios) return;
+
+        $stmt = $pdo->prepare(
+            "INSERT INTO notificaciones
+                (usuario_id, destinatario_tipo, usuario_nombre, cedula_empleado, campo, mensaje, enlace)
+             VALUES (:usuario_id, 'talento_humano', :usuario_nombre, :cedula, :campo, :mensaje, :enlace)"
+        );
+        foreach ($usuarios as $usuario) {
+            $stmt->execute([
+                'usuario_id' => (int)$usuario['id'],
+                'usuario_nombre' => $usuario['username'],
+                'cedula' => $cedulaEmpleado,
+                'campo' => $campo,
+                'mensaje' => $mensaje,
+                'enlace' => $enlace,
+            ]);
+        }
+    }
+
+    /**
      * Notificación dirigida a un EMPLEADO (no a Talento Humano). Se usa para avisos
      * del módulo de permisos: "te llegó un permiso para firmar", "tu permiso fue
      * devuelto/rechazado/firmado", etc. Reutiliza la misma tabla y el mismo
