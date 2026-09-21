@@ -251,12 +251,12 @@ document.getElementById("contenidoVer").innerHTML = `
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1">
             <p class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="block text-xs text-gray-500">Cargo</span><span class="font-medium">${emp.es_bombero_integral == 1 ? `Bombero integral con funciones de ${emp.cargo}` : emp.cargo}</span></p>
             <p class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="block text-xs text-gray-500">Tipo de personal</span><span class="font-medium">${emp.tipo_de_personal || "-"}</span></p>
-            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Grupo</span><span class="font-medium">${emp.grupo || "-"}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Sexo</span><span class="font-medium">${emp.sexo === "F" ? "Femenino" : emp.sexo === "M" ? "Masculino" : "-"}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Fecha de nacimiento</span><span class="font-medium">${formatearFechaEs(emp.fecha_nacimiento)}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Estado</span><span class="font-medium">${emp.estado}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">EPS</span><span class="font-medium">${emp.eps || "-"}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Fondo de pensión</span><span class="font-medium">${emp.pension || "-"}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">ARL</span><span class="font-medium">${emp.arl || "-"}</span></p>
             
             <p class="p-3 rounded-xl bg-green-50 border border-green-100"><span class="block text-xs text-green-600">Salario básico</span><span class="font-semibold text-green-800">${emp.salario_basico ? "$" + Number(emp.salario_basico).toLocaleString("es-CO") : "-"}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Tipo de contrato</span><span class="font-medium">${emp.tipo_de_contrato}</span></p>
@@ -292,13 +292,16 @@ async function abrirModalEditar(cedula) {
   document.getElementById("editSexo").value = emp.sexo || "";
   document.getElementById("editTipoPersonal").value =
     emp.tipo_de_personal || "";
-  document.getElementById("editGrupo").value = emp.grupo || "";
   document.getElementById("editEps").value = emp.eps || "";
   document.getElementById("editPension").value = emp.pension || "";
+  document.getElementById("editArl").value = emp.arl || "";
   document.getElementById("editSalario").value = emp.salario_basico || "";
   document.getElementById("editBomberoIntegral").checked =
     emp.es_bombero_integral == 1;
-  document.getElementById("editContrato").value = emp.tipo_de_contrato;
+  document.getElementById("editContrato").value = emp.tipo_de_contrato || "";
+  document.getElementById("editFechaInicioContrato").value = emp.fecha_inicio_contrato || "";
+  document.getElementById("editFechaFinContrato").value = emp.fecha_fin_contrato || "";
+  actualizarVisibilidadFechasContrato("editContrato", "editFechasContrato", "editCampoFechaFin", "editFechaFinContrato");
   document.getElementById("editEstado").value = emp.estado;
   document.getElementById("editCelular").value = emp.celular || "";
   document.getElementById("editCorreo").value = emp.correo || "";
@@ -318,6 +321,37 @@ async function abrirModalEditar(cedula) {
 
   document.getElementById("erroresEditar").classList.add("hidden");
   document.getElementById("modalEditar").classList.remove("hidden");
+}
+
+function actualizarVisibilidadFechasContrato(selectId, contenedorId, campoFinId, inputFinId) {
+  const select = document.getElementById(selectId);
+  const contenedor = document.getElementById(contenedorId);
+  const campoFin = document.getElementById(campoFinId);
+  const inputFin = document.getElementById(inputFinId);
+  if (!select || !contenedor || !campoFin || !inputFin) return;
+
+  const contrato = select.value;
+  const conFin = ["Fijo", "OPS", "SENA", "OPS SEMY"].includes(contrato);
+  const conInicio = ["Fijo", "Indefinido", "OPS", "SENA", "OPS SEMY", "No aplica"].includes(contrato);
+
+  contenedor.classList.toggle("hidden", !conInicio);
+  campoFin.classList.toggle("hidden", !conFin);
+  if (!conFin) inputFin.value = "";
+}
+
+const tipoContratoCrear = document.getElementById("tipoContrato");
+if (tipoContratoCrear) {
+  tipoContratoCrear.addEventListener("change", () =>
+    actualizarVisibilidadFechasContrato("tipoContrato", "fechasContrato", "campoFechaFin", "fechaFinContrato")
+  );
+  actualizarVisibilidadFechasContrato("tipoContrato", "fechasContrato", "campoFechaFin", "fechaFinContrato");
+}
+
+const tipoContratoEditar = document.getElementById("editContrato");
+if (tipoContratoEditar) {
+  tipoContratoEditar.addEventListener("change", () =>
+    actualizarVisibilidadFechasContrato("editContrato", "editFechasContrato", "editCampoFechaFin", "editFechaFinContrato")
+  );
 }
 
 const formEditar = document.getElementById("formEditar");

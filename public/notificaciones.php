@@ -57,7 +57,7 @@ $notificaciones = NotificacionModel::listar();
                                             <a href="<?= htmlspecialchars($n['enlace']) ?>"
                                                 onclick="marcarLeidaPorEnlace(<?= $n['id'] ?>)"
                                                 class="text-red-600 hover:underline">
-                                                <?= str_contains($n['enlace'], 'documentos_ver.php') ? 'ver pdf' : (str_contains($n['enlace'], 'libro.php') ? 'ver bolsillo' : 'ver empleado') ?>
+                                                <?= str_contains($n['enlace'], 'permiso_ver.php') ? 'ver permiso' : (str_contains($n['enlace'], 'documentos_ver.php') ? 'ver pdf' : (str_contains($n['enlace'], 'libro.php') ? 'ver bolsillo' : 'ver empleado')) ?>
                                             </a>
                                         <?php endif; ?>
                                     </p>

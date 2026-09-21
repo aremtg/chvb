@@ -2,9 +2,12 @@
 require_once __DIR__. '/../includes/session.php';
 require_once __DIR__. '/../src/models/PermisoModel.php';
 require_once __DIR__. '/../src/models/FirmaModel.php';
-requireEmpleado();
+require_once __DIR__. '/../src/models/NotificacionModel.php';
+$esEmpleado = !empty($_SESSION['empleado_cedula']);
+$esTH = !empty($_SESSION['superadmin_id']) && in_array(($_SESSION['superadmin_rol'] ?? ''), ['superadmin_talento_humano','auxiliar_talento_humano','teniente'], true);
+if (!$esEmpleado && !$esTH) { header('Location: ./login.php'); exit; }
 
-$cedula = $_SESSION['empleado_cedula'];
+$cedula = $_SESSION['empleado_cedula'] ?? '';
 $id = (int)($_GET['id']?? 0);
 $permiso = PermisoModel::obtenerPorId($id);
 
@@ -13,10 +16,11 @@ $pdoTmp = getPDO();
 $stmtTmp = $pdoTmp->prepare("SELECT 1 FROM permisos_historial WHERE permiso_id = :b1 AND actor_tipo = 'reemplazo' AND actor_cedula_o_usuario = :b2 LIMIT 1");
 $stmtTmp->execute(['b1'=>$id,'b2'=>$cedula]);
 $esReemplazoHistorico = (bool)$stmtTmp->fetchColumn();
-if (!$permiso || (!in_array($cedula, [$permiso['cedula_empleado'], $permiso['cedula_reemplazo'], $permiso['cedula_jefe']], true) && !$esReemplazoHistorico)) {
+if (!$permiso || ($esEmpleado && !in_array($cedula, [$permiso['cedula_empleado'], $permiso['cedula_reemplazo'], $permiso['cedula_jefe']], true) && !$esReemplazoHistorico)) {
     header('Location: ./permisos.php'); exit;
 }
-$firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
+$firmaGuardada = $esEmpleado ? FirmaModel::obtenerPorCedula($cedula) : null;
+if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula, $id); }
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -27,15 +31,15 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
     <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 <body class="bg-[#f5f6f7] min-h-screen antialiased">
-<?php require __DIR__. '/../includes/sidebar_empleado.php';?>
+<?php require $esTH ? __DIR__. '/../includes/sidebar.php' : __DIR__. '/../includes/sidebar_empleado.php'; ?>
 <input type="hidden" id="csrfToken" value="<?= htmlspecialchars(csrfToken()) ?>">
 <div class="md:ml-64 pt-14 md:pt-0">
     <!-- Header pro -->
     <header class="bg-white border-b border-gray-100 sticky top-0 z-20">
         <div class="px-4 md:px-8 py-4 flex items-center justify-between gap-4">
             <div>
-                <a href="./permisos.php" class="inline-flex items-center gap-1.5 text- font-medium text-gray-500 hover:text-gray-800 transition">
-                    <span>←</span> Mis permisos
+                <a href="<?= $esTH ? './permisos_th.php' : './permisos.php' ?>" class="inline-flex items-center gap-1.5 text- font-medium text-gray-500 hover:text-gray-800 transition">
+                    <span>←</span> <?= $esTH ? 'Permisos' : 'Mis permisos' ?>
                 </a>
                 <h1 class="text- font-bold tracking-tight text-gray-900 mt-1"><?= htmlspecialchars($permiso['consecutivo'])?></h1>
             </div>
@@ -46,7 +50,7 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
     <main class="p-4 md:p-8 max-w-3xl mx-auto">
         <!-- Contenedor que llena tu JS -->
         <div id="contenidoPermiso" class="space-y-4"
-             data-id="<?= $id?>" data-cedula="<?= htmlspecialchars($cedula)?>"
+             data-id="<?= $id?>" data-cedula="<?= htmlspecialchars($cedula)?>" data-es-th="<?= $esTH ? '1' : '0' ?>"
              data-tiene-firma-guardada="<?= $firmaGuardada? '1' : '0'?>">
             <!-- Skeleton loader pro mientras carga permiso_ver.js -->
             <div class="space-y-4 animate-pulse">

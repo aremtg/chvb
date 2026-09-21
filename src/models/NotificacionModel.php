@@ -44,7 +44,7 @@ class NotificacionModel
     public static function marcar(int $id, bool $leida): void
     {
         $pdo = getPDO();
-        $stmt = $pdo->prepare("UPDATE notificaciones SET leida = :leida WHERE id = :id AND usuario_id = :usuario_id");
+        $stmt = $pdo->prepare("UPDATE notificaciones SET leida = :leida WHERE id = :id AND (usuario_id = :usuario_id OR usuario_id IS NULL)");
         $stmt->execute(['leida' => $leida ? 1 : 0, 'id' => $id, 'usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
     }
 
@@ -136,6 +136,61 @@ class NotificacionModel
         );
         $stmt->execute(['b1' => $cedula]);
         return $stmt->fetchAll();
+    }
+
+    /**
+     * Cuenta por separado las notificaciones de permisos que requieren firma
+     * y las que corresponden a acciones sobre permisos propios del empleado.
+     * Así cada contador se muestra en la sección correcta del portal.
+     */
+    public static function contarPermisosEmpleadoPorSeccion(string $cedula): array {
+        self::purgarExpiradas();
+        $pdo = getPDO();
+
+        // Una notificación de permiso contiene el id del permiso en el enlace.
+        // Se relaciona con permisos para determinar si corresponde a "Por firmar"
+        // o a "Mis permisos" según el estado y el usuario actual.
+        $sql = "SELECT
+                    SUM(CASE
+                        WHEN (
+                            (p.cedula_reemplazo = :cedula1 AND p.estado = 'por_firmar_reemplazo')
+                            OR
+                            (p.cedula_jefe = :cedula2 AND p.estado IN ('por_firmar_jefe','por_firmar_jefe_final'))
+                        ) THEN 1 ELSE 0 END) AS por_firmar,
+                    SUM(CASE
+                        WHEN p.cedula_empleado = :cedula3
+                             AND p.estado IN ('devuelto','devuelto_regreso','rechazado','anulado')
+                        THEN 1 ELSE 0 END) AS mis_permisos
+                FROM notificaciones n
+                INNER JOIN permisos p
+                    ON n.enlace REGEXP CONCAT('(^|[?&])id=', p.id, '($|&)')
+                WHERE n.destinatario_tipo = 'empleado'
+                  AND n.cedula_empleado = :cedula4
+                  AND n.leida = 0
+                  AND n.campo = 'permiso'";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            'cedula1'=>$cedula, 'cedula2'=>$cedula,
+            'cedula3'=>$cedula, 'cedula4'=>$cedula,
+        ]);
+        $r = $stmt->fetch() ?: [];
+        return [
+            'por_firmar' => (int)($r['por_firmar'] ?? 0),
+            'mis_permisos' => (int)($r['mis_permisos'] ?? 0),
+        ];
+    }
+
+    public static function marcarPermisoComoLeidoParaEmpleado(string $cedula, int $permisoId): void {
+        $pdo = getPDO();
+        $stmt = $pdo->prepare(
+            "UPDATE notificaciones
+             SET leida = 1
+             WHERE destinatario_tipo = 'empleado'
+               AND cedula_empleado = :b1
+               AND campo = 'permiso'
+               AND enlace REGEXP CONCAT('(^|[?&])id=', :b2, '($|&)')"
+        );
+        $stmt->execute(['b1'=>$cedula, 'b2'=>$permisoId]);
     }
 
     public static function contarNoLeidasParaEmpleado(string $cedula): int {

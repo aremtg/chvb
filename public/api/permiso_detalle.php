@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../src/models/PermisoModel.php';
 
 header('Content-Type: application/json');
 $esEmpleado = !empty($_SESSION['empleado_cedula']);
-$esTH = !empty($_SESSION['superadmin_id']);
+$esTH = !empty($_SESSION['superadmin_id']) && in_array(($_SESSION['superadmin_rol'] ?? ''), ['superadmin_talento_humano','auxiliar_talento_humano','teniente'], true);
 if (!$esEmpleado && !$esTH) { http_response_code(401); echo json_encode(['ok' => false]); exit; }
 
 $id = (int)($_GET['id'] ?? 0);
@@ -22,6 +22,22 @@ if ($esEmpleado) {
     }
     if (!$autorizado) { http_response_code(403); echo json_encode(['ok' => false, 'error' => 'No autorizado.']); exit; }
 }
+
+// Nombres actuales de los firmantes. El solicitante conserva su snapshot;
+// reemplazo y jefe se resuelven por cédula para mostrar claramente quién firma.
+$pdoNombres = getPDO();
+$stNombres = $pdoNombres->prepare("SELECT cedula, nombre, cargo FROM empleados WHERE cedula IN (:b1,:b2,:b3)");
+$stNombres->execute([
+    'b1'=>$permiso['cedula_empleado'],
+    'b2'=>$permiso['cedula_reemplazo'] ?: $permiso['cedula_empleado'],
+    'b3'=>$permiso['cedula_jefe'] ?: $permiso['cedula_empleado'],
+]);
+$nombres = [];
+foreach ($stNombres->fetchAll() as $e) $nombres[$e['cedula']] = $e;
+$permiso['nombre_reemplazo'] = $nombres[$permiso['cedula_reemplazo']]['nombre'] ?? '';
+$permiso['nombre_jefe'] = $nombres[$permiso['cedula_jefe']]['nombre'] ?? '';
+$permiso['cargo_reemplazo'] = $nombres[$permiso['cedula_reemplazo']]['cargo'] ?? '';
+$permiso['cargo_jefe'] = $nombres[$permiso['cedula_jefe']]['cargo'] ?? '';
 
 $permiso['dias'] = PermisoModel::obtenerDias($id);
 $permiso['devoluciones'] = PermisoModel::obtenerDevoluciones($id);

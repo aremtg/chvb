@@ -52,10 +52,10 @@ class EmpleadoController
     ];
 
     public static array $tiposDePersonal = ['Bombero', 'Civil'];
-    public static array $gruposValidos = ['Operativo', 'Administrativo', 'Administrativo (Negocios y Académica)'];
     public static array $epsValidas = ['Sanitas', 'Nueva EPS', 'Capresoca', 'Salud Total'];
     public static array $pensionesValidas = ['Colfondos', 'Porvenir', 'Colpensiones', 'Protección', 'NA'];
-    public static array $tiposDeContrato = ['fijo', 'indefinido', 'ops', 'Contrato SENA', 'OPS SEMY'];
+    public static array $tiposDeContrato = ['Fijo', 'Indefinido', 'OPS', 'SENA', 'OPS SEMY', 'No aplica'];
+    public static array $arlsValidas = ['Positiva', 'SURA', 'Colmena', 'AXA Colpatria', 'Seguros Bolívar'];
 
     private static function validarCamposComunes(array $datos): array
     {
@@ -63,7 +63,7 @@ class EmpleadoController
 
         $nombre = trim($datos['nombre'] ?? '');
         $cargo = $datos['cargo'] ?? '';
-        $tipoContrato = $datos['tipo_de_contrato'] ?? '';
+        $tipoContrato = trim($datos['tipo_de_contrato'] ?? '');
         $estado = $datos['estado'] ?? 'activo';
         $celular = trim($datos['celular'] ?? '');
         $correo = trim($datos['correo'] ?? '');
@@ -75,8 +75,27 @@ class EmpleadoController
         if (!in_array($cargo, self::$cargosValidos, true)) {
             $errores[] = 'Debes seleccionar un cargo válido.';
         }
-        if (!in_array($tipoContrato, self::$tiposDeContrato, true)) {
-            $errores[] = 'Debes seleccionar un tipo de contrato válido.';
+        if ($tipoContrato !== '' && !in_array($tipoContrato, self::$tiposDeContrato, true)) {
+            $errores[] = 'Tipo de contrato inválido.';
+        }
+
+        $fechaInicio = trim($datos['fecha_inicio_contrato'] ?? '');
+        $fechaFin = trim($datos['fecha_fin_contrato'] ?? '');
+        $contratosConFin = ['Fijo', 'OPS', 'SENA', 'OPS SEMY'];
+        if ($fechaInicio !== '') {
+            $d = DateTime::createFromFormat('Y-m-d', $fechaInicio);
+            if (!$d || $d->format('Y-m-d') !== $fechaInicio) {
+                $errores[] = 'La fecha de inicio del contrato no es válida.';
+            }
+        }
+        if ($fechaFin !== '') {
+            $d = DateTime::createFromFormat('Y-m-d', $fechaFin);
+            if (!$d || $d->format('Y-m-d') !== $fechaFin) {
+                $errores[] = 'La fecha de fin del contrato no es válida.';
+            }
+        }
+        if (in_array($tipoContrato, $contratosConFin, true) && $fechaFin !== '' && $fechaInicio !== '' && $fechaFin < $fechaInicio) {
+            $errores[] = 'La fecha de fin no puede ser anterior a la fecha de inicio.';
         }
         if (!in_array($estado, ['activo', 'no activo'], true)) {
             $errores[] = 'Estado inválido.';
@@ -97,25 +116,29 @@ class EmpleadoController
         }
         $sexo = $datos['sexo'] ?? '';
         $tipoPersonal = $datos['tipo_de_personal'] ?? '';
-        $grupo = $datos['grupo'] ?? '';
         $eps = $datos['eps'] ?? '';
         $pension = $datos['pension'] ?? '';
+        $arl = $datos['arl'] ?? '';
         $salarioBasico = trim($datos['salario_basico'] ?? '');
 
-        if ($sexo !== '' && !in_array($sexo, ['F', 'M'], true)) {
+        if ($sexo === '') {
+            $errores[] = 'El sexo es obligatorio.';
+        } elseif (!in_array($sexo, ['F', 'M'], true)) {
             $errores[] = 'El sexo debe ser F o M.';
         }
-        if ($tipoPersonal !== '' && !in_array($tipoPersonal, self::$tiposDePersonal, true)) {
+        if ($tipoPersonal === '') {
+            $errores[] = 'El tipo de personal es obligatorio.';
+        } elseif (!in_array($tipoPersonal, self::$tiposDePersonal, true)) {
             $errores[] = 'Tipo de personal inválido.';
-        }
-        if ($grupo !== '' && !in_array($grupo, self::$gruposValidos, true)) {
-            $errores[] = 'Grupo inválido.';
         }
         if ($eps !== '' && !in_array($eps, self::$epsValidas, true)) {
             $errores[] = 'EPS inválida.';
         }
         if ($pension !== '' && !in_array($pension, self::$pensionesValidas, true)) {
             $errores[] = 'Fondo de pensión inválido.';
+        }
+        if ($arl !== '' && !in_array($arl, self::$arlsValidas, true)) {
+            $errores[] = 'ARL inválida.';
         }
         if ($salarioBasico !== '' && (!is_numeric($salarioBasico) || (float) $salarioBasico < 0)) {
             $errores[] = 'El salario básico debe ser un número válido mayor o igual a 0.';
@@ -152,12 +175,14 @@ class EmpleadoController
             'sexo' => $datos['sexo'] ?: null,
             'cargo' => $datos['cargo'],
             'tipo_de_personal' => $datos['tipo_de_personal'] ?: null,
-            'grupo' => $datos['grupo'] ?: null,
             'eps' => $datos['eps'] ?: null,
             'pension' => $datos['pension'] ?: null,
+            'arl' => $datos['arl'] ?: null,
             'salario_basico' => $datos['salario_basico'] !== '' ? $datos['salario_basico'] : null,
             'es_bombero_integral' => isset($datos['es_bombero_integral']) ? 1 : 0,
-            'tipo_de_contrato' => $datos['tipo_de_contrato'],
+            'tipo_de_contrato' => $datos['tipo_de_contrato'] ?: null,
+            'fecha_inicio_contrato' => $datos['fecha_inicio_contrato'] ?: null,
+            'fecha_fin_contrato' => $datos['fecha_fin_contrato'] ?: null,
             'estado' => $datos['estado'] ?? 'activo',
             'celular' => trim($datos['celular'] ?? ''),
             'correo' => trim($datos['correo'] ?? ''),
@@ -267,12 +292,14 @@ class EmpleadoController
             'sexo' => $datos['sexo'] ?: null,
             'cargo' => $datos['cargo'],
             'tipo_de_personal' => $datos['tipo_de_personal'] ?: null,
-            'grupo' => $datos['grupo'] ?: null,
             'eps' => $datos['eps'] ?: null,
             'pension' => $datos['pension'] ?: null,
+            'arl' => $datos['arl'] ?: null,
             'salario_basico' => $datos['salario_basico'] !== '' ? $datos['salario_basico'] : null,
             'es_bombero_integral' => isset($datos['es_bombero_integral']) ? 1 : 0,
-            'tipo_de_contrato' => $datos['tipo_de_contrato'],
+            'tipo_de_contrato' => $datos['tipo_de_contrato'] ?: null,
+            'fecha_inicio_contrato' => $datos['fecha_inicio_contrato'] ?: null,
+            'fecha_fin_contrato' => $datos['fecha_fin_contrato'] ?: null,
             'estado' => $datos['estado'] ?? 'activo',
             'celular' => trim($datos['celular'] ?? ''),
             'correo' => trim($datos['correo'] ?? ''),
@@ -326,9 +353,12 @@ class EmpleadoController
             'fecha_nacimiento' => ['etiqueta' => 'la fecha de nacimiento', 'formato' => fn($v) => EmpleadoModel::formatearFechaLarga($v)],
             'sexo' => ['etiqueta' => 'el sexo', 'formato' => fn($v) => $v ?: 'sin definir'],
             'tipo_de_personal' => ['etiqueta' => 'el tipo de personal', 'formato' => fn($v) => $v ?: 'sin definir'],
-            'grupo' => ['etiqueta' => 'el grupo', 'formato' => fn($v) => $v ?: 'sin definir'],
             'eps' => ['etiqueta' => 'la EPS', 'formato' => fn($v) => $v ?: 'sin definir'],
             'pension' => ['etiqueta' => 'el fondo de pensión', 'formato' => fn($v) => $v ?: 'sin definir'],
+            'arl' => ['etiqueta' => 'la ARL', 'formato' => fn($v) => $v ?: 'sin definir'],
+            'tipo_de_contrato' => ['etiqueta' => 'el tipo de contrato', 'formato' => fn($v) => $v ?: 'sin definir'],
+            'fecha_inicio_contrato' => ['etiqueta' => 'la fecha de inicio del contrato', 'formato' => fn($v) => EmpleadoModel::formatearFechaLarga($v)],
+            'fecha_fin_contrato' => ['etiqueta' => 'la fecha de fin del contrato', 'formato' => fn($v) => EmpleadoModel::formatearFechaLarga($v)],
             'salario_basico' => ['etiqueta' => 'el salario básico', 'formato' => fn($v) => $v !== null ? '$' . number_format((float) $v, 0, ',', '.') : 'sin definir'],
         ];
 

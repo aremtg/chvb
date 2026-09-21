@@ -6,4 +6,4 @@ header('Content-Type: application/json');
 requireEmpleado();
 
 $cedula = $_SESSION['empleado_cedula'];
-echo json_encode(['ok' => true, 'total' => NotificacionModel::contarNoLeidasParaEmpleado($cedula)]);
+echo json_encode(['ok' => true] + NotificacionModel::contarPermisosEmpleadoPorSeccion($cedula));

@@ -57,11 +57,7 @@ function renderPermisos(permisos) {
       const esDevuelto = p.estado === "devuelto";
       const esDevueltoRegreso = p.estado === "devuelto_regreso";
       const esPendienteRegreso = p.estado === "aprobado_pendiente_regreso";
-      const urlDestino = esDevuelto
-        ? `./permiso_nuevo.php?editar=${p.id}`
-        : (esDevueltoRegreso || esPendienteRegreso)
-          ? `./permiso_registrar_llegada.php?id=${p.id}`
-          : `./permiso_ver.php?id=${p.id}`;
+      const urlDestino = `./permiso_ver.php?id=${p.id}`;
 
       return `
             <a href="${urlDestino}" class="block bg-white rounded-xl shadow p-4 hover:shadow-md transition ${esDevuelto || esDevueltoRegreso ? "border-2 border-orange-300" : ""}">
