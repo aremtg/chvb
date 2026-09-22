@@ -195,25 +195,56 @@ $csrf = csrfToken();
                     </div>
                 </section>
 
-                <?php foreach ([
-                    ['Terminación de contrato', 'file-minus'],
-                    ['Otro Sí', 'file-signature'],
-                    ['Requisición', 'clipboard-list']
-                ] as $card): ?>
-                    <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
-                        <div class="p-5">
-                            <div class="flex items-center gap-3">
+                <?php foreach ([ 
+    ['Terminación de contrato', 'file-minus'], 
+    ['Requisición', 'clipboard-list'] 
+] as $card): ?>
+    <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible"> 
+        <div class="p-5"> 
+            <div class="flex items-center gap-3"> 
+ 
+                <div> 
+                    <h2 class="font-bold text-gray-800"><?= htmlspecialchars($card[0]) ?></h2> 
+                    <p class="text-xs text-gray-400">Próximamente</p> 
+                </div> 
+            </div> 
+            <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3 text-xs text-gray-400">Aquí 
+                estarán los formatos de esta categoría.</div> 
+        </div> 
+    </section> 
+<?php endforeach; ?>
 
-                                <div>
-                                    <h2 class="font-bold text-gray-800"><?= htmlspecialchars($card[0]) ?></h2>
-                                    <p class="text-xs text-gray-400">Próximamente</p>
-                                </div>
-                            </div>
-                            <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3 text-xs text-gray-400">Aquí
-                                estarán los formatos de esta categoría.</div>
-                        </div>
-                    </section>
-                <?php endforeach; ?>
+
+<!-- OTRO SÍ -->
+<section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible"> 
+    <div class="p-5"> 
+        <div class="flex items-center justify-between gap-3"> 
+            
+            <div class="flex items-center gap-3"> 
+                <div> 
+                    <h2 class="font-bold text-gray-800">Otro Sí</h2> 
+                    <p class="text-xs text-gray-400">Modificación del contrato</p> 
+                </div> 
+            </div> 
+
+            <a href="./formatos_otrosi.php"
+                class="w-9 h-9 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-500 flex items-center justify-center transition"
+                title="Abrir Otro Sí">
+                <?= icon('more-vertical', 'w-5 h-5') ?>
+            </a>
+
+        </div> 
+
+        <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3"> 
+            <p class="text-sm font-semibold text-gray-700 truncate">
+                GH-FT-24 · OTRO SÍ
+            </p> 
+            <p class="text-xs text-gray-400">
+                Modificación del contrato
+            </p> 
+        </div> 
+    </div> 
+</section>
             </div>
         </main>
     </div>
