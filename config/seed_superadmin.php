@@ -44,3 +44,5 @@ if ($stmt->fetch()) {
 // DB_PASS=
 // APP_URL=http://localhost/chvb/public
 // UPLOADS_PATH=C:/xampp/htdocs/chvb/uploads
+
+//composer require phpoffice/phpword
