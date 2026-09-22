@@ -18,7 +18,24 @@ $generadosDir = __DIR__ . '/../uploads/generados';
 $generados = [];
 
 if (is_dir($generadosDir)) {
-    foreach (glob($generadosDir . '/OTROSI_*.docx') ?: [] as $ruta) {
+    $archivos = [];
+    // CORREGIDO: Buscar ambos formatos de nombre
+    // 1. Formato antiguo OTROSI_*.docx
+    // 2. Formato nuevo GH-FT-24 OTROSI...
+    $patrones = [
+        $generadosDir . '/OTROSI_*.docx',
+        $generadosDir . '/GH-FT-24 OTROSI*.docx',
+        $generadosDir . '/GH-FT-24*.docx',
+    ];
+    
+    foreach ($patrones as $patron) {
+        foreach (glob($patron) ?: [] as $ruta) {
+            // Evitar duplicados
+            $archivos[basename($ruta)] = $ruta;
+        }
+    }
+
+    foreach ($archivos as $ruta) {
         $generados[] = [
             'archivo' => basename($ruta),
             'fecha' => filemtime($ruta) ?: time(),
@@ -160,37 +177,37 @@ if (is_dir($generadosDir)) {
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-sm">
                         <div>
                             <span class="block text-xs text-gray-400">Nombre</span>
-                            <strong id="otrosiNombre" class="text-gray-800 break-words">-</strong>
+                            <strong id="otrosiNombre" class="block text-gray-800"></strong>
                         </div>
                         <div>
                             <span class="block text-xs text-gray-400">Cédula</span>
-                            <strong id="otrosiCedula" class="text-gray-800">-</strong>
+                            <strong id="otrosiCedula" class="block text-gray-800"></strong>
                         </div>
                         <div>
                             <span class="block text-xs text-gray-400">Día</span>
-                            <strong id="otrosiDia" class="text-gray-800">-</strong>
+                            <span id="otrosiDia" class="block text-gray-700"></span>
                         </div>
                         <div>
                             <span class="block text-xs text-gray-400">Mes</span>
-                            <strong id="otrosiMes" class="text-gray-800">-</strong>
+                            <span id="otrosiMes" class="block text-gray-700"></span>
                         </div>
                         <div>
                             <span class="block text-xs text-gray-400">Año</span>
-                            <strong id="otrosiAnio" class="text-gray-800">-</strong>
+                            <span id="otrosiAnio" class="block text-gray-700"></span>
                         </div>
                     </div>
 
-                    <div class="mt-5 pt-4 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                        <button type="button"
-                            onclick="limpiarOtrosi()"
-                            class="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">
-                            Limpiar
-                        </button>
+                    <div class="mt-4 flex flex-col sm:flex-row gap-2">
                         <button id="btnGenerarOtrosi"
                             type="button"
                             onclick="generarOtrosi()"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition shadow-sm">
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition shadow-sm">
                             <?= icon('file-text','w-4 h-4') ?> Generar Word
+                        </button>
+                        <button type="button"
+                            onclick="limpiarOtrosi()"
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 text-sm font-medium transition">
+                            <?= icon('x','w-4 h-4') ?> Limpiar
                         </button>
                     </div>
                 </div>
@@ -198,15 +215,12 @@ if (is_dir($generadosDir)) {
         </section>
 
         <section class="otrosi-card bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
-            <div class="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between gap-3">
-                <div>
-                    <h2 class="font-bold text-gray-800">Documentos generados</h2>
-                    <p class="text-xs text-gray-400">Otrosí creados desde esta plantilla.</p>
-                </div>
-                <span class="text-xs text-gray-400"><?= count($generados) ?></span>
+            <div class="p-4 sm:p-5 lg:p-6 border-b border-gray-100">
+                <h2 class="font-bold text-gray-800">Generados</h2>
+                <p class="text-xs text-gray-400">Archivos generados recientemente</p>
             </div>
 
-            <div class="p-4 sm:p-5">
+            <div class="p-4 sm:p-5 lg:p-6">
                 <?php if ($generados): ?>
                     <div class="space-y-2">
                         <?php foreach ($generados as $g): ?>
@@ -215,14 +229,12 @@ if (is_dir($generadosDir)) {
                                     <p class="text-sm font-medium text-gray-700 break-words" title="<?= htmlspecialchars($g['archivo']) ?>">
                                         <?= htmlspecialchars($g['archivo']) ?>
                                     </p>
-                                    <p class="text-xs text-gray-400 mt-1">
-                                        <?= date('d/m/Y H:i', $g['fecha']) ?>
-                                    </p>
+                                    <p class="text-xs text-gray-400"><?= date('d/m/Y H:i', $g['fecha']) ?></p>
                                 </div>
 
                                 <div class="otrosi-acciones">
                                     <a href="./api/formato_archivo.php?f=<?= rawurlencode($g['archivo']) ?>&accion=ver"
-                                       target="_blank" rel="noopener"
+                                       target="_blank"
                                        class="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 rounded-lg transition">
                                         <?= icon('eye','w-4 h-4') ?> Ver
                                     </a>
@@ -304,8 +316,6 @@ async function buscarEmpleadoOtrosi() {
         empleadoOtrosi = data.empleado;
 
         const hoy = new Date();
-        // Estos datos se muestran como referencia. El documento se genera
-        // con la fecha oficial del servidor en America/Bogota.
         document.getElementById('otrosiNombre').textContent = empleadoOtrosi.nombre;
         document.getElementById('otrosiCedula').textContent = empleadoOtrosi.cedula;
         document.getElementById('otrosiDia').textContent = hoy.toLocaleDateString('es-CO', { day: 'numeric' });
