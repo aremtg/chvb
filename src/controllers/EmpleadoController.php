@@ -152,7 +152,7 @@ class EmpleadoController
     {
         $errores = self::validarCamposComunes($datos);
 
-        $cedula = trim($datos['cedula'] ?? '');
+        $cedula = preg_replace('/\./', '', trim($datos['cedula'] ?? ''));
         if (strlen($cedula) > 10) {
             $errores[] = 'La cédula no puede tener más de 10 caracteres.';
         }
@@ -167,7 +167,11 @@ class EmpleadoController
             return ['ok' => false, 'errores' => $errores];
         }
 
-        $nombreEmpleado = trim($datos['nombre']);
+        $nombreEmpleado = mb_convert_case(
+            mb_strtolower(trim($datos['nombre']), 'UTF-8'),
+            MB_CASE_TITLE,
+            'UTF-8'
+        );
 
         EmpleadoModel::crear([
             'cedula' => $cedula,
@@ -215,7 +219,7 @@ class EmpleadoController
         NotificacionModel::crearParaSuperAdminsDesdeAuxiliar(
             $cedula,
             'creacion',
-            "\"{$usuarioNombre}\" creó un nuevo empleado llamado \"{$nombreEmpleado}\", con cédula {$cedula}",
+            "\"{$usuarioNombre}\" creó un nuevo empleado llamado \"{$nombreEmpleado}\", con CC {$cedula}",
             "/chvb/public/empleados.php?q=" . urlencode($cedula)
         );
 
@@ -229,12 +233,12 @@ class EmpleadoController
 
         $errores = self::validarCamposComunes($datos);
 
-        $cedulaNueva = trim($datos['cedula'] ?? '');
+        $cedulaNueva = preg_replace('/\./', '', trim($datos['cedula'] ?? ''));
         if (strlen($cedulaNueva) > 10) {
             $errores[] = 'La cédula no puede tener más de 10 caracteres.';
         }
         if (!preg_match('/^[A-Za-z0-9]{5,10}$/', $cedulaNueva)) {
-            $errores[] = 'La cédula no puede tener más de 10 caracteres y puede ser extranjera (letras y números permitidos).';
+            $errores[] = 'La cédula no puede tener más de 10 caracteres.';
         }
 
         $cambioDeCedula = $cedulaNueva !== $cedulaActual;
@@ -283,7 +287,11 @@ class EmpleadoController
         }
 
         $datosNuevos = [
-            'nombre' => trim($datos['nombre']),
+            'nombre' => mb_convert_case(
+                mb_strtolower(trim($datos['nombre']), 'UTF-8'),
+                MB_CASE_TITLE,
+                'UTF-8'
+            ),
             'sexo' => $datos['sexo'] ?: null,
             'cargo' => $datos['cargo'],
             'tipo_de_personal' => $datos['tipo_de_personal'] ?: null,

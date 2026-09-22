@@ -124,26 +124,7 @@ INSERT INTO `festivos_colombia` (`id`, `fecha`, `nombre`, `anio`) VALUES
 (16, '2026-11-02', 'Todos los Santos', 2026),
 (17, '2026-11-16', 'Independencia de Cartagena', 2026),
 (18, '2026-12-08', 'Inmaculada Concepción', 2026),
-(19, '2026-12-25', 'Navidad', 2026),
-(20, '2027-01-01', 'Año Nuevo', 2027),
-(21, '2027-01-11', 'Reyes Magos', 2027),
-(22, '2027-03-22', 'Día de San José', 2027),
-(23, '2027-03-25', 'Jueves Santo', 2027),
-(24, '2027-03-26', 'Viernes Santo', 2027),
-(25, '2027-05-01', 'Día del Trabajo', 2027),
-(26, '2027-05-10', 'Ascensión de Jesús', 2027),
-(27, '2027-05-31', 'Corpus Christi', 2027),
-(28, '2027-06-07', 'Sagrado Corazón', 2027),
-(29, '2027-07-05', 'San Pedro y San Pablo', 2027),
-(30, '2027-07-12', 'Día de Nuestra Señora de Chiquinquirá', 2027),
-(31, '2027-07-20', 'Día de la Independencia', 2027),
-(32, '2027-08-07', 'Batalla de Boyacá', 2027),
-(33, '2027-08-16', 'Asunción de la Virgen', 2027),
-(34, '2027-10-18', 'Día de la Raza', 2027),
-(35, '2027-11-01', 'Todos los Santos', 2027),
-(36, '2027-11-15', 'Independencia de Cartagena', 2027),
-(37, '2027-12-08', 'Inmaculada Concepción', 2027),
-(38, '2027-12-25', 'Navidad', 2027);
+(19, '2026-12-25', 'Navidad', 2026);
 
 -- --------------------------------------------------------
 

@@ -23,6 +23,14 @@ if ($accion === 'eliminar') {
     echo json_encode(['ok'=>true], JSON_UNESCAPED_UNICODE); exit;
 }
 
+if ($accion === 'ver') {
+    header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    header('Content-Disposition: inline; filename="' . rawurlencode($archivo) . '"');
+    header('Content-Length: ' . filesize($path));
+    readfile($path);
+    exit;
+}
+
 header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
 header('Content-Disposition: attachment; filename="' . rawurlencode($archivo) . '"');
 header('Content-Length: ' . filesize($path));

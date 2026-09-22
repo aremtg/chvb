@@ -266,7 +266,10 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
 
         <div class="sm:col-span-2">
             <label class="block text-xs text-gray-500 mb-1">Cédula <span class="text-red-600">*</span></label>
-            <input type="text" name="cedula" id="inputCedula" required maxlength="10" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
+            <input type="text" name="cedula" id="inputCedula" required maxlength="13"
+    inputmode="numeric"
+    autocomplete="off"
+    class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
             <p id="errorCedula" class="text-sm text-red-600 mt-1 hidden">La cédula no puede tener más de 10 caracteres</p>
         </div>
 
@@ -330,7 +333,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
 
         <div>
             <label class="block text-xs text-gray-500 mb-1">Salario básico</label>
-            <input type="number" name="salario_basico" min="0" step="1000" placeholder="Ej: 1300000" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
+            <input type="number" name="salario_basico" min="0" step="1" placeholder="Ej: 1750905" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
         </div>
 
         <div>
@@ -454,7 +457,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
         <div><label class="block text-xs text-gray-500 mb-1">Fecha de nacimiento</label><input type="date" name="fecha_nacimiento" id="editFechaNacimiento" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div>
         <div><label class="block text-xs text-gray-500 mb-1">Tipo de contrato</label><select name="tipo_de_contrato" id="editContrato" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"><option value="">Selecciona</option><?php foreach (EmpleadoController::$tiposDeContrato as $tc): ?><option value="<?= htmlspecialchars($tc) ?>"><?= htmlspecialchars($tc) ?></option><?php endforeach; ?></select></div>
         <div id="editFechasContrato" class="sm:col-span-2 hidden grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label class="block text-xs text-gray-500 mb-1">Fecha Inicio</label><input type="date" name="fecha_inicio_contrato" id="editFechaInicioContrato" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div><div id="editCampoFechaFin"><label class="block text-xs text-gray-500 mb-1">Fecha Fin</label><input type="date" name="fecha_fin_contrato" id="editFechaFinContrato" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div></div>
-        <div><label class="block text-xs text-gray-500 mb-1">Salario básico</label><input type="number" name="salario_basico" id="editSalario" min="0" step="1000" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div>
+        <div><label class="block text-xs text-gray-500 mb-1">Salario básico</label><input type="number" name="salario_basico" id="editSalario" min="0" step="1" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div>
         <div><label class="block text-xs text-gray-500 mb-1">EPS</label><select name="eps" id="editEps" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"><option value="">Selecciona</option><?php foreach (EmpleadoController::$epsValidas as $e): ?><option value="<?= htmlspecialchars($e) ?>"><?= htmlspecialchars($e) ?></option><?php endforeach; ?></select></div>
         <div><label class="block text-xs text-gray-500 mb-1">Fondo de Pensión</label><select name="pension" id="editPension" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"><option value="">Selecciona</option><?php foreach (EmpleadoController::$pensionesValidas as $p): ?><option value="<?= htmlspecialchars($p) ?>"><?= htmlspecialchars($p) ?></option><?php endforeach; ?></select></div>
         <div><label class="block text-xs text-gray-500 mb-1">ARL</label><select name="arl" id="editArl" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"><option value="">Selecciona</option><?php foreach (EmpleadoController::$arlsValidas as $arl): ?><option value="<?= htmlspecialchars($arl) ?>"><?= htmlspecialchars($arl) ?></option><?php endforeach; ?></select></div>

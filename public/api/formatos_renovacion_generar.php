@@ -3,6 +3,8 @@ require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../src/models/FormatoModel.php';
 require_once __DIR__ . '/../../src/models/EmpleadoModel.php';
 
+date_default_timezone_set('America/Bogota');
+
 header('Content-Type: application/json; charset=utf-8');
 requireSuperAdmin();
 
@@ -18,9 +20,44 @@ validarCSRF();
 function formatoSexo(string $sexo): string
 {
     $sexo = mb_strtolower(trim($sexo), 'UTF-8');
-    if (in_array($sexo, ['f', 'femenino', 'femenina', 'mujer'], true)) return 'F';
-    if (in_array($sexo, ['m', 'masculino', 'hombre'], true)) return 'M';
+    if (in_array($sexo, ['f', 'femenino', 'femenina', 'mujer'], true))
+        return 'F';
+    if (in_array($sexo, ['m', 'masculino', 'hombre'], true))
+        return 'M';
     return '';
+}
+
+/**
+ * Devuelve la duración acumulable del contrato inicial en meses.
+ * Se trabaja con fecha fin + 1 día para respetar contratos inclusivos
+ * (por ejemplo, 01/01 al 30/06 = 6 meses).
+ */
+function mesesContratoInicial(DateTime $inicio, DateTime $fin): int
+{
+    $finMasUnDia = (clone $fin)->modify('+1 day');
+    $meses = ((int) $finMasUnDia->format('Y') - (int) $inicio->format('Y')) * 12
+        + ((int) $finMasUnDia->format('m') - (int) $inicio->format('m'));
+
+    if ($meses < 0)
+        return 0;
+
+    $candidato = (clone $inicio)->modify('+' . $meses . ' months');
+    if ($candidato < $finMasUnDia)
+        $meses++;
+
+    return max(0, $meses);
+}
+
+function textoAcumuladoMeses(int $meses): string
+{
+    $anos = intdiv($meses, 12);
+    $resto = $meses % 12;
+    $partes = [];
+    if ($anos > 0)
+        $partes[] = $anos . ' ' . ($anos === 1 ? 'año' : 'años');
+    if ($resto > 0)
+        $partes[] = $resto . ' ' . ($resto === 1 ? 'mes' : 'meses');
+    return $partes ? implode(' y ', $partes) : '0 meses';
 }
 
 function limpiarXmlFuenteArialNarrow10(string $docx): void
@@ -42,12 +79,14 @@ function limpiarXmlFuenteArialNarrow10(string $docx): void
 
     foreach ($archivosXml as $nombre) {
         $xml = $zip->getFromName($nombre);
-        if ($xml === false) continue;
+        if ($xml === false)
+            continue;
 
         $dom = new DOMDocument();
         $dom->preserveWhiteSpace = true;
         $dom->formatOutput = false;
-        if (!@$dom->loadXML($xml)) continue;
+        if (!@$dom->loadXML($xml))
+            continue;
 
         $xpath = new DOMXPath($dom);
         $xpath->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
@@ -134,21 +173,25 @@ function limpiarXmlFuenteArialNarrow10(string $docx): void
 function eliminarLineasRenovacionNoNecesarias(string $docx, int $renovacionActual): void
 {
     $zip = new ZipArchive();
-    if ($zip->open($docx) !== true) return;
+    if ($zip->open($docx) !== true)
+        return;
 
     foreach (['word/document.xml'] as $nombre) {
         $xml = $zip->getFromName($nombre);
-        if ($xml === false) continue;
+        if ($xml === false)
+            continue;
         $dom = new DOMDocument();
         $dom->preserveWhiteSpace = true;
         $dom->formatOutput = false;
-        if (!@$dom->loadXML($xml)) continue;
+        if (!@$dom->loadXML($xml))
+            continue;
 
         $xpath = new DOMXPath($dom);
         $xpath->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
         foreach ($xpath->query('//w:body/w:p') as $p) {
             $texto = '';
-            foreach ($xpath->query('.//w:t', $p) as $t) $texto .= $t->textContent;
+            foreach ($xpath->query('.//w:t', $p) as $t)
+                $texto .= $t->textContent;
             $texto = trim($texto);
 
             // Las líneas históricas pueden comenzar con un símbolo de check
@@ -158,7 +201,7 @@ function eliminarLineasRenovacionNoNecesarias(string $docx, int $renovacionActua
             // como "Renovación No.N". Por eso eliminamos la actual y todas
             // las posteriores.
             if (preg_match('/\bRnv(\d+):/iu', $texto, $m)) {
-                $numero = (int)$m[1];
+                $numero = (int) $m[1];
                 if ($numero >= $renovacionActual) {
                     $p->parentNode->removeChild($p);
                 }
@@ -171,39 +214,52 @@ function eliminarLineasRenovacionNoNecesarias(string $docx, int $renovacionActua
 
 try {
     $cedula = trim($_POST['cedula'] ?? '');
-    $renovacionActual = (int)($_POST['renovacion_actual'] ?? 0);
-    $fechaInicioActual = trim($_POST['fecha_inicio_actual'] ?? '');
     $duraciones = $_POST['duraciones'] ?? [];
+    $fechasInicio = $_POST['fechas_inicio'] ?? [];
 
-    if ($cedula === '') throw new InvalidArgumentException('Selecciona un empleado.');
-    if ($renovacionActual < 1 || $renovacionActual > 4) throw new InvalidArgumentException('La renovación actual debe ser RNV1, RNV2, RNV3 o RNV4.');
-    if (!is_array($duraciones)) throw new InvalidArgumentException('Las duraciones no son válidas.');
+    if ($cedula === '')
+        throw new InvalidArgumentException('Selecciona un empleado.');
+    if (!is_array($duraciones) || !$duraciones)
+        throw new InvalidArgumentException('Agrega al menos una renovación.');
+    if (!is_array($fechasInicio))
+        $fechasInicio = [];
+
+    // La plantilla actual maneja RNV1-RNV4. Se mantiene ese límite para que
+    // el documento generado siempre tenga un historial coherente.
+    $renovacionActual = count($duraciones);
+    if ($renovacionActual < 1 || $renovacionActual > 4) {
+        throw new InvalidArgumentException('La plantilla de Renovación de Contrato está configurada hasta RNV4.');
+    }
 
     $empleado = EmpleadoModel::obtenerPorCedula($cedula);
-    if (!$empleado) throw new InvalidArgumentException('El empleado no existe.');
+    if (!$empleado)
+        throw new InvalidArgumentException('El empleado no existe.');
 
     $faltantes = [];
-    if (trim((string)($empleado['nombre'] ?? '')) === '') $faltantes[] = 'Nombre';
-    if (trim((string)($empleado['cedula'] ?? '')) === '') $faltantes[] = 'Cédula';
-    if (formatoSexo((string)($empleado['sexo'] ?? '')) === '') $faltantes[] = 'Sexo';
-    if (trim((string)($empleado['cargo'] ?? '')) === '') $faltantes[] = 'Cargo';
-    if (trim((string)($empleado['tipo_de_personal'] ?? '')) === '') $faltantes[] = 'Tipo de personal';
-    if (trim((string)($empleado['fecha_inicio_contrato'] ?? '')) === '') $faltantes[] = 'Fecha de inicio del contrato';
-    if (trim((string)($empleado['fecha_fin_contrato'] ?? '')) === '') $faltantes[] = 'Fecha de fin del contrato';
+    if (trim((string) ($empleado['nombre'] ?? '')) === '')
+        $faltantes[] = 'Nombre';
+    if (trim((string) ($empleado['cedula'] ?? '')) === '')
+        $faltantes[] = 'Cédula';
+    if (formatoSexo((string) ($empleado['sexo'] ?? '')) === '')
+        $faltantes[] = 'Sexo';
+    if (trim((string) ($empleado['cargo'] ?? '')) === '')
+        $faltantes[] = 'Cargo';
+    if (trim((string) ($empleado['tipo_de_personal'] ?? '')) === '')
+        $faltantes[] = 'Tipo de personal';
+    if (trim((string) ($empleado['fecha_inicio_contrato'] ?? '')) === '')
+        $faltantes[] = 'Fecha de inicio del contrato';
+    if (trim((string) ($empleado['fecha_fin_contrato'] ?? '')) === '')
+        $faltantes[] = 'Fecha de fin del contrato';
 
     if ($faltantes) {
         throw new InvalidArgumentException('No se puede generar la renovación. Faltan en la hoja de vida: ' . implode(', ', $faltantes) . '.');
     }
 
-    $sexo = formatoSexo((string)$empleado['sexo']);
-    $tipoPersonal = mb_strtolower(trim((string)$empleado['tipo_de_personal']), 'UTF-8');
+    $sexo = formatoSexo((string) $empleado['sexo']);
+    $tipoPersonal = mb_strtolower(trim((string) $empleado['tipo_de_personal']), 'UTF-8');
     $tratamiento = $sexo === 'F' ? 'Señora' : 'Señor';
     $saludo = $sexo === 'F' ? 'Estimada' : 'Estimado';
-
-    $esBombero = $tipoPersonal !== 'civil' && (
-        $tipoPersonal === 'bombero' ||
-        !empty($empleado['es_bombero_integral'])
-    );
+    $esBombero = $tipoPersonal !== 'civil' && ($tipoPersonal === 'bombero' || !empty($empleado['es_bombero_integral']));
 
     $fechaInicioContrato = DateTime::createFromFormat('Y-m-d', $empleado['fecha_inicio_contrato']);
     $fechaFinContrato = DateTime::createFromFormat('Y-m-d', $empleado['fecha_fin_contrato']);
@@ -214,44 +270,52 @@ try {
         throw new InvalidArgumentException('La fecha de fin del contrato no es válida.');
     }
 
-    $fechaActualDt = DateTime::createFromFormat('Y-m-d', $fechaInicioActual);
-    if (!$fechaActualDt || $fechaActualDt->format('Y-m-d') !== $fechaInicioActual) {
-        throw new InvalidArgumentException('La fecha de inicio de la renovación actual no es válida.');
-    }
-
     $renovaciones = [];
-    $inicio = (clone $fechaFinContrato)->modify('+1 day')->format('Y-m-d');
     $duracionAnterior = null;
     $sumaMeses = 0;
 
     for ($n = 1; $n <= $renovacionActual; $n++) {
-        $meses = (int)($duraciones[$n] ?? 0);
-        if ($meses < 1 || $meses > 48) {
-            throw new InvalidArgumentException("La duración de RNV{$n} debe estar entre 1 y 48 meses.");
+        $meses = (int) ($duraciones[$n] ?? 0);
+        if ($meses < 1 || !in_array($meses, [1, 2, 3, 6, 12, 24], true)) {
+            throw new InvalidArgumentException("La duración de RNV{$n} no es válida.");
         }
-        if ($n === 4 && $meses < 12) {
-            throw new InvalidArgumentException('RNV4 debe tener una duración mínima de 12 meses.');
+
+        if ($n >= 4 && $meses < 12) {
+            throw new InvalidArgumentException('La 4ta renovación debe ser igual o mayor a 1 año Art. 46 CST Ley 2466 de 2025');
         }
         if ($duracionAnterior !== null && $meses < $duracionAnterior) {
-            throw new InvalidArgumentException("RNV{$n} no puede durar menos que RNV" . ($n - 1) . '. La duración debe mantenerse o aumentar.');
+            throw new InvalidArgumentException(
+                'Validación Legal de Renovación Corta: No es posible registrar una duración menor a la del periodo anterior mediante renovación automática. Reducir el tiempo del contrato solo es legal si se suscribe un Otrosí de mutuo acuerdo.'
+            );
         }
 
-        $inicioEsperado = $inicio;
-        if ($n === $renovacionActual && $fechaInicioActual !== $inicioEsperado) {
-            throw new InvalidArgumentException('La fecha de inicio de la renovación actual debe ser exactamente el día siguiente al fin de la renovación anterior.');
+        $fechaInicio = trim((string) ($fechasInicio[$n] ?? ''));
+        if ($fechaInicio === '') {
+            $fechaInicio = $n === 1
+                ? (clone $fechaFinContrato)->modify('+1 day')->format('Y-m-d')
+                : (new DateTime($renovaciones[$n - 1]['fin']))->modify('+1 day')->format('Y-m-d');
         }
 
-        $inicioReal = $n === $renovacionActual ? $fechaInicioActual : $inicioEsperado;
-        $fin = FormatoModel::calcularFin($inicioReal, $meses);
-        $renovaciones[$n] = ['inicio' => $inicioReal, 'fin' => $fin, 'meses' => $meses];
+        $fechaInicioDt = DateTime::createFromFormat('Y-m-d', $fechaInicio);
+        if (!$fechaInicioDt || $fechaInicioDt->format('Y-m-d') !== $fechaInicio) {
+            throw new InvalidArgumentException("La fecha de inicio de RNV{$n} no es válida.");
+        }
 
+        $fin = FormatoModel::calcularFin($fechaInicio, $meses);
+        $renovaciones[$n] = ['inicio' => $fechaInicio, 'fin' => $fin, 'meses' => $meses];
         $sumaMeses += $meses;
         $duracionAnterior = $meses;
-        $inicio = (new DateTime($fin))->modify('+1 day')->format('Y-m-d');
     }
 
-    if ($sumaMeses > 48) {
-        throw new InvalidArgumentException('ALERTA: Esta persona va para Contrato indefinido ya que completó 4 años de renovaciones continuas - Art. 46 CST y Reforma Laboral 2025. No se puede generar una renovación que supere los 4 años.');
+    $mesesIniciales = mesesContratoInicial($fechaInicioContrato, $fechaFinContrato);
+    $totalAcumulado = $mesesIniciales + $sumaMeses;
+    if ($totalAcumulado > 48) {
+        $faltanMeses = 0;
+        throw new InvalidArgumentException(
+            'ALERTA: Esta persona debe pasar a Contrato Indefinido, ya que supera los 4 años o la próxima renovación lo haría superar. Total actual '
+            . textoAcumuladoMeses($totalAcumulado)
+            . ', le faltan ' . $faltanMeses . ' meses. Ley 2466 de 2025'
+        );
     }
 
     $plantilla = __DIR__ . '/../../uploads/plantillas/RH-02-0000-RENOVACION.docx';
@@ -273,7 +337,6 @@ try {
     }
 
     $processor = new \PhpOffice\PhpWord\TemplateProcessor($plantilla);
-
     $hoy = date('Y-m-d');
     $actual = $renovaciones[$renovacionActual];
 
@@ -288,13 +351,13 @@ try {
         'primer_nombre' => FormatoModel::primerNombre($empleado['nombre']),
         'fecha_inicio_contrato_larga' => FormatoModel::fechaLarga($empleado['fecha_inicio_contrato']),
         'fecha_fin_contrato_larga' => FormatoModel::fechaLarga($empleado['fecha_fin_contrato']),
-        'renovacion_actual' => (string)$renovacionActual,
+        'renovacion_actual' => (string) $renovacionActual,
         'renovacion_actual_inicio_corta' => FormatoModel::fechaCorta($actual['inicio']),
         'renovacion_actual_fin_corta' => FormatoModel::fechaCorta($actual['fin']),
         'renovacion_actual_inicio_larga' => FormatoModel::fechaLarga($actual['inicio']),
         'renovacion_actual_fin_larga' => FormatoModel::fechaLarga($actual['fin']),
         'duracion_texto' => FormatoModel::textoMeses($actual['meses']),
-        'duracion_numero' => str_pad((string)$actual['meses'], 2, '0', STR_PAD_LEFT),
+        'duracion_numero' => str_pad((string) $actual['meses'], 2, '0', STR_PAD_LEFT),
     ];
 
     for ($n = 1; $n <= 4; $n++) {

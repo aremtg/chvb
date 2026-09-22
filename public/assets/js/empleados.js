@@ -39,10 +39,7 @@ function posicionarMenuAcciones(menu, boton) {
 
   let left = rect.right - ancho;
 
-  left = Math.max(
-    margen,
-    Math.min(left, window.innerWidth - ancho - margen)
-  );
+  left = Math.max(margen, Math.min(left, window.innerWidth - ancho - margen));
 
   const espacioAbajo = window.innerHeight - rect.bottom - margen;
   const espacioArriba = rect.top - margen;
@@ -57,10 +54,7 @@ function posicionarMenuAcciones(menu, boton) {
   }
 
   // Nunca permitir que salga de la pantalla.
-  top = Math.max(
-    margen,
-    Math.min(top, window.innerHeight - alto - margen)
-  );
+  top = Math.max(margen, Math.min(top, window.innerHeight - alto - margen));
 
   menu.style.left = `${left}px`;
   menu.style.top = `${top}px`;
@@ -83,38 +77,31 @@ function toggleMenu(cedula) {
   if (!estabaOculto) return;
 
   const boton = document.querySelector(
-    `button[onclick="toggleMenu('${CSS.escape(cedula)}')"]`
+    `button[onclick="toggleMenu('${CSS.escape(cedula)}')"]`,
   );
 
   posicionarMenuAcciones(menuActual, boton);
 }
 
 function recolocarMenuAccionesAbierto() {
-  const abierto = document.querySelector(
-    '[id^="menu-"]:not(.hidden)'
-  );
+  const abierto = document.querySelector('[id^="menu-"]:not(.hidden)');
 
   if (!abierto) return;
 
   const id = abierto.id.replace(/^menu-/, "");
 
   const boton = document.querySelector(
-    `button[onclick="toggleMenu('${CSS.escape(id)}')"]`
+    `button[onclick="toggleMenu('${CSS.escape(id)}')"]`,
   );
 
   posicionarMenuAcciones(abierto, boton);
 }
 
-window.addEventListener(
-  "resize",
-  recolocarMenuAccionesAbierto
-);
+window.addEventListener("resize", recolocarMenuAccionesAbierto);
 
-window.addEventListener(
-  "scroll",
-  recolocarMenuAccionesAbierto,
-  { passive: true }
-);
+window.addEventListener("scroll", recolocarMenuAccionesAbierto, {
+  passive: true,
+});
 
 document.addEventListener("click", (e) => {
   if (
@@ -129,36 +116,51 @@ document.addEventListener("click", (e) => {
     });
   }
 });
-// --- Validación en vivo de cédula ---
+// --- Validación y formato en vivo de cédula ---
 const inputCedula = document.getElementById("inputCedula");
 const errorCedula = document.getElementById("errorCedula");
-const regexCedula = /^[A-Za-z0-9]{5,10}$/;
 
-inputCedula.addEventListener("input", () => {
-  const valor = inputCedula.value;
-  if (valor.length > 0 && !regexCedula.test(valor)) {
-    errorCedula.classList.remove("hidden");
-  } else {
-    errorCedula.classList.add("hidden");
-  }
-});
+function formatearCedula(valor) {
+  const digitos = valor.replace(/\D/g, "").substring(0, 10);
 
+  return digitos.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+if (inputCedula) {
+  inputCedula.addEventListener("input", () => {
+    inputCedula.value = formatearCedula(inputCedula.value);
+
+    const digitos = inputCedula.value.replace(/\D/g, "");
+
+    if (digitos.length > 0 && (digitos.length < 5 || digitos.length > 10)) {
+      errorCedula.classList.remove("hidden");
+    } else {
+      errorCedula.classList.add("hidden");
+    }
+  });
+}
 // --- Envío del formulario de creación ---
 const formCrear = document.getElementById("formCrear");
 const erroresCrear = document.getElementById("erroresCrear");
 
 formCrear.addEventListener("submit", async (e) => {
   e.preventDefault();
+
   erroresCrear.classList.add("hidden");
   erroresCrear.innerHTML = "";
 
   const cedula = inputCedula.value;
-  if (!regexCedula.test(cedula)) {
+  const cedulaSinPuntos = cedula.replace(/\./g, "");
+
+  if (!/^\d{5,10}$/.test(cedulaSinPuntos)) {
     erroresCrear.innerHTML =
-      "La cédula no puede tener más de 10 caracteres y puede ser extranjera (letras y números permitidos).";
+      "La cédula debe contener entre 5 y 10 dígitos.";
     erroresCrear.classList.remove("hidden");
     return;
   }
+
+  // Enviar al PHP la cédula sin puntos
+  inputCedula.value = cedulaSinPuntos;
 
   const formData = new FormData(formCrear);
 
@@ -167,6 +169,7 @@ formCrear.addEventListener("submit", async (e) => {
       method: "POST",
       body: formData,
     });
+
     const data = await res.json();
 
     if (data.ok) {
@@ -236,7 +239,7 @@ async function abrirModalVer(cedula) {
   }
 
   const emp = data.empleado;
-document.getElementById("contenidoVer").innerHTML = `
+  document.getElementById("contenidoVer").innerHTML = `
     <div class="space-y-4">
         <div class="flex flex-col items-center text-center pb-4 border-b border-gray-100">
             ${
@@ -268,7 +271,7 @@ document.getElementById("contenidoVer").innerHTML = `
         </div>
     </div>
 `;
-document.getElementById("modalVer").classList.remove("hidden");
+  document.getElementById("modalVer").classList.remove("hidden");
 }
 
 // --- Editar Empleado ---
@@ -289,7 +292,7 @@ async function abrirModalEditar(cedula) {
   const emp = data.empleado;
   document.getElementById("editCedulaActual").value = emp.cedula;
   document.getElementById("editNombre").value = emp.nombre;
-  document.getElementById("editCedula").value = emp.cedula;
+  document.getElementById("editCedula").value = formatearCedula(emp.cedula);
   document.getElementById("editCargo").value = emp.cargo;
   document.getElementById("editSexo").value = emp.sexo || "";
   document.getElementById("editTipoPersonal").value =
@@ -301,9 +304,16 @@ async function abrirModalEditar(cedula) {
   document.getElementById("editBomberoIntegral").checked =
     emp.es_bombero_integral == 1;
   document.getElementById("editContrato").value = emp.tipo_de_contrato || "";
-  document.getElementById("editFechaInicioContrato").value = emp.fecha_inicio_contrato || "";
-  document.getElementById("editFechaFinContrato").value = emp.fecha_fin_contrato || "";
-  actualizarVisibilidadFechasContrato("editContrato", "editFechasContrato", "editCampoFechaFin", "editFechaFinContrato");
+  document.getElementById("editFechaInicioContrato").value =
+    emp.fecha_inicio_contrato || "";
+  document.getElementById("editFechaFinContrato").value =
+    emp.fecha_fin_contrato || "";
+  actualizarVisibilidadFechasContrato(
+    "editContrato",
+    "editFechasContrato",
+    "editCampoFechaFin",
+    "editFechaFinContrato",
+  );
   document.getElementById("editEstado").value = emp.estado;
   document.getElementById("editCelular").value = emp.celular || "";
   document.getElementById("editCorreo").value = emp.correo || "";
@@ -325,7 +335,20 @@ async function abrirModalEditar(cedula) {
   document.getElementById("modalEditar").classList.remove("hidden");
 }
 
-function actualizarVisibilidadFechasContrato(selectId, contenedorId, campoFinId, inputFinId) {
+const editCedula = document.getElementById("editCedula");
+
+if (editCedula) {
+  editCedula.addEventListener("input", () => {
+    editCedula.value = formatearCedula(editCedula.value);
+  });
+}
+
+function actualizarVisibilidadFechasContrato(
+  selectId,
+  contenedorId,
+  campoFinId,
+  inputFinId,
+) {
   const select = document.getElementById(selectId);
   const contenedor = document.getElementById(contenedorId);
   const campoFin = document.getElementById(campoFinId);
@@ -334,7 +357,14 @@ function actualizarVisibilidadFechasContrato(selectId, contenedorId, campoFinId,
 
   const contrato = select.value;
   const conFin = ["Fijo", "OPS", "SENA", "OPS SEMY"].includes(contrato);
-  const conInicio = ["Fijo", "Indefinido", "OPS", "SENA", "OPS SEMY", "No aplica"].includes(contrato);
+  const conInicio = [
+    "Fijo",
+    "Indefinido",
+    "OPS",
+    "SENA",
+    "OPS SEMY",
+    "No aplica",
+  ].includes(contrato);
 
   contenedor.classList.toggle("hidden", !conInicio);
   campoFin.classList.toggle("hidden", !conFin);
@@ -344,15 +374,30 @@ function actualizarVisibilidadFechasContrato(selectId, contenedorId, campoFinId,
 const tipoContratoCrear = document.getElementById("tipoContrato");
 if (tipoContratoCrear) {
   tipoContratoCrear.addEventListener("change", () =>
-    actualizarVisibilidadFechasContrato("tipoContrato", "fechasContrato", "campoFechaFin", "fechaFinContrato")
+    actualizarVisibilidadFechasContrato(
+      "tipoContrato",
+      "fechasContrato",
+      "campoFechaFin",
+      "fechaFinContrato",
+    ),
   );
-  actualizarVisibilidadFechasContrato("tipoContrato", "fechasContrato", "campoFechaFin", "fechaFinContrato");
+  actualizarVisibilidadFechasContrato(
+    "tipoContrato",
+    "fechasContrato",
+    "campoFechaFin",
+    "fechaFinContrato",
+  );
 }
 
 const tipoContratoEditar = document.getElementById("editContrato");
 if (tipoContratoEditar) {
   tipoContratoEditar.addEventListener("change", () =>
-    actualizarVisibilidadFechasContrato("editContrato", "editFechasContrato", "editCampoFechaFin", "editFechaFinContrato")
+    actualizarVisibilidadFechasContrato(
+      "editContrato",
+      "editFechasContrato",
+      "editCampoFechaFin",
+      "editFechaFinContrato",
+    ),
   );
 }
 
@@ -362,7 +407,19 @@ document.getElementById("formEditar").addEventListener("submit", async (e) => {
   const erroresEditar = document.getElementById("erroresEditar");
   erroresEditar.classList.add("hidden");
 
-  const formData = new FormData(formEditar);
+  const cedulaEditar = document.getElementById("editCedula");
+const cedulaEditarSinPuntos = cedulaEditar.value.replace(/\./g, "");
+
+if (!/^\d{5,10}$/.test(cedulaEditarSinPuntos)) {
+  erroresEditar.innerHTML =
+    "La cédula debe contener entre 5 y 10 dígitos.";
+  erroresEditar.classList.remove("hidden");
+  return;
+}
+
+cedulaEditar.value = cedulaEditarSinPuntos;
+
+const formData = new FormData(formEditar);
 
   try {
     const res = await fetch("./api/empleados_actualizar.php", {
