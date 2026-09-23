@@ -145,7 +145,7 @@ $csrf = csrfToken();
                             <button type="button" onclick="abrirModalRenovacion()"
                                 class="w-9 h-9 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-500 flex items-center justify-center transition"
                                 title="Abrir renovaciones">
-                                <?= icon('more-vertical', 'w-5 h-5') ?>
+                                <?= icon('clipboard-list', 'w-5 h-5') ?>
                             </button>
                         </div>
                     </div>
@@ -230,7 +230,7 @@ $csrf = csrfToken();
             <a href="./formatos_otrosi.php"
                 class="w-9 h-9 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-500 flex items-center justify-center transition"
                 title="Abrir Otro Sí">
-                <?= icon('more-vertical', 'w-5 h-5') ?>
+                <?= icon('clipboard-list', 'w-5 h-5') ?>
             </a>
 
         </div> 
