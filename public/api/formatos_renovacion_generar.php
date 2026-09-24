@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../src/models/FormatoModel.php';
 require_once __DIR__ . '/../../src/models/EmpleadoModel.php';
 
-date_default_timezone_set('America/Bogota');
+
 
 header('Content-Type: application/json; charset=utf-8');
 requireSuperAdmin();
@@ -318,9 +318,9 @@ try {
         );
     }
 
-    $plantilla = __DIR__ . '/../../uploads/plantillas/RH-02-0000-RENOVACION.docx';
+    $plantilla = __DIR__ . '/../../uploads/plantillas/GH-FT-0000-RENOVACION.docx';
     if (!is_file($plantilla)) {
-        throw new RuntimeException('No se encontró la plantilla RH-02-0000-RENOVACION.docx en uploads/plantillas/.');
+        throw new RuntimeException('No se encontró la plantilla GH-FT-0000-RENOVACION.docx en uploads/plantillas/.');
     }
 
     $generados = __DIR__ . '/../../uploads/generados';

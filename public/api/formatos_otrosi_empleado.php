@@ -13,24 +13,52 @@ if (!in_array($_SESSION['superadmin_rol'] ?? '', $rolesFormatos, true)) {
     exit;
 }
 
-$cedula = preg_replace('/\D+/', '', trim($_GET['cedula'] ?? ''));
-
-if ($cedula === '') {
-    echo json_encode(['ok' => true, 'empleado' => null], JSON_UNESCAPED_UNICODE);
+$q = trim((string)($_GET['q'] ?? ''));
+$qRespuesta = $q;
+if ($q === '') {
+    echo json_encode(['ok' => true, 'q' => $qRespuesta, 'empleados' => []], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-$empleado = EmpleadoModel::obtenerPorCedula($cedula);
+$pdo = getPDO();
 
-if (!$empleado) {
-    echo json_encode(['ok' => false, 'error' => 'No se encontró un empleado con esa cédula.'], JSON_UNESCAPED_UNICODE);
+// La búsqueda por cédula solo debe agregarse cuando realmente hay dígitos.
+// Antes, una búsqueda como "usu" producía LIKE '%%' y terminaba devolviendo
+// empleados que no tenían ninguna relación con el texto buscado.
+$cedulaQ = preg_replace('/\D+/', '', $q);
+$likeNombre = '%' . $q . '%';
+
+$where = ['nombre LIKE :nombre'];
+$params = ['nombre' => $likeNombre];
+
+if ($cedulaQ !== '') {
+    $where[] = 'cedula LIKE :cedula';
+    $params['cedula'] = '%' . $cedulaQ . '%';
+}
+
+$sql = 'SELECT cedula, nombre FROM empleados WHERE ' . implode(' OR ', $where) . ' ORDER BY nombre ASC LIMIT 12';
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$empleados = $stmt->fetchAll();
+
+$empleados = array_map(static fn($e) => [
+    'cedula' => (string)$e['cedula'],
+    'nombre' => (string)$e['nombre'],
+], $empleados);
+
+if (!$empleados) {
+    echo json_encode([
+        'ok' => true,
+        'q' => $qRespuesta,
+        'empleados' => [],
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
+// La respuesta siempre usa "empleados", incluso cuando solo hay una coincidencia.
+// Esto mantiene un único contrato entre PHP y JavaScript.
 echo json_encode([
     'ok' => true,
-    'empleado' => [
-        'cedula' => (string)$empleado['cedula'],
-        'nombre' => (string)$empleado['nombre'],
-    ],
+    'q' => $qRespuesta,
+    'empleados' => $empleados,
 ], JSON_UNESCAPED_UNICODE);

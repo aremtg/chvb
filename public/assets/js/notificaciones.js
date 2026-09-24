@@ -64,7 +64,7 @@ function formatearMensajeNotificacion(mensaje) {
 
 function etiquetaEnlaceNotificacion(enlace) {
     if (!enlace) return '';
-    if (enlace.includes('permiso_ver.php')) return 'Ver permiso';
+    if (enlace.includes('permiso_ver.php') || enlace.includes('permisos_th.php')) return 'Ver permiso';
     if (enlace.includes('documentos_ver.php')) return 'Ver PDF';
     if (enlace.includes('libro.php')) return 'Ver bolsillo';
     return 'Ver empleado';
@@ -157,9 +157,14 @@ function pintarEstadoLeido(id, leida) {
     }
 }
 
+function obtenerCsrfToken() {
+    return document.querySelector('input[name="csrf_token"]')?.value || '';
+}
+
 async function marcarLeidaEnServidor(id, leida) {
     const formData = new FormData();
     formData.append('id', id);
+    formData.append('csrf_token', obtenerCsrfToken());
     formData.append('leida', leida ? '1' : '0');
     await fetch('./api/notificaciones_marcar.php', { method: 'POST', body: formData, keepalive: true });
     if (window.actualizarBadgeSidebar) window.actualizarBadgeSidebar();
@@ -192,6 +197,7 @@ function toggleLeida(id) {
 async function eliminarNotificacion(id) {
     const formData = new FormData();
     formData.append('id', id);
+    formData.append('csrf_token', obtenerCsrfToken());
 
     const res = await fetch('./api/notificaciones_eliminar.php', { method: 'POST', body: formData });
     const data = await res.json();
@@ -206,7 +212,9 @@ async function eliminarNotificacion(id) {
 async function eliminarTodasNotificaciones() {
     if (!confirm('¿Eliminar todas las notificaciones? Esta acción no se puede deshacer.')) return;
 
-    const res = await fetch('./api/notificaciones_eliminar_todas.php', { method: 'POST' });
+    const formData = new FormData();
+    formData.append('csrf_token', obtenerCsrfToken());
+    const res = await fetch('./api/notificaciones_eliminar_todas.php', { method: 'POST', body: formData });
     const data = await res.json();
 
     if (data.ok) {

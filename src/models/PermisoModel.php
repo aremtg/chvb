@@ -263,6 +263,9 @@ class PermisoModel {
                 $i++;
             }
         }
+        if (!empty($filtros['permiso_id'])) {
+            $sql .= " AND p.id = :b{$i}"; $params["b{$i}"] = (int)$filtros['permiso_id']; $i++;
+        }
         if (!empty($filtros['fecha_desde'])) {
             $sql .= " AND DATE(fecha_solicitud) >= :b{$i}";
             $params["b{$i}"] = $filtros['fecha_desde'];

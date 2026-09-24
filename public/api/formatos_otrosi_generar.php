@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-date_default_timezone_set('America/Bogota');
+
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../src/models/FormatoModel.php';
 require_once __DIR__ . '/../../src/models/EmpleadoModel.php';

@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
 
-date_default_timezone_set('America/Bogota');
 
 require_once __DIR__ . '/../includes/session.php';
 requireSuperAdmin();
@@ -146,20 +145,20 @@ if (is_dir($generadosDir)) {
                     </span>
                     <div>
                         <h2 class="font-bold text-gray-800">Generar Otrosí</h2>
-                        <p class="text-xs text-gray-400">Busca al empleado por cédula. Los datos se cargan automáticamente.</p>
+                        <p class="text-xs text-gray-400">Busca al empleado por nombre o cédula. Los datos se cargan automáticamente.</p>
                     </div>
                 </div>
             </div>
 
             <div class="p-4 sm:p-5 lg:p-6 space-y-5">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Cédula del empleado</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Buscar empleado</label>
                     <div class="flex flex-col sm:flex-row gap-2">
                         <input id="otrosiCedulaBuscar"
                             type="text"
                             inputmode="numeric"
                             autocomplete="off"
-                            placeholder="Escribe la cédula..."
+                            placeholder="Escribe nombre o cédula..."
                             class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
                         <button id="btnBuscarOtrosi"
                             type="button"
@@ -168,7 +167,7 @@ if (is_dir($generadosDir)) {
                             <?= icon('search','w-4 h-4') ?> Buscar
                         </button>
                     </div>
-                    <p class="text-[11px] text-gray-400 mt-1.5">La cédula se normaliza automáticamente quitando puntos.</p>
+                    <p class="text-[11px] text-gray-400 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p>
                 </div>
 
                 <div id="otrosiError" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm p-3"></div>
@@ -287,50 +286,99 @@ function normalizarCedula(value) {
     return String(value ?? '').replace(/\D/g, '');
 }
 
+let busquedaOtrosiTimer = null;
+let otrosiController = null;
+let otrosiBusquedaVersion = 0;
+
 async function buscarEmpleadoOtrosi() {
     const input = document.getElementById('otrosiCedulaBuscar');
-    const cedula = normalizarCedula(input.value);
+    const q = input.value.trim();
+    const version = ++otrosiBusquedaVersion;
 
+    if (otrosiController) otrosiController.abort();
     mostrarErrorOtrosi('');
+    empleadoOtrosi = null;
     document.getElementById('otrosiEmpleado').classList.add('hidden');
 
-    if (!cedula) {
-        mostrarErrorOtrosi('Escribe la cédula del empleado.');
+    if (q.length < 2) {
         return;
     }
 
     const btn = document.getElementById('btnBuscarOtrosi');
     btn.disabled = true;
-    btn.textContent = 'Buscando...';
+    btn.innerHTML = <?= json_encode(icon('loader-2','w-4 h-4 animate-spin')) ?> + ' Buscando...';
+
+    const controller = new AbortController();
+    otrosiController = controller;
 
     try {
-        const r = await fetch('./api/formatos_otrosi_empleado.php?cedula=' + encodeURIComponent(cedula), {
-            headers: { 'Accept': 'application/json' }
+        const r = await fetch('./api/formatos_otrosi_empleado.php?q=' + encodeURIComponent(q), {
+            headers: {'Accept':'application/json'},
+            cache: 'no-store',
+            signal: controller.signal
         });
         const data = await r.json();
 
-        if (!data.ok) {
-            throw new Error(data.error || 'No se encontró el empleado.');
+        // Una respuesta vieja jamás puede pintar/seleccionar un empleado.
+        const qActual = document.getElementById('otrosiCedulaBuscar').value.trim();
+        if (version !== otrosiBusquedaVersion || qActual !== q || data.q !== q) return;
+
+        if (!r.ok || !data.ok) {
+            throw new Error(data.error || 'No se encontraron empleados.');
         }
 
-        empleadoOtrosi = data.empleado;
-
-        const hoy = new Date();
-        document.getElementById('otrosiNombre').textContent = empleadoOtrosi.nombre;
-        document.getElementById('otrosiCedula').textContent = empleadoOtrosi.cedula;
-        document.getElementById('otrosiDia').textContent = hoy.toLocaleDateString('es-CO', { day: 'numeric' });
-        document.getElementById('otrosiMes').textContent = hoy.toLocaleDateString('es-CO', { month: 'long' });
-        document.getElementById('otrosiAnio').textContent = hoy.toLocaleDateString('es-CO', { year: 'numeric' });
-        document.getElementById('otrosiEmpleado').classList.remove('hidden');
-
+        const empleados = Array.isArray(data.empleados) ? data.empleados : [];
+        if (empleados.length === 0) {
+            mostrarErrorOtrosi('No se encontraron empleados que coincidan con esa búsqueda.');
+        } else if (empleados.length === 1) {
+            seleccionarEmpleadoOtrosi(empleados[0]);
+        } else {
+            mostrarResultadosOtrosi(empleados);
+        }
     } catch (e) {
+        if (e.name === 'AbortError') return;
+        if (version !== otrosiBusquedaVersion) return;
         empleadoOtrosi = null;
+        document.getElementById('otrosiEmpleado').classList.add('hidden');
         mostrarErrorOtrosi(e.message || 'No se pudo buscar el empleado.');
     } finally {
-        btn.disabled = false;
-        btn.innerHTML = <?= json_encode(icon('search','w-4 h-4')) ?> + ' Buscar';
+        if (version === otrosiBusquedaVersion) {
+            btn.disabled = false;
+            btn.innerHTML = <?= json_encode(icon('search','w-4 h-4')) ?> + ' Buscar';
+        }
     }
 }
+
+function mostrarResultadosOtrosi(empleados) {
+    const box = document.getElementById('otrosiError');
+    box.innerHTML = '<div class="text-xs text-gray-500 mb-2">Selecciona el empleado encontrado:</div>' +
+        empleados.map(emp => `<button type="button" class="w-full text-left p-3 mb-1 rounded-xl border border-red-100 bg-white hover:bg-red-50 transition" onclick='seleccionarEmpleadoOtrosi(${JSON.stringify(emp)})'><div class="font-medium text-gray-800">${escapeHtml(emp.nombre)}</div><div class="text-xs text-gray-500">CC. ${escapeHtml(emp.cedula)}</div></button>`).join('');
+    box.classList.remove('hidden');
+}
+
+function seleccionarEmpleadoOtrosi(emp) {
+    // Solo se permite seleccionar una respuesta que realmente corresponde a la búsqueda actual.
+    const q = document.getElementById('otrosiCedulaBuscar').value.trim().toLocaleLowerCase();
+    const nombre = String(emp.nombre ?? '').toLocaleLowerCase();
+    const cedula = String(emp.cedula ?? '').toLocaleLowerCase();
+    if (!nombre.includes(q) && !cedula.includes(q)) {
+        empleadoOtrosi = null;
+        document.getElementById('otrosiEmpleado').classList.add('hidden');
+        mostrarErrorOtrosi('El empleado seleccionado no coincide con la búsqueda actual.');
+        return;
+    }
+
+    empleadoOtrosi = emp;
+    const box=document.getElementById('otrosiError'); box.classList.add('hidden'); box.innerHTML='';
+    document.getElementById('otrosiNombre').textContent=emp.nombre;
+    document.getElementById('otrosiCedula').textContent=emp.cedula;
+    const hoy=new Date();
+    document.getElementById('otrosiDia').textContent=hoy.toLocaleDateString('es-CO',{day:'numeric'});
+    document.getElementById('otrosiMes').textContent=hoy.toLocaleDateString('es-CO',{month:'long'});
+    document.getElementById('otrosiAnio').textContent=hoy.toLocaleDateString('es-CO',{year:'numeric'});
+    document.getElementById('otrosiEmpleado').classList.remove('hidden');
+}
+
 
 async function generarOtrosi() {
     if (!empleadoOtrosi) {
@@ -378,12 +426,18 @@ function limpiarOtrosi() {
     document.getElementById('otrosiCedulaBuscar').focus();
 }
 
-document.getElementById('otrosiCedulaBuscar').addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        buscarEmpleadoOtrosi();
-    }
+document.getElementById('otrosiCedulaBuscar').addEventListener('input', e => {
+    clearTimeout(busquedaOtrosiTimer);
+    otrosiBusquedaVersion++;
+    if (otrosiController) otrosiController.abort();
+    empleadoOtrosi = null;
+    document.getElementById('otrosiEmpleado').classList.add('hidden');
+    document.getElementById('otrosiError').classList.add('hidden');
+    const q=e.target.value.trim();
+    if(q.length<2) return;
+    busquedaOtrosiTimer=setTimeout(()=>buscarEmpleadoOtrosi(),350);
 });
+document.getElementById('otrosiCedulaBuscar').addEventListener('keydown', e => { if(e.key==='Enter'){e.preventDefault(); clearTimeout(busquedaOtrosiTimer); buscarEmpleadoOtrosi();} });
 
 async function eliminarOtrosi(archivo) {
     if (!confirm('¿Eliminar este Otrosí generado?')) return;

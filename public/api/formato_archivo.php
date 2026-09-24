@@ -67,7 +67,12 @@ $esOtrosiNuevo = preg_match(
     $archivo
 );
 
-if (!$esRenovacion && !$esOtrosiAnterior && !$esOtrosiNuevo) {
+$esOtrosiCambioSalario = preg_match(
+    '/^GH-FT-25 OTROSI CAMBIO DE SALARIO [^\/\\\\]+\.docx$/iu',
+    $archivo
+);
+
+if (!$esRenovacion && !$esOtrosiAnterior && !$esOtrosiNuevo && !$esOtrosiCambioSalario) {
     http_response_code(400);
     exit('Archivo no válido.');
 }

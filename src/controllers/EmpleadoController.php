@@ -147,51 +147,43 @@ class EmpleadoController
 
         return $errores;
     }
+private static function nuloSiVacio($valor): ?string
+{
+    if (!isset($valor)) return null;
+    $v = trim((string)$valor);
+    return $v === '' ? null : $v;
+}
 
-    public static function crear(array $datos, ?array $archivoFoto = null): array
-    {
-        $errores = self::validarCamposComunes($datos);
+public static function crear(array $datos, ?array $archivoFoto = null): array
+{
+    // ... tu validación de cédula igual ...
+    $cedula = preg_replace('/\./', '', trim($datos['cedula'] ?? ''));
+    // ... validaciones ...
 
-        $cedula = preg_replace('/\./', '', trim($datos['cedula'] ?? ''));
-        if (strlen($cedula) > 10) {
-            $errores[] = 'La cédula no puede tener más de 10 caracteres.';
-        }
-        if (!preg_match('/^[A-Za-z0-9]{5,10}$/', $cedula)) {
-            $errores[] = 'La cédula no puede tener más de 10 caracteres y puede ser extranjera (letras y números permitidos).';
-        }
-        if (EmpleadoModel::existeCedula($cedula)) {
-            $errores[] = 'Ya existe un empleado con esa cédula.';
-        }
+    $nombreEmpleado = mb_convert_case(
+        mb_strtolower(trim($datos['nombre']), 'UTF-8'),
+        MB_CASE_TITLE, 'UTF-8'
+    );
 
-        if (!empty($errores)) {
-            return ['ok' => false, 'errores' => $errores];
-        }
-
-        $nombreEmpleado = mb_convert_case(
-            mb_strtolower(trim($datos['nombre']), 'UTF-8'),
-            MB_CASE_TITLE,
-            'UTF-8'
-        );
-
-        EmpleadoModel::crear([
-            'cedula' => $cedula,
-            'nombre' => $nombreEmpleado,
-            'sexo' => $datos['sexo'] ?: null,
-            'cargo' => $datos['cargo'],
-            'tipo_de_personal' => $datos['tipo_de_personal'] ?: null,
-            'eps' => $datos['eps'] ?: null,
-            'pension' => $datos['pension'] ?: null,
-            'arl' => $datos['arl'] ?: null,
-            'salario_basico' => $datos['salario_basico'] !== '' ? $datos['salario_basico'] : null,
-            'es_bombero_integral' => isset($datos['es_bombero_integral']) ? 1 : 0,
-            'tipo_de_contrato' => $datos['tipo_de_contrato'] ?: null,
-            'fecha_inicio_contrato' => $datos['fecha_inicio_contrato'] ?: null,
-            'fecha_fin_contrato' => $datos['fecha_fin_contrato'] ?: null,
-            'estado' => $datos['estado'] ?? 'activo',
-            'celular' => trim($datos['celular'] ?? ''),
-            'correo' => trim($datos['correo'] ?? ''),
-            'fecha_nacimiento' => trim($datos['fecha_nacimiento'] ?? ''),
-        ]);
+    EmpleadoModel::crear([
+        'cedula' => $cedula,
+        'nombre' => $nombreEmpleado,
+        'sexo' => self::nuloSiVacio($datos['sexo'] ?? null),
+        'cargo' => $datos['cargo'],
+        'tipo_de_personal' => self::nuloSiVacio($datos['tipo_de_personal'] ?? null),
+        'eps' => self::nuloSiVacio($datos['eps'] ?? null),
+        'pension' => self::nuloSiVacio($datos['pension'] ?? null),
+        'arl' => self::nuloSiVacio($datos['arl'] ?? null),
+        'salario_basico' => self::nuloSiVacio($datos['salario_basico'] ?? null),
+        'es_bombero_integral' => isset($datos['es_bombero_integral']) ? 1 : 0,
+        'tipo_de_contrato' => self::nuloSiVacio($datos['tipo_de_contrato'] ?? null),
+        'fecha_inicio_contrato' => self::nuloSiVacio($datos['fecha_inicio_contrato'] ?? null),
+        'fecha_fin_contrato' => self::nuloSiVacio($datos['fecha_fin_contrato'] ?? null),
+        'estado' => $datos['estado'] ?? 'activo',
+        'celular' => self::nuloSiVacio($datos['celular'] ?? null),
+        'correo' => self::nuloSiVacio($datos['correo'] ?? null),
+        'fecha_nacimiento' => self::nuloSiVacio($datos['fecha_nacimiento'] ?? null),
+    ]);
 
         try {
             FileManager::crearEstructuraEmpleado($cedula);

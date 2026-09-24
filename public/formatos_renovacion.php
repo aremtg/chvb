@@ -14,345 +14,43 @@ $csrf = csrfToken();
 ?>
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHVB - Formatos</title>
-    <link rel="stylesheet" href="./assets/css/tailwind.css">
-    <style>
-        /* Las acciones de los archivos nunca deben quedar recortadas. */
-        .formato-renovaciones-card,
-        .formato-generados-list,
-        .formato-generado {
-            overflow: visible !important;
-        }
-
-        .formato-generado {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
-            position: relative;
-        }
-
-        .formato-generado-contenido {
-            min-width: 0;
-            flex: 1 1 240px;
-        }
-
-        /* Solo las acciones de los archivos: se adaptan al ancho disponible. */
-        .formato-generado-acciones {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
-            width: 100%;
-            min-width: 0;
-            position: relative;
-            z-index: 10;
-        }
-
-        .formato-generado-acciones a,
-        .formato-generado-acciones button {
-            width: 100%;
-            min-width: 0;
-            justify-content: center;
-            position: relative;
-            z-index: 10;
-            white-space: nowrap;
-        }
-
-        .formato-generado-acciones .btn-eliminar-formato {
-            grid-column: 1 / -1;
-        }
-
-        @media (min-width: 641px) {
-            .formato-generado-acciones {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        @media (max-width: 380px) {
-            .formato-generado-acciones {
-                grid-template-columns: 1fr;
-            }
-
-            .formato-generado-acciones .btn-eliminar-formato {
-                grid-column: auto;
-            }
-        }
-
-        .ren-alerta {
-            border: 1px solid #fecaca;
-            background: #fef2f2;
-            color: #b91c1c;
-        }
-
-        .ren-resumen-superior {
-            border: 1px solid #f3f4f6;
-            background: #f9fafb;
-        }
-
-        .ren-row {
-            overflow: visible;
-            border: 1px solid #f3f4f6;
-            background: #fff;
-        }
-
-        .ren-row:hover {
-            background: #f9fafb;
-            border-color: #e5e7eb;
-        }
-
-        .ren-row-error {
-            border-color: #fecaca !important;
-            background: #fffafa;
-        }
-
-        .ren-field-readonly {
-            background: #f9fafb;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHVB - Renovación de Contrato</title>
+<link rel="stylesheet" href="./assets/css/tailwind.css">
+<style>
+.ren-alerta{border:1px solid #fecaca;background:#fef2f2;color:#b91c1c}.ren-resumen-superior{border:1px solid #f3f4f6;background:#f9fafb}.ren-row{overflow:visible;border:1px solid #f3f4f6;background:#fff}.ren-row:hover{background:#f9fafb;border-color:#e5e7eb}.ren-row-error{border-color:#fecaca!important;background:#fffafa}.ren-field-readonly{background:#f9fafb}.ren-resultados{position:relative;z-index:20}.formato-generado{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.formato-generado-contenido{min-width:0;flex:1 1 240px}.formato-generado-acciones{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}.formato-generado-acciones a,.formato-generado-acciones button{white-space:nowrap}@media(max-width:640px){.formato-generado-acciones{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.formato-generado-acciones .btn-eliminar-formato{grid-column:1/-1}}@media(max-width:380px){.formato-generado-acciones{grid-template-columns:1fr}.formato-generado-acciones .btn-eliminar-formato{grid-column:auto}}
+</style>
 </head>
-
 <body class="bg-gray-50 min-h-screen text-gray-800">
-    <?php require __DIR__ . '/../includes/sidebar.php'; ?>
-
-    <div class="md:ml-64 pt-14 md:pt-0">
-        <header class="bg-white border-b border-gray-100 px-4 sm:px-6 py-4">
-            <div class="flex items-center gap-3"><span
-                    class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center"><?= icon('file-text', 'w-5 h-5') ?></span>
-                <div>
-                    <h1 class="text-base font-bold text-gray-800">Formatos</h1>
-                    <p class="text-xs text-gray-400">Gestión de formatos y renovaciones</p>
-                </div>
-            </div>
-        </header>
-
-        <main class="p-4 sm:p-6 max-w-7xl mx-auto space-y-5">
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <section
-                    class="formato-renovaciones-card bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
-                    <div class="p-5 border-b border-gray-100">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="flex items-center gap-3">
-
-                                <div>
-                                    <h2 class="font-bold text-gray-800">Renovaciones</h2>
-                                    <p class="text-xs text-gray-400">Renovación de contrato</p>
-                                </div>
-                            </div>
-                            <button type="button" onclick="abrirModalRenovacion()"
-                                class="w-9 h-9 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-500 flex items-center justify-center transition"
-                                title="Abrir renovaciones">
-                                <?= icon('clipboard-list', 'w-5 h-5') ?>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <div class="rounded-xl border border-gray-100 bg-gray-50/70 p-3">
-                            <p class="text-sm font-semibold text-gray-700 truncate">AF-FT-02 · Renovación de Contrato
-                            </p>
-                            <p class="text-xs text-gray-400">Plantilla oficial</p>
-                        </div>
-
-                        <?php if ($generados): ?>
-                            <div class="formato-generados-list mt-4 space-y-2">
-                                <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Generados</p>
-                                <?php foreach ($generados as $g): ?>
-                                    <div
-                                        class="formato-generado border border-gray-100 rounded-xl p-3 hover:bg-gray-50/70 transition">
-                                        <div class="formato-generado-contenido">
-                                            <p class="text-sm font-medium text-gray-700 break-words"
-                                                title="<?= htmlspecialchars($g['archivo']) ?>">
-                                                <?= htmlspecialchars($g['archivo']) ?>
-                                            </p>
-                                            <p class="text-xs text-gray-400 mt-1"><?= date('d/m/Y H:i', $g['fecha']) ?></p>
-                                        </div>
-                                        <div class="formato-generado-acciones">
-                                            <a href="./api/formato_archivo.php?f=<?= rawurlencode($g['archivo']) ?>&accion=ver"
-                                                target="_blank" rel="noopener"
-                                                class="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 rounded-lg transition">
-                                                <?= icon('eye', 'w-4 h-4') ?> Ver
-                                            </a>
-                                            <a href="./api/formato_archivo.php?f=<?= rawurlencode($g['archivo']) ?>&accion=descargar"
-                                                class="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 rounded-lg transition">
-                                                <?= icon('download', 'w-4 h-4') ?> Descargar
-                                            </a>
-                                            <button type="button"
-                                                onclick="eliminarFormato(<?= htmlspecialchars(json_encode($g['archivo'], JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT)) ?>)"
-                                                class="btn-eliminar-formato inline-flex items-center gap-2 px-3 py-2 text-sm text-red-600 border border-red-200 hover:bg-red-50 rounded-lg transition">
-                                                <?= icon('trash-2', 'w-4 h-4') ?> Eliminar
-                                            </button>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php else: ?>
-                            <p class="mt-4 text-xs text-gray-400 text-center py-3">Todavía no hay renovaciones generadas.
-                            </p>
-                        <?php endif; ?>
-                    </div>
-                </section>
-
-                <?php foreach ([ 
-    ['Terminación de contrato', 'file-minus'], 
-    ['Requisición', 'clipboard-list'] 
-] as $card): ?>
-    <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible"> 
-        <div class="p-5"> 
-            <div class="flex items-center gap-3"> 
- 
-                <div> 
-                    <h2 class="font-bold text-gray-800"><?= htmlspecialchars($card[0]) ?></h2> 
-                    <p class="text-xs text-gray-400">Próximamente</p> 
-                </div> 
-            </div> 
-            <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3 text-xs text-gray-400">Aquí 
-                estarán los formatos de esta categoría.</div> 
-        </div> 
-    </section> 
-<?php endforeach; ?>
-
-
-<!-- OTRO SÍ -->
-<section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible"> 
-    <div class="p-5"> 
-        <div class="flex items-center justify-between gap-3"> 
-            
-            <div class="flex items-center gap-3"> 
-                <div> 
-                    <h2 class="font-bold text-gray-800">Otro Sí</h2> 
-                    <p class="text-xs text-gray-400">Modificación del contrato</p> 
-                </div> 
-            </div> 
-
-            <a href="./formatos_otrosi.php"
-                class="w-9 h-9 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-500 flex items-center justify-center transition"
-                title="Abrir Otro Sí">
-                <?= icon('clipboard-list', 'w-5 h-5') ?>
-            </a>
-
-        </div> 
-
-        <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3"> 
-            <p class="text-sm font-semibold text-gray-700 truncate">
-                GH-FT-24 · OTRO SÍ
-            </p> 
-            <p class="text-xs text-gray-400">
-                Modificación del contrato
-            </p> 
-        </div> 
-    </div> 
-</section>
-
-<!-- OTRO SÍ CAMBIO DE SALARIO -->
+<?php require __DIR__ . '/../includes/sidebar.php'; ?>
+<div class="md:ml-64 pt-14 md:pt-0">
+<header class="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 sticky top-0 z-30"><div class="flex items-center gap-3"><span class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center"><?= icon('file-signature','w-5 h-5') ?></span><div><h1 class="text-base font-bold text-gray-800">Renovación de Contrato</h1><p class="text-xs text-gray-400">AF-FT-02 · Gestión de renovaciones</p></div></div></header>
+<main class="p-3 sm:p-5 lg:p-6 max-w-5xl mx-auto space-y-5">
 <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
-    <div class="p-5">
-        <div class="flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-                <div>
-                    <h2 class="font-bold text-gray-800">Otro Sí cambio de salario</h2>
-                    <p class="text-xs text-gray-400">Modificación de remuneración</p>
-                </div>
-            </div>
-            <a href="./formatos_otrosi_salario.php"
-                class="w-9 h-9 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-500 flex items-center justify-center transition"
-                title="Abrir Otro Sí cambio de salario">
-                <?= icon('clipboard-list', 'w-5 h-5') ?>
-            </a>
-        </div>
-        <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
-            <p class="text-sm font-semibold text-gray-700 truncate">GH-FT-25 · OTRO SÍ CAMBIO DE SALARIO</p>
-            <p class="text-xs text-gray-400">Cambio de remuneración del contrato</p>
-        </div>
-    </div>
-</section>
-            </div>
-        </main>
-    </div>
+<div class="p-4 sm:p-5 lg:p-6 border-b border-gray-100"><div class="flex items-start gap-3"><span class="w-10 h-10 shrink-0 rounded-xl bg-red-50 text-red-600 flex items-center justify-center"><?= icon('file-signature','w-5 h-5') ?></span><div><h2 class="font-bold text-gray-800">Generar Renovación</h2><p class="text-xs text-gray-400">Busca al empleado por nombre o cédula y agrega las renovaciones.</p></div></div></div>
+<form id="formRenovacion" class="p-4 sm:p-5 lg:p-6 space-y-5">
+<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>"><input type="hidden" name="cedula" id="renCedula">
+<div><label class="block text-sm font-medium text-gray-700 mb-1">Buscar empleado</label><input id="renBuscar" type="text" autocomplete="off" placeholder="Escribe nombre o cédula..." class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition"><div id="renResultados" class="ren-resultados mt-2 space-y-1"></div><p class="text-[11px] text-gray-400 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p></div>
+<div id="renEmpleado" class="hidden rounded-xl bg-gray-50/70 border border-gray-100 p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
+<div id="renDatosFaltantes" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 p-4 text-sm"></div>
+<div id="renCampos" class="hidden space-y-4"><div class="rounded-xl border border-gray-100 bg-gray-50/70 p-4"><div class="text-xs text-gray-400">Fecha fin del contrato inicial</div><div id="renFinContrato" class="mt-1 text-base font-semibold text-gray-800">-</div></div><div id="renAlerta" class="hidden ren-alerta rounded-xl p-4 text-sm font-semibold"></div><div id="renAcumulado" class="ren-resumen-superior rounded-xl p-4 text-sm text-gray-700 bg-gray-50/70"></div><div><div class="flex items-center justify-between gap-3 mb-2"><div><p class="text-sm font-semibold text-gray-700">Historial de Renovaciones</p><p class="text-xs text-gray-400">Agrega una renovación y selecciona su duración.</p></div><button id="btnAgregarRen" type="button" onclick="agregarRenovacion()" class="shrink-0 inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition"><?= icon('plus','w-4 h-4') ?> Agregar Renovación</button></div><div id="renHistorial" class="space-y-3"></div><div id="renHistorialVacio" class="rounded-xl border border-dashed border-gray-200 bg-gray-50/40 text-center text-sm text-gray-400 py-8">Aún no has agregado renovaciones.</div></div></div>
+<div id="renError" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm p-3"></div><div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2"><a href="./formatos.php" class="inline-flex justify-center px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">Volver a Formatos</a><button id="btnGenerarRen" type="submit" disabled class="px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium opacity-50 cursor-not-allowed transition">Generar Word</button></div>
+</form></section>
+<section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible"><div class="p-4 sm:p-5 lg:p-6 border-b border-gray-100"><h2 class="font-bold text-gray-800">Generados</h2><p class="text-xs text-gray-400">Renovaciones generadas recientemente</p></div><div class="p-4 sm:p-5 lg:p-6">
+<?php if ($generados): ?>
+<div class="space-y-2">
+<?php foreach ($generados as $g): ?>
+<div class="formato-generado border border-gray-100 rounded-xl p-3 hover:bg-gray-50/70 transition"><div class="formato-generado-contenido"><p class="text-sm font-medium text-gray-700 break-words" title="<?= htmlspecialchars($g['archivo']) ?>"><?= htmlspecialchars($g['archivo']) ?></p><p class="text-xs text-gray-400 mt-1"><?= date('d/m/Y H:i', $g['fecha']) ?></p></div><div class="formato-generado-acciones"><a href="./api/formato_archivo.php?f=<?= rawurlencode($g['archivo']) ?>&accion=ver" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 rounded-lg transition"><?= icon('eye','w-4 h-4') ?> Ver</a><a href="./api/formato_archivo.php?f=<?= rawurlencode($g['archivo']) ?>&accion=descargar" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 rounded-lg transition"><?= icon('download','w-4 h-4') ?> Descargar</a><button type="button" onclick="eliminarFormato(<?= htmlspecialchars(json_encode($g['archivo'], JSON_UNESCAPED_UNICODE|JSON_HEX_APOS|JSON_HEX_QUOT)) ?>)" class="btn-eliminar-formato inline-flex items-center gap-2 px-3 py-2 text-sm text-red-600 border border-red-200 hover:bg-red-50 rounded-lg transition"><?= icon('trash-2','w-4 h-4') ?> Eliminar</button></div></div>
+<?php endforeach; ?>
+</div>
+<?php else: ?><p class="text-xs text-gray-400 text-center py-8">Todavía no hay renovaciones generadas.</p><?php endif; ?>
+</div></section>
+</main></div>
+<script>
+const csrfToken = <?= json_encode($csrf) ?>;
 
-    <div id="modalRenovacion" class="hidden fixed inset-0 z-50 bg-black/40 p-3 sm:p-6 items-center justify-center">
-        <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-3xl max-h-[94vh] overflow-y-auto">
-            <div
-                class="px-5 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-20">
-                <div>
-                    <h2 class="font-bold text-gray-800">Renovación de Contrato</h2>
-                    <p class="text-xs text-gray-400">Busca el empleado por cédula y agrega las renovaciones con +.</p>
-                </div>
-                <button type="button" onclick="cerrarModalRenovacion()"
-                    class="w-9 h-9 rounded-lg border border-gray-200 bg-white text-gray-400 hover:bg-gray-50 hover:text-gray-700 flex items-center justify-center transition">
-                    <?= icon('x', 'w-5 h-5') ?>
-                </button>
-            </div>
-
-            <form id="formRenovacion" class="p-5 space-y-5">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>">
-                <input type="hidden" name="cedula" id="renCedula">
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Cédula del empleado</label>
-                    <input id="renBuscar" type="text" inputmode="numeric" autocomplete="off"
-                        placeholder="Escribe la cédula..."
-                        class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
-                    <div id="renResultados" class="mt-2 space-y-1"></div>
-                </div>
-
-                <div id="renEmpleado"
-                    class="hidden rounded-xl bg-gray-50/70 border border-gray-100 p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                </div>
-                <div id="renDatosFaltantes"
-                    class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 p-4 text-sm"></div>
-
-                <div id="renCampos" class="hidden space-y-4">
-                    <div class="rounded-xl border border-gray-100 bg-gray-50/70 p-4">
-                        <div class="text-xs text-gray-400">Fecha fin del contrato inicial</div>
-                        <div id="renFinContrato" class="mt-1 text-base font-semibold text-gray-800">-</div>
-                    </div>
-
-                    <div id="renAlerta" class="hidden ren-alerta rounded-xl p-4 text-sm font-semibold"></div>
-
-                    <div id="renAcumulado"
-                        class="ren-resumen-superior rounded-xl p-4 text-sm text-gray-700 bg-gray-50/70"></div>
-
-                    <div>
-                        <div class="flex items-center justify-between gap-3 mb-2">
-                            <div>
-                                <p class="text-sm font-semibold text-gray-700">Historial de Renovaciones</p>
-                                <p class="text-xs text-gray-400">Agrega una renovación y solo selecciona su duración.
-                                </p>
-                            </div>
-                            <button id="btnAgregarRen" type="button" onclick="agregarRenovacion()"
-                                class="shrink-0 inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition">
-                                <?= icon('plus', 'w-4 h-4') ?> Agregar Renovación
-                            </button>
-                        </div>
-                        <div id="renHistorial" class="space-y-3"></div>
-                        <div id="renHistorialVacio"
-                            class="rounded-xl border border-dashed border-gray-200 bg-gray-50/40 text-center text-sm text-gray-400 py-8">
-                            Aún no has agregado renovaciones.
-                        </div>
-                    </div>
-                </div>
-
-                <div id="renError" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm p-3">
-                </div>
-
-                <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                    <button type="button" onclick="cerrarModalRenovacion()"
-                        class="px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                    <button id="btnGenerarRen" type="submit" disabled
-                        class="px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium opacity-50 cursor-not-allowed transition">
-                        Generar Word
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        const csrfToken = <?= json_encode($csrf) ?>;
         const opcionesDuracion = [
             { meses: 1, texto: '1 mes' },
             { meses: 2, texto: '2 meses' },
@@ -363,19 +61,6 @@ $csrf = csrfToken();
         ];
         let empleadoRen = null;
         let renovacionesRen = [];
-
-        function abrirModalRenovacion() {
-            const m = document.getElementById('modalRenovacion');
-            m.classList.remove('hidden');
-            m.classList.add('flex');
-            document.getElementById('renBuscar').focus();
-        }
-
-        function cerrarModalRenovacion() {
-            const m = document.getElementById('modalRenovacion');
-            m.classList.add('hidden');
-            m.classList.remove('flex');
-        }
 
         function escapeHtml(s) {
             return String(s ?? '').replace(/[&<>'"]/g, c => ({
@@ -748,36 +433,90 @@ $csrf = csrfToken();
             else if (valido) mostrarError('');
             return valido;
         }
+        let busquedaRenTimer = null;
+let renController = null;
+let renBusquedaVersion = 0;
 
-        async function buscarEmpleadoPorCedula(q) {
-            try {
-                const r = await fetch(`./api/formatos_renovacion_empleados.php?q=${encodeURIComponent(q)}`);
-                const data = await r.json();
-                if (!data.ok) throw new Error(data.error || 'No se pudo buscar el empleado.');
-                const empleados = (data.empleados || []).filter(emp => String(emp.cedula || '').includes(q));
-                document.getElementById('renResultados').innerHTML = empleados.map(emp => `
+async function buscarEmpleado(q) {
+    const resultados = document.getElementById('renResultados');
+    q = String(q ?? '').trim();
+    const version = ++renBusquedaVersion;
+
+    if (renController) renController.abort();
+    if (q.length < 2) {
+        resultados.innerHTML = '';
+        return;
+    }
+
+    resultados.innerHTML = '<div class="text-sm text-gray-400 p-3">Buscando...</div>';
+    const controller = new AbortController();
+    renController = controller;
+
+    try {
+        const r = await fetch(`./api/formatos_renovacion_empleados.php?q=${encodeURIComponent(q)}`, {
+            headers: { 'Accept': 'application/json' },
+            cache: 'no-store',
+            signal: controller.signal
+        });
+        const data = await r.json();
+
+        const qActual = document.getElementById('renBuscar').value.trim();
+        if (version !== renBusquedaVersion || qActual !== q || data.q !== q) return;
+
+        if (!r.ok || !data.ok) throw new Error(data.error || 'No se pudo buscar el empleado.');
+        const empleados = Array.isArray(data.empleados) ? data.empleados : [];
+
+        resultados.innerHTML = empleados.map(emp => `
             <button type="button" onclick='seleccionarEmpleado(${JSON.stringify(emp)})'
                 class="w-full text-left p-3 rounded-xl border border-gray-100 bg-white hover:bg-red-50 transition">
                 <div class="font-medium text-gray-800">${escapeHtml(emp.nombre)}</div>
                 <div class="text-xs text-gray-500">CC. ${escapeHtml(emp.cedula)} · ${escapeHtml(emp.cargo || 'Sin cargo')}</div>
             </button>
-        `).join('') || '<div class="text-sm text-gray-400 p-3">No se encontró esa cédula.</div>';
-            } catch (error) {
-                mostrarError(error.message);
-            }
-        }
+        `).join('') || '<div class="text-sm text-gray-400 p-3">No se encontraron empleados que coincidan con esa búsqueda.</div>';
+    } catch (error) {
+        if (error.name === 'AbortError') return;
+        if (version !== renBusquedaVersion) return;
+        resultados.innerHTML = '';
+        mostrarError(error.message);
+    }
+}
 
-        document.getElementById('renBuscar').addEventListener('input', e => {
-            const q = e.target.value.replace(/\D/g, '').trim();
-            e.target.value = q;
-            if (q.length < 3) {
-                document.getElementById('renResultados').innerHTML = '';
-                return;
-            }
-            buscarEmpleadoPorCedula(q);
-        });
+document.getElementById('renBuscar').addEventListener('input', e => {
+    clearTimeout(busquedaRenTimer);
+    renBusquedaVersion++;
+    if (renController) renController.abort();
+
+    const q = e.target.value.trim();
+    document.getElementById('renCedula').value = '';
+    empleadoRen = null;
+    renovacionesRen = [];
+    document.getElementById('renEmpleado').classList.add('hidden');
+    document.getElementById('renCampos').classList.add('hidden');
+    document.getElementById('renDatosFaltantes').classList.add('hidden');
+    document.getElementById('renHistorial').innerHTML = '';
+    document.getElementById('renHistorialVacio').classList.remove('hidden');
+    document.getElementById('renResultados').innerHTML = '';
+    mostrarError('');
+    setAlerta('');
+    validarFormulario();
+
+    if (q.length < 2) return;
+    busquedaRenTimer = setTimeout(() => buscarEmpleado(q), 350);
+});
+
 
         function seleccionarEmpleado(emp) {
+            const q = document.getElementById('renBuscar').value.trim().toLocaleLowerCase();
+            const nombre = String(emp.nombre ?? '').toLocaleLowerCase();
+            const cedula = String(emp.cedula ?? '').toLocaleLowerCase();
+            if (!nombre.includes(q) && !cedula.includes(q)) {
+                empleadoRen = null;
+                document.getElementById('renCedula').value = '';
+                document.getElementById('renEmpleado').classList.add('hidden');
+                mostrarError('El empleado seleccionado no coincide con la búsqueda actual.');
+                return;
+            }
+
             empleadoRen = emp;
             renovacionesRen = [];
             document.getElementById('renCedula').value = emp.cedula;
@@ -858,7 +597,5 @@ $csrf = csrfToken();
                 alert('No se pudo eliminar el archivo.');
             }
         }
-    </script>
-</body>
 
-</html>
+</script></body></html>

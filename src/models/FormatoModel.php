@@ -24,6 +24,27 @@ class FormatoModel
         return $resultado;
     }
 
+    public static function listarOtrosiSalarioGenerados(string $directorio): array
+    {
+        if (!is_dir($directorio)) return [];
+
+        $archivos = glob(rtrim($directorio, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'GH-FT-25 OTROSI CAMBIO DE SALARIO *.docx') ?: [];
+        $resultado = [];
+
+        foreach ($archivos as $archivo) {
+            if (!is_file($archivo)) continue;
+            $resultado[] = [
+                'archivo' => basename($archivo),
+                'ruta' => $archivo,
+                'tamano' => filesize($archivo),
+                'fecha' => filemtime($archivo) ?: time(),
+            ];
+        }
+
+        usort($resultado, static fn(array $a, array $b): int => $b['fecha'] <=> $a['fecha']);
+        return $resultado;
+    }
+
     public static function nombreSeguro(string $nombre): string
     {
         $nombre = strtoupper(trim($nombre));

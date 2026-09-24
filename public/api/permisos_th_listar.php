@@ -6,6 +6,7 @@ header('Content-Type: application/json');
 requireSuperAdmin();
 
 $filtros = [
+    'permiso_id' => (int)($_GET['id'] ?? 0),
     'fecha_desde' => $_GET['fecha_desde'] ?? '',
     'fecha_hasta' => $_GET['fecha_hasta'] ?? '',
     'cedula_jefe' => $_GET['cedula_jefe'] ?? '',

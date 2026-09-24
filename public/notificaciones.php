@@ -34,6 +34,7 @@ $notificaciones = NotificacionModel::listar();
         </header>
 
         <main class="p-6 max-w-3xl">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken()) ?>">
             <p class="text-xs text-gray-400 mb-4">Las notificaciones se eliminan automáticamente después de 3 meses.
                 Esta lista se actualiza sola.</p>
 
@@ -57,7 +58,7 @@ $notificaciones = NotificacionModel::listar();
                                             <a href="<?= htmlspecialchars($n['enlace']) ?>"
                                                 onclick="marcarLeidaPorEnlace(<?= $n['id'] ?>)"
                                                 class="text-red-600 hover:underline">
-                                                <?= str_contains($n['enlace'], 'permiso_ver.php') ? 'Ver permiso' : (str_contains($n['enlace'], 'documentos_ver.php') ? 'Ver PDF' : (str_contains($n['enlace'], 'libro.php') ? 'Ver bolsillo' : 'Ver empleado')) ?>
+                                                <?= (str_contains($n['enlace'], 'permiso_ver.php') || str_contains($n['enlace'], 'permisos_th.php')) ? 'Ver permiso' : (str_contains($n['enlace'], 'documentos_ver.php') ? 'Ver PDF' : (str_contains($n['enlace'], 'libro.php') ? 'Ver bolsillo' : 'Ver empleado')) ?>
                                             </a>
                                         <?php endif; ?>
                                     </p>

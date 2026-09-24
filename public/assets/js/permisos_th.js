@@ -18,7 +18,18 @@ function etiquetaEstadoTH(e) {
 
 let permisosEnMemoria = {};
 let cedulasEnLinea = new Set();
-let ultimaActualizacion = new Date().toISOString().slice(0,19).replace('T',' ');
+function fechaHoraLocal() {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
+
+let ultimaActualizacion = fechaHoraLocal();
 
 function pintarPermiso(p) {
     permisosEnMemoria[p.id] = p;
@@ -47,8 +58,11 @@ function pintarPermiso(p) {
     }
 }
 
+const permisoTHId = Number(new URLSearchParams(window.location.search).get('id') || 0);
+
 async function cargarInicial() {
     const params = construirParams();
+    if (permisoTHId > 0) params.set('id', String(permisoTHId));
     const res = await fetch(`./api/permisos_th_listar.php?${params}`);
     const data = await res.json();
     if (data.ok) {
@@ -81,6 +95,9 @@ async function actualizarPresencia() {
 }
 
 async function polling() {
+    // Si llegamos desde una notificación con ?id=123, la vista debe permanecer
+    // enfocada exclusivamente en ese permiso y no volver a poblar la lista completa.
+    if (permisoTHId > 0) return;
     const res = await fetch(`./api/permisos_th_actualizados.php?desde=${encodeURIComponent(ultimaActualizacion)}`);
     const data = await res.json();
     if (data.ok) {
