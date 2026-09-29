@@ -128,10 +128,10 @@ function render() {
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div class="w-full h-36 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center overflow-hidden">
-          ${p[campoFoto] ? `<img src="${imgUrl(campoFoto)}" class="w-full h-full object-cover">` : '<span class="text-xs text-gray-400">Sin foto</span>'}
+          ${p[campoFoto] ? `<img src="${imgUrl(campoFoto)}" class="w-full h-full object-cover">` : '<span class="text-xs text-gray-600">Sin foto</span>'}
         </div>
         <div class="w-full h-36 bg-white border border-gray-200 rounded-xl flex items-center justify-center p-3">
-          ${firmado ? `<img src="${imgUrl(campoFirma)}" class="w-full h-full object-contain">` : '<span class="text-xs text-gray-400">Firma pendiente</span>'}
+          ${firmado ? `<img src="${imgUrl(campoFirma)}" class="w-full h-full object-contain">` : '<span class="text-xs text-gray-600">Firma pendiente</span>'}
         </div>
       </div>
     </div>`;
@@ -141,7 +141,7 @@ function render() {
     const nuevo = String(h.estado_nuevo || '').toLowerCase();
     const cls = nuevo.includes('rechaz') ? 'border-red-300 bg-red-50' : nuevo.includes('devuelto') ? 'border-orange-300 bg-orange-50' : nuevo.includes('firm') || nuevo.includes('aprobado') ? 'border-green-300 bg-green-50' : nuevo.includes('anulado') ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50';
     return `<div class="border-l-4 ${cls} rounded-r-xl p-3">
-      <div class="flex flex-wrap items-center justify-between gap-2"><p class="text-sm font-semibold text-gray-800">${escaparV(h.actor_tipo)} · ${escaparV(h.actor_cedula_o_usuario)}</p><p class="text-[11px] text-gray-400">${h.created_at ? new Date(h.created_at.replace(' ','T')).toLocaleString('es-CO') : ''}</p></div>
+      <div class="flex flex-wrap items-center justify-between gap-2"><p class="text-sm font-semibold text-gray-800">${escaparV(h.actor_tipo)} · ${escaparV(h.actor_cedula_o_usuario)}</p><p class="text-[11px] text-gray-600">${h.created_at ? new Date(h.created_at.replace(' ','T')).toLocaleString('es-CO') : ''}</p></div>
       <p class="text-xs text-gray-600 mt-1"><strong>${escaparV(h.estado_anterior)}</strong> → <strong>${escaparV(h.estado_nuevo)}</strong></p>
       ${h.detalle ? `<p class="text-sm text-gray-700 mt-2 whitespace-pre-line">${escaparV(h.detalle)}</p>` : ''}
     </div>`;
@@ -150,44 +150,44 @@ function render() {
   contenedorPermiso.innerHTML = `
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-wrap justify-between gap-3 items-start">
-        <div><p class="text-xs font-bold uppercase tracking-wider text-gray-400">Permiso</p><h2 class="text-xl font-bold text-gray-900 mt-1">${escaparV(p.consecutivo)}</h2><p class="text-sm text-gray-500 mt-1">${escaparV(p.tipo_permiso)}</p></div>
+        <div><p class="text-xs font-bold uppercase tracking-wider text-gray-600">Permiso</p><h2 class="text-xl font-bold text-gray-900 mt-1">${escaparV(p.consecutivo)}</h2><p class="text-sm text-gray-500 mt-1">${escaparV(p.tipo_permiso)}</p></div>
         <span class="text-xs font-bold px-3 py-1.5 rounded-full ${claseEstado}">${textoEstado}</span>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
-        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase tracking-wider text-gray-400">Solicitante</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.nombre_empleado_snapshot)}</p></div>
-        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase tracking-wider text-gray-400">Cédula</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.cedula_empleado)}</p></div>
-        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase tracking-wider text-gray-400">Cargo</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.cargo_empleado_snapshot)}</p></div>
-        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase tracking-wider text-gray-400">Celular</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.celular_empleado_snapshot || '-')}</p></div>
+        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase tracking-wider text-gray-600">Solicitante</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.nombre_empleado_snapshot)}</p></div>
+        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase tracking-wider text-gray-600">Cédula</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.cedula_empleado)}</p></div>
+        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase tracking-wider text-gray-600">Cargo</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.cargo_empleado_snapshot)}</p></div>
+        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase tracking-wider text-gray-600">Celular</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.celular_empleado_snapshot || '-')}</p></div>
       </div>
     </div>
 
     ${alertas.join('')}
 
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
-      <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Motivo</p>
+      <p class="text-xs font-bold uppercase tracking-wider text-gray-600">Motivo</p>
       <p class="text-sm md:text-base text-gray-800 mt-2 whitespace-pre-line">${escaparV(p.motivo)}</p>
     </div>
 
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
-      <div class="flex items-center justify-between gap-3 mb-3"><div><p class="text-xs font-bold uppercase tracking-wider text-gray-400">Fechas, horas y total</p><p class="text-sm text-gray-500 mt-1">${fechaV(p.fecha_inicio)} ${p.hora_inicio?.substring(0,5) || ''} — ${p.fecha_fin ? fechaV(p.fecha_fin) : 'Pendiente'} ${p.hora_fin?.substring(0,5) || ''}</p></div><div class="text-right"><p class="text-[11px] uppercase tracking-wider text-gray-400">Total</p><p class="text-lg font-bold text-red-600">${horasV(p.total_horas)}</p></div></div>
-      <div class="divide-y divide-gray-100 border-t border-gray-100">${diasHtml || '<p class="text-sm text-gray-400 py-3">Sin desglose disponible.</p>'}</div>
+      <div class="flex items-center justify-between gap-3 mb-3"><div><p class="text-xs font-bold uppercase tracking-wider text-gray-600">Fechas, horas y total</p><p class="text-sm text-gray-500 mt-1">${fechaV(p.fecha_inicio)} ${p.hora_inicio?.substring(0,5) || ''} — ${p.fecha_fin ? fechaV(p.fecha_fin) : 'Pendiente'} ${p.hora_fin?.substring(0,5) || ''}</p></div><div class="text-right"><p class="text-[11px] uppercase tracking-wider text-gray-600">Total</p><p class="text-lg font-bold text-red-600">${horasV(p.total_horas)}</p></div></div>
+      <div class="divide-y divide-gray-100 border-t border-gray-100">${diasHtml || '<p class="text-sm text-gray-600 py-3">Sin desglose disponible.</p>'}</div>
       ${devolucionesHtml}
     </div>
 
     <div class="space-y-3">
-      <div><p class="text-xs font-bold uppercase tracking-wider text-gray-400">Firmas</p><p class="text-sm text-gray-500 mt-1">Aquí puedes ver quién ya firmó y qué firma sigue pendiente.</p></div>
+      <div><p class="text-xs font-bold uppercase tracking-wider text-gray-600">Firmas</p><p class="text-sm text-gray-500 mt-1">Aquí puedes ver quién ya firmó y qué firma sigue pendiente.</p></div>
       ${bloqueFirmante('Solicitante', p.nombre_empleado_snapshot, p.cedula_empleado, 'foto_solicitante', 'firma_solicitante')}
       ${bloqueFirmante('Reemplazo', p.nombre_reemplazo, p.cedula_reemplazo, 'foto_reemplazo', 'firma_reemplazo')}
       ${bloqueFirmante('Jefe', p.nombre_jefe, p.cedula_jefe, 'foto_jefe', 'firma_jefe')}
     </div>
 
-    ${p.evidencia_archivo ? `<div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5"><p class="text-xs font-bold uppercase tracking-wider text-gray-400">Evidencia</p><a href="${imgUrl('evidencia_archivo')}" target="_blank" class="inline-block mt-2 text-sm font-semibold text-red-600 hover:underline">Ver archivo de evidencia</a></div>` : ''}
+    ${p.evidencia_archivo ? `<div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5"><p class="text-xs font-bold uppercase tracking-wider text-gray-600">Evidencia</p><a href="${imgUrl('evidencia_archivo')}" target="_blank" class="inline-block mt-2 text-sm font-semibold text-red-600 hover:underline">Ver archivo de evidencia</a></div>` : ''}
 
     ${acciones ? `<div class="flex flex-wrap gap-2 pt-1">${acciones}</div>` : ''}
 
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
-      <div class="flex items-center justify-between mb-4"><div><p class="text-xs font-bold uppercase tracking-wider text-gray-400">Historial del permiso</p><p class="text-sm text-gray-500 mt-1">Movimientos en orden cronológico.</p></div><span class="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">${(p.historial || []).length} movimientos</span></div>
-      <div class="space-y-2">${historialHtml || '<p class="text-sm text-gray-400">Sin movimientos aún.</p>'}</div>
+      <div class="flex items-center justify-between mb-4"><div><p class="text-xs font-bold uppercase tracking-wider text-gray-600">Historial del permiso</p><p class="text-sm text-gray-500 mt-1">Movimientos en orden cronológico.</p></div><span class="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">${(p.historial || []).length} movimientos</span></div>
+      <div class="space-y-2">${historialHtml || '<p class="text-sm text-gray-600">Sin movimientos aún.</p>'}</div>
     </div>
   `;
 }

@@ -63,7 +63,7 @@ foreach ($bolsillos as $b) {
             <a href="./empleados.php" class="text-sm text-red-600 hover:underline">&larr; Volver</a>
             <h1 class="text-lg font-bold text-gray-800 mt-1">
                 <?= htmlspecialchars($empleado['nombre']) ?>
-                <span class="text-sm font-normal text-gray-400">(CC <?= htmlspecialchars($cedula) ?>)</span>
+                <span class="text-sm font-normal text-gray-600">(CC <?= htmlspecialchars($cedula) ?>)</span>
             </h1>
         </header>
 
@@ -132,7 +132,7 @@ foreach ($bolsillos as $b) {
 
                                             <?php elseif ($bolsillo['alarma_activa']): ?>
 
-                                                <span class="inline-flex items-center gap-1.5 text-gray-400 font-normal">
+                                                <span class="inline-flex items-center gap-1.5 text-gray-600 font-normal">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
                                                     Alarma configurada
                                                 </span>
@@ -149,7 +149,7 @@ foreach ($bolsillos as $b) {
 
 
                                         <!-- DOCUMENTOS -->
-                                        <p class="text-[11px] text-gray-400 mt-1">
+                                        <p class="text-[11px] text-gray-600 mt-1">
                                             <?= $totalDocs ?> documento(s)
                                         </p>
 
@@ -199,7 +199,7 @@ foreach ($bolsillos as $b) {
                 </div>
 
                 <button onclick="cerrarBolsillo()"
-                    class="w-8 h-8 rounded-lg text-gray-400 hover:bg-gray-50 hover:text-gray-700 flex items-center justify-center transition flex-shrink-0"
+                    class="w-8 h-8 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-700 flex items-center justify-center transition flex-shrink-0"
                     aria-label="Cerrar">
                     ✕
                 </button>
@@ -226,7 +226,7 @@ foreach ($bolsillos as $b) {
                                     Alarma de revisión
                                 </p>
 
-                                <p class="text-[11px] text-gray-400">
+                                <p class="text-[11px] text-gray-600">
                                     Configura el próximo recordatorio.
                                 </p>
                             </div>
@@ -285,7 +285,7 @@ foreach ($bolsillos as $b) {
 
                             </div>
 
-                            <p class="text-[11px] text-gray-400 mt-1.5">
+                            <p class="text-[11px] text-gray-600 mt-1.5">
                                 Si lo dejas vacío, se cuenta desde hoy automáticamente
                                 (fecha del servidor).
                             </p>
@@ -331,7 +331,7 @@ foreach ($bolsillos as $b) {
                                     Adjuntar PDF
                                 </p>
 
-                                <p class="text-[11px] text-gray-400">
+                                <p class="text-[11px] text-gray-600">
                                     Selecciona un documento en formato PDF.
                                 </p>
                             </div>
@@ -389,9 +389,9 @@ foreach ($bolsillos as $b) {
             <div class="px-4 py-3 border-b flex justify-between items-center">
                 <div>
                     <p id="visorTituloDocumento" class="font-medium text-gray-800 text-sm"></p>
-                    <p id="visorContador" class="text-xs text-gray-400"></p>
+                    <p id="visorContador" class="text-xs text-gray-600"></p>
                 </div>
-                <button onclick="cerrarVisorPDF()" class="text-gray-400 hover:text-gray-700 text-xl">✕</button>
+                <button onclick="cerrarVisorPDF()" class="text-gray-600 hover:text-gray-700 text-xl">✕</button>
             </div>
             <div class="flex-1 overflow-hidden bg-gray-100">
                 <iframe id="visorPDFIframe" src="" class="w-full h-full border-0"></iframe>

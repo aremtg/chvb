@@ -113,7 +113,7 @@ foreach ($bolsillosPorSeccion as $lista) {
                                         <p class="text-sm font-semibold text-gray-800 truncate">
                                             <?= htmlspecialchars($bolsillo['nombre_completo']) ?>
                                         </p>
-                                        <p class="text-[11px] text-gray-400 mt-1">
+                                        <p class="text-[11px] text-gray-600 mt-1">
                                             <?= count($bolsillo['documentos']) ?> documento(s)
                                         </p>
                                     </button>
@@ -140,7 +140,7 @@ foreach ($bolsillosPorSeccion as $lista) {
                     <h2 id="tituloBolsillo" class="font-bold text-gray-800 text-sm truncate"></h2>
                 </div>
                 <button onclick="cerrarBolsillo()"
-                    class="w-8 h-8 rounded-lg text-gray-400 hover:bg-gray-50 hover:text-gray-700 flex items-center justify-center transition flex-shrink-0"
+                    class="w-8 h-8 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-700 flex items-center justify-center transition flex-shrink-0"
                     aria-label="Cerrar">
                     ✕
                 </button>
@@ -155,7 +155,7 @@ foreach ($bolsillosPorSeccion as $lista) {
                         </div>
                         <div>
                             <p class="text-sm font-semibold text-gray-700">Adjuntar certificado (PDF)</p>
-                            <p class="text-[11px] text-gray-400">El PDF se enviará automáticamente a Talento Humano y al auxiliar.</p>
+                            <p class="text-[11px] text-gray-600">El PDF se enviará automáticamente a Talento Humano y al auxiliar.</p>
                         </div>
                     </div>
                     <form id="formSubirPDF" class="flex flex-col sm:flex-row gap-2">
@@ -187,9 +187,9 @@ foreach ($bolsillosPorSeccion as $lista) {
             <div class="px-4 py-3 border-b flex justify-between items-center">
                 <div>
                     <p id="visorTituloDocumento" class="font-medium text-gray-800 text-sm"></p>
-                    <p id="visorContador" class="text-xs text-gray-400"></p>
+                    <p id="visorContador" class="text-xs text-gray-600"></p>
                 </div>
-                <button onclick="cerrarVisorPDF()" class="text-gray-400 hover:text-gray-700 text-xl">✕</button>
+                <button onclick="cerrarVisorPDF()" class="text-gray-600 hover:text-gray-700 text-xl">✕</button>
             </div>
             <div class="flex-1 overflow-hidden bg-gray-100">
                 <iframe id="visorPDFIframe" src="" class="w-full h-full border-0"></iframe>

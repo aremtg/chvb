@@ -29,12 +29,12 @@ $totalPorFirmarInicial = (int)$contadoresPermisos['por_firmar'];
     <div class="flex items-center justify-between mb-4 px-2">
         <div>
             <div>
-                <img src="/chvb/public/assets/img/logo_chv.png" alt="Logo">
+                <img src="/chvb/public/assets/img/logo_chv_svg.svg" alt="Logo" class="w-100">
             </div>
-            <p class="text-xs text-gray-400">Portal del Empleado</p>
+            <p class="text-xs text-gray-600">Portal del Empleado</p>
         </div>
         <button onclick="document.getElementById('sidebarMovilEmpleado').classList.add('-translate-x-full')"
-            class="md:hidden text-gray-400 hover:text-gray-700">
+            class="md:hidden text-gray-600 hover:text-gray-700">
             <?= icon('x', 'w-5 h-5') ?>
         </button>
     </div>
@@ -62,7 +62,7 @@ $totalPorFirmarInicial = (int)$contadoresPermisos['por_firmar'];
     </nav>
 
     <div class="mt-8 pt-4 border-t border-gray-100 px-2">
-        <p class="text-xs text-gray-400">Sesión</p>
+        <p class="text-xs text-gray-600">Sesión</p>
         <p class="text-sm text-gray-700 font-medium truncate"><?= htmlspecialchars($cedulaSesion) ?></p>
         <form method="post" action="/chvb/public/logout_empleado.php">
             <?= csrfCampoHTML() ?>

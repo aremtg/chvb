@@ -35,12 +35,12 @@ $notificaciones = NotificacionModel::listar();
 
         <main class="p-6 max-w-3xl">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken()) ?>">
-            <p class="text-xs text-gray-400 mb-4">Las notificaciones se eliminan automáticamente después de 3 meses.
+            <p class="text-xs text-gray-600 mb-4">Las notificaciones se eliminan automáticamente después de 3 meses.
                 Esta lista se actualiza sola.</p>
 
             <div class="bg-white rounded-xl shadow overflow-hidden">
                 <p id="mensajeSinNotificaciones"
-                    class="p-6 text-sm text-gray-400 <?= !empty($notificaciones) ? 'hidden' : '' ?>">No hay
+                    class="p-6 text-sm text-gray-600 <?= !empty($notificaciones) ? 'hidden' : '' ?>">No hay
                     notificaciones.</p>
                 <ul class="divide-y divide-gray-100" id="listaNotificaciones"
                     data-ultimo-id="<?= !empty($notificaciones) ? (int) $notificaciones[0]['id'] : 0 ?>">
@@ -62,14 +62,14 @@ $notificaciones = NotificacionModel::listar();
                                             </a>
                                         <?php endif; ?>
                                     </p>
-                                    <p class="text-xs text-gray-400 mt-1">
+                                    <p class="text-xs text-gray-600 mt-1">
                                         <?= EmpleadoModel::formatearFechaLarga(date('Y-m-d', strtotime($n['created_at']))) ?>,
                                         <?= date('H:i', strtotime($n['created_at'])) ?>
                                     </p>
                                 </div>
                             </div>
                             <button onclick="eliminarNotificacion(<?= $n['id'] ?>)"
-                                class="text-gray-400 hover:text-red-600 text-sm shrink-0">✕</button>
+                                class="text-gray-600 hover:text-red-600 text-sm shrink-0">✕</button>
                         </li>
                     <?php endforeach; ?>
                 </ul>

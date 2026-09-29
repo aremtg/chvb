@@ -131,7 +131,7 @@ if (is_dir($generadosDir)) {
                     </span>
                     <div>
                         <h2 class="font-bold text-gray-800">Generar Otrosí</h2>
-                        <p class="text-xs text-gray-400">Busca al empleado por nombre o cédula. Los datos se cargan automáticamente.</p>
+                        <p class="text-xs text-gray-600">Busca al empleado por nombre o cédula. Los datos se cargan automáticamente.</p>
                     </div>
                 </div>
             </div>
@@ -146,7 +146,7 @@ if (is_dir($generadosDir)) {
                             placeholder="Escribe nombre o cédula..."
                             class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
                     <div id="otrosiResultados" class="mt-2 space-y-1"></div>
-                    <p class="text-[11px] text-gray-400 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p>
+                    <p class="text-[11px] text-gray-600 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p>
                 </div>
 
                 <div id="otrosiError" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm p-3"></div>
@@ -154,23 +154,23 @@ if (is_dir($generadosDir)) {
                 <div id="otrosiEmpleado" class="hidden rounded-xl bg-gray-50 border border-gray-100 p-4 sm:p-5">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-sm">
                         <div>
-                            <span class="block text-xs text-gray-400">Nombre</span>
+                            <span class="block text-xs text-gray-600">Nombre</span>
                             <strong id="otrosiNombre" class="block text-gray-800"></strong>
                         </div>
                         <div>
-                            <span class="block text-xs text-gray-400">Cédula</span>
+                            <span class="block text-xs text-gray-600">Cédula</span>
                             <strong id="otrosiCedula" class="block text-gray-800"></strong>
                         </div>
                         <div>
-                            <span class="block text-xs text-gray-400">Día</span>
+                            <span class="block text-xs text-gray-600">Día</span>
                             <span id="otrosiDia" class="block text-gray-700"></span>
                         </div>
                         <div>
-                            <span class="block text-xs text-gray-400">Mes</span>
+                            <span class="block text-xs text-gray-600">Mes</span>
                             <span id="otrosiMes" class="block text-gray-700"></span>
                         </div>
                         <div>
-                            <span class="block text-xs text-gray-400">Año</span>
+                            <span class="block text-xs text-gray-600">Año</span>
                             <span id="otrosiAnio" class="block text-gray-700"></span>
                         </div>
                     </div>
@@ -182,7 +182,7 @@ if (is_dir($generadosDir)) {
         <section class="otrosi-card bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
             <div class="p-4 sm:p-5 lg:p-6 border-b border-gray-100">
                 <h2 class="font-bold text-gray-800">Generados</h2>
-                <p class="text-xs text-gray-400">Archivos generados recientemente</p>
+                <p class="text-xs text-gray-600">Archivos generados recientemente</p>
             </div>
 
             <div class="p-4 sm:p-5 lg:p-6">
@@ -194,7 +194,7 @@ if (is_dir($generadosDir)) {
                                     <p class="text-sm font-medium text-gray-700 break-words" title="<?= htmlspecialchars($g['archivo']) ?>">
                                         <?= htmlspecialchars($g['archivo']) ?>
                                     </p>
-                                    <p class="text-xs text-gray-400"><?= date('d/m/Y H:i', $g['fecha']) ?></p>
+                                    <p class="text-xs text-gray-600"><?= date('d/m/Y H:i', $g['fecha']) ?></p>
                                 </div>
 
                                 <div class="otrosi-acciones">
@@ -219,7 +219,7 @@ if (is_dir($generadosDir)) {
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <p class="text-xs text-gray-400 text-center py-8">Todavía no hay Otrosí generados.</p>
+                    <p class="text-xs text-gray-600 text-center py-8">Todavía no hay Otrosí generados.</p>
                 <?php endif; ?>
             </div>
         </section>

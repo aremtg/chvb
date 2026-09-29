@@ -35,7 +35,7 @@ $alarmas = BolsilloModel::alarmasProximas();
             <!-- SIN ALARMAS -->
             <div class="p-6 sm:p-8 text-center">
 
-                <div class="mx-auto w-10 h-10 rounded-xl bg-gray-50 text-gray-400 flex items-center justify-center mb-3">
+                <div class="mx-auto w-10 h-10 rounded-xl bg-gray-50 text-gray-600 flex items-center justify-center mb-3">
                     <?= icon('bell', 'w-5 h-5') ?>
                 </div>
 
@@ -43,7 +43,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                     No hay alarmas activas
                 </p>
 
-                <p class="text-xs text-gray-400 mt-1">
+                <p class="text-xs text-gray-600 mt-1">
                     No existen alarmas próximas a vencer en este momento.
                 </p>
 
@@ -61,23 +61,23 @@ $alarmas = BolsilloModel::alarmasProximas();
 
                         <tr>
 
-                            <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                            <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">
                                 Empleado
                             </th>
 
-                            <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                            <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">
                                 Bolsillo
                             </th>
 
-                            <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wide hidden lg:table-cell">
+                            <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide hidden lg:table-cell">
                                 Fecha
                             </th>
 
-                            <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                            <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">
                                 Estado
                             </th>
 
-                            <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wide text-right">
+                            <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide text-right">
                                 Acción
                             </th>
 

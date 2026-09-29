@@ -101,11 +101,11 @@ async function renderCalendario() {
             <span class="font-medium text-gray-800 text-sm">${MESES_ES[mesCalendarioActual]} ${anioCalendarioActual}</span>
             <button type="button" onclick="cambiarMes(1)" class="px-2 py-1 rounded-xl hover:bg-gray-100">&rarr;</button>
         </div>
-        <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-400 mb-1">
+        <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-600 mb-1">
             ${DIAS_SEMANA_ES.map((d) => `<div>${d}</div>`).join("")}
         </div>
         <div class="grid grid-cols-7 gap-1">${celdas}</div>
-        <p class="text-xs text-gray-400 mt-2">Días amarillos = festivo. Toca para seleccionar/quitar un día.</p>
+        <p class="text-xs text-gray-600 mt-2">Días amarillos = festivo. Toca para seleccionar/quitar un día.</p>
     `;
 }
 
@@ -205,7 +205,7 @@ function renderListaDiasConfig() {
 
   if (fechas.length === 0) {
     contenedor.innerHTML =
-      '<p class="text-xs text-gray-400">Selecciona al menos un día en el calendario.</p>';
+      '<p class="text-xs text-gray-600">Selecciona al menos un día en el calendario.</p>';
     return;
   }
 
@@ -560,13 +560,13 @@ function configurarBuscadorEmpleado(inputId, resultadosId, hiddenId) {
 
       resultadosDiv.innerHTML =
         data.length === 0
-          ? '<p class="p-2 text-xs text-gray-400">Sin resultados.</p>'
+          ? '<p class="p-2 text-xs text-gray-600">Sin resultados.</p>'
           : data
               .map(
                 (e) => `
                     <button type="button" onclick="seleccionarEmpleado('${inputId}','${resultadosId}','${hiddenId}','${e.cedula}','${e.nombre.replace(/'/g, "\\'")}')"
                         class="block w-full text-left px-3 py-2 hover:bg-gray-50 text-sm border-b border-gray-100 last:border-0">
-                        ${e.nombre} <span class="text-gray-400">(${e.cedula})</span>
+                        ${e.nombre} <span class="text-gray-600">(${e.cedula})</span>
                     </button>
                 `,
               )

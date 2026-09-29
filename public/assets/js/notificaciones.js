@@ -88,10 +88,10 @@ function construirNotificacionLi(n) {
                 class="mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 bg-blue-500"></button>
             <div class="text-sm">
                 <p class="text-gray-800" onclick="marcarLeidaPorInteraccion(${n.id})"><span class="notif-mensaje">${formatearMensajeNotificacion(n.mensaje)}</span>${enlaceHtml}</p>
-                <p class="text-xs text-gray-400 mt-1">${formatearFechaHoraEs(n.created_at)}</p>
+                <p class="text-xs text-gray-600 mt-1">${formatearFechaHoraEs(n.created_at)}</p>
             </div>
         </div>
-        <button onclick="eliminarNotificacion(${n.id})" class="text-gray-400 hover:text-red-600 text-sm shrink-0">✕</button>
+        <button onclick="eliminarNotificacion(${n.id})" class="text-gray-600 hover:text-red-600 text-sm shrink-0">✕</button>
     `;
     return li;
 }

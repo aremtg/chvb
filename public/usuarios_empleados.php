@@ -33,7 +33,7 @@ $empleados = EmpleadoModel::listar($busqueda);
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
         <div class="flex flex-col sm:flex-row gap-2">
             <div class="relative flex-1">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600">
                     <?= icon('search', 'w-4 h-4') ?>
                 </span>
 
@@ -42,7 +42,7 @@ $empleados = EmpleadoModel::listar($busqueda);
                     name="q"
                     value="<?= htmlspecialchars($busqueda) ?>"
                     placeholder="Buscar empleado por cédula o nombre..."
-                    class="w-full h-10 pl-9 pr-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition"
+                    class="w-full h-10 pl-9 pr-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition"
                 >
             </div>
 
@@ -62,7 +62,7 @@ $empleados = EmpleadoModel::listar($busqueda);
 
     <!-- SIN RESULTADOS -->
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
-        <div class="mx-auto w-10 h-10 rounded-xl bg-gray-50 text-gray-400 flex items-center justify-center mb-3">
+        <div class="mx-auto w-10 h-10 rounded-xl bg-gray-50 text-gray-600 flex items-center justify-center mb-3">
             <?= icon('search', 'w-5 h-5') ?>
         </div>
 
@@ -70,7 +70,7 @@ $empleados = EmpleadoModel::listar($busqueda);
             No se encontraron empleados
         </p>
 
-        <p class="text-xs text-gray-400 mt-1">
+        <p class="text-xs text-gray-600 mt-1">
             Intenta buscar por nombre o número de cédula.
         </p>
     </div>
@@ -99,7 +99,7 @@ $empleados = EmpleadoModel::listar($busqueda);
                             <?= htmlspecialchars($emp['nombre']) ?>
                         </p>
 
-                        <p class="text-[11px] text-gray-400 truncate mt-0.5">
+                        <p class="text-[11px] text-gray-600 truncate mt-0.5">
                             CC <?= htmlspecialchars($emp['cedula']) ?>
                         </p>
 
@@ -125,7 +125,7 @@ $empleados = EmpleadoModel::listar($busqueda);
 
                             <?php else: ?>
 
-                                <span class="inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-1 rounded-full bg-gray-50 text-gray-400 border border-gray-100">
+                                <span class="inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-1 rounded-full bg-gray-50 text-gray-600 border border-gray-100">
                                     Sin acceso creado
                                 </span>
 
@@ -244,7 +244,7 @@ $empleados = EmpleadoModel::listar($busqueda);
                     </h2>
 
                     <p
-                        class="text-xs text-gray-400 mt-0.5 truncate"
+                        class="text-xs text-gray-600 mt-0.5 truncate"
                         id="nombrePinModal"
                     ></p>
                 </div>
@@ -291,7 +291,7 @@ $empleados = EmpleadoModel::listar($busqueda);
                     class="w-full h-11 rounded-lg border border-gray-200 bg-white px-3 text-center text-lg tracking-[0.4em] font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition"
                 >
 
-                <p class="text-[11px] text-gray-400 mt-1.5">
+                <p class="text-[11px] text-gray-600 mt-1.5">
                     Ingresa exactamente 4 números.
                 </p>
 

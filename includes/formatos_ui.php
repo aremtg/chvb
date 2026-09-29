@@ -12,7 +12,7 @@ function formatosHeader(string $titulo, string $subtitulo): string
         . '<a href="./formatos.php" title="Volver a Formatos" class="w-8 h-8 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center transition">'
         . icon('chevron-left', 'w-5 h-5') . '</a>'
         . '<div><h1 class="text-base font-bold text-gray-800">' . htmlspecialchars($titulo) . '</h1>'
-        . '<p class="text-xs text-gray-400">' . htmlspecialchars($subtitulo) . '</p></div>'
+        . '<p class="text-xs text-gray-600">' . htmlspecialchars($subtitulo) . '</p></div>'
         . '</div></header>';
 }
 

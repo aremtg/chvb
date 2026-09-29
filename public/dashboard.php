@@ -61,7 +61,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                             </span>
                             <div>
                                 <h2 class="font-bold text-gray-800">Cumpleaños</h2>
-                                <p class="text-xs text-gray-400">Recordatorio con 15 días de anticipación</p>
+                                <p class="text-xs text-gray-600">Recordatorio con 15 días de anticipación</p>
                             </div>
                         </div>
                     </div>
@@ -92,7 +92,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                     <div>
                         <div class="grid grid-cols-7 gap-1 mb-1">
                             <?php foreach (['L', 'Ma', 'Mi', 'J', 'V', 'S', 'D'] as $diaSemana): ?>
-                                <div class="text-center text-[10px] sm:text-xs font-semibold text-gray-400 py-1">
+                                <div class="text-center text-[10px] sm:text-xs font-semibold text-gray-600 py-1">
                                     <?= $diaSemana ?>
                                 </div>
                             <?php endforeach; ?>
@@ -122,7 +122,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                             <?php endfor; ?>
                         </div>
 
-                        <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] sm:text-xs text-gray-400">
+                        <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] sm:text-xs text-gray-600">
                             <span class="inline-flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-red-600"></span> Hay cumpleaños
                             </span>
@@ -134,13 +134,13 @@ $alarmas = BolsilloModel::alarmasProximas();
                     <div class="border-t lg:border-t-0 lg:border-l border-gray-100 pt-4 lg:pt-0 lg:pl-5">
                         <div class="flex items-center justify-between mb-2">
                             <h3 class="text-sm font-semibold text-gray-700">Personas que cumplen</h3>
-                            <span class="text-xs text-gray-400"><?= count($cumpleanosMes) ?> persona(s)</span>
+                            <span class="text-xs text-gray-600"><?= count($cumpleanosMes) ?> persona(s)</span>
                         </div>
 
                         <div class="max-h-[260px] overflow-y-auto pr-1 space-y-1.5">
                             <?php if (empty($cumpleanosMes)): ?>
                                 <div class="rounded-xl bg-gray-50 border border-gray-100 p-4 text-center">
-                                    <p class="text-sm text-gray-400">No hay cumpleaños registrados este mes.</p>
+                                    <p class="text-sm text-gray-600">No hay cumpleaños registrados este mes.</p>
                                 </div>
                             <?php else: ?>
                                 <?php foreach ($cumpleanosMes as $emp): ?>
@@ -154,7 +154,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                                         </div>
                                         <div class="min-w-0 flex-1">
                                             <p class="text-sm font-semibold text-gray-800 truncate"><?= htmlspecialchars($emp['nombre']) ?></p>
-                                            <p class="text-[11px] text-gray-400 truncate">CC <?= htmlspecialchars($emp['cedula']) ?></p>
+                                            <p class="text-[11px] text-gray-600 truncate">CC <?= htmlspecialchars($emp['cedula']) ?></p>
                                         </div>
                                         <?php
     // Edad que va a cumplir en el año del calendario que estás viendo
@@ -185,11 +185,11 @@ $alarmas = BolsilloModel::alarmasProximas();
                 <!-- RESUMEN DE ALARMAS -->
                 <div class="bg-white rounded-lg shadow p-6">
                     <h2 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        ⏰ Alarmas próximas a vencer
+                        <?= icon('alarm-clock', 'w-5 h-5') ?> Alarmas próximas a vencer
                     </h2>
 
                     <?php if (empty($alarmas)): ?>
-                        <p class="text-sm text-gray-400">No hay alarmas próximas a vencer.</p>
+                        <p class="text-sm text-gray-600">No hay alarmas próximas a vencer.</p>
                     <?php else: ?>
                         <ul class="divide-y divide-gray-100">
                             <?php foreach (array_slice($alarmas, 0, 5) as $al): ?>

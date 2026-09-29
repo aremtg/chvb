@@ -44,12 +44,12 @@ $totalNoLeidasInicial = in_array($rolActual, ['superadmin_talento_humano','auxil
     <div class="flex items-center justify-between mb-4 px-2">
         <div>
             <div>
-                <img src="/chvb/public/assets/img/logo_chv.png" alt="Logo">
+                <img src="/chvb/public/assets/img/logo_chv_svg.svg" alt="Logo" class="w-100">
             </div>
-            <p class="text-sm text-center pt-2 text-gray-400">Panel Talento Humano</p>
+            <p class="text-sm text-center pt-2 text-gray-600">Panel Talento Humano</p>
         </div>
         <button onclick="document.getElementById('sidebarMovil').classList.add('-translate-x-full')"
-            class="md:hidden text-gray-400 hover:text-gray-700">
+            class="md:hidden text-gray-600 hover:text-gray-700">
             <?= icon('x', 'w-5 h-5') ?>
         </button>
     </div>

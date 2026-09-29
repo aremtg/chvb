@@ -46,14 +46,14 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                     Total de empleados:
                     <span class="font-bold text-gray-800"><?= number_format($totalEmpleados, 0, ',', '.') ?></span>
                     <?php if ($totalEmpleados > 0): ?>
-                        <span class="text-gray-400">
+                        <span class="text-gray-600">
                             · Mostrando <?= count($empleados) ?> de <?= number_format($totalEmpleados, 0, ',', '.') ?>
                         </span>
                     <?php endif; ?>
                 </p>
 
                 <?php if ($totalPaginas > 1): ?>
-                    <p class="text-xs text-gray-400">
+                    <p class="text-xs text-gray-600">
                         Página <?= $pagina ?> de <?= $totalPaginas ?>
                     </p>
                 <?php endif; ?>
@@ -90,7 +90,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                     <tbody class="divide-y divide-gray-100">
                         <?php if (empty($empleados)): ?>
                             <tr>
-                                <td colspan="9" class="px-4 py-6 text-center text-gray-400">No hay empleados
+                                <td colspan="9" class="px-4 py-6 text-center text-gray-600">No hay empleados
                                     registrados.</td>
                             </tr>
                         <?php endif; ?>
@@ -209,7 +209,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                             1
                         </a>
                         <?php if ($inicio > 2): ?>
-                            <span class="px-2 text-gray-400">…</span>
+                            <span class="px-2 text-gray-600">…</span>
                         <?php endif; ?>
                     <?php endif; ?>
 
@@ -226,7 +226,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
 
                     <?php if ($fin < $totalPaginas): ?>
                         <?php if ($fin < $totalPaginas - 1): ?>
-                            <span class="px-2 text-gray-400">…</span>
+                            <span class="px-2 text-gray-600">…</span>
                         <?php endif; ?>
                         <a href="<?= htmlspecialchars($urlPagina($totalPaginas)) ?>"
                            class="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">
@@ -251,7 +251,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
             <div class="px-6 py-4 border-b flex justify-between items-center">
                 <h2 class="font-bold text-gray-800">Nuevo Empleado</h2>
                 <button onclick="document.getElementById('modalCrear').classList.add('hidden')"
-                    class="text-gray-400 hover:text-gray-700">✕</button>
+                    class="text-gray-600 hover:text-gray-700">✕</button>
             </div>
 
             <form id="formCrear" class="p-5 sm:p-6 space-y-5 max-h- overflow-y-auto">
@@ -426,7 +426,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
             <div class="px-6 py-4 border-b flex justify-between items-center">
                 <h2 class="font-bold text-gray-800">Información del Empleado</h2>
                 <button onclick="document.getElementById('modalVer').classList.add('hidden')"
-                    class="text-gray-400 hover:text-gray-700">✕</button>
+                    class="text-gray-600 hover:text-gray-700">✕</button>
             </div>
             <div class="p-6 space-y-3 text-sm" id="contenidoVer"></div>
         </div>
@@ -438,7 +438,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
             <div class="px-6 py-4 border-b flex justify-between items-center">
                 <h2 class="font-bold text-gray-800">Editar Empleado</h2>
                 <button onclick="document.getElementById('modalEditar').classList.add('hidden')"
-                    class="text-gray-400 hover:text-gray-700">✕</button>
+                    class="text-gray-600 hover:text-gray-700">✕</button>
             </div>
 
             <form id="formEditar" class="p-5 sm:p-6 space-y-5 max-h- overflow-y-auto">

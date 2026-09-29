@@ -78,18 +78,18 @@ if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula
                     </label>
                 <?php endif;?>
                 <div id="cajaCanvasAccion" class="<?= $firmaGuardada? 'hidden' : ''?> space-y-2">
-                    <p class="text- font-semibold tracking-widest uppercase text-gray-400">Dibuja tu firma</p>
+                    <p class="text- font-semibold tracking-widest uppercase text-gray-600">Dibuja tu firma</p>
                     <canvas id="canvasFirmaAccion" class="border border-gray-200 rounded-xl w-full bg-white touch-none" height="160"></canvas>
                     <button type="button" id="btnLimpiarFirmaAccion" class="text- font-medium text-gray-500 hover:text-red-600">Limpiar firma</button>
                 </div>
                 <div class="space-y-2">
-                    <label class="block text- font-semibold tracking-widest uppercase text-gray-400">Foto (opcional)</label>
+                    <label class="block text- font-semibold tracking-widest uppercase text-gray-600">Foto (opcional)</label>
                     <div id="capturaFotoAccion" class="rounded-xl border border-dashed border-gray-200 bg-gray-50/50 p-3 min-h-"></div>
                 </div>
             </div>
 
             <div id="cajaMotivoAccion" class="hidden space-y-2">
-                <label class="block text- font-semibold tracking-widest uppercase text-gray-400">Motivo</label>
+                <label class="block text- font-semibold tracking-widest uppercase text-gray-600">Motivo</label>
                 <textarea id="motivoAccion" rows="4" class="w-full border border-gray-200 rounded-xl px-3.5 py-3 text- focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900 resize-none" placeholder="Escribe el motivo..."></textarea>
             </div>
 

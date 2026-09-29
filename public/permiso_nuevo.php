@@ -100,7 +100,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                         <div id="calendarioBonito" class="border border-gray-200 rounded-xl p-3"></div>
 
                         <p class="text-sm font-medium text-gray-700 pt-2">2. Configura el horario de cada día</p>
-                        <p class="text-xs text-gray-400 -mt-2">Cada día puede tener horas distintas. Marca "Día completo" si
+                        <p class="text-xs text-gray-600 -mt-2">Cada día puede tener horas distintas. Marca "Día completo" si
                             faltas toda la jornada, o ingresa el rango exacto.</p>
                         <div id="listaDiasConfig" class="space-y-2"></div>
 

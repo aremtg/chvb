@@ -25,23 +25,23 @@ $csrf = csrfToken();
 <?= formatosHeader('Renovación de Contrato', 'AF-FT-02 · Gestión de renovaciones') ?>
 <main class="p-3 sm:p-5 lg:p-6 max-w-5xl mx-auto space-y-5">
 <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
-<div class="p-4 sm:p-5 lg:p-6 border-b border-gray-100"><div class="flex items-start gap-3"><span class="w-10 h-10 shrink-0 rounded-xl bg-red-50 text-red-600 flex items-center justify-center"><?= icon('file-signature','w-5 h-5') ?></span><div><h2 class="font-bold text-gray-800">Generar Renovación</h2><p class="text-xs text-gray-400">Busca al empleado por nombre o cédula y agrega las renovaciones.</p></div></div></div>
+<div class="p-4 sm:p-5 lg:p-6 border-b border-gray-100"><div class="flex items-start gap-3"><span class="w-10 h-10 shrink-0 rounded-xl bg-red-50 text-red-600 flex items-center justify-center"><?= icon('file-signature','w-5 h-5') ?></span><div><h2 class="font-bold text-gray-800">Generar Renovación</h2><p class="text-xs text-gray-600">Busca al empleado por nombre o cédula y agrega las renovaciones.</p></div></div></div>
 <form id="formRenovacion" class="p-4 sm:p-5 lg:p-6 space-y-5">
 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>"><input type="hidden" name="cedula" id="renCedula">
-<div><label class="block text-sm font-medium text-gray-700 mb-1">Buscar empleado</label><input id="renBuscar" type="text" autocomplete="off" placeholder="Escribe nombre o cédula..." class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition"><div id="renResultados" class="ren-resultados mt-2 space-y-1"></div><p class="text-[11px] text-gray-400 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-1">Buscar empleado</label><input id="renBuscar" type="text" autocomplete="off" placeholder="Escribe nombre o cédula..." class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition"><div id="renResultados" class="ren-resultados mt-2 space-y-1"></div><p class="text-[11px] text-gray-600 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p></div>
 <div id="renEmpleado" class="hidden rounded-xl bg-gray-50/70 border border-gray-100 p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
 <div id="renDatosFaltantes" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 p-4 text-sm"></div>
-<div id="renCampos" class="hidden space-y-4"><div class="rounded-xl border border-gray-100 bg-gray-50/70 p-4"><div class="text-xs text-gray-400">Fecha fin del contrato inicial</div><div id="renFinContrato" class="mt-1 text-base font-semibold text-gray-800">-</div></div><div id="renAlerta" class="hidden ren-alerta rounded-xl p-4 text-sm font-semibold"></div><div id="renAcumulado" class="ren-resumen-superior rounded-xl p-4 text-sm text-gray-700 bg-gray-50/70"></div><div><div class="flex items-center justify-between gap-3 mb-2"><div><p class="text-sm font-semibold text-gray-700">Historial de Renovaciones</p><p class="text-xs text-gray-400">Agrega una renovación y selecciona su duración.</p></div><button id="btnAgregarRen" type="button" onclick="agregarRenovacion()" class="shrink-0 inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition"><?= icon('plus','w-4 h-4') ?> Agregar Renovación</button></div><div id="renHistorial" class="space-y-3"></div><div id="renHistorialVacio" class="rounded-xl border border-dashed border-gray-200 bg-gray-50/40 text-center text-sm text-gray-400 py-8">Aún no has agregado renovaciones.</div></div></div>
+<div id="renCampos" class="hidden space-y-4"><div class="rounded-xl border border-gray-100 bg-gray-50/70 p-4"><div class="text-xs text-gray-600">Fecha fin del contrato inicial</div><div id="renFinContrato" class="mt-1 text-base font-semibold text-gray-800">-</div></div><div id="renAlerta" class="hidden ren-alerta rounded-xl p-4 text-sm font-semibold"></div><div id="renAcumulado" class="ren-resumen-superior rounded-xl p-4 text-sm text-gray-700 bg-gray-50/70"></div><div><div class="flex items-center justify-between gap-3 mb-2"><div><p class="text-sm font-semibold text-gray-700">Historial de Renovaciones</p><p class="text-xs text-gray-600">Agrega una renovación y selecciona su duración.</p></div><button id="btnAgregarRen" type="button" onclick="agregarRenovacion()" class="shrink-0 inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition"><?= icon('plus','w-4 h-4') ?> Agregar Renovación</button></div><div id="renHistorial" class="space-y-3"></div><div id="renHistorialVacio" class="rounded-xl border border-dashed border-gray-200 bg-gray-50/40 text-center text-sm text-gray-600 py-8">Aún no has agregado renovaciones.</div></div></div>
 <div id="renError" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm p-3"></div><?= formatosBarraAcciones('btnGenerarRen', 'buscadorRen.reset()', 'submit') ?>
 </form></section>
-<section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible"><div class="p-4 sm:p-5 lg:p-6 border-b border-gray-100"><h2 class="font-bold text-gray-800">Generados</h2><p class="text-xs text-gray-400">Renovaciones generadas recientemente</p></div><div class="p-4 sm:p-5 lg:p-6">
+<section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible"><div class="p-4 sm:p-5 lg:p-6 border-b border-gray-100"><h2 class="font-bold text-gray-800">Generados</h2><p class="text-xs text-gray-600">Renovaciones generadas recientemente</p></div><div class="p-4 sm:p-5 lg:p-6">
 <?php if ($generados): ?>
 <div class="space-y-2">
 <?php foreach ($generados as $g): ?>
-<div class="formato-generado border border-gray-100 rounded-xl p-3 hover:bg-gray-50/70 transition"><div class="formato-generado-contenido"><p class="text-sm font-medium text-gray-700 break-words" title="<?= htmlspecialchars($g['archivo']) ?>"><?= htmlspecialchars($g['archivo']) ?></p><p class="text-xs text-gray-400 mt-1"><?= date('d/m/Y H:i', $g['fecha']) ?></p></div><div class="formato-generado-acciones"><a href="./api/formato_archivo.php?f=<?= rawurlencode($g['archivo']) ?>&accion=ver" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 rounded-lg transition"><?= icon('eye','w-4 h-4') ?> Ver</a><a href="./api/formato_archivo.php?f=<?= rawurlencode($g['archivo']) ?>&accion=descargar" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 rounded-lg transition"><?= icon('download','w-4 h-4') ?> Descargar</a><button type="button" onclick="eliminarFormato(<?= htmlspecialchars(json_encode($g['archivo'], JSON_UNESCAPED_UNICODE|JSON_HEX_APOS|JSON_HEX_QUOT)) ?>)" class="btn-eliminar-formato inline-flex items-center gap-2 px-3 py-2 text-sm text-red-600 border border-red-200 hover:bg-red-50 rounded-lg transition"><?= icon('trash-2','w-4 h-4') ?> Eliminar</button></div></div>
+<div class="formato-generado border border-gray-100 rounded-xl p-3 hover:bg-gray-50/70 transition"><div class="formato-generado-contenido"><p class="text-sm font-medium text-gray-700 break-words" title="<?= htmlspecialchars($g['archivo']) ?>"><?= htmlspecialchars($g['archivo']) ?></p><p class="text-xs text-gray-600 mt-1"><?= date('d/m/Y H:i', $g['fecha']) ?></p></div><div class="formato-generado-acciones"><a href="./api/formato_archivo.php?f=<?= rawurlencode($g['archivo']) ?>&accion=ver" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 rounded-lg transition"><?= icon('eye','w-4 h-4') ?> Ver</a><a href="./api/formato_archivo.php?f=<?= rawurlencode($g['archivo']) ?>&accion=descargar" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 rounded-lg transition"><?= icon('download','w-4 h-4') ?> Descargar</a><button type="button" onclick="eliminarFormato(<?= htmlspecialchars(json_encode($g['archivo'], JSON_UNESCAPED_UNICODE|JSON_HEX_APOS|JSON_HEX_QUOT)) ?>)" class="btn-eliminar-formato inline-flex items-center gap-2 px-3 py-2 text-sm text-red-600 border border-red-200 hover:bg-red-50 rounded-lg transition"><?= icon('trash-2','w-4 h-4') ?> Eliminar</button></div></div>
 <?php endforeach; ?>
 </div>
-<?php else: ?><p class="text-xs text-gray-400 text-center py-8">Todavía no hay renovaciones generadas.</p><?php endif; ?>
+<?php else: ?><p class="text-xs text-gray-600 text-center py-8">Todavía no hay renovaciones generadas.</p><?php endif; ?>
 </div></section>
 </main></div>
 <script src="./assets/js/empleado_buscador.js"></script>
@@ -211,22 +211,22 @@ const csrfToken = <?= json_encode($csrf) ?>;
             <div class="ren-row rounded-xl p-3 sm:p-4 hover:border-gray-200 transition" data-index="${index}">
                 <div class="grid grid-cols-1 md:grid-cols-[72px_1fr_1fr_1fr_auto] gap-3 items-end">
                     <div>
-                        <div class="text-xs text-gray-400 mb-1">Renovación</div>
+                        <div class="text-xs text-gray-600 mb-1">Renovación</div>
                         <div class="font-bold text-gray-800 py-2.5">RNV${index + 1}</div>
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Fecha Inicio</label>
+                        <label class="block text-xs text-gray-600 mb-1">Fecha Inicio</label>
                         <input type="date" value="${r.inicio}" data-index="${index}"
                             class="renFechaInicio w-full h-10 border border-gray-200 bg-white rounded-lg px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Duración</label>
+                        <label class="block text-xs text-gray-600 mb-1">Duración</label>
                         <select class="renDuracion w-full h-10 border border-gray-200 bg-white rounded-lg px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300" data-index="${index}">
                             ${opcionesHtml(minimoReal)}
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Fecha Fin</label>
+                        <label class="block text-xs text-gray-600 mb-1">Fecha Fin</label>
                         <input type="date" value="${r.fin}" readonly
                             class="w-full h-10 border border-gray-200 rounded-lg px-3 text-sm ren-field-readonly text-gray-700">
                     </div>
@@ -464,13 +464,13 @@ const buscadorRen = crearBuscadorEmpleado({
             const faltan = camposFaltantes(emp);
             document.getElementById('renEmpleado').classList.remove('hidden');
             document.getElementById('renEmpleado').innerHTML = `
-        <div><span class="block text-xs text-gray-400">Nombre</span><strong>${escapeHtml(emp.nombre)}</strong></div>
-        <div><span class="block text-xs text-gray-400">Cédula</span><strong>${escapeHtml(emp.cedula)}</strong></div>
-        <div><span class="block text-xs text-gray-400">Sexo</span>${sexo === 'F' ? 'Femenino' : sexo === 'M' ? 'Masculino' : 'Sin dato válido'}</div>
-        <div><span class="block text-xs text-gray-400">Tipo de personal</span>${escapeHtml(emp.tipo_de_personal || '-')}</div>
-        <div><span class="block text-xs text-gray-400">Cargo</span>${escapeHtml(emp.cargo || '-')}</div>
-        <div><span class="block text-xs text-gray-400">Contrato</span>${escapeHtml(emp.tipo_de_contrato || '-')}</div>
-        <div><span class="block text-xs text-gray-400">Fecha fin contrato inicial</span><strong>${fmtDate(emp.fecha_fin_contrato)}</strong></div>
+        <div><span class="block text-xs text-gray-600">Nombre</span><strong>${escapeHtml(emp.nombre)}</strong></div>
+        <div><span class="block text-xs text-gray-600">Cédula</span><strong>${escapeHtml(emp.cedula)}</strong></div>
+        <div><span class="block text-xs text-gray-600">Sexo</span>${sexo === 'F' ? 'Femenino' : sexo === 'M' ? 'Masculino' : 'Sin dato válido'}</div>
+        <div><span class="block text-xs text-gray-600">Tipo de personal</span>${escapeHtml(emp.tipo_de_personal || '-')}</div>
+        <div><span class="block text-xs text-gray-600">Cargo</span>${escapeHtml(emp.cargo || '-')}</div>
+        <div><span class="block text-xs text-gray-600">Contrato</span>${escapeHtml(emp.tipo_de_contrato || '-')}</div>
+        <div><span class="block text-xs text-gray-600">Fecha fin contrato inicial</span><strong>${fmtDate(emp.fecha_fin_contrato)}</strong></div>
     `;
 
             const campos = document.getElementById('renCampos');

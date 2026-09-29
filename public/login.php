@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
     <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-sm">
-        <img src="./assets/img/logo_chv.png" alt="Logo">
+        <img src="./assets/img/logo_chv_svg.svg" alt="Logo" class="w-60 mx-auto mb-1">
         <p class="text-sm text-gray-500 mb-6 text-center">Control Hojas de Vida Bomberos Yopal</p>
 
         <?php if ($error): ?>
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Ingresar
             </button>
         </form>
-        <p class="text-xs text-gray-400 mt-4 text-center">
+        <p class="text-xs text-gray-600 mt-4 text-center">
             <a href="./login_empleado.php" class="hover:underline">Acceso para empleados</a>
         </p>
     </div>

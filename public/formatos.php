@@ -23,7 +23,7 @@ requireFormatosAccess();
                     class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center"><?= icon('file-text', 'w-5 h-5') ?></span>
                 <div>
                     <h1 class="text-base font-bold text-gray-800">Formatos</h1>
-                    <p class="text-xs text-gray-400">Gestión de formatos y renovaciones</p>
+                    <p class="text-xs text-gray-600">Gestión de formatos y renovaciones</p>
                 </div>
             </div>
         </header>
@@ -36,7 +36,7 @@ requireFormatosAccess();
                             <div class="flex items-center gap-3">
                                 <div>
                                     <h2 class="font-bold text-gray-800">Renovaciones</h2>
-                                    <p class="text-xs text-gray-400">Renovación de contrato</p>
+                                    <p class="text-xs text-gray-600">Renovación de contrato</p>
                                 </div>
                             </div>
                             <a href="./formatos_renovacion.php"
@@ -47,7 +47,7 @@ requireFormatosAccess();
                         </div>
                         <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
                             <p class="text-sm font-semibold text-gray-700 truncate">AF-FT-02 · Renovación de Contrato</p>
-                            <p class="text-xs text-gray-400">Plantilla oficial</p>
+                            <p class="text-xs text-gray-600">Plantilla oficial</p>
                         </div>
                     </div>
                 </section>
@@ -62,10 +62,10 @@ requireFormatosAccess();
  
                 <div> 
                     <h2 class="font-bold text-gray-800"><?= htmlspecialchars($card[0]) ?></h2> 
-                    <p class="text-xs text-gray-400">Próximamente</p> 
+                    <p class="text-xs text-gray-600">Próximamente</p> 
                 </div> 
             </div> 
-            <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3 text-xs text-gray-400">Aquí 
+            <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3 text-xs text-gray-600">Aquí 
                 estarán los formatos de esta categoría.</div> 
         </div> 
     </section> 
@@ -80,7 +80,7 @@ requireFormatosAccess();
             <div class="flex items-center gap-3"> 
                 <div> 
                     <h2 class="font-bold text-gray-800">Otro Sí</h2> 
-                    <p class="text-xs text-gray-400">Modificación del contrato</p> 
+                    <p class="text-xs text-gray-600">Modificación del contrato</p> 
                 </div> 
             </div> 
 
@@ -96,7 +96,7 @@ requireFormatosAccess();
             <p class="text-sm font-semibold text-gray-700 truncate">
                 GH-FT-24 · OTRO SÍ
             </p> 
-            <p class="text-xs text-gray-400">
+            <p class="text-xs text-gray-600">
                 Modificación del contrato
             </p> 
         </div> 
@@ -110,7 +110,7 @@ requireFormatosAccess();
             <div class="flex items-center gap-3">
                 <div>
                     <h2 class="font-bold text-gray-800">Otro Sí cambio de salario</h2>
-                    <p class="text-xs text-gray-400">Modificación de remuneración</p>
+                    <p class="text-xs text-gray-600">Modificación de remuneración</p>
                 </div>
             </div>
             <a href="./formatos_otrosi_salario.php"
@@ -121,7 +121,7 @@ requireFormatosAccess();
         </div>
         <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
             <p class="text-sm font-semibold text-gray-700 truncate">GH-FT-25 · OTRO SÍ CAMBIO DE SALARIO</p>
-            <p class="text-xs text-gray-400">Cambio de remuneración del contrato</p>
+            <p class="text-xs text-gray-600">Cambio de remuneración del contrato</p>
         </div>
     </div>
 </section>

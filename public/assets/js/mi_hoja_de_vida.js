@@ -53,7 +53,7 @@ function renderDocumentos(documentos) {
     lista.innerHTML = '';
 
     if (!documentos || documentos.length === 0) {
-        lista.innerHTML = '<li class="p-3 text-sm text-gray-400">No hay documentos en este bolsillo.</li>';
+        lista.innerHTML = '<li class="p-3 text-sm text-gray-600">No hay documentos en este bolsillo.</li>';
         return;
     }
 
@@ -65,7 +65,7 @@ function renderDocumentos(documentos) {
             : '';
         li.innerHTML = `
             <button onclick="abrirVisorPDF(${index})" class="flex items-center gap-2 text-left flex-1 text-red-600 hover:underline">
-                <span class="text-gray-400 no-underline">${index + 1}.</span>
+                <span class="text-gray-600 no-underline">${index + 1}.</span>
                 <span>${escapeHtml(doc.nombre_archivo)}</span>
             </button>
             ${botonEliminar}

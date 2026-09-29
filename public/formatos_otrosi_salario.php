@@ -45,7 +45,7 @@ $hoyIso = $hoy->format('Y-m-d');
                     </span>
                     <div>
                         <h2 class="font-bold text-gray-800">Generar Otrosí cambio de salario</h2>
-                        <p class="text-xs text-gray-400">Busca al empleado por nombre o cédula. Los datos contractuales se cargan automáticamente.</p>
+                        <p class="text-xs text-gray-600">Busca al empleado por nombre o cédula. Los datos contractuales se cargan automáticamente.</p>
                     </div>
                 </div>
             </div>
@@ -56,7 +56,7 @@ $hoyIso = $hoy->format('Y-m-d');
                     <input id="salarioBuscar" type="text" autocomplete="off" placeholder="Nombre o cédula..."
                             class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
                     <div id="salarioResultados" class="mt-2 space-y-1"></div>
-                    <p class="text-[11px] text-gray-400 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p>
+                    <p class="text-[11px] text-gray-600 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p>
                 </div>
 
                 <div id="salarioError" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm p-3"></div>
@@ -64,10 +64,10 @@ $hoyIso = $hoy->format('Y-m-d');
 
                 <div id="salarioEmpleado" class="hidden salario-resultado rounded-xl p-4 sm:p-5 space-y-5">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
-                        <div><span class="block text-xs text-gray-400">Nombre</span><strong id="salarioNombre" class="block text-gray-800 uppercase"></strong></div>
-                        <div><span class="block text-xs text-gray-400">Cédula</span><strong id="salarioCedula" class="block text-gray-800"></strong></div>
-                        <div><span class="block text-xs text-gray-400">Inicio de contrato</span><span id="salarioInicioContrato" class="block text-gray-700"></span></div>
-                        <div><span class="block text-xs text-gray-400">Fecha actual</span><span id="salarioFechaActual" class="block text-gray-700"></span></div>
+                        <div><span class="block text-xs text-gray-600">Nombre</span><strong id="salarioNombre" class="block text-gray-800 uppercase"></strong></div>
+                        <div><span class="block text-xs text-gray-600">Cédula</span><strong id="salarioCedula" class="block text-gray-800"></strong></div>
+                        <div><span class="block text-xs text-gray-600">Inicio de contrato</span><span id="salarioInicioContrato" class="block text-gray-700"></span></div>
+                        <div><span class="block text-xs text-gray-600">Fecha actual</span><span id="salarioFechaActual" class="block text-gray-700"></span></div>
                     </div>
 
                     <div class="border-t border-gray-200 pt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -75,21 +75,21 @@ $hoyIso = $hoy->format('Y-m-d');
                             <label class="block text-sm font-medium text-gray-700 mb-1">REMUNERACIÓN. A partir del día</label>
                             <input id="salarioFechaRemuneracion" type="date" value="<?= htmlspecialchars($hoyIso) ?>"
                                 class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
-                            <p id="salarioFechaRemuneracionTexto" class="text-[11px] text-gray-400 mt-1.5"></p>
+                            <p id="salarioFechaRemuneracionTexto" class="text-[11px] text-gray-600 mt-1.5"></p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">La suma de</label>
                             <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 text-sm">$</span>
                                 <input id="salarioValor" type="text" inputmode="numeric" autocomplete="off" placeholder="Ej. 2.500.000"
                                     class="w-full h-10 border border-gray-200 bg-white rounded-lg pl-7 pr-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
                             </div>
-                            <p id="salarioValorTexto" class="text-[11px] text-gray-400 mt-1.5"></p>
+                            <p id="salarioValorTexto" class="text-[11px] text-gray-600 mt-1.5"></p>
                         </div>
                     </div>
 
                     <div class="rounded-xl border border-gray-200 bg-white p-4">
-                        <p class="text-xs text-gray-400 mb-2">Vista previa</p>
+                        <p class="text-xs text-gray-600 mb-2">Vista previa</p>
                         <p class="text-sm text-gray-700 leading-6"><strong>REMUNERACIÓN.</strong> A partir del día <span id="previewFecha" class="font-medium"></span>, la suma de <span id="previewSalario" class="font-medium"></span>.</p>
                     </div>
                 </div>
@@ -100,7 +100,7 @@ $hoyIso = $hoy->format('Y-m-d');
         <section class="salario-card bg-white rounded-2xl border border-gray-100 shadow-sm">
             <div class="p-4 sm:p-5 lg:p-6 border-b border-gray-100">
                 <h2 class="font-bold text-gray-800">Generados</h2>
-                <p class="text-xs text-gray-400">Archivos generados recientemente</p>
+                <p class="text-xs text-gray-600">Archivos generados recientemente</p>
             </div>
             <div class="p-4 sm:p-5 lg:p-6">
                 <?php if ($generados): ?>
@@ -109,7 +109,7 @@ $hoyIso = $hoy->format('Y-m-d');
                             <div class="salario-generado border border-gray-100 rounded-xl p-3 hover:bg-gray-50/70 transition">
                                 <div class="salario-generado-contenido">
                                     <p class="text-sm font-medium text-gray-700 break-words" title="<?= htmlspecialchars($g['archivo']) ?>"><?= htmlspecialchars($g['archivo']) ?></p>
-                                    <p class="text-xs text-gray-400"><?= date('d/m/Y H:i', $g['fecha']) ?></p>
+                                    <p class="text-xs text-gray-600"><?= date('d/m/Y H:i', $g['fecha']) ?></p>
                                 </div>
                                 <div class="salario-generado-acciones">
                                     <a href="./api/formato_archivo.php?f=<?= rawurlencode($g['archivo']) ?>&accion=ver" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 rounded-lg transition"><?= icon('eye','w-4 h-4') ?> Ver</a>
@@ -120,7 +120,7 @@ $hoyIso = $hoy->format('Y-m-d');
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <p class="text-xs text-gray-400 text-center py-8">Todavía no hay Otrosí de cambio de salario generados.</p>
+                    <p class="text-xs text-gray-600 text-center py-8">Todavía no hay Otrosí de cambio de salario generados.</p>
                 <?php endif; ?>
             </div>
         </section>

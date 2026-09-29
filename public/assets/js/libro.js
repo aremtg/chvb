@@ -188,7 +188,7 @@ function actualizarTarjetaBolsillo(bolsillo) {
   } else if (bolsillo.alarma_activa) {
     btn.classList.add("border-gray-200");
     label.innerHTML =
-      '<span class="text-gray-400 font-normal">⏰ Alarma configurada</span>';
+      '<span class="text-gray-600 font-normal">⏰ Alarma configurada</span>';
   } else {
     btn.classList.add("border-gray-200");
     label.innerHTML = "";
@@ -221,7 +221,7 @@ function renderDocumentos(documentos) {
 
   if (!documentos || documentos.length === 0) {
     lista.innerHTML =
-      '<li class="p-3 text-sm text-gray-400">No hay documentos en este bolsillo.</li>';
+      '<li class="p-3 text-sm text-gray-600">No hay documentos en este bolsillo.</li>';
     return;
   }
 
@@ -230,7 +230,7 @@ function renderDocumentos(documentos) {
     li.className = "p-3 flex items-center justify-between text-sm";
     li.innerHTML = `
             <button onclick="abrirVisorPDF(${index})" class="flex items-center gap-2 text-left flex-1 text-red-600 hover:underline">
-                <span class="text-gray-400 no-underline">${index + 1}.</span>
+                <span class="text-gray-600 no-underline">${index + 1}.</span>
                 <span>${doc.nombre_archivo}</span>
             </button>
             ${
@@ -238,9 +238,9 @@ function renderDocumentos(documentos) {
                 ? ""
                 : `
             <div class="flex items-center gap-1">
-                <button onclick="abrirModalRenombrar(${doc.id}, '${doc.nombre_archivo.replace(/'/g, "\\'")}')" class="text-gray-400 hover:text-blue-600 px-1">✎</button>
-                <button onclick="moverDocumento(${doc.id}, 'arriba')" class="text-gray-400 hover:text-gray-700 px-1">↑</button>
-                <button onclick="moverDocumento(${doc.id}, 'abajo')" class="text-gray-400 hover:text-gray-700 px-1">↓</button>
+                <button onclick="abrirModalRenombrar(${doc.id}, '${doc.nombre_archivo.replace(/'/g, "\\'")}')" class="text-gray-600 hover:text-blue-600 px-1">✎</button>
+                <button onclick="moverDocumento(${doc.id}, 'arriba')" class="text-gray-600 hover:text-gray-700 px-1">↑</button>
+                <button onclick="moverDocumento(${doc.id}, 'abajo')" class="text-gray-600 hover:text-gray-700 px-1">↓</button>
                 <button onclick="eliminarDocumento(${doc.id})" class="text-red-400 hover:text-red-600 px-1">✕</button>
             </div>`
             }

@@ -47,7 +47,7 @@ function crearBuscadorEmpleado({
     function pintar(empleados) {
         ultimos = empleados;
         if (!empleados.length) {
-            lista.innerHTML = '<div class="text-sm text-gray-400 p-3">No se encontraron empleados con esa búsqueda.</div>';
+            lista.innerHTML = '<div class="text-sm text-gray-600 p-3">No se encontraron empleados con esa búsqueda.</div>';
             return;
         }
         lista.innerHTML = empleados.map((emp, i) => `
@@ -62,7 +62,7 @@ function crearBuscadorEmpleado({
         const mia = ++version;
         if (controller) controller.abort();
         controller = new AbortController();
-        lista.innerHTML = '<div class="text-sm text-gray-400 p-3">Buscando...</div>';
+        lista.innerHTML = '<div class="text-sm text-gray-600 p-3">Buscando...</div>';
         try {
             const r = await fetch(`${endpoint}?q=${encodeURIComponent(q)}`, {
                 headers: { Accept: 'application/json' }, cache: 'no-store', signal: controller.signal

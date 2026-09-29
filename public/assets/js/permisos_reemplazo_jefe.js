@@ -24,7 +24,7 @@ function render() {
   let html = "";
   if (pendientes.length === 0)
     html +=
-      '<p class="text-sm text-gray-400">No tienes permisos pendientes de firmar.</p>';
+      '<p class="text-sm text-gray-600">No tienes permisos pendientes de firmar.</p>';
   pendientes.forEach((p) => {
     const rol = esRolPara(p);
     html += `
