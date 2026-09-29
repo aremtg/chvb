@@ -1,0 +1,15 @@
+# .htaccess (raíz del proyecto)
+# Nada de esta carpeta debe abrirse por URL: .env, config/, database/, src/,
+# includes/, uploads/, vendor/, composer.*, etc.
+# Lo único público es /public (ver public/.htaccess).
+# Requiere Apache 2.4 (XAMPP lo trae) y AllowOverride All en el directorio htdocs.
+
+Options -Indexes
+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+</IfModule>

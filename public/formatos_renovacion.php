@@ -1,13 +1,9 @@
 <?php
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/formatos_guard.php';
+require_once __DIR__ . '/../includes/formatos_ui.php';
 require_once __DIR__ . '/../src/models/FormatoModel.php';
-requireSuperAdmin();
+requireFormatosAccess();
 
-$rolesFormatos = ['superadmin_talento_humano', 'auxiliar_talento_humano'];
-if (!in_array($_SESSION['superadmin_rol'] ?? '', $rolesFormatos, true)) {
-    http_response_code(403);
-    exit('No autorizado.');
-}
 
 $generados = FormatoModel::listarRenovacionesGeneradas(__DIR__ . '/../uploads/generados');
 $csrf = csrfToken();
@@ -26,7 +22,7 @@ $csrf = csrfToken();
 <body class="bg-gray-50 min-h-screen text-gray-800">
 <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 <div class="md:ml-64 pt-14 md:pt-0">
-<header class="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 sticky top-0 z-30"><div class="flex items-center gap-3"><span class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center"><?= icon('file-signature','w-5 h-5') ?></span><div><h1 class="text-base font-bold text-gray-800">Renovación de Contrato</h1><p class="text-xs text-gray-400">AF-FT-02 · Gestión de renovaciones</p></div></div></header>
+<?= formatosHeader('Renovación de Contrato', 'AF-FT-02 · Gestión de renovaciones') ?>
 <main class="p-3 sm:p-5 lg:p-6 max-w-5xl mx-auto space-y-5">
 <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
 <div class="p-4 sm:p-5 lg:p-6 border-b border-gray-100"><div class="flex items-start gap-3"><span class="w-10 h-10 shrink-0 rounded-xl bg-red-50 text-red-600 flex items-center justify-center"><?= icon('file-signature','w-5 h-5') ?></span><div><h2 class="font-bold text-gray-800">Generar Renovación</h2><p class="text-xs text-gray-400">Busca al empleado por nombre o cédula y agrega las renovaciones.</p></div></div></div>
@@ -36,7 +32,7 @@ $csrf = csrfToken();
 <div id="renEmpleado" class="hidden rounded-xl bg-gray-50/70 border border-gray-100 p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
 <div id="renDatosFaltantes" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 p-4 text-sm"></div>
 <div id="renCampos" class="hidden space-y-4"><div class="rounded-xl border border-gray-100 bg-gray-50/70 p-4"><div class="text-xs text-gray-400">Fecha fin del contrato inicial</div><div id="renFinContrato" class="mt-1 text-base font-semibold text-gray-800">-</div></div><div id="renAlerta" class="hidden ren-alerta rounded-xl p-4 text-sm font-semibold"></div><div id="renAcumulado" class="ren-resumen-superior rounded-xl p-4 text-sm text-gray-700 bg-gray-50/70"></div><div><div class="flex items-center justify-between gap-3 mb-2"><div><p class="text-sm font-semibold text-gray-700">Historial de Renovaciones</p><p class="text-xs text-gray-400">Agrega una renovación y selecciona su duración.</p></div><button id="btnAgregarRen" type="button" onclick="agregarRenovacion()" class="shrink-0 inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition"><?= icon('plus','w-4 h-4') ?> Agregar Renovación</button></div><div id="renHistorial" class="space-y-3"></div><div id="renHistorialVacio" class="rounded-xl border border-dashed border-gray-200 bg-gray-50/40 text-center text-sm text-gray-400 py-8">Aún no has agregado renovaciones.</div></div></div>
-<div id="renError" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm p-3"></div><div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2"><a href="./formatos.php" class="inline-flex justify-center px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">Volver a Formatos</a><button id="btnGenerarRen" type="submit" disabled class="px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium opacity-50 cursor-not-allowed transition">Generar Word</button></div>
+<div id="renError" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm p-3"></div><?= formatosBarraAcciones('btnGenerarRen', 'buscadorRen.reset()', 'submit') ?>
 </form></section>
 <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible"><div class="p-4 sm:p-5 lg:p-6 border-b border-gray-100"><h2 class="font-bold text-gray-800">Generados</h2><p class="text-xs text-gray-400">Renovaciones generadas recientemente</p></div><div class="p-4 sm:p-5 lg:p-6">
 <?php if ($generados): ?>
@@ -48,6 +44,7 @@ $csrf = csrfToken();
 <?php else: ?><p class="text-xs text-gray-400 text-center py-8">Todavía no hay renovaciones generadas.</p><?php endif; ?>
 </div></section>
 </main></div>
+<script src="./assets/js/empleado_buscador.js"></script>
 <script>
 const csrfToken = <?= json_encode($csrf) ?>;
 
@@ -386,8 +383,7 @@ const csrfToken = <?= json_encode($csrf) ?>;
         function validarFormulario() {
             const btn = document.getElementById('btnGenerarRen');
             if (!empleadoRen || !renovacionesRen.length) {
-                btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                formatosSetBoton(btn, false);
                 return false;
             }
 
@@ -426,67 +422,13 @@ const csrfToken = <?= json_encode($csrf) ?>;
                 }
             }
 
-            btn.disabled = !valido;
-            btn.classList.toggle('opacity-50', !valido);
-            btn.classList.toggle('cursor-not-allowed', !valido);
+            formatosSetBoton(btn, valido);
             if (!valido && mensaje) mostrarError(mensaje);
             else if (valido) mostrarError('');
             return valido;
         }
-        let busquedaRenTimer = null;
-let renController = null;
-let renBusquedaVersion = 0;
-
-async function buscarEmpleado(q) {
-    const resultados = document.getElementById('renResultados');
-    q = String(q ?? '').trim();
-    const version = ++renBusquedaVersion;
-
-    if (renController) renController.abort();
-    if (q.length < 2) {
-        resultados.innerHTML = '';
-        return;
-    }
-
-    resultados.innerHTML = '<div class="text-sm text-gray-400 p-3">Buscando...</div>';
-    const controller = new AbortController();
-    renController = controller;
-
-    try {
-        const r = await fetch(`./api/formatos_renovacion_empleados.php?q=${encodeURIComponent(q)}`, {
-            headers: { 'Accept': 'application/json' },
-            cache: 'no-store',
-            signal: controller.signal
-        });
-        const data = await r.json();
-
-        const qActual = document.getElementById('renBuscar').value.trim();
-        if (version !== renBusquedaVersion || qActual !== q || data.q !== q) return;
-
-        if (!r.ok || !data.ok) throw new Error(data.error || 'No se pudo buscar el empleado.');
-        const empleados = Array.isArray(data.empleados) ? data.empleados : [];
-
-        resultados.innerHTML = empleados.map(emp => `
-            <button type="button" onclick='seleccionarEmpleado(${JSON.stringify(emp)})'
-                class="w-full text-left p-3 rounded-xl border border-gray-100 bg-white hover:bg-red-50 transition">
-                <div class="font-medium text-gray-800">${escapeHtml(emp.nombre)}</div>
-                <div class="text-xs text-gray-500">CC. ${escapeHtml(emp.cedula)} · ${escapeHtml(emp.cargo || 'Sin cargo')}</div>
-            </button>
-        `).join('') || '<div class="text-sm text-gray-400 p-3">No se encontraron empleados que coincidan con esa búsqueda.</div>';
-    } catch (error) {
-        if (error.name === 'AbortError') return;
-        if (version !== renBusquedaVersion) return;
-        resultados.innerHTML = '';
-        mostrarError(error.message);
-    }
-}
-
-document.getElementById('renBuscar').addEventListener('input', e => {
-    clearTimeout(busquedaRenTimer);
-    renBusquedaVersion++;
-    if (renController) renController.abort();
-
-    const q = e.target.value.trim();
+        
+function limpiarSeleccionRen() {
     document.getElementById('renCedula').value = '';
     empleadoRen = null;
     renovacionesRen = [];
@@ -495,32 +437,25 @@ document.getElementById('renBuscar').addEventListener('input', e => {
     document.getElementById('renDatosFaltantes').classList.add('hidden');
     document.getElementById('renHistorial').innerHTML = '';
     document.getElementById('renHistorialVacio').classList.remove('hidden');
-    document.getElementById('renResultados').innerHTML = '';
     mostrarError('');
     setAlerta('');
     validarFormulario();
+}
 
-    if (q.length < 2) return;
-    busquedaRenTimer = setTimeout(() => buscarEmpleado(q), 350);
+const buscadorRen = crearBuscadorEmpleado({
+    input: document.getElementById('renBuscar'),
+    lista: document.getElementById('renResultados'),
+    onSelect: emp => seleccionarEmpleado(emp),
+    onClear: limpiarSeleccionRen,
+    onError: mostrarError
 });
 
 
-        function seleccionarEmpleado(emp) {
-            const q = document.getElementById('renBuscar').value.trim().toLocaleLowerCase();
-            const nombre = String(emp.nombre ?? '').toLocaleLowerCase();
-            const cedula = String(emp.cedula ?? '').toLocaleLowerCase();
-            if (!nombre.includes(q) && !cedula.includes(q)) {
-                empleadoRen = null;
-                document.getElementById('renCedula').value = '';
-                document.getElementById('renEmpleado').classList.add('hidden');
-                mostrarError('El empleado seleccionado no coincide con la búsqueda actual.');
-                return;
-            }
 
-            empleadoRen = emp;
+        function seleccionarEmpleado(emp) {
+                        empleadoRen = emp;
             renovacionesRen = [];
             document.getElementById('renCedula').value = emp.cedula;
-            document.getElementById('renBuscar').value = emp.cedula;
             document.getElementById('renResultados').innerHTML = '';
             mostrarError('');
             setAlerta('');
@@ -566,6 +501,7 @@ document.getElementById('renBuscar').addEventListener('input', e => {
             renovacionesRen.forEach((r, index) => fd.append(`duraciones[${index + 1}]`, String(r.meses)));
 
             btn.disabled = true;
+            btn.dataset.html = btn.innerHTML;
             btn.textContent = 'Generando...';
 
             try {
@@ -578,7 +514,7 @@ document.getElementById('renBuscar').addEventListener('input', e => {
                 err.textContent = ex.message;
                 err.classList.remove('hidden');
                 btn.disabled = false;
-                btn.textContent = 'Generar Word';
+                btn.innerHTML = btn.dataset.html;
                 validarFormulario();
             }
         });

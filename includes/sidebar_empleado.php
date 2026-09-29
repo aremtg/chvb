@@ -64,10 +64,12 @@ $totalPorFirmarInicial = (int)$contadoresPermisos['por_firmar'];
     <div class="mt-8 pt-4 border-t border-gray-100 px-2">
         <p class="text-xs text-gray-400">Sesión</p>
         <p class="text-sm text-gray-700 font-medium truncate"><?= htmlspecialchars($cedulaSesion) ?></p>
-        <a href="/chvb/public/logout_empleado.php"
-            class="text-xs text-red-600 hover:underline flex items-center gap-1 mt-1">
-            <?= icon('log-out', 'w-3.5 h-3.5') ?> Cerrar sesión
-        </a>
+        <form method="post" action="/chvb/public/logout_empleado.php">
+            <?= csrfCampoHTML() ?>
+            <button type="submit" class="text-xs text-red-600 hover:underline flex items-center gap-1 mt-1">
+                <?= icon('log-out', 'w-3.5 h-3.5') ?> Cerrar sesión
+            </button>
+        </form>
     </div>
 </aside>
 

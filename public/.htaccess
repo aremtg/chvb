@@ -1,0 +1,18 @@
+# public/.htaccess
+# Esta carpeta sí se sirve, pero sin listado de archivos y sin dotfiles.
+
+Options -Indexes
+
+<IfModule mod_authz_core.c>
+    Require all granted
+
+    <FilesMatch "^\.">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "same-origin"
+</IfModule>

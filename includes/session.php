@@ -99,3 +99,34 @@ function validarCSRF(): void {
         exit;
     }
 }
+
+/**
+ * Cierra la sesión por completo: vacía $_SESSION, borra la cookie y destruye la sesión.
+ */
+function cerrarSesionCompleta(): void {
+    $_SESSION = [];
+    if (ini_get('session.use_cookies')) {
+        $p = session_get_cookie_params();
+        setcookie(session_name(), '', [
+            'expires'  => time() - 42000,
+            'path'     => $p['path'],
+            'domain'   => $p['domain'],
+            'secure'   => $p['secure'],
+            'httponly' => $p['httponly'],
+            'samesite' => 'Lax',
+        ]);
+    }
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_destroy();
+    }
+}
+
+/**
+ * Para los logout: solo actúa si la petición es POST con token CSRF válido.
+ * Devuelve true si se debe cerrar la sesión.
+ */
+function logoutSolicitadoPorPost(): bool {
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') return false;
+    $token = $_POST['csrf_token'] ?? '';
+    return $token !== '' && hash_equals($_SESSION['csrf_token'] ?? '', $token);
+}

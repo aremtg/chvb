@@ -2,14 +2,10 @@
 declare(strict_types=1);
 
 
-require_once __DIR__ . '/../includes/session.php';
-requireSuperAdmin();
+require_once __DIR__ . '/../includes/formatos_guard.php';
+require_once __DIR__ . '/../includes/formatos_ui.php';
+requireFormatosAccess();
 
-$rolesFormatos = ['superadmin_talento_humano', 'auxiliar_talento_humano'];
-if (!in_array($_SESSION['superadmin_rol'] ?? '', $rolesFormatos, true)) {
-    http_response_code(403);
-    exit('No autorizado.');
-}
 
 $csrf = csrfToken();
 
@@ -123,17 +119,7 @@ if (is_dir($generadosDir)) {
 <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 
 <div class="md:ml-64 pt-14 md:pt-0">
-    <header class="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 sticky top-0 z-30">
-        <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
-                <?= icon('file-signature','w-5 h-5') ?>
-            </span>
-            <div>
-                <h1 class="text-base font-bold text-gray-800">Otrosí</h1>
-                <p class="text-xs text-gray-400">Otrosí al Contrato Individual de Trabajo · GH-FT-24</p>
-            </div>
-        </div>
-    </header>
+    <?= formatosHeader('Otrosí', 'Otrosí al Contrato Individual de Trabajo · GH-FT-24') ?>
 
     <main class="p-3 sm:p-5 lg:p-6 max-w-5xl mx-auto space-y-4 sm:space-y-5">
 
@@ -153,20 +139,13 @@ if (is_dir($generadosDir)) {
             <div class="p-4 sm:p-5 lg:p-6 space-y-5">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Buscar empleado</label>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input id="otrosiCedulaBuscar"
+                    <input id="otrosiCedulaBuscar"
                             type="text"
-                            inputmode="numeric"
+                            
                             autocomplete="off"
                             placeholder="Escribe nombre o cédula..."
                             class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
-                        <button id="btnBuscarOtrosi"
-                            type="button"
-                            onclick="buscarEmpleadoOtrosi()"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition shadow-sm">
-                            <?= icon('search','w-4 h-4') ?> Buscar
-                        </button>
-                    </div>
+                    <div id="otrosiResultados" class="mt-2 space-y-1"></div>
                     <p class="text-[11px] text-gray-400 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p>
                 </div>
 
@@ -195,21 +174,8 @@ if (is_dir($generadosDir)) {
                             <span id="otrosiAnio" class="block text-gray-700"></span>
                         </div>
                     </div>
-
-                    <div class="mt-4 flex flex-col sm:flex-row gap-2">
-                        <button id="btnGenerarOtrosi"
-                            type="button"
-                            onclick="generarOtrosi()"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition shadow-sm">
-                            <?= icon('file-text','w-4 h-4') ?> Generar Word
-                        </button>
-                        <button type="button"
-                            onclick="limpiarOtrosi()"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 text-sm font-medium transition">
-                            <?= icon('x','w-4 h-4') ?> Limpiar
-                        </button>
-                    </div>
                 </div>
+                <?= formatosBarraAcciones('btnGenerarOtrosi', 'limpiarOtrosi()', 'button', 'generarOtrosi()') ?>
             </div>
         </section>
 
@@ -261,6 +227,7 @@ if (is_dir($generadosDir)) {
     </main>
 </div>
 
+<script src="./assets/js/empleado_buscador.js"></script>
 <script>
 const csrfToken = <?= json_encode($csrf) ?>;
 let empleadoOtrosi = null;
@@ -286,99 +253,33 @@ function normalizarCedula(value) {
     return String(value ?? '').replace(/\D/g, '');
 }
 
-let busquedaOtrosiTimer = null;
-let otrosiController = null;
-let otrosiBusquedaVersion = 0;
-
-async function buscarEmpleadoOtrosi() {
-    const input = document.getElementById('otrosiCedulaBuscar');
-    const q = input.value.trim();
-    const version = ++otrosiBusquedaVersion;
-
-    if (otrosiController) otrosiController.abort();
+function mostrarEmpleadoOtrosi(emp) {
+    empleadoOtrosi = emp;
     mostrarErrorOtrosi('');
+    document.getElementById('otrosiNombre').textContent = emp.nombre;
+    document.getElementById('otrosiCedula').textContent = emp.cedula;
+    const hoy = new Date();
+    document.getElementById('otrosiDia').textContent = hoy.toLocaleDateString('es-CO', {day: 'numeric'});
+    document.getElementById('otrosiMes').textContent = hoy.toLocaleDateString('es-CO', {month: 'long'});
+    document.getElementById('otrosiAnio').textContent = hoy.toLocaleDateString('es-CO', {year: 'numeric'});
+    document.getElementById('otrosiEmpleado').classList.remove('hidden');
+    formatosSetBoton(document.getElementById('btnGenerarOtrosi'), true);
+}
+
+function limpiarSeleccionOtrosi() {
     empleadoOtrosi = null;
     document.getElementById('otrosiEmpleado').classList.add('hidden');
-
-    if (q.length < 2) {
-        return;
-    }
-
-    const btn = document.getElementById('btnBuscarOtrosi');
-    btn.disabled = true;
-    btn.innerHTML = <?= json_encode(icon('loader-2','w-4 h-4 animate-spin')) ?> + ' Buscando...';
-
-    const controller = new AbortController();
-    otrosiController = controller;
-
-    try {
-        const r = await fetch('./api/formatos_otrosi_empleado.php?q=' + encodeURIComponent(q), {
-            headers: {'Accept':'application/json'},
-            cache: 'no-store',
-            signal: controller.signal
-        });
-        const data = await r.json();
-
-        // Una respuesta vieja jamás puede pintar/seleccionar un empleado.
-        const qActual = document.getElementById('otrosiCedulaBuscar').value.trim();
-        if (version !== otrosiBusquedaVersion || qActual !== q || data.q !== q) return;
-
-        if (!r.ok || !data.ok) {
-            throw new Error(data.error || 'No se encontraron empleados.');
-        }
-
-        const empleados = Array.isArray(data.empleados) ? data.empleados : [];
-        if (empleados.length === 0) {
-            mostrarErrorOtrosi('No se encontraron empleados que coincidan con esa búsqueda.');
-        } else if (empleados.length === 1) {
-            seleccionarEmpleadoOtrosi(empleados[0]);
-        } else {
-            mostrarResultadosOtrosi(empleados);
-        }
-    } catch (e) {
-        if (e.name === 'AbortError') return;
-        if (version !== otrosiBusquedaVersion) return;
-        empleadoOtrosi = null;
-        document.getElementById('otrosiEmpleado').classList.add('hidden');
-        mostrarErrorOtrosi(e.message || 'No se pudo buscar el empleado.');
-    } finally {
-        if (version === otrosiBusquedaVersion) {
-            btn.disabled = false;
-            btn.innerHTML = <?= json_encode(icon('search','w-4 h-4')) ?> + ' Buscar';
-        }
-    }
+    formatosSetBoton(document.getElementById('btnGenerarOtrosi'), false);
+    mostrarErrorOtrosi('');
 }
 
-function mostrarResultadosOtrosi(empleados) {
-    const box = document.getElementById('otrosiError');
-    box.innerHTML = '<div class="text-xs text-gray-500 mb-2">Selecciona el empleado encontrado:</div>' +
-        empleados.map(emp => `<button type="button" class="w-full text-left p-3 mb-1 rounded-xl border border-red-100 bg-white hover:bg-red-50 transition" onclick='seleccionarEmpleadoOtrosi(${JSON.stringify(emp)})'><div class="font-medium text-gray-800">${escapeHtml(emp.nombre)}</div><div class="text-xs text-gray-500">CC. ${escapeHtml(emp.cedula)}</div></button>`).join('');
-    box.classList.remove('hidden');
-}
-
-function seleccionarEmpleadoOtrosi(emp) {
-    // Solo se permite seleccionar una respuesta que realmente corresponde a la búsqueda actual.
-    const q = document.getElementById('otrosiCedulaBuscar').value.trim().toLocaleLowerCase();
-    const nombre = String(emp.nombre ?? '').toLocaleLowerCase();
-    const cedula = String(emp.cedula ?? '').toLocaleLowerCase();
-    if (!nombre.includes(q) && !cedula.includes(q)) {
-        empleadoOtrosi = null;
-        document.getElementById('otrosiEmpleado').classList.add('hidden');
-        mostrarErrorOtrosi('El empleado seleccionado no coincide con la búsqueda actual.');
-        return;
-    }
-
-    empleadoOtrosi = emp;
-    const box=document.getElementById('otrosiError'); box.classList.add('hidden'); box.innerHTML='';
-    document.getElementById('otrosiNombre').textContent=emp.nombre;
-    document.getElementById('otrosiCedula').textContent=emp.cedula;
-    const hoy=new Date();
-    document.getElementById('otrosiDia').textContent=hoy.toLocaleDateString('es-CO',{day:'numeric'});
-    document.getElementById('otrosiMes').textContent=hoy.toLocaleDateString('es-CO',{month:'long'});
-    document.getElementById('otrosiAnio').textContent=hoy.toLocaleDateString('es-CO',{year:'numeric'});
-    document.getElementById('otrosiEmpleado').classList.remove('hidden');
-}
-
+const buscadorOtrosi = crearBuscadorEmpleado({
+    input: document.getElementById('otrosiCedulaBuscar'),
+    lista: document.getElementById('otrosiResultados'),
+    onSelect: mostrarEmpleadoOtrosi,
+    onClear: limpiarSeleccionOtrosi,
+    onError: mostrarErrorOtrosi
+});
 
 async function generarOtrosi() {
     if (!empleadoOtrosi) {
@@ -393,6 +294,7 @@ async function generarOtrosi() {
     fd.append('csrf_token', csrfToken);
     fd.append('cedula', empleadoOtrosi.cedula);
 
+    btn.dataset.html = btn.innerHTML;
     btn.disabled = true;
     btn.textContent = 'Generando...';
 
@@ -413,31 +315,14 @@ async function generarOtrosi() {
 
     } catch (e) {
         mostrarErrorOtrosi(e.message || 'No se pudo generar el Word.');
-        btn.disabled = false;
-        btn.innerHTML = <?= json_encode(icon('file-text','w-4 h-4')) ?> + ' Generar Word';
+        btn.innerHTML = btn.dataset.html;
+        formatosSetBoton(btn, true);
     }
 }
 
 function limpiarOtrosi() {
-    empleadoOtrosi = null;
-    document.getElementById('otrosiCedulaBuscar').value = '';
-    document.getElementById('otrosiEmpleado').classList.add('hidden');
-    mostrarErrorOtrosi('');
-    document.getElementById('otrosiCedulaBuscar').focus();
+    buscadorOtrosi.reset();
 }
-
-document.getElementById('otrosiCedulaBuscar').addEventListener('input', e => {
-    clearTimeout(busquedaOtrosiTimer);
-    otrosiBusquedaVersion++;
-    if (otrosiController) otrosiController.abort();
-    empleadoOtrosi = null;
-    document.getElementById('otrosiEmpleado').classList.add('hidden');
-    document.getElementById('otrosiError').classList.add('hidden');
-    const q=e.target.value.trim();
-    if(q.length<2) return;
-    busquedaOtrosiTimer=setTimeout(()=>buscarEmpleadoOtrosi(),350);
-});
-document.getElementById('otrosiCedulaBuscar').addEventListener('keydown', e => { if(e.key==='Enter'){e.preventDefault(); clearTimeout(busquedaOtrosiTimer); buscarEmpleadoOtrosi();} });
 
 async function eliminarOtrosi(archivo) {
     if (!confirm('¿Eliminar este Otrosí generado?')) return;

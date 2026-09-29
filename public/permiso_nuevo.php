@@ -263,10 +263,13 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
         </main>
     </div>
 
+    <?php // Los scripts solo se cargan si el formulario existe; si no, buscan elementos que no están y dan errores en consola. ?>
+    <?php if ($datosCompletos): ?>
     <script>window.PERMISO_EDITAR = <?= $editarId ? json_encode(['id'=>$editarId,'version'=>(int)$permisoEditar['version'],'permiso'=>$permisoEditar,'dias'=>PermisoModel::obtenerDias($editarId),'devoluciones'=>PermisoModel::obtenerDevoluciones($editarId)], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) : 'null' ?>;</script>
     <script src="./assets/js/camera_capture.js"></script>
     <script src="./assets/js/firma_canvas.js"></script>
     <script src="./assets/js/permiso_nuevo.js"></script>
+    <?php endif; ?>
 </body>
 
 </html>

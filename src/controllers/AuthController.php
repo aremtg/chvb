@@ -45,6 +45,6 @@ class AuthController
 
     public static function logout(): void
     {
-        unset($_SESSION['superadmin_id'], $_SESSION['superadmin_username']);
+        cerrarSesionCompleta();
     }
 }

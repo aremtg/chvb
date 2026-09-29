@@ -8,13 +8,26 @@ function cambiarSeccion(seccion) {
     .forEach((s) => s.classList.add("hidden"));
   document.getElementById(`seccion-${seccion}`).classList.remove("hidden");
 
+  const ACTIVA = ["bg-red-600", "text-white", "shadow-sm"];
+  const INACTIVA = ["bg-white", "text-gray-600", "border", "border-gray-200", "hover:bg-gray-50"];
   document.querySelectorAll(".tab-seccion").forEach((t) => {
-    t.classList.remove("bg-red-600", "text-white");
-    t.classList.add("bg-white", "text-gray-600");
+    t.classList.remove(...ACTIVA);
+    t.classList.add(...INACTIVA);
   });
   const tabActivo = document.getElementById(`tab-${seccion}`);
-  tabActivo.classList.remove("bg-white", "text-gray-600");
-  tabActivo.classList.add("bg-red-600", "text-white");
+  tabActivo.classList.remove(...INACTIVA);
+  tabActivo.classList.add(...ACTIVA);
+}
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;",
+  }[c]));
+}
+
+function abrirBolsilloPorId(id) {
+  const bolsillo = BOLSILLOS_DATA[id];
+  if (bolsillo) abrirBolsillo(bolsillo);
 }
 
 function abrirBolsillo(bolsillo) {
@@ -53,7 +66,7 @@ function renderDocumentos(documentos) {
         li.innerHTML = `
             <button onclick="abrirVisorPDF(${index})" class="flex items-center gap-2 text-left flex-1 text-red-600 hover:underline">
                 <span class="text-gray-400 no-underline">${index + 1}.</span>
-                <span>${doc.nombre_archivo}</span>
+                <span>${escapeHtml(doc.nombre_archivo)}</span>
             </button>
             ${botonEliminar}
         `;

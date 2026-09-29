@@ -1,15 +1,11 @@
 <?php
 declare(strict_types=1);
 date_default_timezone_set('America/Bogota');
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/formatos_guard.php';
+require_once __DIR__ . '/../includes/formatos_ui.php';
 require_once __DIR__ . '/../src/models/FormatoModel.php';
-requireSuperAdmin();
+requireFormatosAccess();
 
-$rolesFormatos = ['superadmin_talento_humano', 'auxiliar_talento_humano'];
-if (!in_array($_SESSION['superadmin_rol'] ?? '', $rolesFormatos, true)) {
-    http_response_code(403);
-    exit('No autorizado.');
-}
 
 $generados = FormatoModel::listarOtrosiSalarioGenerados(__DIR__ . '/../uploads/generados');
 $csrf = csrfToken();
@@ -38,17 +34,7 @@ $hoyIso = $hoy->format('Y-m-d');
 <body class="bg-gray-50 min-h-screen text-gray-800">
 <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 <div class="md:ml-64 pt-14 md:pt-0">
-    <header class="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 sticky top-0 z-30">
-        <div class="flex items-center gap-3">
-            <a href="./formatos.php" class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center" title="Volver a Formatos">
-                <?= icon('file-signature','w-5 h-5') ?>
-            </a>
-            <div>
-                <h1 class="text-base font-bold text-gray-800">Otrosí cambio de salario</h1>
-                <p class="text-xs text-gray-400">Cambio de remuneración al contrato individual de trabajo · GH-FT-25</p>
-            </div>
-        </div>
-    </header>
+    <?= formatosHeader('Otrosí cambio de salario', 'Cambio de remuneración al contrato individual de trabajo · GH-FT-25') ?>
 
     <main class="p-3 sm:p-5 lg:p-6 max-w-5xl mx-auto space-y-4 sm:space-y-5">
         <section class="salario-card bg-white rounded-2xl border border-gray-100 shadow-sm">
@@ -67,19 +53,14 @@ $hoyIso = $hoy->format('Y-m-d');
             <div class="p-4 sm:p-5 lg:p-6 space-y-5">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Buscar empleado</label>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input id="salarioBuscar" type="text" autocomplete="off" placeholder="Nombre o cédula..."
+                    <input id="salarioBuscar" type="text" autocomplete="off" placeholder="Nombre o cédula..."
                             class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
-                        <button id="btnBuscarSalario" type="button" onclick="buscarEmpleadoSalario()"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition shadow-sm">
-                            <?= icon('search','w-4 h-4') ?> Buscar
-                        </button>
-                    </div>
+                    <div id="salarioResultados" class="mt-2 space-y-1"></div>
                     <p class="text-[11px] text-gray-400 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p>
                 </div>
 
                 <div id="salarioError" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm p-3"></div>
-                <div id="salarioResultados" class="hidden space-y-2"></div>
+                
 
                 <div id="salarioEmpleado" class="hidden salario-resultado rounded-xl p-4 sm:p-5 space-y-5">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
@@ -111,18 +92,8 @@ $hoyIso = $hoy->format('Y-m-d');
                         <p class="text-xs text-gray-400 mb-2">Vista previa</p>
                         <p class="text-sm text-gray-700 leading-6"><strong>REMUNERACIÓN.</strong> A partir del día <span id="previewFecha" class="font-medium"></span>, la suma de <span id="previewSalario" class="font-medium"></span>.</p>
                     </div>
-
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <button id="btnGenerarSalario" type="button" onclick="generarOtrosiSalario()"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition shadow-sm">
-                            <?= icon('file-text','w-4 h-4') ?> Generar Word
-                        </button>
-                        <button type="button" onclick="limpiarSalario()"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 text-sm font-medium transition">
-                            <?= icon('x','w-4 h-4') ?> Limpiar
-                        </button>
-                    </div>
                 </div>
+                <?= formatosBarraAcciones('btnGenerarSalario', 'limpiarSalario()', 'button', 'generarOtrosiSalario()') ?>
             </div>
         </section>
 
@@ -156,11 +127,10 @@ $hoyIso = $hoy->format('Y-m-d');
     </main>
 </div>
 
+<script src="./assets/js/empleado_buscador.js"></script>
 <script>
 const csrfToken = <?= json_encode($csrf) ?>;
 let empleadoSalario = null;
-let salarioController = null;
-let salarioBusquedaVersion = 0;
 
 function mostrarErrorSalario(mensaje) {
     const box = document.getElementById('salarioError');
@@ -230,51 +200,33 @@ function actualizarPreview() {
     document.getElementById('previewSalario').textContent = texto ? texto + ' (' + cop + ')' : '';
 }
 
-async function buscarEmpleadoSalario() {
-    const q = document.getElementById('salarioBuscar').value.trim();
-    const resultados = document.getElementById('salarioResultados');
-    mostrarErrorSalario('');
-    resultados.innerHTML = '';
-    resultados.classList.add('hidden');
-    document.getElementById('salarioEmpleado').classList.add('hidden');
-    empleadoSalario = null;
-    const version = ++salarioBusquedaVersion;
-    if (salarioController) salarioController.abort();
-    if (q.length < 2) { mostrarErrorSalario('Escribe al menos 2 caracteres para buscar.'); return; }
-    salarioController = new AbortController();
-    const btn = document.getElementById('btnBuscarSalario');
-    btn.disabled = true; btn.textContent = 'Buscando...';
-    try {
-        const r = await fetch('./api/formatos_otrosi_salario_empleado.php?q=' + encodeURIComponent(q), {headers:{'Accept':'application/json'}, signal:salarioController.signal});
-        const data = await r.json();
-        if (version !== salarioBusquedaVersion || q !== document.getElementById('salarioBuscar').value.trim()) return;
-        if (!data.ok) throw new Error(data.error || 'No fue posible buscar.');
-        const empleados = Array.isArray(data.empleados) ? data.empleados : [];
-        if (!empleados.length) { mostrarErrorSalario('No se encontraron empleados que coincidan con esa búsqueda.'); return; }
-        resultados.innerHTML = empleados.map((emp,i) => `<button type="button" class="salario-empleado-option w-full text-left rounded-xl p-3 transition" onclick="seleccionarEmpleadoSalario(${i})"><span class="block text-sm font-semibold text-gray-800">${escaparHtml(emp.nombre).toUpperCase()}</span><span class="block text-xs text-gray-400 mt-1">C.C. ${escaparHtml(formatoCedula(emp.cedula))}${emp.fecha_inicio_contrato ? ' · Inicio: '+escaparHtml(fechaLarga(emp.fecha_inicio_contrato)) : ''}</span></button>`).join('');
-        window._empleadosSalario = empleados;
-        resultados.classList.remove('hidden');
-    } catch (e) {
-        if (e.name !== 'AbortError') mostrarErrorSalario(e.message || 'No se pudo buscar el empleado.');
-    } finally {
-        if (version === salarioBusquedaVersion) { btn.disabled = false; btn.innerHTML = <?= json_encode(icon('search','w-4 h-4')) ?> + ' Buscar'; }
-    }
-}
-
-function seleccionarEmpleadoSalario(index) {
-    const emp = (window._empleadosSalario || [])[index];
-    if (!emp) return;
+function seleccionarEmpleadoSalario(emp) {
     empleadoSalario = emp;
-    document.getElementById('salarioResultados').classList.add('hidden');
+    mostrarErrorSalario('');
     document.getElementById('salarioNombre').textContent = String(emp.nombre || '').toUpperCase();
     document.getElementById('salarioCedula').textContent = formatoCedula(emp.cedula);
     document.getElementById('salarioInicioContrato').textContent = fechaLarga(emp.fecha_inicio_contrato);
     document.getElementById('salarioFechaActual').textContent = fechaLegal(<?= json_encode($hoyIso) ?>);
     document.getElementById('salarioEmpleado').classList.remove('hidden');
+    formatosSetBoton(document.getElementById('btnGenerarSalario'), true);
     actualizarPreview();
 }
 
-document.getElementById('salarioBuscar').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); buscarEmpleadoSalario(); } });
+function limpiarSeleccionSalario() {
+    empleadoSalario = null;
+    document.getElementById('salarioEmpleado').classList.add('hidden');
+    formatosSetBoton(document.getElementById('btnGenerarSalario'), false);
+    mostrarErrorSalario('');
+}
+
+const buscadorSalario = crearBuscadorEmpleado({
+    input: document.getElementById('salarioBuscar'),
+    lista: document.getElementById('salarioResultados'),
+    onSelect: seleccionarEmpleadoSalario,
+    onClear: limpiarSeleccionSalario,
+    onError: mostrarErrorSalario
+});
+
 document.getElementById('salarioFechaRemuneracion').addEventListener('change', actualizarPreview);
 document.getElementById('salarioValor').addEventListener('input', e => { const raw=e.target.value.replace(/\D/g,''); e.target.value=raw ? Number(raw).toLocaleString('es-CO') : ''; actualizarPreview(); });
 
@@ -287,18 +239,21 @@ async function generarOtrosiSalario() {
     mostrarErrorSalario('');
     const btn=document.getElementById('btnGenerarSalario'); const fd=new FormData();
     fd.append('csrf_token',csrfToken); fd.append('cedula',empleadoSalario.cedula); fd.append('fecha_remuneracion',fecha); fd.append('salario',salario);
-    btn.disabled=true; btn.textContent='Generando...';
+    btn.dataset.html=btn.innerHTML; btn.disabled=true; btn.textContent='Generando...';
     try {
         const r=await fetch('./api/formatos_otrosi_salario_generar.php',{method:'POST',body:fd});
         const data=await r.json();
         if(!data.ok) throw new Error(data.error || 'No se pudo generar el Word.');
         window.location.href=data.url;
         setTimeout(()=>location.reload(),1000);
-    } catch(e) { mostrarErrorSalario(e.message || 'No se pudo generar el Word.'); btn.disabled=false; btn.innerHTML=<?= json_encode(icon('file-text','w-4 h-4')) ?>+' Generar Word'; }
+    } catch(e) { mostrarErrorSalario(e.message || 'No se pudo generar el Word.'); btn.innerHTML=btn.dataset.html; formatosSetBoton(btn,true); }
 }
 
 function limpiarSalario() {
-    empleadoSalario=null; window._empleadosSalario=[]; document.getElementById('salarioBuscar').value=''; document.getElementById('salarioResultados').innerHTML=''; document.getElementById('salarioResultados').classList.add('hidden'); document.getElementById('salarioEmpleado').classList.add('hidden'); document.getElementById('salarioValor').value=''; document.getElementById('salarioFechaRemuneracion').value=<?= json_encode($hoyIso) ?>; mostrarErrorSalario(''); actualizarPreview(); document.getElementById('salarioBuscar').focus();
+    buscadorSalario.reset();
+    document.getElementById('salarioValor').value = '';
+    document.getElementById('salarioFechaRemuneracion').value = <?= json_encode($hoyIso) ?>;
+    actualizarPreview();
 }
 
 async function eliminarSalario(archivo) {

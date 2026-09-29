@@ -80,10 +80,13 @@ $totalNoLeidasInicial = in_array($rolActual, ['superadmin_talento_humano','auxil
         </p>
     </div>
 
-    <a href="/chvb/public/logout.php"
-        class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition">
-        <?= icon('log-out', 'w-5 h-5')?> Cerrar sesión
-    </a>
+    <form method="post" action="/chvb/public/logout.php" class="mt-3">
+        <?= csrfCampoHTML() ?>
+        <button type="submit"
+            class="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition">
+            <?= icon('log-out', 'w-5 h-5')?> Cerrar sesión
+        </button>
+    </form>
 </div>
 </aside>
 
