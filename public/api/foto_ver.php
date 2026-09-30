@@ -40,12 +40,37 @@ if (!is_file($ruta)) {
     exit('No existe: '.$ruta);
 }
 
-ob_end_clean(); // importante, borra todo lo que metió session.php
-$ext = strtolower(pathinfo($ruta, PATHINFO_EXTENSION));
-$mime = ['jpg'=>'image/jpeg','jpeg'=>'image/jpeg','png'=>'image/png','webp'=>'image/webp'][$ext] ?? mime_content_type($ruta);
+ob_end_clean();
 
-header('Content-Type: '.$mime);
-header('Content-Length: '.filesize($ruta));
-header('Cache-Control: no-cache');
+$ext = strtolower(pathinfo($ruta, PATHINFO_EXTENSION));
+
+$mime = [
+    'jpg'  => 'image/jpeg',
+    'jpeg' => 'image/jpeg',
+    'png'  => 'image/png',
+    'webp' => 'image/webp'
+][$ext] ?? mime_content_type($ruta);
+
+$size = filesize($ruta);
+$mtime = filemtime($ruta);
+
+$etag = '"' . md5($ruta . '|' . $size . '|' . $mtime) . '"';
+
+header('Content-Type: ' . $mime);
+header('Content-Length: ' . $size);
+header('Content-Disposition: inline; filename="foto.' . $ext . '"');
+
+header('Cache-Control: private, max-age=0, must-revalidate');
+header('ETag: ' . $etag);
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+
+if (
+    isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
+    trim($_SERVER['HTTP_IF_NONE_MATCH']) === $etag
+) {
+    http_response_code(304);
+    exit;
+}
+
 readfile($ruta);
 exit;

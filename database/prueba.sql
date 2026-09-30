@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-09-2026 a las 04:47:25
+-- Tiempo de generación: 30-09-2026 a las 03:38:05
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -60,6 +60,14 @@ CREATE TABLE `documentos` (
   `subido_por_tipo` enum('empleado','panel') NOT NULL DEFAULT 'panel'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Volcado de datos para la tabla `documentos`
+--
+
+INSERT INTO `documentos` (`id`, `bolsillo_id`, `nombre_archivo`, `ruta`, `orden`, `fecha_subida`, `subido_por_cedula`, `subido_por_tipo`) VALUES
+(1, 497, 'Certificado.pdf', 'hv_1118555586/hoja_de_vida/hv_formal_hv_1118555586/Certificado_1790728449.pdf', 1, '2026-09-30 00:33:51', NULL, 'panel'),
+(2, 1320, 'Certificado_de_Afiliación.pdf', 'hv_80033385/documentos_contractuales/certificadoARL_hv_80033385/Certificado_de_Afiliaci__n_1790728762.pdf', 1, '2026-09-30 00:39:05', NULL, 'panel');
+
 -- --------------------------------------------------------
 
 --
@@ -93,24 +101,27 @@ CREATE TABLE `empleados` (
 --
 
 INSERT INTO `empleados` (`cedula`, `nombre`, `sexo`, `cargo`, `tipo_de_personal`, `eps`, `pension`, `arl`, `salario_basico`, `es_bombero_integral`, `tipo_de_contrato`, `fecha_inicio_contrato`, `fecha_fin_contrato`, `estado`, `celular`, `correo`, `fecha_nacimiento`, `created_at`, `foto`) VALUES
+('1005719736', 'Carlos Augusto Triana Lozano', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'OPS', NULL, '2026-10-06', 'activo', NULL, NULL, NULL, '2026-09-29 23:30:02', NULL),
 ('1006555838', 'Lourdes Ester Guarin Garcia', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:32:54', NULL),
 ('1006556137', 'Javier David Moreno', 'M', 'Auxiliar de Extintores', 'Civil', 'Nueva EPS', NULL, NULL, NULL, 0, 'Fijo', '2026-03-12', '2026-09-11', 'activo', '3224045766', NULL, NULL, '2026-09-23 22:46:04', NULL),
 ('1006556671', 'Jhon Marco Rincon Castaño', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:41:28', NULL),
 ('1006636306', 'Karen Lizeth Diaz Pineda', 'F', 'Auxiliar de Extintores', 'Bombero', 'Sanitas', 'Porvenir', NULL, NULL, 0, 'Fijo', '2026-04-09', '2026-10-08', 'activo', NULL, NULL, NULL, '2026-09-23 23:07:53', NULL),
+('1007703611', 'Eduard Yecid Largo', 'M', 'Administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2024-04-05', '2027-04-04', 'activo', NULL, NULL, NULL, '2026-09-29 21:01:48', NULL),
 ('1019024577', 'Nohora Rocio Duran Torres', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:07:51', NULL),
 ('1029643799', 'Samuel Santiago Fonseca Patarroyo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:09:04', NULL),
 ('1029661794', 'Darwin Camilo Bedoya Gutierrez', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '2007-09-22', '2026-09-23 18:08:27', NULL),
 ('1115911058', 'Edwar Santiago Alfonso Ducon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '2006-01-27', '2026-09-23 18:06:47', NULL),
 ('1115913555', 'Wilder Andrey Chaparro Chaparro', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1991-11-28', '2026-09-23 03:43:10', NULL),
-('1116043143', 'Lina Maria Aponte Fonseca', 'F', 'Auxiliar SST', 'Civil', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1997-11-10', '2026-09-25 02:25:10', NULL),
+('1116043143', 'Lina Maria Aponte Fonseca', 'F', 'Auxiliar SST', 'Civil', 'Sanitas', NULL, 'Positiva', 1964430.00, 0, 'Fijo', '2024-05-15', '2024-08-14', 'activo', NULL, NULL, '1997-11-10', '2026-09-25 02:25:10', NULL),
 ('1116552720', 'Juan Fernando Dominguez Ibarguen', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1997-02-10', '2026-09-23 03:38:48', NULL),
 ('1118529611', 'Jimmy Alejandro Garcia Chinchilla', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 02:08:05', NULL),
+('1118530819', 'Omar David Linares Alvarez', 'M', 'Auxiliar de contaduría', 'Civil', NULL, NULL, NULL, NULL, 0, 'Fijo', '2025-10-01', '2026-04-30', 'activo', '3005484351', NULL, NULL, '2026-09-29 23:32:41', 'hv_1118530819/perfil/foto.jpg'),
 ('1118534974', 'Soraida Sepulveda Gordillo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:25:05', NULL),
 ('1118543385', 'Lewis Arfrey Ardila Achagua', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1989-11-28', '2026-09-23 03:30:44', NULL),
 ('1118544837', 'José Ferney Rodriguez Barrera', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 02:05:57', NULL),
 ('1118547243', 'Tito Enrique Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1991-04-21', '2026-09-23 01:11:57', NULL),
 ('1118550799', 'Deyna Yurany Torres Cuervo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:27:52', NULL),
-('1118555586', 'Angel Gabriel Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1993-10-05', '2026-09-23 02:06:39', NULL),
+('1118555586', 'Angel Gabriel Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1993-10-05', '2026-09-23 02:06:39', 'hv_1118555586/perfil/foto.webp'),
 ('111856453', 'Astrid Mariana Aquite Gómez', 'F', 'Auxiliar en Talento Humano', 'Civil', 'Nueva EPS', 'Colfondos', 'Positiva', 1964430.00, 1, 'Fijo', '2024-02-15', '2024-08-15', 'activo', '3209308877', NULL, '1996-04-13', '2026-09-23 00:46:12', NULL),
 ('1118564997', 'Kewin Alexis Adan Jeronimo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'no activo', NULL, NULL, NULL, '2026-09-23 03:18:30', NULL),
 ('1118565906', 'Jeidi Carolina Acevedo Lopez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:44:42', NULL),
@@ -127,14 +138,17 @@ INSERT INTO `empleados` (`cedula`, `nombre`, `sexo`, `cargo`, `tipo_de_personal`
 ('47428604', 'Graciela Garcia Chinchilla', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:57:55', NULL),
 ('47430097', 'Sthella Gutierrez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:01:10', NULL),
 ('47441163', 'Sandra Milena Castaño Vargas', 'F', 'Administrativo', 'Civil', 'Sanitas', 'Porvenir', 'Positiva', 2071830.00, 0, 'Fijo', '2024-02-13', '2024-08-12', 'activo', NULL, NULL, '1983-06-13', '2026-09-23 00:56:25', NULL),
+('47441979', 'Angela Maria Moreno', 'F', 'Comandante de estación', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-29 21:33:52', 'hv_47441979/perfil/foto.jpg'),
 ('52308103', 'Fanny Paola Mercado Delgado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1975-10-14', '2026-09-23 18:10:43', NULL),
 ('7180789', 'Hector Favian Auzaque Parra', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:45:50', NULL),
+('7254795', 'Yobanis Alberto Castrillon Cano', 'M', 'Maquinista', 'Bombero', NULL, 'Colpensiones', 'Positiva', NULL, 0, 'Fijo', '2024-07-01', '2024-06-30', 'activo', NULL, NULL, NULL, '2026-09-29 20:58:48', NULL),
 ('74770870', 'Ariosto Castelblanco Zorro', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:56:03', NULL),
 ('74814305', 'Nelson Morales Cubides', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, '1979-11-14', '2026-09-23 18:04:03', NULL),
 ('74859815', 'Waldo Ramirez Avila', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:04:43', NULL),
-('74861664', 'Guillermo Enrique Guarin Fonseca', 'M', 'Director Académico', 'Civil', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1979-09-25', '2026-09-25 02:19:35', NULL),
+('74861664', 'Guillermo Enrique Guarin Fonseca', 'M', 'Director Académico', 'Civil', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1979-09-25', '2026-09-25 02:19:35', 'hv_74861664/perfil/foto.png'),
 ('74861711', 'Wilmar Vargas Teatin', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:05:33', NULL),
-('80033385', 'Jorge Antonio Segura Poveda', 'M', 'Conductor de ambulancia', 'Bombero', 'Sanitas', 'Colfondos', 'Positiva', NULL, 1, 'Fijo', '2026-09-26', '2027-05-25', 'activo', '3212038841', NULL, '1982-05-13', '2026-09-25 02:02:05', 'hv_80033385/perfil/foto.png'),
+('80033385', 'Jorge Antonio Segura Poveda', 'M', 'Conductor de ambulancia', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', NULL, 1, 'Fijo', '2026-09-26', '2026-12-25', 'activo', '3212038841', NULL, '1982-05-13', '2026-09-25 02:02:05', 'hv_80033385/perfil/foto.png'),
+('9433076', 'Rafael Rojas Rico', 'M', 'Comandante de estación', 'Civil', 'Sanitas', 'Colpensiones', 'Positiva', NULL, 0, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-29 21:05:27', 'hv_9433076/perfil/foto.jpg'),
 ('9656509', 'Jose Orlando Gonzalez Gonzales', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:59:42', NULL),
 ('9658799', 'Javier Fernando Fuquen Calderon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, '1971-12-05', '2026-09-23 17:57:02', NULL);
 
@@ -150,6 +164,31 @@ CREATE TABLE `festivos_colombia` (
   `nombre` varchar(150) NOT NULL,
   `anio` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `festivos_colombia`
+--
+
+INSERT INTO `festivos_colombia` (`id`, `fecha`, `nombre`, `anio`) VALUES
+(1, '2026-01-01', 'Año Nuevo', 2026),
+(2, '2026-01-12', 'Reyes Magos', 2026),
+(3, '2026-03-23', 'Día de San José', 2026),
+(4, '2026-04-02', 'Jueves Santo', 2026),
+(5, '2026-04-03', 'Viernes Santo', 2026),
+(6, '2026-05-01', 'Día del Trabajo', 2026),
+(7, '2026-05-18', 'Ascensión de Jesús', 2026),
+(8, '2026-06-08', 'Corpus Christi', 2026),
+(9, '2026-06-15', 'Sagrado Corazón', 2026),
+(10, '2026-06-29', 'San Pedro y San Pablo', 2026),
+(11, '2026-07-13', 'Día de Nuestra Señora de Chiquinquirá', 2026),
+(12, '2026-07-20', 'Día de la Independencia', 2026),
+(13, '2026-08-07', 'Batalla de Boyacá', 2026),
+(14, '2026-08-17', 'Asunción de la Virgen', 2026),
+(15, '2026-10-12', 'Día de la Raza', 2026),
+(16, '2026-11-02', 'Todos los Santos', 2026),
+(17, '2026-11-16', 'Independencia de Cartagena', 2026),
+(18, '2026-12-08', 'Inmaculada Concepción', 2026),
+(19, '2026-12-25', 'Navidad', 2026);
 
 -- --------------------------------------------------------
 
@@ -328,6 +367,15 @@ CREATE TABLE `usuarios` (
   `bloqueado_hasta` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`id`, `username`, `password_hash`, `rol`, `created_at`, `intentos_fallidos`, `bloqueado_hasta`) VALUES
+(2, 'Tatiana', '$2y$10$cQdMMnhoNeo3U58ygsXVCuLtBi2RKOF8D0kZWidtQHoeygqR6URNK', 'auxiliar_talento_humano', '2026-09-17 21:38:01', 0, NULL),
+(3, 'Talento', '$2y$10$jTKCp2WcjVoE1cyGKmqqxekoeukZ6bKaJLyOdOzv67Tcw0a4C9Wmm', 'superadmin_talento_humano', '2026-09-29 21:24:40', 0, NULL),
+(4, 'Omar', '$2y$10$Ub.R51IzfyUY0Rs4ROKP0OQsn9VjxxsmJfRZsaBo8oMouHdi49pZ2', 'teniente', '2026-09-29 22:43:28', 0, NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -464,13 +512,13 @@ ALTER TABLE `bolsillos`
 -- AUTO_INCREMENT de la tabla `documentos`
 --
 ALTER TABLE `documentos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `festivos_colombia`
 --
 ALTER TABLE `festivos_colombia`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT de la tabla `firmas_guardadas`
@@ -512,7 +560,7 @@ ALTER TABLE `permisos_historial`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios_empleados`

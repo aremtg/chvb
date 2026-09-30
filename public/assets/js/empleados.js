@@ -153,8 +153,7 @@ formCrear.addEventListener("submit", async (e) => {
   const cedulaSinPuntos = cedula.replace(/\./g, "");
 
   if (!/^\d{5,10}$/.test(cedulaSinPuntos)) {
-    erroresCrear.innerHTML =
-      "La cédula debe contener entre 5 y 10 dígitos.";
+    erroresCrear.innerHTML = "La cédula debe contener entre 5 y 10 dígitos.";
     erroresCrear.classList.remove("hidden");
     return;
   }
@@ -240,14 +239,20 @@ async function abrirModalVer(cedula) {
 
   const emp = data.empleado;
   document.getElementById("contenidoVer").innerHTML = `
-    <div class="space-y-4">
-        <div class="flex flex-col items-center text-center pb-4 border-b border-gray-100">
+    <div class="space-y-1">
+        <div class="flex flex-col items-center text-center pb-2 border-b border-gray-100">
             ${
               emp.foto
-                ? `<img src="./api/foto_ver.php?cedula=${encodeURIComponent(emp.cedula)}" class="w-24 h-24 rounded-full object-cover border border-gray-200">`
-                : `<span class="w-24 h-24 rounded-full bg-gray-100 border flex items-center justify-center text-3xl">👤</span>`
+                ? `<img
+      src="./api/foto_ver.php?cedula=${encodeURIComponent(emp.cedula)}"
+      alt="Foto de ${emp.nombre}"
+      class="w-32 h-32 rounded-full object-cover object-center border border-gray-200 block"
+      loading="eager"
+      decoding="async"
+   >`
+                : `<span class="w-32 h-32 rounded-full bg-gray-100 border flex items-center justify-center text-3xl">👤</span>`
             }
-            <p class="mt-3 font-semibold text-gray-900">${emp.nombre}</p>
+            <p class="mt-0 font-semibold text-gray-900">${emp.nombre}</p>
             <p class="text-sm text-gray-500">CC ${emp.cedula}</p>
         </div>
 
@@ -408,18 +413,17 @@ document.getElementById("formEditar").addEventListener("submit", async (e) => {
   erroresEditar.classList.add("hidden");
 
   const cedulaEditar = document.getElementById("editCedula");
-const cedulaEditarSinPuntos = cedulaEditar.value.replace(/\./g, "");
+  const cedulaEditarSinPuntos = cedulaEditar.value.replace(/\./g, "");
 
-if (!/^\d{5,10}$/.test(cedulaEditarSinPuntos)) {
-  erroresEditar.innerHTML =
-    "La cédula debe contener entre 5 y 10 dígitos.";
-  erroresEditar.classList.remove("hidden");
-  return;
-}
+  if (!/^\d{5,10}$/.test(cedulaEditarSinPuntos)) {
+    erroresEditar.innerHTML = "La cédula debe contener entre 5 y 10 dígitos.";
+    erroresEditar.classList.remove("hidden");
+    return;
+  }
 
-cedulaEditar.value = cedulaEditarSinPuntos;
+  cedulaEditar.value = cedulaEditarSinPuntos;
 
-const formData = new FormData(formEditar);
+  const formData = new FormData(formEditar);
 
   try {
     const res = await fetch("./api/empleados_actualizar.php", {

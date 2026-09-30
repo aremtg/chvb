@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-sm">
+    <div class="bg-white shadow-md rounded-xl p-8 w-full max-w-sm">
         <img src="./assets/img/logo_chv_svg.svg" alt="Logo" class="w-60 mx-auto mb-1">
         <p class="text-sm text-gray-500 mb-6 text-center">Control Hojas de Vida Bomberos Yopal</p>
 
