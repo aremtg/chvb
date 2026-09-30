@@ -23,6 +23,15 @@ function formatearCedulaColombia(string $cedula): string {
     if ($cedula === '') return '';
     return number_format((int)$cedula, 0, '', '.');
 }
+/**
+ * El Otrosí redacta "Contrato de Trabajo a término ___", por lo que solo aplica
+ * a contratos laborales Fijo o Indefinido (OPS, SENA, etc. no son "a término").
+ */
+function textoTipoContrato(?string $tipo): string {
+    $tipo = mb_strtolower(trim((string)$tipo), 'UTF-8');
+    if ($tipo === '') return '';
+    return in_array($tipo, ['fijo', 'indefinido'], true) ? $tipo : '';
+}
 function limpiarNombreArchivo(string $nombre): string {
     $nombre = trim($nombre);
     $nombre = preg_replace('/[\\\\\/:*?"<>|]/u', '', $nombre);
@@ -173,6 +182,13 @@ try {
     $cedulaEmpleado = preg_replace('/\D+/', '', trim((string)($empleado['cedula'] ?? '')));
     if ($nombreOriginal === '') throw new InvalidArgumentException('El empleado no tiene nombre registrado.');
     if ($cedulaEmpleado === '') throw new InvalidArgumentException('El empleado no tiene cédula registrada.');
+    $tipoContratoRaw = trim((string)($empleado['tipo_de_contrato'] ?? ''));
+    if ($tipoContratoRaw === '') throw new InvalidArgumentException('El empleado no tiene tipo de contrato registrado. Complétalo en su hoja de vida.');
+    $tipoContrato = textoTipoContrato($tipoContratoRaw);
+    if ($tipoContrato === '') throw new InvalidArgumentException('Este Otrosí aplica solo a contratos de trabajo a término Fijo o Indefinido. El tipo de contrato del empleado es "' . $tipoContratoRaw . '".');
+    $fechaInicioRaw = trim((string)($empleado['fecha_inicio_contrato'] ?? ''));
+    if ($fechaInicioRaw === '') throw new InvalidArgumentException('El empleado no tiene fecha de inicio del contrato registrada. Complétala en su hoja de vida.');
+    $fechaInicio = FormatoModel::fechaLarga($fechaInicioRaw); // ej: 1 de marzo de 2024
     $nombre = mb_strtoupper($nombreOriginal, 'UTF-8');
     $cedulaFormateada = formatearCedulaColombia($cedulaEmpleado);
     $plantilla = __DIR__ . '/../../uploads/plantillas/GH-FT-24-OTROSI.docx';
@@ -184,7 +200,7 @@ try {
     $diaActual = $hoy->format('j');
     $mesActual = mesActualEspanol((int)$hoy->format('n'));
     $anioActual = $hoy->format('Y');
-    $valores = ['nombre_empleado' => $nombre, 'cedula' => $cedulaFormateada, 'dia_actual' => $diaActual, 'mes_actual' => $mesActual, 'anio_actual' => $anioActual];
+    $valores = ['nombre_empleado' => $nombre, 'cedula' => $cedulaFormateada, 'dia_actual' => $diaActual, 'mes_actual' => $mesActual, 'anio_actual' => $anioActual, 'tipo_contrato' => $tipoContrato, 'fecha_inicio' => $fechaInicio];
     $nombreArchivoEmpleado = limpiarNombreArchivo($nombre);
     $archivo = 'GH-FT-24 OTROSI AL CONTRATO INDIVIDUAL DE TRABAJO ' . $nombreArchivoEmpleado . '.docx';
     $salida = $generados . DIRECTORY_SEPARATOR . $archivo;
@@ -193,7 +209,7 @@ try {
     $processor->saveAs($salida);
     aplicarFormatoEspecialDocx($salida, $nombre, $cedulaFormateada, $diaActual, $mesActual, $anioActual);
     if (!is_file($salida) || filesize($salida) <= 0) throw new RuntimeException('El archivo Word no fue generado correctamente.');
-    echo json_encode(['ok' => true, 'archivo' => $archivo, 'nombre' => $archivo, 'url' => './api/formato_archivo.php?f=' . rawurlencode($archivo) . '&accion=descargar', 'empleado' => ['nombre' => $nombre, 'cedula' => $cedulaFormateada], 'fecha' => ['dia' => $diaActual, 'mes' => $mesActual, 'anio' => $anioActual]], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['ok' => true, 'archivo' => $archivo, 'nombre' => $archivo, 'url' => './api/formato_archivo.php?f=' . rawurlencode($archivo) . '&accion=descargar', 'empleado' => ['nombre' => $nombre, 'cedula' => $cedulaFormateada, 'tipo_contrato' => $tipoContrato, 'fecha_inicio' => $fechaInicio], 'fecha' => ['dia' => $diaActual, 'mes' => $mesActual, 'anio' => $anioActual]], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);

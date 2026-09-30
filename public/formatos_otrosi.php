@@ -152,7 +152,7 @@ if (is_dir($generadosDir)) {
                 <div id="otrosiError" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm p-3"></div>
 
                 <div id="otrosiEmpleado" class="hidden rounded-xl bg-gray-50 border border-gray-100 p-4 sm:p-5">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-sm">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
                         <div>
                             <span class="block text-xs text-gray-600">Nombre</span>
                             <strong id="otrosiNombre" class="block text-gray-800"></strong>
@@ -161,6 +161,16 @@ if (is_dir($generadosDir)) {
                             <span class="block text-xs text-gray-600">Cédula</span>
                             <strong id="otrosiCedula" class="block text-gray-800"></strong>
                         </div>
+                        <div>
+                            <span class="block text-xs text-gray-600">Tipo de contrato</span>
+                            <strong id="otrosiTipoContrato" class="block text-gray-800"></strong>
+                        </div>
+                        <div>
+                            <span class="block text-xs text-gray-600">Fecha de inicio</span>
+                            <strong id="otrosiFechaInicio" class="block text-gray-800"></strong>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 text-sm mt-3 pt-3 border-t border-gray-100">
                         <div>
                             <span class="block text-xs text-gray-600">Día</span>
                             <span id="otrosiDia" class="block text-gray-700"></span>
@@ -253,17 +263,44 @@ function normalizarCedula(value) {
     return String(value ?? '').replace(/\D/g, '');
 }
 
+function fechaLargaEs(iso) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso ?? ''));
+    if (!m) return '';
+    const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    return `${parseInt(m[3], 10)} de ${meses[parseInt(m[2], 10) - 1]} de ${m[1]}`;
+}
+
 function mostrarEmpleadoOtrosi(emp) {
     empleadoOtrosi = emp;
     mostrarErrorOtrosi('');
     document.getElementById('otrosiNombre').textContent = emp.nombre;
     document.getElementById('otrosiCedula').textContent = emp.cedula;
+
+    const tipo = String(emp.tipo_de_contrato ?? '').trim();
+    const fechaInicio = fechaLargaEs(emp.fecha_inicio_contrato);
+    document.getElementById('otrosiTipoContrato').textContent = tipo || '—';
+    document.getElementById('otrosiFechaInicio').textContent = fechaInicio || '—';
+
     const hoy = new Date();
     document.getElementById('otrosiDia').textContent = hoy.toLocaleDateString('es-CO', {day: 'numeric'});
     document.getElementById('otrosiMes').textContent = hoy.toLocaleDateString('es-CO', {month: 'long'});
     document.getElementById('otrosiAnio').textContent = hoy.toLocaleDateString('es-CO', {year: 'numeric'});
     document.getElementById('otrosiEmpleado').classList.remove('hidden');
-    formatosSetBoton(document.getElementById('btnGenerarOtrosi'), true);
+
+    // Mismas reglas que el backend: solo contrato Fijo o Indefinido y con fecha de inicio.
+    const faltan = [];
+    if (!tipo) faltan.push('Tipo de contrato');
+    if (!fechaInicio) faltan.push('Fecha de inicio del contrato');
+
+    let bloqueado = false;
+    if (faltan.length) {
+        mostrarErrorOtrosi('No se puede generar el Otrosí. Faltan en la hoja de vida: ' + faltan.join(', ') + '.');
+        bloqueado = true;
+    } else if (!['fijo', 'indefinido'].includes(tipo.toLowerCase())) {
+        mostrarErrorOtrosi('Este Otrosí aplica solo a contratos de trabajo a término Fijo o Indefinido. El tipo de contrato del empleado es "' + tipo + '".');
+        bloqueado = true;
+    }
+    formatosSetBoton(document.getElementById('btnGenerarOtrosi'), !bloqueado);
 }
 
 function limpiarSeleccionOtrosi() {
