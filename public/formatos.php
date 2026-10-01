@@ -75,10 +75,14 @@ requireFormatosAccess();
                     </div>
                 </section>
 
-                <?php foreach ([ 
-    ['Terminación de contrato', 'file-minus'], 
-    ['Requisición', 'clipboard-list'] 
-] as $card): ?>
+                <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between gap-3"><div><h2 class="font-bold text-gray-800">Terminación de contrato</h2><p class="text-xs text-gray-600">Notificación de no renovación</p></div>
+                        <a href="./formatos_terminacion.php" class="w-9 h-9 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-500 flex items-center justify-center transition" title="Abrir terminación de contrato"><?= icon('file-minus','w-5 h-5') ?></a></div>
+                        <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3"><p class="text-sm font-semibold text-gray-700">AF-FT-02 · Notificación de terminación de contrato</p><p class="text-xs text-gray-600">Plantilla oficial</p></div>
+                    </div>
+                </section>
+                <?php foreach ([ ['Requisición', 'clipboard-list'] ] as $card): ?>
     <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible"> 
         <div class="p-5"> 
             <div class="flex items-center gap-3"> 
