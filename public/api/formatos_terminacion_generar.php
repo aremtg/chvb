@@ -81,6 +81,27 @@ function af02FinPorMeses(string $inicio, int $meses): string
     return $objetivo->modify('-1 day')->format('Y-m-d');
 }
 
+/**
+ * Duración real entre dos fechas como [meses completos, días sobrantes].
+ * Es la inversa exacta de af02FinPorMeses(); permite comparar periodos aunque el fin se haya editado a mano.
+ */
+function af02Duracion(string $inicio, string $fin): array
+{
+    $m = 0;
+    while ($m < 120 && af02FinPorMeses($inicio, $m + 1) <= $fin) $m++;
+
+    $base = $m === 0
+        ? (new DateTimeImmutable($inicio))->modify('-1 day')
+        : new DateTimeImmutable(af02FinPorMeses($inicio, $m));
+
+    return [$m, (int)$base->diff(new DateTimeImmutable($fin))->days];
+}
+
+function af02CompararDuracion(array $a, array $b): int
+{
+    return ($a[0] <=> $b[0]) ?: ($a[1] <=> $b[1]);
+}
+
 function af02FechaLarga(string $fecha): string
 {
     return FormatoModel::fechaLarga($fecha);
@@ -324,7 +345,8 @@ try {
     af02Fecha($fechaFin, 'fecha de terminación');
 
     $lineasHistorial = [];
-    $prevFin = null;
+    $prevFin = $finInicial;   // RN1 también debe empezar el día posterior al fin del contrato inicial
+    $prevDur = null;
 
     foreach (array_values($renovaciones) as $i => $r) {
         if (!is_array($r)) throw new InvalidArgumentException('La información de RN' . ($i + 1) . ' no es válida.');
@@ -339,20 +361,33 @@ try {
         af02Fecha($fin, "fin de RN{$n}");
 
         if ($meses < 1 || $meses > 120) throw new InvalidArgumentException("La duración de RN{$n} debe estar entre 1 y 120 meses.");
-        if ($n >= 4 && $meses < 12) throw new InvalidArgumentException("La renovación RN{$n} debe ser de mínimo 12 meses.");
         if (new DateTimeImmutable($fin) < new DateTimeImmutable($inicio)) throw new InvalidArgumentException("La fecha fin de RN{$n} no puede ser anterior a su inicio.");
 
-        if ($prevFin !== null) {
-            $esperado = (new DateTimeImmutable($prevFin))->modify('+1 day')->format('Y-m-d');
-            if ($inicio !== $esperado) throw new InvalidArgumentException("RN{$n} debe iniciar el día {$esperado}, inmediatamente después de RN" . ($n - 1) . '.');
+        $esperado = (new DateTimeImmutable($prevFin))->modify('+1 day')->format('Y-m-d');
+        if ($inicio !== $esperado) {
+            $origen = $n === 1 ? 'el contrato inicial' : 'RN' . ($n - 1);
+            throw new InvalidArgumentException("RN{$n} debe iniciar el día {$esperado}, inmediatamente después de {$origen}.");
+        }
+
+        // Reglas de duración, evaluadas sobre las fechas reales (no solo sobre el campo "meses").
+        $dur = af02Duracion($inicio, $fin);
+        if ($dur[0] < 1) throw new InvalidArgumentException("La duración de RN{$n} debe ser de mínimo 1 mes.");
+        if ($n >= 4 && af02CompararDuracion($dur, [12, 0]) < 0) throw new InvalidArgumentException("La renovación RN{$n} debe ser de mínimo 12 meses.");
+        if ($prevDur !== null && af02CompararDuracion($dur, $prevDur) < 0) {
+            throw new InvalidArgumentException("La duración de RN{$n} no puede ser menor a la de RN" . ($n - 1) . '.');
         }
 
         $prevFin = $fin;
+        $prevDur = $dur;
         $lineasHistorial[] = [
             'inicio' => $inicio,
             'fin' => $fin,
             'meses' => $meses,
         ];
+    }
+
+    if ($fechaFin !== $prevFin) {
+        throw new InvalidArgumentException("La fecha de terminación debe coincidir con el fin del último contrato ({$prevFin}).");
     }
 
     $plantilla = __DIR__ . '/../../uploads/plantillas/AF-FT-02 NOTIFICACION TERMINACION CONTRATO.docx';
