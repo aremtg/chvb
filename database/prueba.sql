@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 30, 2026 at 03:50 PM
+-- Generation Time: Oct 01, 2026 at 05:14 PM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.33
 
@@ -28,16 +28,16 @@ SET time_zone = "+00:00";
 --
 CREATE TABLE `bolsillos` (
   `id` int NOT NULL,
-  `cedula_empleado` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `seccion` enum('hoja_de_vida','documentos_contractuales') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'slug interno, ej: certificados',
-  `nombre_completo` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'nombre visible, ej: Certificados',
+  `cedula_empleado` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `seccion` enum('hoja_de_vida','documentos_contractuales') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'slug interno, ej: certificados',
+  `nombre_completo` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'nombre visible, ej: Certificados',
   `orden` int NOT NULL DEFAULT '0',
-  `alarma_tipo` enum('1m','2m','6m','1a','custom') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `alarma_tipo` enum('1m','2m','6m','1a','custom') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `alarma_fecha` date DEFAULT NULL,
   `alarma_activa` tinyint(1) DEFAULT '0',
   `alarma_valor` int DEFAULT NULL COMMENT 'Cantidad numérica para alarma personalizada',
-  `alarma_unidad` enum('dias','meses','anios') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Unidad para alarma personalizada',
+  `alarma_unidad` enum('dias','meses','anios') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Unidad para alarma personalizada',
   `alarma_fecha_inicio` date DEFAULT NULL COMMENT 'Fecha desde la cual se cuenta el plazo',
   `alarma_dias_aviso` int DEFAULT '35' COMMENT 'Días de anticipación para la alerta amarilla'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -50,12 +50,12 @@ CREATE TABLE `bolsillos` (
 CREATE TABLE `documentos` (
   `id` int NOT NULL,
   `bolsillo_id` int NOT NULL,
-  `nombre_archivo` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `ruta` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'ruta relativa dentro de uploads/',
+  `nombre_archivo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ruta` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'ruta relativa dentro de uploads/',
   `orden` int NOT NULL DEFAULT '1',
   `fecha_subida` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `subido_por_cedula` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `subido_por_tipo` enum('empleado','panel') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'panel'
+  `subido_por_cedula` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `subido_por_tipo` enum('empleado','panel') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'panel'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -72,25 +72,25 @@ INSERT INTO `documentos` (`id`, `bolsillo_id`, `nombre_archivo`, `ruta`, `orden`
 -- Table structure for table `empleados`
 --
 CREATE TABLE `empleados` (
-  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Max 10 caracteres, permite extranjera alfanumérica',
-  `nombre` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `sexo` enum('F','M') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cargo` enum('Auxiliar en Talento Humano','Director de talento humano','Auxiliar de Extintores','Enfermero/a','Practicante Sena','Practicante Fundetec','Practicante otra entidad','Servicios Generales','Maquinista','Guardia','Recepcionista','Administrativo','Auxiliar administrativo','Director Académico','Director de negocios','Tecnico en soporte sistemas','Tecnico archivista','Coordinador SST','Auxiliar SST','Jefe de prensa','Contador','Auxiliar de contaduría','Almacenista','Supervisor','Coordinador de banda','Conductor de ambulancia','Aspirante','Voluntario','Secretario recaudador','Auxiliar de enfermería','Docente de banda marcial','PAMEC','Revisor(a) fiscal','Comandante de estación','Directora administrativa y financiera','Bombero integral') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tipo_de_personal` enum('Bombero','Civil') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `eps` enum('Sanitas','Nueva EPS','Capresoca','Salud Total') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `pension` enum('Colfondos','Porvenir','Colpensiones','Protección','NA') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `arl` enum('Positiva','SURA','Colmena','AXA Colpatria','Seguros Bolívar') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cedula` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Max 10 caracteres, permite extranjera alfanumérica',
+  `nombre` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sexo` enum('F','M') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cargo` enum('Auxiliar en Talento Humano','Director de talento humano','Auxiliar de Extintores','Enfermero/a','Practicante Sena','Practicante Fundetec','Practicante otra entidad','Servicios Generales','Maquinista','Guardia','Recepcionista','Administrativo','Auxiliar administrativo','Director Académico','Director de negocios','Tecnico en soporte sistemas','Tecnico archivista','Coordinador SST','Auxiliar SST','Jefe de prensa','Contador','Auxiliar de contaduría','Almacenista','Supervisor','Coordinador de banda','Conductor de ambulancia','Aspirante','Voluntario','Secretario recaudador','Auxiliar de enfermería','Docente de banda marcial','PAMEC','Revisor(a) fiscal','Comandante de estación','Directora administrativa y financiera','Bombero integral') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo_de_personal` enum('Bombero','Civil') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `eps` enum('Sanitas','Nueva EPS','Capresoca','Salud Total') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pension` enum('Colfondos','Porvenir','Colpensiones','Protección','NA') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `arl` enum('Positiva','SURA','Colmena','AXA Colpatria','Seguros Bolívar') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `salario_basico` decimal(12,2) DEFAULT NULL,
   `es_bombero_integral` tinyint(1) DEFAULT '0',
-  `tipo_de_contrato` enum('Fijo','Indefinido','OPS','SENA','OPS SEMY','No aplica') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_de_contrato` enum('Fijo','Indefinido','OPS','SENA','OPS SEMY','No aplica') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fecha_inicio_contrato` date DEFAULT NULL,
   `fecha_fin_contrato` date DEFAULT NULL,
-  `estado` enum('activo','no activo') COLLATE utf8mb4_unicode_ci DEFAULT 'activo',
-  `celular` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Numero de celular, validar 10 digitos',
-  `correo` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `estado` enum('activo','no activo') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'activo',
+  `celular` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Numero de celular, validar 10 digitos',
+  `correo` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fecha_nacimiento` date DEFAULT NULL COMMENT 'Para notificacion de cumpleaños',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `foto` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Ruta relativa dentro de uploads/'
+  `foto` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Ruta relativa dentro de uploads/'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -99,7 +99,7 @@ CREATE TABLE `empleados` (
 
 INSERT INTO `empleados` (`cedula`, `nombre`, `sexo`, `cargo`, `tipo_de_personal`, `eps`, `pension`, `arl`, `salario_basico`, `es_bombero_integral`, `tipo_de_contrato`, `fecha_inicio_contrato`, `fecha_fin_contrato`, `estado`, `celular`, `correo`, `fecha_nacimiento`, `created_at`, `foto`) VALUES
 ('1005719736', 'Carlos Augusto Triana Lozano', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'OPS', NULL, '2026-10-06', 'activo', NULL, NULL, NULL, '2026-09-29 23:30:02', NULL),
-('1006555838', 'Lourdes Ester Guarin Garcia', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2025-05-05', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:32:54', NULL),
+('1006555838', 'Lourdes Ester Guarin Garcia', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2025-05-05', '2025-11-04', 'activo', NULL, NULL, NULL, '2026-09-23 03:32:54', NULL),
 ('1006556137', 'Javier David Moreno', 'M', 'Auxiliar de Extintores', 'Civil', 'Nueva EPS', NULL, NULL, NULL, 0, 'Fijo', '2026-03-12', '2026-09-11', 'activo', '3224045766', NULL, NULL, '2026-09-23 22:46:04', NULL),
 ('1006556671', 'Jhon Marco Rincon Castaño', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2026-01-08', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:41:28', NULL),
 ('1006636306', 'Karen Lizeth Diaz Pineda', 'F', 'Auxiliar de Extintores', 'Bombero', 'Sanitas', 'Porvenir', NULL, NULL, 0, 'Fijo', '2026-04-09', '2026-10-08', 'activo', NULL, NULL, NULL, '2026-09-23 23:07:53', NULL),
@@ -118,26 +118,26 @@ INSERT INTO `empleados` (`cedula`, `nombre`, `sexo`, `cargo`, `tipo_de_personal`
 ('1118544837', 'José Ferney Rodriguez Barrera', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2015-12-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 02:05:57', NULL),
 ('1118547243', 'Tito Enrique Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2019-01-15', NULL, 'activo', NULL, NULL, '1991-04-21', '2026-09-23 01:11:57', NULL),
 ('1118550799', 'Deyna Yurany Torres Cuervo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2024-01-17', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:27:52', NULL),
-('1118555586', 'Angel Gabriel Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2021-09-24', NULL, 'activo', NULL, NULL, '1993-10-05', '2026-09-23 02:06:39', 'hv_1118555586/perfil/foto.webp'),
+('1118555586', 'Angel Gabriel Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2021-09-24', NULL, 'activo', NULL, NULL, '1993-10-05', '2026-09-23 02:06:39', 'hv_1118555586/perfil/foto.png'),
 ('111856453', 'Astrid Mariana Aquite Gómez', 'F', 'Auxiliar en Talento Humano', 'Civil', 'Nueva EPS', 'Colfondos', 'Positiva', 1964430.00, 1, 'Fijo', '2024-02-15', '2024-08-15', 'activo', '3209308877', NULL, '1996-04-13', '2026-09-23 00:46:12', NULL),
 ('1118564997', 'Kewin Alexis Adan Jeronimo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'no activo', NULL, NULL, NULL, '2026-09-23 03:18:30', NULL),
-('1118565906', 'Jeidi Carolina Acevedo Lopez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2025-11-12', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:44:42', NULL),
+('1118565906', 'Jeidi Carolina Acevedo Lopez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2025-11-12', '2026-05-11', 'activo', NULL, NULL, NULL, '2026-09-23 03:44:42', NULL),
 ('1118565958', 'Yeritsa Tatiana Egue Chaparro', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2024-11-27', NULL, 'activo', NULL, NULL, NULL, '2026-09-30 15:04:28', NULL),
 ('1118567328', 'Nelson Fabian Chaparro Rincon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2016-02-11', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:11:40', NULL),
 ('1118572004', 'Luisa Fernanda Abril Bernal', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2024-09-05', NULL, 'activo', NULL, NULL, NULL, '2026-09-30 15:01:28', NULL),
-('1118573216', 'Camilo Andres Corredor Garcia', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2024-11-01', NULL, 'activo', NULL, NULL, '1999-01-17', '2026-09-23 03:22:10', NULL),
-('1118575006', 'Angela Brithey Maldonado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:37:51', NULL),
+('1118573216', 'Camilo Andres Corredor Garcia', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2024-11-01', '2025-04-30', 'activo', NULL, NULL, '1999-01-17', '2026-09-23 03:22:10', NULL),
+('1118575006', 'Angela Brithey Maldonado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2025-05-16', '2025-11-15', 'activo', NULL, NULL, NULL, '2026-09-23 03:37:51', NULL),
 ('1118775342', 'Daniel Fernando Gutierrez Riaño', 'M', 'Bombero integral', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', 0.00, 0, 'Fijo', '2024-01-17', '2025-01-17', 'activo', NULL, NULL, '1993-03-12', '2026-09-23 01:04:54', NULL),
 ('11206377', 'Juan Fernando Guzman Guzman', 'M', 'Bombero integral', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', NULL, 0, 'Fijo', '2023-07-21', NULL, 'activo', NULL, NULL, '1995-12-08', '2026-09-23 01:34:23', NULL),
 ('1121898640', 'Arlyn Johanna Sanchez Gutierrez', 'F', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 22:47:28', NULL),
 ('1124989349', 'Tatiana Andrea Guzman Galindo', 'F', 'Practicante Fundetec', 'Civil', 'Capresoca', 'NA', 'Positiva', NULL, 0, 'No aplica', '2026-05-04', NULL, 'activo', '3229496595', 'tgz57031@gmail.com', '2003-04-13', '2026-09-22 01:48:16', 'hv_1124989349/perfil/foto.jpg'),
 ('1143954094', 'Jonnathan Alexander Daza Barrera', 'M', 'Secretario recaudador', 'Civil', NULL, NULL, NULL, NULL, 0, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1993-02-02', '2026-09-25 02:29:26', NULL),
-('16672796', 'Juan Carlos Santacoloma Piedrahita', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2025-05-15', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:35:08', NULL),
+('16672796', 'Juan Carlos Santacoloma Piedrahita', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2025-05-15', '2025-11-14', 'activo', NULL, NULL, NULL, '2026-09-23 03:35:08', NULL),
 ('4284762', 'Jose Manuel Gutierrez Teatin', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', '1999-08-20', NULL, 'activo', NULL, NULL, '1970-09-29', '2026-09-23 18:03:27', NULL),
 ('47428604', 'Graciela Garcia Chinchilla', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', '2010-02-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:57:55', NULL),
 ('47430097', 'Sthella Gutierrez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', '2007-12-04', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:01:10', NULL),
 ('47441163', 'Sandra Milena Castaño Vargas', 'F', 'Administrativo', 'Civil', 'Sanitas', 'Porvenir', 'Positiva', 2071830.00, 0, 'Fijo', '2024-02-13', '2024-08-12', 'activo', NULL, NULL, '1983-06-13', '2026-09-23 00:56:25', NULL),
-('47441979', 'Angela Maria Moreno', 'F', 'Comandante de estación', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-29 21:33:52', 'hv_47441979/perfil/foto.jpg'),
+('47441979', 'Angela Maria Moreno', 'F', 'Comandante de estación', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-29 21:33:52', 'hv_47441979/perfil/foto.png'),
 ('52308103', 'Fanny Paola Mercado Delgado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Fijo', '2022-07-07', NULL, 'activo', NULL, NULL, '1975-10-14', '2026-09-23 18:10:43', NULL),
 ('7180789', 'Hector Favian Auzaque Parra', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Indefinido', '2008-03-10', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:45:50', NULL),
 ('7254795', 'Yobanis Alberto Castrillon Cano', 'M', 'Maquinista', 'Bombero', NULL, 'Colpensiones', 'Positiva', NULL, 0, 'Fijo', '2024-07-01', '2024-06-30', 'activo', NULL, NULL, NULL, '2026-09-29 20:58:48', NULL),
@@ -159,7 +159,7 @@ INSERT INTO `empleados` (`cedula`, `nombre`, `sexo`, `cargo`, `tipo_de_personal`
 CREATE TABLE `festivos_colombia` (
   `id` int NOT NULL,
   `fecha` date NOT NULL,
-  `nombre` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `anio` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -195,8 +195,8 @@ INSERT INTO `festivos_colombia` (`id`, `fecha`, `nombre`, `anio`) VALUES
 --
 CREATE TABLE `firmas_guardadas` (
   `id` int NOT NULL,
-  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `ruta_imagen` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'PNG del canvas o archivo subido, en uploads/hv_{cedula}/firma/',
+  `cedula` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ruta_imagen` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'PNG del canvas o archivo subido, en uploads/hv_{cedula}/firma/',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -208,12 +208,12 @@ CREATE TABLE `firmas_guardadas` (
 CREATE TABLE `notificaciones` (
   `id` int NOT NULL,
   `usuario_id` int DEFAULT NULL,
-  `destinatario_tipo` enum('talento_humano','empleado') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'talento_humano',
-  `usuario_nombre` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `cedula_empleado` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `campo` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `mensaje` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `enlace` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Ruta relativa a la que redirige la notificación',
+  `destinatario_tipo` enum('talento_humano','empleado') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'talento_humano',
+  `usuario_nombre` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cedula_empleado` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `campo` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mensaje` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `enlace` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Ruta relativa a la que redirige la notificación',
   `leida` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -225,13 +225,13 @@ CREATE TABLE `notificaciones` (
 --
 CREATE TABLE `permisos` (
   `id` int NOT NULL,
-  `consecutivo` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `cedula_empleado` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `nombre_empleado_snapshot` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `cargo_empleado_snapshot` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `celular_empleado_snapshot` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tipo_permiso` enum('Permiso','Vacaciones','Licencia','Mision institucional') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `motivo` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `consecutivo` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cedula_empleado` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre_empleado_snapshot` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cargo_empleado_snapshot` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `celular_empleado_snapshot` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_permiso` enum('Permiso','Vacaciones','Licencia','Mision institucional') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `motivo` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `fecha_inicio` date NOT NULL,
   `hora_inicio` time NOT NULL,
   `fecha_fin` date DEFAULT NULL,
@@ -249,22 +249,22 @@ CREATE TABLE `permisos` (
   `devolucion_hora_fin` time DEFAULT NULL,
   `devolucion_total_horas` decimal(6,2) DEFAULT NULL,
   `tiene_reemplazo` tinyint(1) NOT NULL DEFAULT '0',
-  `cedula_reemplazo` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cedula_jefe` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `foto_solicitante` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `firma_solicitante` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `foto_reemplazo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `firma_reemplazo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `foto_jefe` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `firma_jefe` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `foto_jefe_prefirmado` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `firma_jefe_prefirmado` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `evidencia_archivo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `estado` enum('en_proceso','por_firmar_reemplazo','por_firmar_jefe','por_firmar_jefe_final','firmado','devuelto','devuelto_regreso','rechazado','aprobado_pendiente_regreso','anulado') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'en_proceso',
-  `motivo_devolucion` text COLLATE utf8mb4_unicode_ci,
-  `motivo_rechazo` text COLLATE utf8mb4_unicode_ci,
-  `motivo_anulacion` text COLLATE utf8mb4_unicode_ci,
-  `anulado_por` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cedula_reemplazo` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cedula_jefe` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `foto_solicitante` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `firma_solicitante` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `foto_reemplazo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `firma_reemplazo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `foto_jefe` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `firma_jefe` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `foto_jefe_prefirmado` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `firma_jefe_prefirmado` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `evidencia_archivo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `estado` enum('en_proceso','por_firmar_reemplazo','por_firmar_jefe','por_firmar_jefe_final','firmado','devuelto','devuelto_regreso','rechazado','aprobado_pendiente_regreso','anulado') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'en_proceso',
+  `motivo_devolucion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `motivo_rechazo` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `motivo_anulacion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `anulado_por` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fecha_anulacion` timestamp NULL DEFAULT NULL,
   `version` int NOT NULL DEFAULT '1',
   `fecha_solicitud` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -307,7 +307,7 @@ CREATE TABLE `permisos_dias` (
   `hora_inicio` time NOT NULL,
   `hora_fin` time NOT NULL,
   `es_festivo` tinyint(1) NOT NULL DEFAULT '0',
-  `festivo_nombre` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `festivo_nombre` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `incluido` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'si es_festivo=1, el empleado decide; si es_festivo=0, siempre 1',
   `horas_brutas` decimal(6,2) NOT NULL,
   `horas_descuento_almuerzo` decimal(6,2) NOT NULL DEFAULT '0.00',
@@ -323,11 +323,11 @@ CREATE TABLE `permisos_historial` (
   `id` int NOT NULL,
   `permiso_id` int NOT NULL,
   `version_anterior` int NOT NULL,
-  `estado_anterior` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `estado_nuevo` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `actor_tipo` enum('empleado','reemplazo','jefe','talento_humano') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `actor_cedula_o_usuario` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `detalle` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `estado_anterior` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `estado_nuevo` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `actor_tipo` enum('empleado','reemplazo','jefe','talento_humano') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `actor_cedula_o_usuario` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `detalle` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -337,7 +337,7 @@ CREATE TABLE `permisos_historial` (
 -- Table structure for table `presencia_empleados`
 --
 CREATE TABLE `presencia_empleados` (
-  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cedula` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `ultima_actividad` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -348,9 +348,9 @@ CREATE TABLE `presencia_empleados` (
 --
 CREATE TABLE `usuarios` (
   `id` int NOT NULL,
-  `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `rol` enum('superadmin_talento_humano','auxiliar_talento_humano','teniente') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password_hash` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rol` enum('superadmin_talento_humano','auxiliar_talento_humano','teniente') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `intentos_fallidos` int DEFAULT '0',
   `bloqueado_hasta` datetime DEFAULT NULL
@@ -372,12 +372,12 @@ INSERT INTO `usuarios` (`id`, `username`, `password_hash`, `rol`, `created_at`, 
 --
 CREATE TABLE `usuarios_empleados` (
   `id` int NOT NULL,
-  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'hash del PIN de 4 digitos',
+  `cedula` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password_hash` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'hash del PIN de 4 digitos',
   `activo` tinyint(1) DEFAULT '1',
   `intentos_fallidos` int DEFAULT '0',
   `bloqueado_hasta` datetime DEFAULT NULL,
-  `pin_encriptado` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'PIN cifrado reversible, solo visible para superadmin/auxiliar'
+  `pin_encriptado` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'PIN cifrado reversible, solo visible para superadmin/auxiliar'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
