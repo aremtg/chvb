@@ -3,6 +3,7 @@ require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../src/controllers/AuthController.php';
 require_once __DIR__ . '/../src/models/EmpleadoModel.php';
 require_once __DIR__ . '/../src/models/BolsilloModel.php';
+require_once __DIR__ . '/../src/models/PermisoModel.php';
 requireSuperAdmin();
 
 $cumpleanosProximos = EmpleadoModel::proximosCumpleanos(15);
@@ -32,6 +33,68 @@ $mesAnterior = (clone $inicioMes)->modify('-1 month');
 $mesSiguiente = (clone $inicioMes)->modify('+1 month');
 $nombreMesCalendario = EmpleadoModel::mesEnEspanol($mesCalendario);
 $alarmas = BolsilloModel::alarmasProximas();
+
+// ---------------------------------------------------------------------------
+// MÉTRICAS DE AUSENTISMO
+// mm = mes a analizar (1-12) o "todos"; ma = año. Por defecto, el mes actual.
+// El mes se filtra por la fecha de inicio del permiso.
+// ---------------------------------------------------------------------------
+$mmParam = (string) ($_GET['mm'] ?? date('n'));
+$periodoTodos = ($mmParam === 'todos');
+$mesMetricas = $periodoTodos ? (int) date('n') : (int) $mmParam;
+$anioMetricas = (int) ($_GET['ma'] ?? date('Y'));
+if ($mesMetricas < 1 || $mesMetricas > 12) {
+    $mesMetricas = (int) date('n');
+    $periodoTodos = false;
+}
+if ($anioMetricas < 2000 || $anioMetricas > 2100) {
+    $anioMetricas = (int) date('Y');
+}
+
+$desdeMetricas = $periodoTodos ? null : sprintf('%04d-%02d-01', $anioMetricas, $mesMetricas);
+$hastaMetricas = $periodoTodos ? null : (new DateTime($desdeMetricas))->format('Y-m-t');
+$etiquetaPeriodo = $periodoTodos
+    ? 'Todo el historial'
+    : EmpleadoModel::mesEnEspanol($mesMetricas) . ' ' . $anioMetricas;
+
+// Para que al navegar el calendario no se pierda el filtro de métricas (y al revés).
+$qsMetricas = '&amp;mm=' . ($periodoTodos ? 'todos' : $mesMetricas) . '&amp;ma=' . $anioMetricas;
+
+$resPeriodo = PermisoModel::resumenAusentismo($desdeMetricas, $hastaMetricas);
+$resTotal = $periodoTodos ? $resPeriodo : PermisoModel::resumenAusentismo();
+$tiposPeriodo = PermisoModel::ausentismoPorTipo($desdeMetricas, $hastaMetricas);
+$tiposTotal = $periodoTodos ? $tiposPeriodo : PermisoModel::ausentismoPorTipo();
+$topEmpleados = PermisoModel::topEmpleadosAusentismo($desdeMetricas, $hastaMetricas, 5);
+$jefesPendientes = PermisoModel::jefesConFirmasPendientes(5);
+$tendencia = PermisoModel::tendenciaMensual($anioMetricas, $mesMetricas, 6);
+
+$pct = fn(int $parte, int $todo): int => $todo > 0 ? (int) round($parte * 100 / $todo) : 0;
+$fmtHoras = function (float $h): string {
+    $min = (int) round($h * 60);
+    $hh = intdiv($min, 60);
+    $mm = $min % 60;
+    if ($hh > 0 && $mm > 0) return "{$hh} h {$mm} min";
+    if ($hh > 0) return "{$hh} h";
+    if ($mm > 0) return "{$mm} min";
+    return '0 h';
+};
+
+$pendFirmasPeriodo = $resPeriodo['pend_reemplazo'] + $resPeriodo['pend_jefe'];
+$pendFirmasTotal = $resTotal['pend_reemplazo'] + $resTotal['pend_jefe'];
+$decididos = $resPeriodo['firmados'] + $resPeriodo['rechazados'];
+$tasaAprobacion = $decididos > 0 ? $pct($resPeriodo['firmados'], $decididos) : null;
+$promedioHoras = $resPeriodo['firmados'] > 0 ? $resPeriodo['horas_firmadas'] / $resPeriodo['firmados'] : 0.0;
+
+$coloresTipo = [
+    'Permiso' => '#dc2626',
+    'Vacaciones' => '#2563eb',
+    'Licencia' => '#d97706',
+    'Mision institucional' => '#7c3aed',
+];
+$etiquetasTipo = ['Mision institucional' => 'Misión institucional'];
+
+$maxTendencia = max(1, ...array_column($tendencia, 'total'));
+$aniosSelector = range((int) date('Y') + 1, (int) date('Y') - 4);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -41,6 +104,54 @@ $alarmas = BolsilloModel::alarmasProximas();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Dashboard</title>
     <link rel="stylesheet" href="./assets/css/tailwind.css">
+    <style>
+        /* Métricas de ausentismo: estilos propios para no depender de recompilar Tailwind */
+        .aus-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
+        .aus-filtro { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+        .aus-filtro select { border:1px solid #e5e7eb; border-radius:10px; padding:6px 10px; font-size:13px; font-weight:600; color:#374151; background:#fff; }
+        .aus-filtro select:focus { outline:none; border-color:#fca5a5; box-shadow:0 0 0 3px #fee2e2; }
+        .aus-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:16px; }
+        .aus-dos { display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:16px; }
+        .aus-card { background:#fff; border:1px solid #f3f4f6; border-radius:16px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.04); min-width:0; }
+        .aus-card h3 { font-size:14px; font-weight:700; color:#1f2937; margin:0; }
+        .aus-card .aus-hint { font-size:11px; color:#6b7280; margin-top:2px; }
+        .aus-kpi { display:flex; gap:12px; align-items:flex-start; }
+        .aus-ico { width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .aus-ico.rojo { background:#fef2f2; color:#dc2626; } .aus-ico.azul { background:#eff6ff; color:#2563eb; }
+        .aus-ico.ambar { background:#fffbeb; color:#d97706; } .aus-ico.verde { background:#f0fdf4; color:#16a34a; }
+        .aus-label { font-size:12px; font-weight:600; color:#6b7280; }
+        .aus-num { font-size:28px; line-height:1.15; font-weight:800; color:#111827; }
+        .aus-sub { font-size:11px; color:#6b7280; margin-top:2px; }
+        .aus-fila { margin-top:12px; }
+        .aus-fila-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-size:13px; color:#374151; }
+        .aus-fila-top b { font-weight:700; color:#111827; }
+        .aus-fila-top small { color:#9ca3af; font-size:11px; }
+        .aus-track { height:8px; border-radius:999px; background:#f3f4f6; overflow:hidden; margin-top:5px; }
+        .aus-fill { height:100%; border-radius:999px; }
+        .aus-tabla { width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
+        .aus-tabla th { text-align:right; font-size:11px; font-weight:600; color:#6b7280; padding:4px 0; }
+        .aus-tabla th:first-child { text-align:left; }
+        .aus-tabla td { padding:8px 0; border-top:1px solid #f3f4f6; text-align:right; font-weight:700; color:#111827; }
+        .aus-tabla td:first-child { text-align:left; font-weight:500; color:#374151; }
+        .aus-tabla td small { display:block; font-weight:400; font-size:11px; color:#9ca3af; }
+        .aus-apilada { display:flex; height:14px; border-radius:999px; overflow:hidden; background:#f3f4f6; margin-top:12px; }
+        .aus-leyenda { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:6px 12px; margin-top:12px; font-size:12px; color:#374151; }
+        .aus-leyenda span.pto { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; }
+        .aus-barras { display:flex; align-items:flex-end; gap:10px; height:130px; margin-top:14px; }
+        .aus-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; min-width:0; }
+        .aus-col .v { font-size:12px; font-weight:700; color:#374151; margin-bottom:3px; }
+        .aus-col .b { width:100%; max-width:42px; border-radius:8px 8px 3px 3px; }
+        .aus-col .m { font-size:11px; color:#6b7280; margin-top:5px; }
+        .aus-lista { list-style:none; margin:10px 0 0; padding:0; }
+        .aus-lista li { display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid #f3f4f6; }
+        .aus-pos { width:26px; height:26px; border-radius:8px; background:#fef2f2; color:#dc2626; font-weight:800; font-size:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .aus-lista .n { min-width:0; flex:1; }
+        .aus-lista .n p { margin:0; font-size:13px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .aus-lista .n small { font-size:11px; color:#6b7280; }
+        .aus-pill { font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px; white-space:nowrap; background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+        .aus-pill.alerta { background:#fee2e2; color:#991b1b; border-color:#fecaca; }
+        .aus-vacio { background:#f9fafb; border:1px solid #f3f4f6; border-radius:12px; padding:16px; text-align:center; font-size:13px; color:#6b7280; margin-top:10px; }
+    </style>
 </head>
 
 <body class="bg-gray-100 min-h-screen">
@@ -67,11 +178,11 @@ $alarmas = BolsilloModel::alarmasProximas();
                     </div>
 
                     <div class="flex items-center gap-1 self-start sm:self-auto">
-                        <a href="?anio=<?= date('Y')?>&mes=<?= date('n')?>"
+                        <a href="?anio=<?= date('Y')?>&mes=<?= date('n')?><?= $qsMetricas ?>"
    class="ml-1.5 px-3 h-8 rounded-lg border border-gray-200 bg-white text-sm font-semibold text-gray-700 flex items-center justify-center">
    Este mes
 </a>
-                        <a href="?anio=<?= $mesAnterior->format('Y') ?>&mes=<?= $mesAnterior->format('n') ?>"
+                        <a href="?anio=<?= $mesAnterior->format('Y') ?>&mes=<?= $mesAnterior->format('n') ?><?= $qsMetricas ?>"
                             class="w-8 h-8 rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 flex items-center justify-center transition"
                             aria-label="Mes anterior">
                             <?= icon('chevron-left', 'w-5 h-5') ?>
@@ -79,7 +190,7 @@ $alarmas = BolsilloModel::alarmasProximas();
                         <div class="min-w-[130px] text-center text-sm font-semibold text-gray-700">
                             <?= htmlspecialchars($nombreMesCalendario . ' ' . $anioCalendario) ?>
                         </div>
-                        <a href="?anio=<?= $mesSiguiente->format('Y') ?>&mes=<?= $mesSiguiente->format('n') ?>"
+                        <a href="?anio=<?= $mesSiguiente->format('Y') ?>&mes=<?= $mesSiguiente->format('n') ?><?= $qsMetricas ?>"
                             class="w-8 h-8 rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 flex items-center justify-center transition"
                             aria-label="Mes siguiente">
                             <?= icon('chevron-right', 'w-5 h-5') ?>
@@ -177,6 +288,256 @@ $alarmas = BolsilloModel::alarmasProximas();
                             <span class="font-semibold text-red-600">Próximos 15 días:</span>
                             <?= count($cumpleanosProximos) ?> cumpleañeros.
                         </p>
+                    </div>
+                <?php endif; ?>
+            </section>
+
+            <!-- MÉTRICAS DE AUSENTISMO -->
+            <section id="ausentismo" class="space-y-4">
+                <div class="aus-head">
+                    <div class="flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+                            <?= icon('clipboard-list', 'w-5 h-5') ?>
+                        </span>
+                        <div>
+                            <h2 class="font-bold text-gray-800">Ausentismo y permisos</h2>
+                            <p class="text-xs text-gray-600">Mostrando: <strong><?= htmlspecialchars($etiquetaPeriodo) ?></strong> · según la fecha de inicio del permiso, sin contar borradores</p>
+                        </div>
+                    </div>
+
+                    <form method="get" action="dashboard.php#ausentismo" class="aus-filtro">
+                        <input type="hidden" name="anio" value="<?= $anioCalendario ?>">
+                        <input type="hidden" name="mes" value="<?= $mesCalendario ?>">
+                        <select name="mm" aria-label="Mes de las métricas" onchange="this.form.submit()">
+                            <option value="todos" <?= $periodoTodos ? 'selected' : '' ?>>Todo el historial</option>
+                            <?php for ($m = 1; $m <= 12; $m++): ?>
+                                <option value="<?= $m ?>" <?= (!$periodoTodos && $m === $mesMetricas) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars(EmpleadoModel::mesEnEspanol($m)) ?>
+                                </option>
+                            <?php endfor; ?>
+                        </select>
+                        <select name="ma" aria-label="Año de las métricas" onchange="this.form.submit()">
+                            <?php foreach ($aniosSelector as $a): ?>
+                                <option value="<?= $a ?>" <?= $a === $anioMetricas ? 'selected' : '' ?>><?= $a ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <a href="dashboard.php?anio=<?= $anioCalendario ?>&amp;mes=<?= $mesCalendario ?>#ausentismo"
+                            class="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700">Mes actual</a>
+                    </form>
+                </div>
+
+                <?php if ($resTotal['total'] === 0): ?>
+                    <div class="aus-card"><div class="aus-vacio" style="margin-top:0">Aún no hay permisos registrados para mostrar métricas.</div></div>
+                <?php else: ?>
+
+                    <!-- KPIs principales -->
+                    <div class="aus-kpis">
+                        <div class="aus-card aus-kpi">
+                            <span class="aus-ico rojo"><?= icon('user', 'w-5 h-5') ?></span>
+                            <div>
+                                <div class="aus-label">Personas que pidieron permiso</div>
+                                <div class="aus-num"><?= $resPeriodo['personas'] ?></div>
+                                <?php if (!$periodoTodos): ?>
+                                    <div class="aus-sub">Histórico: <?= $resTotal['personas'] ?> persona(s)</div>
+                                <?php else: ?>
+                                    <div class="aus-sub">Empleados distintos</div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <div class="aus-card aus-kpi">
+                            <span class="aus-ico azul"><?= icon('file-text', 'w-5 h-5') ?></span>
+                            <div>
+                                <div class="aus-label">Permisos solicitados</div>
+                                <div class="aus-num"><?= $resPeriodo['total'] ?></div>
+                                <?php if (!$periodoTodos): ?>
+                                    <div class="aus-sub">Total en la base de datos: <?= $resTotal['total'] ?></div>
+                                <?php else: ?>
+                                    <div class="aus-sub">Todos los registros</div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <div class="aus-card aus-kpi">
+                            <span class="aus-ico ambar"><?= icon('alarm-clock', 'w-5 h-5') ?></span>
+                            <div>
+                                <div class="aus-label">Tiempo de ausencia aprobado</div>
+                                <div class="aus-num"><?= htmlspecialchars($fmtHoras($resPeriodo['horas_firmadas'])) ?></div>
+                                <div class="aus-sub">
+                                    <?= $resPeriodo['firmados'] > 0
+                                        ? 'Promedio ' . htmlspecialchars($fmtHoras($promedioHoras)) . ' por permiso firmado'
+                                        : 'Solo permisos ya firmados' ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="aus-card aus-kpi">
+                            <span class="aus-ico verde"><?= icon('check', 'w-5 h-5') ?></span>
+                            <div>
+                                <div class="aus-label">Tasa de aprobación</div>
+                                <div class="aus-num"><?= $tasaAprobacion === null ? '—' : $tasaAprobacion . '%' ?></div>
+                                <div class="aus-sub"><?= $resPeriodo['firmados'] ?> firmado(s) · <?= $resPeriodo['rechazados'] ?> rechazado(s)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Por tipo + firmas pendientes -->
+                    <div class="aus-dos">
+                        <div class="aus-card">
+                            <h3>Permisos por tipo</h3>
+                            <p class="aus-hint"><?= htmlspecialchars($etiquetaPeriodo) ?><?= $periodoTodos ? '' : ' · entre paréntesis, el total histórico' ?></p>
+                            <?php foreach ($tiposPeriodo as $tipo => $cantidad): ?>
+                                <?php $ancho = $pct($cantidad, $resPeriodo['total']); ?>
+                                <div class="aus-fila">
+                                    <div class="aus-fila-top">
+                                        <span><?= htmlspecialchars($etiquetasTipo[$tipo] ?? $tipo) ?></span>
+                                        <span><b><?= $cantidad ?></b> <small><?= $ancho ?>%<?= $periodoTodos ? '' : ' (' . $tiposTotal[$tipo] . ')' ?></small></span>
+                                    </div>
+                                    <div class="aus-track"><div class="aus-fill" style="width:<?= $ancho ?>%;background:<?= $coloresTipo[$tipo] ?? '#6b7280' ?>"></div></div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <div class="aus-card">
+                            <h3>Firmas pendientes</h3>
+                            <p class="aus-hint">Permisos que todavía esperan una firma</p>
+                            <div class="aus-num" style="margin-top:8px"><?= $pendFirmasPeriodo ?>
+                                <span style="font-size:13px;font-weight:600;color:#6b7280">en <?= htmlspecialchars($etiquetaPeriodo) ?></span>
+                            </div>
+                            <?php if (!$periodoTodos): ?>
+                                <div class="aus-sub">En toda la base de datos: <strong><?= $pendFirmasTotal ?></strong></div>
+                            <?php endif; ?>
+
+                            <table class="aus-tabla">
+                                <thead>
+                                    <tr>
+                                        <th>Qué falta</th>
+                                        <th><?= $periodoTodos ? 'Total' : 'Periodo' ?></th>
+                                        <?php if (!$periodoTodos): ?><th>Total BD</th><?php endif; ?>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Firma del reemplazo</td>
+                                        <td><?= $resPeriodo['pend_reemplazo'] ?></td>
+                                        <?php if (!$periodoTodos): ?><td><?= $resTotal['pend_reemplazo'] ?></td><?php endif; ?>
+                                    </tr>
+                                    <tr>
+                                        <td>Firma del jefe</td>
+                                        <td><?= $resPeriodo['pend_jefe'] ?></td>
+                                        <?php if (!$periodoTodos): ?><td><?= $resTotal['pend_jefe'] ?></td><?php endif; ?>
+                                    </tr>
+                                    <tr>
+                                        <td>Esperando regreso <small>falta llegada y firma final</small></td>
+                                        <td><?= $resPeriodo['esperando_regreso'] ?></td>
+                                        <?php if (!$periodoTodos): ?><td><?= $resTotal['esperando_regreso'] ?></td><?php endif; ?>
+                                    </tr>
+                                    <tr>
+                                        <td>Devueltos al empleado <small>debe corregir y reenviar</small></td>
+                                        <td><?= $resPeriodo['devueltos'] ?></td>
+                                        <?php if (!$periodoTodos): ?><td><?= $resTotal['devueltos'] ?></td><?php endif; ?>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Estado de las solicitudes + tendencia -->
+                    <div class="aus-dos">
+                        <div class="aus-card">
+                            <h3>Estado de las solicitudes</h3>
+                            <p class="aus-hint"><?= htmlspecialchars($etiquetaPeriodo) ?> · <?= $resPeriodo['total'] ?> permiso(s)</p>
+                            <?php
+                            $enTramite = $pendFirmasPeriodo + $resPeriodo['esperando_regreso'];
+                            $segmentos = [
+                                ['Firmados', $resPeriodo['firmados'], '#16a34a'],
+                                ['En trámite de firma', $enTramite, '#d97706'],
+                                ['Devueltos', $resPeriodo['devueltos'], '#ea580c'],
+                                ['Rechazados', $resPeriodo['rechazados'], '#dc2626'],
+                                ['Anulados', $resPeriodo['anulados'], '#9ca3af'],
+                            ];
+                            ?>
+                            <div class="aus-apilada">
+                                <?php foreach ($segmentos as [$nombre, $valor, $color]): ?>
+                                    <?php if ($valor > 0): ?>
+                                        <div title="<?= htmlspecialchars($nombre) ?>: <?= $valor ?>"
+                                            style="width:<?= ($valor * 100) / max(1, $resPeriodo['total']) ?>%;background:<?= $color ?>"></div>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
+                            <div class="aus-leyenda">
+                                <?php foreach ($segmentos as [$nombre, $valor, $color]): ?>
+                                    <div><span class="pto" style="background:<?= $color ?>"></span><?= htmlspecialchars($nombre) ?>: <b><?= $valor ?></b></div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <div class="aus-card">
+                            <h3>Tendencia de los últimos 6 meses</h3>
+                            <p class="aus-hint">Permisos solicitados por mes (termina en <?= $periodoTodos ? 'el mes actual' : htmlspecialchars($etiquetaPeriodo) ?>)</p>
+                            <div class="aus-barras">
+                                <?php foreach ($tendencia as $i => $punto): ?>
+                                    <?php
+                                    $esUltimo = ($i === count($tendencia) - 1);
+                                    $alto = $punto['total'] > 0 ? max(6, (int) round($punto['total'] * 100 / $maxTendencia)) : 3;
+                                    ?>
+                                    <div class="aus-col">
+                                        <span class="v"><?= $punto['total'] ?></span>
+                                        <div class="b" style="height:<?= $alto ?>%;background:<?= $esUltimo ? '#dc2626' : '#fca5a5' ?>"></div>
+                                        <span class="m"><?= htmlspecialchars(substr(EmpleadoModel::mesEnEspanol($punto['mes']), 0, 3)) ?></span>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top empleados + jefes con firmas pendientes -->
+                    <div class="aus-dos">
+                        <div class="aus-card">
+                            <h3>Quién pide más permisos</h3>
+                            <p class="aus-hint">Top 5 · <?= htmlspecialchars($etiquetaPeriodo) ?></p>
+                            <?php if (empty($topEmpleados)): ?>
+                                <div class="aus-vacio">No hay permisos en este periodo.</div>
+                            <?php else: ?>
+                                <ul class="aus-lista">
+                                    <?php foreach ($topEmpleados as $i => $emp): ?>
+                                        <li>
+                                            <span class="aus-pos"><?= $i + 1 ?></span>
+                                            <div class="n">
+                                                <p><?= htmlspecialchars($emp['nombre']) ?></p>
+                                                <small>CC <?= htmlspecialchars($emp['cedula_empleado']) ?> · <?= htmlspecialchars($fmtHoras((float) $emp['horas'])) ?> aprobadas</small>
+                                            </div>
+                                            <span class="aus-pill"><?= (int) $emp['total'] ?> permiso(s)</span>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="aus-card">
+                            <h3>Jefes con firmas por dar</h3>
+                            <p class="aus-hint">Estado actual, sin importar el mes seleccionado</p>
+                            <?php if (empty($jefesPendientes)): ?>
+                                <div class="aus-vacio">Ningún jefe tiene permisos pendientes. ¡Todo al día!</div>
+                            <?php else: ?>
+                                <ul class="aus-lista">
+                                    <?php foreach ($jefesPendientes as $i => $jefe): ?>
+                                        <?php
+                                        $diasEspera = (int) (new DateTime('now'))->diff(new DateTime($jefe['mas_antiguo']))->days;
+                                        $textoEspera = $diasEspera === 0 ? 'desde hoy' : 'hace ' . $diasEspera . ' día' . ($diasEspera === 1 ? '' : 's');
+                                        ?>
+                                        <li>
+                                            <span class="aus-pos"><?= $i + 1 ?></span>
+                                            <div class="n">
+                                                <p><?= htmlspecialchars($jefe['nombre']) ?></p>
+                                                <small>El más antiguo espera <?= $textoEspera ?></small>
+                                            </div>
+                                            <span class="aus-pill <?= $diasEspera >= 3 ? 'alerta' : '' ?>"><?= (int) $jefe['pendientes'] ?> pendiente(s)</span>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php endif; ?>
             </section>

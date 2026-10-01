@@ -377,4 +377,151 @@ class PermisoModel {
         $stmt->execute(['b1' => $desdeISO]);
         return $stmt->fetchAll();
     }
+
+    // =========================================================================
+    //  MÉTRICAS DE AUSENTISMO (dashboard)
+    //  Regla general: los borradores (estado 'en_proceso') no cuentan, porque
+    //  todavía no son una solicitud. El mes se filtra por fecha_inicio del permiso.
+    // =========================================================================
+
+    /**
+     * Resumen de permisos. Si $desde y $hasta son null, cubre toda la base de datos.
+     * Devuelve totales, personas distintas, horas firmadas y conteo por estado.
+     */
+    public static function resumenAusentismo(?string $desde = null, ?string $hasta = null): array {
+        $pdo = getPDO();
+        $sql = "SELECT
+                    COUNT(*) AS total,
+                    COUNT(DISTINCT cedula_empleado) AS personas,
+                    COALESCE(SUM(CASE WHEN estado = 'firmado' THEN total_horas ELSE 0 END), 0) AS horas_firmadas,
+                    COALESCE(SUM(estado = 'firmado'), 0) AS firmados,
+                    COALESCE(SUM(estado = 'rechazado'), 0) AS rechazados,
+                    COALESCE(SUM(estado IN ('devuelto','devuelto_regreso')), 0) AS devueltos,
+                    COALESCE(SUM(estado = 'anulado'), 0) AS anulados,
+                    COALESCE(SUM(estado = 'por_firmar_reemplazo'), 0) AS pend_reemplazo,
+                    COALESCE(SUM(estado IN ('por_firmar_jefe','por_firmar_jefe_final')), 0) AS pend_jefe,
+                    COALESCE(SUM(estado = 'aprobado_pendiente_regreso'), 0) AS esperando_regreso
+                FROM permisos
+                WHERE estado <> 'en_proceso'";
+        $params = [];
+        if ($desde !== null && $hasta !== null) {
+            $sql .= " AND fecha_inicio BETWEEN ? AND ?";
+            $params = [$desde, $hasta];
+        }
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $f = $stmt->fetch() ?: [];
+
+        return [
+            'total'             => (int) ($f['total'] ?? 0),
+            'personas'          => (int) ($f['personas'] ?? 0),
+            'horas_firmadas'    => (float) ($f['horas_firmadas'] ?? 0),
+            'firmados'          => (int) ($f['firmados'] ?? 0),
+            'rechazados'        => (int) ($f['rechazados'] ?? 0),
+            'devueltos'         => (int) ($f['devueltos'] ?? 0),
+            'anulados'          => (int) ($f['anulados'] ?? 0),
+            'pend_reemplazo'    => (int) ($f['pend_reemplazo'] ?? 0),
+            'pend_jefe'         => (int) ($f['pend_jefe'] ?? 0),
+            'esperando_regreso' => (int) ($f['esperando_regreso'] ?? 0),
+        ];
+    }
+
+    /** Cantidad de permisos por tipo. Siempre devuelve los 4 tipos (con 0 si no hay). */
+    public static function ausentismoPorTipo(?string $desde = null, ?string $hasta = null): array {
+        $pdo = getPDO();
+        $sql = "SELECT tipo_permiso, COUNT(*) AS total
+                FROM permisos
+                WHERE estado <> 'en_proceso'";
+        $params = [];
+        if ($desde !== null && $hasta !== null) {
+            $sql .= " AND fecha_inicio BETWEEN ? AND ?";
+            $params = [$desde, $hasta];
+        }
+        $sql .= " GROUP BY tipo_permiso";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+
+        $resultado = ['Permiso' => 0, 'Vacaciones' => 0, 'Licencia' => 0, 'Mision institucional' => 0];
+        foreach ($stmt->fetchAll() as $f) {
+            $resultado[$f['tipo_permiso']] = (int) $f['total'];
+        }
+        return $resultado;
+    }
+
+    /** Empleados con más permisos en el periodo (o en toda la BD). */
+    public static function topEmpleadosAusentismo(?string $desde = null, ?string $hasta = null, int $limite = 5): array {
+        $pdo = getPDO();
+        $limite = max(1, min(20, $limite));
+        $sql = "SELECT cedula_empleado,
+                       MAX(nombre_empleado_snapshot) AS nombre,
+                       COUNT(*) AS total,
+                       COALESCE(SUM(CASE WHEN estado = 'firmado' THEN total_horas ELSE 0 END), 0) AS horas
+                FROM permisos
+                WHERE estado <> 'en_proceso'";
+        $params = [];
+        if ($desde !== null && $hasta !== null) {
+            $sql .= " AND fecha_inicio BETWEEN ? AND ?";
+            $params = [$desde, $hasta];
+        }
+        $sql .= " GROUP BY cedula_empleado ORDER BY total DESC, horas DESC LIMIT {$limite}";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Jefes con permisos esperando su firma AHORA (no depende del mes seleccionado).
+     * 'mas_antiguo' es la última actualización del permiso más viejo en espera.
+     */
+    public static function jefesConFirmasPendientes(int $limite = 5): array {
+        $pdo = getPDO();
+        $limite = max(1, min(20, $limite));
+        $stmt = $pdo->query(
+            "SELECT p.cedula_jefe,
+                    COALESCE(e.nombre, p.cedula_jefe) AS nombre,
+                    COUNT(*) AS pendientes,
+                    MIN(p.fecha_actualizacion) AS mas_antiguo
+             FROM permisos p
+             LEFT JOIN empleados e ON e.cedula = p.cedula_jefe
+             WHERE p.estado IN ('por_firmar_jefe','por_firmar_jefe_final')
+             GROUP BY p.cedula_jefe, e.nombre
+             ORDER BY pendientes DESC, mas_antiguo ASC
+             LIMIT {$limite}"
+        );
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Permisos por mes para los $meses meses que terminan en $anioFin/$mesFin.
+     * Devuelve [['anio'=>2026,'mes'=>5,'total'=>12], ...] en orden cronológico, con ceros incluidos.
+     */
+    public static function tendenciaMensual(int $anioFin, int $mesFin, int $meses = 6): array {
+        $pdo = getPDO();
+        $fin = new DateTime(sprintf('%04d-%02d-01', $anioFin, $mesFin));
+        $inicio = (clone $fin)->modify('-' . ($meses - 1) . ' months');
+
+        $stmt = $pdo->prepare(
+            "SELECT DATE_FORMAT(fecha_inicio, '%Y-%m') AS ym, COUNT(*) AS total
+             FROM permisos
+             WHERE estado <> 'en_proceso' AND fecha_inicio BETWEEN ? AND ?
+             GROUP BY ym"
+        );
+        $stmt->execute([$inicio->format('Y-m-01'), $fin->format('Y-m-t')]);
+        $porMes = [];
+        foreach ($stmt->fetchAll() as $f) {
+            $porMes[$f['ym']] = (int) $f['total'];
+        }
+
+        $serie = [];
+        $cursor = clone $inicio;
+        for ($i = 0; $i < $meses; $i++) {
+            $serie[] = [
+                'anio'  => (int) $cursor->format('Y'),
+                'mes'   => (int) $cursor->format('n'),
+                'total' => $porMes[$cursor->format('Y-m')] ?? 0,
+            ];
+            $cursor->modify('+1 month');
+        }
+        return $serie;
+    }
 }

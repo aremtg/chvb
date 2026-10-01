@@ -481,7 +481,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div>
                     <div class="sm:col-span-2"><label class="block text-xs text-gray-500 mb-1">Cédula <span
                                 class="text-red-600">*</span></label><input type="text" name="cedula" id="editCedula"
-                            required maxlength="10"
+                            required maxlength="13" inputmode="numeric" autocomplete="off"
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div>
                     <div class="sm:col-span-2"><label class="block text-xs text-gray-500 mb-1">Cargo <span
                                 class="text-red-600">*</span></label><select name="cargo" id="editCargo" required
