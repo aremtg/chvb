@@ -72,7 +72,12 @@ $esOtrosiCambioSalario = preg_match(
     $archivo
 );
 
-if (!$esRenovacion && !$esOtrosiAnterior && !$esOtrosiNuevo && !$esOtrosiCambioSalario) {
+$esRemisionExamenes = preg_match(
+    '/^GH-FT-03 REMISION EXAMENES [^\/\\\\]+\.docx$/iu',
+    $archivo
+);
+
+if (!$esRenovacion && !$esOtrosiAnterior && !$esOtrosiNuevo && !$esOtrosiCambioSalario && !$esRemisionExamenes) {
     http_response_code(400);
     exit('Archivo no válido.');
 }

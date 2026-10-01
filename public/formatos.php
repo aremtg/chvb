@@ -30,6 +30,29 @@ requireFormatosAccess();
 
         <main class="p-4 sm:p-6 max-w-7xl mx-auto space-y-5">
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+                <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <div>
+                                    <h2 class="font-bold text-gray-800">Exámenes médicos ocupacionales</h2>
+                                    <p class="text-xs text-gray-600">Remisión de exámenes médicos</p>
+                                </div>
+                            </div>
+                            <a href="./formatos_remision_examenes.php"
+                                class="w-9 h-9 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-500 flex items-center justify-center transition"
+                                title="Abrir remisión de exámenes médicos">
+                                <?= icon('clipboard-list', 'w-5 h-5') ?>
+                            </a>
+                        </div>
+                        <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+                            <p class="text-sm font-semibold text-gray-700 truncate">GH-FT-03 · REMISIÓN EXÁMENES MÉDICOS OCUPACIONALES</p>
+                            <p class="text-xs text-gray-600">Plantilla oficial</p>
+                        </div>
+                    </div>
+                </section>
+
                 <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
                     <div class="p-5">
                         <div class="flex items-center justify-between gap-3">
