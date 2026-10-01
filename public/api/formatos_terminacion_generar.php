@@ -1,79 +1,455 @@
 <?php
 declare(strict_types=1);
+
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../src/models/FormatoModel.php';
 require_once __DIR__ . '/../../src/models/EmpleadoModel.php';
+
 header('Content-Type: application/json; charset=utf-8');
+
 requireSuperAdmin();
-if (!in_array($_SESSION['superadmin_rol'] ?? '', ['superadmin_talento_humano','auxiliar_talento_humano'], true)) {
- http_response_code(403); echo json_encode(['ok'=>false,'error'=>'No tienes permiso para usar Formatos.'],JSON_UNESCAPED_UNICODE); exit;
+
+if (!in_array($_SESSION['superadmin_rol'] ?? '', ['superadmin_talento_humano', 'auxiliar_talento_humano'], true)) {
+    http_response_code(403);
+    echo json_encode(['ok' => false, 'error' => 'No tienes permiso para usar Formatos.'], JSON_UNESCAPED_UNICODE);
+    exit;
 }
+
 validarCSRF();
-function termSexo(string $s): string { $s=mb_strtolower(trim($s),'UTF-8'); if(in_array($s,['f','femenino','femenina','mujer'],true))return 'F'; if(in_array($s,['m','masculino','hombre'],true))return 'M'; return ''; }
-function termNombreArchivo(string $s): string { $s=mb_strtoupper(trim($s),'UTF-8'); $s=preg_replace('/[\\\\\/:*?"<>|]/u','',$s); return trim(preg_replace('/\s+/u',' ',$s)); }
-function termReemplazarParrafoHistorial(string $docx,array $lineas): void {
- $zip=new ZipArchive(); if($zip->open($docx)!==true)throw new RuntimeException('No fue posible preparar el historial de renovaciones.');
- $xml=$zip->getFromName('word/document.xml'); if($xml===false){$zip->close();return;}
- $dom=new DOMDocument();$dom->preserveWhiteSpace=true;$dom->formatOutput=false;if(!@$dom->loadXML($xml)){$zip->close();return;}
- $xp=new DOMXPath($dom);$xp->registerNamespace('w','http://schemas.openxmlformats.org/wordprocessingml/2006/main');
- $target=null;foreach($xp->query('//w:body/w:p') as $p){$t='';foreach($xp->query('.//w:t',$p) as $n)$t.=$n->textContent;if(strpos($t,'HISTORIAL_TERMINACION_MARKER')!==false){$target=$p;break;}}
- if($target){
-   $parent=$target->parentNode;$prototype=$target->cloneNode(true);
-   $escribir=function($p,$texto)use($dom,$xp){$runs=$xp->query('.//w:r',$p);$first=$runs->item(0);if(!$first){$first=$dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main','w:r');$p->appendChild($first);}
-     foreach(iterator_to_array($xp->query('.//w:t',$p)) as $t)$t->parentNode->removeChild($t);
-     $t=$dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main','w:t',$texto);$t->setAttribute('xml:space','preserve');$first->appendChild($t);
-     foreach($xp->query('.//w:r',$p) as $r){$texts=$xp->query('./w:t',$r);if($r!==$first&&$texts->length===0){/* keep formatting run empty */}}
-   };
-   if(!$lineas){$parent->removeChild($target);}else{
-     $escribir($target,$lineas[0]);
-     $ref=$target;
-     for($i=1;$i<count($lineas);$i++){$clone=$prototype->cloneNode(true);$escribir($clone,$lineas[$i]);$parent->insertBefore($clone,$ref->nextSibling);$ref=$clone;}
-   }
- }
- $zip->addFromString('word/document.xml',$dom->saveXML());$zip->close();
+
+function af02JsonError(string $message, int $status = 400): never
+{
+    http_response_code($status);
+    echo json_encode(['ok' => false, 'error' => $message], JSON_UNESCAPED_UNICODE);
+    exit;
 }
+
+function af02Fecha(string $value, string $campo): DateTimeImmutable
+{
+    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+    $errors = DateTimeImmutable::getLastErrors();
+    $hasErrors = is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0);
+
+    if (!$date || $hasErrors || $date->format('Y-m-d') !== $value) {
+        throw new InvalidArgumentException("Fecha inválida en {$campo}.");
+    }
+
+    return $date;
+}
+
+function af02Sexo(string $sexo): string
+{
+    $sexo = mb_strtolower(trim($sexo), 'UTF-8');
+    return match (true) {
+        in_array($sexo, ['f', 'femenino', 'femenina', 'mujer'], true) => 'Señora',
+        in_array($sexo, ['m', 'masculino', 'hombre'], true) => 'Señor',
+        default => '',
+    };
+}
+
+function af02TipoContrato(string $tipo): string
+{
+    $tipo = trim(preg_replace('/\s+/u', ' ', $tipo));
+    return $tipo !== '' ? mb_strtolower($tipo, 'UTF-8') : '';
+}
+
+function af02NombreArchivo(string $nombre, string $cedula): string
+{
+    $nombre = mb_strtoupper(trim($nombre), 'UTF-8');
+    $nombre = preg_replace('/[\\\/:*?"<>|]/u', '', $nombre);
+    $nombre = trim(preg_replace('/\s+/u', ' ', $nombre));
+    $cedula = preg_replace('/[^0-9A-Za-z.-]/', '', $cedula);
+    return "AF-FT-02 NOTIFICACION DE TERMINACION CONTRATO {$nombre}_{$cedula}.docx";
+}
+
+function af02FinPorMeses(string $inicio, int $meses): string
+{
+    if ($meses < 1 || $meses > 120) {
+        throw new InvalidArgumentException('La duración debe estar entre 1 y 120 meses.');
+    }
+
+    $base = af02Fecha($inicio, 'inicio de renovación');
+    $dia = (int)$base->format('d');
+    $objetivo = $base->modify('first day of this month')->modify("+{$meses} months");
+    $ultimoDia = (int)$objetivo->format('t');
+    $objetivo = $objetivo->setDate(
+        (int)$objetivo->format('Y'),
+        (int)$objetivo->format('m'),
+        min($dia, $ultimoDia)
+    );
+
+    return $objetivo->modify('-1 day')->format('Y-m-d');
+}
+
+function af02FechaLarga(string $fecha): string
+{
+    return FormatoModel::fechaLarga($fecha);
+}
+
+/**
+ * Reemplaza texto dentro de párrafos Word conservando los estilos de los runs.
+ * Word puede dividir un marcador entre varios runs; esta función lo maneja.
+ */
+function af02ReemplazarTextoEnParrafos(DOMDocument $dom, string $xml, array $reemplazos): string
+{
+    $dom->preserveWhiteSpace = true;
+    if (!@$dom->loadXML($xml)) {
+        throw new RuntimeException('La plantilla Word contiene XML inválido.');
+    }
+
+    $xp = new DOMXPath($dom);
+    $xp->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
+
+    foreach ($xp->query('//w:p') as $p) {
+        $textNodes = [];
+        $full = '';
+
+        foreach ($xp->query('.//w:t', $p) as $node) {
+            $value = $node->textContent;
+            $textNodes[] = [
+                'node' => $node,
+                'start' => mb_strlen($full, 'UTF-8'),
+                'length' => mb_strlen($value, 'UTF-8'),
+            ];
+            $full .= $value;
+        }
+
+        if ($full === '') continue;
+
+        foreach ($reemplazos as $buscar => $reemplazo) {
+            $pos = mb_strpos($full, $buscar, 0, 'UTF-8');
+            if ($pos === false) continue;
+
+            $fin = $pos + mb_strlen($buscar, 'UTF-8');
+            $first = null;
+            $last = null;
+
+            foreach ($textNodes as $item) {
+                $nodeStart = $item['start'];
+                $nodeEnd = $nodeStart + $item['length'];
+                if ($nodeEnd > $pos && $nodeStart < $fin) {
+                    if ($first === null) $first = $item;
+                    $last = $item;
+                }
+            }
+
+            if ($first === null || $last === null) continue;
+
+            $firstText = $first['node']->textContent;
+            $lastText = $last['node']->textContent;
+            $firstOffset = max(0, $pos - $first['start']);
+            $lastOffset = max(0, $fin - $last['start']);
+
+            if ($first['node'] === $last['node']) {
+                $newValue = mb_substr($firstText, 0, $firstOffset, 'UTF-8')
+                    . $reemplazo
+                    . mb_substr($firstText, $lastOffset, null, 'UTF-8');
+                $first['node']->nodeValue = $newValue;
+            } else {
+                $prefix = mb_substr($firstText, 0, $firstOffset, 'UTF-8');
+                $suffix = mb_substr($lastText, $lastOffset, null, 'UTF-8');
+                $first['node']->nodeValue = $prefix . $reemplazo;
+                $between = false;
+                foreach ($textNodes as $item) {
+                    if ($item['node'] === $first['node']) {
+                        $between = true;
+                        continue;
+                    }
+                    if ($item['node'] === $last['node']) break;
+                    if ($between) $item['node']->nodeValue = '';
+                }
+                $last['node']->nodeValue = $suffix;
+            }
+
+            // Recalcular el texto del párrafo para permitir varios marcadores en el mismo párrafo.
+            $full = '';
+            foreach ($xp->query('.//w:t', $p) as $node) $full .= $node->textContent;
+            $textNodes = [];
+            $cursor = 0;
+            foreach ($xp->query('.//w:t', $p) as $node) {
+                $value = $node->textContent;
+                $length = mb_strlen($value, 'UTF-8');
+                $textNodes[] = [
+                    'node' => $node,
+                    'start' => $cursor,
+                    'length' => $length,
+                ];
+                $cursor += $length;
+            }
+        }
+    }
+
+    return $dom->saveXML();
+}
+
+/** Reemplaza todo el texto visible de un párrafo usando el estilo del primer run. */
+function af02EscribirParrafo(DOMDocument $dom, DOMXPath $xp, DOMElement $p, string $texto, bool $negrita = false): void
+{
+    $ns = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+    $runs = $xp->query('./w:r', $p);
+    $prototype = $runs->item(0);
+    $rPr = $prototype ? $xp->query('./w:rPr', $prototype)->item(0) : null;
+
+    foreach (iterator_to_array($xp->query('./w:r', $p)) as $r) $p->removeChild($r);
+
+    $run = $dom->createElementNS($ns, 'w:r');
+    if ($rPr) $run->appendChild($rPr->cloneNode(true));
+
+    if ($negrita) {
+        $runPr = $xp->query('./w:rPr', $run)->item(0);
+        if (!$runPr) {
+            $runPr = $dom->createElementNS($ns, 'w:rPr');
+            $run->insertBefore($runPr, $run->firstChild);
+        }
+        if ($xp->query('./w:b', $runPr)->length === 0) $runPr->appendChild($dom->createElementNS($ns, 'w:b'));
+    }
+
+    $t = $dom->createElementNS($ns, 'w:t');
+    $t->setAttribute('xml:space', 'preserve');
+    $t->appendChild($dom->createTextNode($texto));
+    $run->appendChild($t);
+    $p->appendChild($run);
+}
+
+/**
+ * Reemplaza el párrafo de renovaciones por uno por renovación.
+ */
+function af02InsertarHistorial(DOMDocument $dom, DOMXPath $xp, array $renovaciones): void
+{
+    foreach ($xp->query('//w:body/w:p') as $p) {
+        $texto = '';
+        foreach ($xp->query('.//w:t', $p) as $t) $texto .= $t->textContent;
+        if (mb_stripos($texto, 'Renovación N°${}:', 0, 'UTF-8') === false) continue;
+
+        $parent = $p->parentNode;
+        if (!$renovaciones) {
+            $parent->removeChild($p);
+            return;
+        }
+
+        $prototipo = $p->cloneNode(true);
+        $referencia = $p;
+
+        foreach ($renovaciones as $index => $r) {
+            $linea = 'Renovación N°' . ($index + 1) . ': del ' . af02FechaLarga($r['inicio']) . ' al ' . af02FechaLarga($r['fin']) . '.';
+            $destino = $index === 0 ? $p : $prototipo->cloneNode(true);
+            af02EscribirParrafo($dom, $xp, $destino, $linea);
+            if ($index > 0) {
+                $parent->insertBefore($destino, $referencia->nextSibling);
+                $referencia = $destino;
+            }
+        }
+        return;
+    }
+}
+
+/**
+ * Aplica negrita únicamente al texto exacto del nombre y la cédula, sin cambiar fuente/tamaño.
+ */
+function af02NegritaExacta(DOMDocument $dom, DOMXPath $xp, array $objetivos): void
+{
+    $ns = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+
+    foreach ($xp->query('//w:r') as $r) {
+        $texts = $xp->query('./w:t', $r);
+        if ($texts->length !== 1) continue;
+        $textNode = $texts->item(0);
+        $text = $textNode->textContent;
+
+        foreach ($objetivos as $objetivo) {
+            if ($objetivo === '' || mb_strpos($text, $objetivo, 0, 'UTF-8') === false) continue;
+
+            $pos = mb_strpos($text, $objetivo, 0, 'UTF-8');
+            $antes = mb_substr($text, 0, $pos, 'UTF-8');
+            $despues = mb_substr($text, $pos + mb_strlen($objetivo, 'UTF-8'), null, 'UTF-8');
+            $rPr = $xp->query('./w:rPr', $r)->item(0);
+
+            $crearRun = static function (string $value, bool $bold) use ($dom, $rPr, $ns): DOMElement {
+                $nuevo = $dom->createElementNS($ns, 'w:r');
+                if ($rPr) $nuevo->appendChild($rPr->cloneNode(true));
+                if ($bold) {
+                    $nuevoPr = null;
+                    foreach ($nuevo->childNodes as $child) {
+                        if ($child instanceof DOMElement && $child->localName === 'rPr') { $nuevoPr = $child; break; }
+                    }
+                    if (!$nuevoPr) {
+                        $nuevoPr = $dom->createElementNS($ns, 'w:rPr');
+                        $nuevo->insertBefore($nuevoPr, $nuevo->firstChild);
+                    }
+                    if ($nuevoPr->getElementsByTagNameNS($ns, 'b')->length === 0) $nuevoPr->appendChild($dom->createElementNS($ns, 'w:b'));
+                }
+                $t = $dom->createElementNS($ns, 'w:t');
+                $t->setAttribute('xml:space', 'preserve');
+                $t->appendChild($dom->createTextNode($value));
+                $nuevo->appendChild($t);
+                return $nuevo;
+            };
+
+            $parent = $r->parentNode;
+            if ($antes !== '') $parent->insertBefore($crearRun($antes, false), $r);
+            $parent->insertBefore($crearRun($objetivo, true), $r);
+            if ($despues !== '') $parent->insertBefore($crearRun($despues, false), $r);
+            $parent->removeChild($r);
+            break;
+        }
+    }
+}
+
 try {
- $cedula=trim((string)($_POST['cedula']??''));$fechaFin=trim((string)($_POST['fecha_fin']??''));$duraciones=json_decode((string)($_POST['duraciones']??'[]'),true);
- if($cedula===''||!is_array($duraciones))throw new InvalidArgumentException('Selecciona un empleado y las opciones del contrato.');
- $empleado=EmpleadoModel::obtenerPorCedula($cedula);if(!$empleado)throw new InvalidArgumentException('No se encontró el empleado.');
- foreach(['nombre','cedula','sexo','cargo','tipo_de_contrato','fecha_inicio_contrato','fecha_fin_contrato'] as $k)if(trim((string)($empleado[$k]??''))==='')throw new InvalidArgumentException('Falta el dato obligatorio en la hoja de vida: '.$k.'.');
- $sexo=termSexo((string)$empleado['sexo']);if(!$sexo)throw new InvalidArgumentException('El sexo del empleado no está registrado correctamente.');
- $inicio=(string)$empleado['fecha_inicio_contrato'];$finInicial=(string)$empleado['fecha_fin_contrato'];
- foreach([$inicio,$finInicial,$fechaFin] as $f){$d=DateTime::createFromFormat('!Y-m-d',$f);if(!$d||$d->format('Y-m-d')!==$f)throw new InvalidArgumentException('Hay una fecha inválida.');}
- if(count($duraciones)>20)throw new InvalidArgumentException('Puedes registrar máximo 20 renovaciones por formato.');
- $lineas=[];$cursor=(new DateTime($finInicial))->modify('+1 day');$finElegido=$finInicial;
- foreach($duraciones as $i=>$mRaw){$m=(int)$mRaw;$n=$i+1;if(!in_array($m,[1,2,3,6,12,18,24,36],true))throw new InvalidArgumentException("Duración inválida para RN{$n}.");if($n>=4&&$m<12)throw new InvalidArgumentException("La renovación RN{$n} debe ser de mínimo 12 meses.");
-   $ini=$cursor->format('Y-m-d');$fin=FormatoModel::calcularFin($ini,$m);$lineas[]='Renovación N°'.$n.': del '.FormatoModel::fechaLarga($ini).' al '.FormatoModel::fechaLarga($fin).'.';$finElegido=$fin;$cursor=(new DateTime($fin))->modify('+1 day');
- }
- // La fecha seleccionada debe corresponder al contrato inicial o a una de las renovaciones calculadas.
- if($fechaFin!==$finInicial){
-   $permitidas=[$finInicial];$cursor=(new DateTime($finInicial))->modify('+1 day');foreach($duraciones as $m){$f=FormatoModel::calcularFin($cursor->format('Y-m-d'),(int)$m);$permitidas[]=$f;$cursor=(new DateTime($f))->modify('+1 day');}
-   if(!in_array($fechaFin,$permitidas,true))throw new InvalidArgumentException('La fecha final debe corresponder al contrato inicial o a una renovación calculada.');
- }
- $indice=array_search($fechaFin,[$finInicial],true);
- $cursor=(new DateTime($finInicial))->modify('+1 day');$hist=[];$fechaValida=$finInicial;
- foreach($duraciones as $i=>$m){$f=FormatoModel::calcularFin($cursor->format('Y-m-d'),(int)$m);$hist[]=['inicio'=>$cursor->format('Y-m-d'),'fin'=>$f];$cursor=(new DateTime($f))->modify('+1 day');if($f===$fechaFin){$indice=$i+1;$fechaValida=$f;break;}}
- if($fechaFin!==$finInicial&&$fechaValida!==$fechaFin)throw new InvalidArgumentException('La fecha final seleccionada no coincide con las renovaciones.');
- $historialLineas=[];foreach(array_slice($lineas,0,(int)$indice) as $linea)$historialLineas[]=$linea;
- $tipo=mb_strtolower(trim((string)$empleado['tipo_de_contrato']),'UTF-8');if(!in_array($tipo,['fijo','indefinido'],true))$tipo=trim((string)$empleado['tipo_de_contrato']);
- $plantilla=__DIR__.'/../../uploads/plantillas/AF-FT-02 NOTIFICACION TERMINACION CONTRATO.docx';if(!is_file($plantilla))throw new RuntimeException('Copia la plantilla AF-FT-02 NOTIFICACION TERMINACION CONTRATO.docx en uploads/plantillas/.');
- $generados=__DIR__.'/../../uploads/generados';if(!is_dir($generados)&&!mkdir($generados,0775,true)&&!is_dir($generados))throw new RuntimeException('No se pudo crear la carpeta de formatos generados.');
- if(!class_exists('PhpOffice\\PhpWord\\TemplateProcessor'))throw new RuntimeException('PHPWord no está instalado.');
- $nombre=mb_strtoupper(trim((string)$empleado['nombre']),'UTF-8');$cedulaFormateada=FormatoModel::formatearCedula((string)$empleado['cedula']);
- $archivo='AF-FT-02 NOTIFICACION DE TERMINACION CONTRATO '.$nombre.'_'.$cedulaFormateada.'.docx';$archivo=termNombreArchivo(pathinfo($archivo,PATHINFO_FILENAME)).'.docx';$salida=$generados.DIRECTORY_SEPARATOR.$archivo;
- $p=new \PhpOffice\PhpWord\TemplateProcessor($plantilla);
- $p->setValues(['fecha_actual'=>FormatoModel::fechaLarga(date('Y-m-d')),'tratamiento'=>$sexo==='F'?'Señora':'Señor','nombre_mayus'=>$nombre,'cargo'=>trim((string)$empleado['cargo']),'cedula'=>$cedulaFormateada,'tipo_contrato'=>$tipo,'fecha_inicio_inicial'=>FormatoModel::fechaLarga($inicio),'fecha_fin_inicial'=>FormatoModel::fechaLarga($finInicial),'fecha_fin'=>FormatoModel::fechaLarga($fechaFin),'historial_renovaciones'=>'HISTORIAL_TERMINACION_MARKER']);
- $p->saveAs($salida);termReemplazarParrafoHistorial($salida,$historialLineas);
- // Nombre y cédula: separar sus runs para poner en negrita únicamente esos datos.
- $zip=new ZipArchive();if($zip->open($salida)===true){$xml=$zip->getFromName('word/document.xml');if($xml!==false){$dom=new DOMDocument();$dom->preserveWhiteSpace=true;if(@$dom->loadXML($xml)){$xp=new DOMXPath($dom);$xp->registerNamespace('w','http://schemas.openxmlformats.org/wordprocessingml/2006/main');$ns='http://schemas.openxmlformats.org/wordprocessingml/2006/main';
- foreach(iterator_to_array($xp->query('//w:r')) as $r){if(!$r->parentNode)continue;$txt='';foreach($xp->query('./w:t',$r) as $t)$txt.=$t->textContent;if($txt===''||(!str_contains($txt,$nombre)&&!str_contains($txt,$cedulaFormateada)))continue;
-   $rp=$xp->query('./w:rPr',$r)->item(0);$parts=[];$cursor=0;$len=mb_strlen($txt,'UTF-8');$targets=[$nombre,$cedulaFormateada];$matches=[];
-   foreach($targets as $target){$pos=mb_strpos($txt,$target,0,'UTF-8');if($pos!==false)$matches[]=['pos'=>$pos,'len'=>mb_strlen($target,'UTF-8')];}
-   usort($matches,fn($a,$b)=>$a['pos']<=>$b['pos']);foreach($matches as $m){if($m['pos']<$cursor)continue;if($m['pos']>$cursor)$parts[]=['t'=>mb_substr($txt,$cursor,$m['pos']-$cursor,'UTF-8'),'b'=>false];$parts[]=['t'=>mb_substr($txt,$m['pos'],$m['len'],'UTF-8'),'b'=>true];$cursor=$m['pos']+$m['len'];}if($cursor<$len)$parts[]=['t'=>mb_substr($txt,$cursor,null,'UTF-8'),'b'=>false];if(!$parts)continue;
-   foreach($parts as $part){$nr=$dom->createElementNS($ns,'w:r');if($rp)$nr->appendChild($rp->cloneNode(true));$nrp=$xp->query('./w:rPr',$nr)->item(0);if($part['b']){if(!$nrp){$nrp=$dom->createElementNS($ns,'w:rPr');$nr->insertBefore($nrp,$nr->firstChild);}$nrp->appendChild($dom->createElementNS($ns,'w:b'));}else if($nrp){foreach(iterator_to_array((new DOMXPath($dom))->query('./w:b',$nrp)) as $b)$b->parentNode->removeChild($b);}
-     $t=$dom->createElementNS($ns,'w:t');$t->setAttribute('xml:space','preserve');$t->appendChild($dom->createTextNode($part['t']));$nr->appendChild($t);$r->parentNode->insertBefore($nr,$r);}
-   $r->parentNode->removeChild($r);
- }
- $zip->addFromString('word/document.xml',$dom->saveXML());}}$zip->close();}
- echo json_encode(['ok'=>true,'archivo'=>$archivo,'url'=>'./api/formato_archivo.php?f='.rawurlencode($archivo).'&accion=descargar'],JSON_UNESCAPED_UNICODE);
-} catch(Throwable $e){http_response_code(400);echo json_encode(['ok'=>false,'error'=>$e->getMessage()],JSON_UNESCAPED_UNICODE);}
+    $cedula = trim((string)($_POST['cedula'] ?? ''));
+    $fechaFin = trim((string)($_POST['fecha_fin'] ?? ''));
+    $rawRenovaciones = (string)($_POST['renovaciones'] ?? '[]');
+    $renovaciones = json_decode($rawRenovaciones, true, 512, JSON_THROW_ON_ERROR);
+
+    if ($cedula === '') throw new InvalidArgumentException('Selecciona un empleado.');
+    if (!is_array($renovaciones)) throw new InvalidArgumentException('La información de renovaciones no es válida.');
+    if (count($renovaciones) > 20) throw new InvalidArgumentException('Puedes registrar máximo 20 renovaciones.');
+
+    $empleado = EmpleadoModel::obtenerPorCedula($cedula);
+    if (!$empleado) throw new InvalidArgumentException('No se encontró el empleado seleccionado.');
+
+    foreach (['nombre', 'cedula', 'sexo', 'cargo', 'tipo_de_contrato', 'fecha_inicio_contrato', 'fecha_fin_contrato'] as $campo) {
+        if (trim((string)($empleado[$campo] ?? '')) === '') {
+            throw new InvalidArgumentException("Falta el dato obligatorio en la hoja de vida: {$campo}.");
+        }
+    }
+
+    $tratamiento = af02Sexo((string)$empleado['sexo']);
+    if ($tratamiento === '') throw new InvalidArgumentException('El sexo del empleado no está registrado correctamente.');
+
+    $inicioInicial = trim((string)$empleado['fecha_inicio_contrato']);
+    $finInicial = trim((string)$empleado['fecha_fin_contrato']);
+    af02Fecha($inicioInicial, 'inicio del contrato inicial');
+    af02Fecha($finInicial, 'fin del contrato inicial');
+    af02Fecha($fechaFin, 'fecha de terminación');
+
+    $lineasHistorial = [];
+    $prevFin = null;
+
+    foreach (array_values($renovaciones) as $i => $r) {
+        if (!is_array($r)) throw new InvalidArgumentException('La información de RN' . ($i + 1) . ' no es válida.');
+
+        $n = $i + 1;
+        $inicio = trim((string)($r['inicio'] ?? ''));
+        $fin = trim((string)($r['fin'] ?? ''));
+        $meses = filter_var($r['meses'] ?? null, FILTER_VALIDATE_INT);
+
+        if ($meses === false || $meses === null) throw new InvalidArgumentException("La duración de RN{$n} no es válida.");
+        af02Fecha($inicio, "inicio de RN{$n}");
+        af02Fecha($fin, "fin de RN{$n}");
+
+        if ($meses < 1 || $meses > 120) throw new InvalidArgumentException("La duración de RN{$n} debe estar entre 1 y 120 meses.");
+        if ($n >= 4 && $meses < 12) throw new InvalidArgumentException("La renovación RN{$n} debe ser de mínimo 12 meses.");
+        if (new DateTimeImmutable($fin) < new DateTimeImmutable($inicio)) throw new InvalidArgumentException("La fecha fin de RN{$n} no puede ser anterior a su inicio.");
+
+        if ($prevFin !== null) {
+            $esperado = (new DateTimeImmutable($prevFin))->modify('+1 day')->format('Y-m-d');
+            if ($inicio !== $esperado) throw new InvalidArgumentException("RN{$n} debe iniciar el día {$esperado}, inmediatamente después de RN" . ($n - 1) . '.');
+        }
+
+        $prevFin = $fin;
+        $lineasHistorial[] = [
+            'inicio' => $inicio,
+            'fin' => $fin,
+            'meses' => $meses,
+        ];
+    }
+
+    $plantilla = __DIR__ . '/../../uploads/plantillas/AF-FT-02 NOTIFICACION TERMINACION CONTRATO.docx';
+    if (!is_file($plantilla)) throw new RuntimeException('No se encontró la plantilla AF-FT-02 en uploads/plantillas/.');
+    if (!class_exists('ZipArchive')) throw new RuntimeException('La extensión PHP ZipArchive no está habilitada.');
+    if (!class_exists('DOMDocument')) throw new RuntimeException('La extensión PHP DOM no está habilitada.');
+
+    $generados = __DIR__ . '/../../uploads/generados';
+    if (!is_dir($generados) && !mkdir($generados, 0775, true) && !is_dir($generados)) {
+        throw new RuntimeException('No se pudo crear la carpeta de formatos generados.');
+    }
+    if (!is_writable($generados)) throw new RuntimeException('La carpeta de formatos generados no tiene permisos de escritura.');
+
+    $nombre = mb_strtoupper(trim((string)$empleado['nombre']), 'UTF-8');
+    $cedulaFormateada = FormatoModel::formatearCedula((string)$empleado['cedula']);
+    $tipoContrato = af02TipoContrato((string)$empleado['tipo_de_contrato']);
+    $archivo = af02NombreArchivo($nombre, $cedulaFormateada);
+    $salida = $generados . DIRECTORY_SEPARATOR . $archivo;
+
+    // Nunca escribimos directamente sobre la plantilla. Primero copiamos un archivo independiente.
+    if (!copy($plantilla, $salida)) throw new RuntimeException('No fue posible crear una copia de la plantilla.');
+
+    $zip = new ZipArchive();
+    if ($zip->open($salida) !== true) {
+        @unlink($salida);
+        throw new RuntimeException('No fue posible abrir el documento Word generado.');
+    }
+
+    $documentXml = $zip->getFromName('word/document.xml');
+    if ($documentXml === false) {
+        $zip->close();
+        @unlink($salida);
+        throw new RuntimeException('La plantilla no contiene word/document.xml.');
+    }
+
+    $dom = new DOMDocument();
+    $dom->preserveWhiteSpace = true;
+    $dom->loadXML($documentXml);
+    $xp = new DOMXPath($dom);
+    $xp->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
+
+    // Párrafos estructurales que dependen de la información variable.
+    foreach ($xp->query('//w:body/w:p') as $p) {
+        $texto = '';
+        foreach ($xp->query('.//w:t', $p) as $t) $texto .= $t->textContent;
+
+        if (str_contains($texto, 'Contrato inicial:')) {
+            af02EscribirParrafo($dom, $xp, $p, 'Contrato inicial: del ' . af02FechaLarga($inicioInicial) . ' al ' . af02FechaLarga($finInicial) . '.');
+        }
+    }
+
+    $reemplazos = [
+        '{fecha actual día mes año}' => af02FechaLarga(date('Y-m-d')),
+        'Señor o señora {SEGÚN SEXO}' => $tratamiento,
+        '{Nombre cmlpeto mayuscua}' => $nombre,
+        '{Cargo}' => trim((string)$empleado['cargo']),
+        'Ciudad' => 'Yopal',
+        '{nombre}' => $nombre,
+        '{cedula}' => $cedulaFormateada,
+        '${tipo contrato}' => $tipoContrato,
+        '{tipo contrato}' => $tipoContrato,
+        '{fecha fin}' => af02FechaLarga($fechaFin),
+        'de 2026' => 'de ' . (new DateTimeImmutable($fechaFin))->format('Y'),
+        'NOMBRE Y APELLIDOS' => $nombre,
+    ];
+
+    $documentXml = af02ReemplazarTextoEnParrafos($dom, $documentXml, $reemplazos);
+
+    // Volvemos a cargar el XML ya reemplazado para trabajar sobre la estructura final.
+    $dom = new DOMDocument();
+    $dom->preserveWhiteSpace = true;
+    if (!@$dom->loadXML($documentXml)) throw new RuntimeException('No fue posible preparar el contenido del documento Word.');
+    $xp = new DOMXPath($dom);
+    $xp->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
+
+    af02InsertarHistorial($dom, $xp, $lineasHistorial);
+    af02NegritaExacta($dom, $xp, [$nombre, $cedulaFormateada]);
+
+    $zip->addFromString('word/document.xml', $dom->saveXML());
+    if (!$zip->close()) {
+        @unlink($salida);
+        throw new RuntimeException('No fue posible finalizar el archivo Word.');
+    }
+
+    if (!is_file($salida) || filesize($salida) < 1000) {
+        @unlink($salida);
+        throw new RuntimeException('El Word generado quedó incompleto.');
+    }
+
+    echo json_encode([
+        'ok' => true,
+        'archivo' => $archivo,
+        'url' => './api/formato_archivo.php?f=' . rawurlencode($archivo) . '&accion=descargar'
+    ], JSON_UNESCAPED_UNICODE);
+} catch (JsonException $e) {
+    af02JsonError('Los datos de renovaciones no tienen un formato JSON válido.');
+} catch (Throwable $e) {
+    error_log('AF-FT-02: ' . $e->getMessage());
+    af02JsonError($e->getMessage(), 400);
+}
