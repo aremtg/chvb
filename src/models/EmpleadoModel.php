@@ -273,7 +273,7 @@ class EmpleadoModel
         $stmt->execute(['nueva' => $cedulaNueva, 'actual' => $cedulaActual]);
     }
 
-    public static function actualizarFoto(string $cedula, string $rutaFoto): void
+    public static function actualizarFoto(string $cedula, ?string $rutaFoto): void
     {
         $pdo = getPDO();
         $stmt = $pdo->prepare("UPDATE empleados SET foto = :foto WHERE cedula = :cedula");

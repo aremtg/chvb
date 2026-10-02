@@ -38,10 +38,11 @@ if ($ejecutar) {
     </form>
 <?php else:
     $pdo = getPDO();
-    $empleados = $pdo->query("SELECT cedula FROM empleados")->fetchAll(PDO::FETCH_COLUMN);
+    $empleados = $pdo->query("SELECT cedula, foto FROM empleados ORDER BY cedula")->fetchAll(PDO::FETCH_ASSOC);
     $existen = $pdo->prepare("SELECT COUNT(*) FROM bolsillos WHERE cedula_empleado = ?");
 
-    foreach ($empleados as $cedula) {
+    foreach ($empleados as $empleado) {
+        $cedula = (string) $empleado['cedula'];
         echo 'Revisando ' . $esc($cedula) . '...<br>';
         try {
             FileManager::crearEstructuraEmpleado($cedula);
@@ -52,6 +53,28 @@ if ($ejecutar) {
                 echo ' -&gt; Bolsillos creados<br>';
             }
             ReconciliadorArchivos::importarDocumentosExistentes($cedula);
+
+            $resultadoFoto = ReconciliadorArchivos::sincronizarFotoPerfil(
+                $cedula,
+                $empleado['foto'] ?? null
+            );
+
+            // Si la foto se encontró físicamente pero la BD no la tenía (caso típico
+            // al reutilizar una carpeta), actualizamos la referencia.
+            if (!empty($resultadoFoto['ruta']) && ($empleado['foto'] ?? null) !== $resultadoFoto['ruta']) {
+                EmpleadoModel::actualizarFoto($cedula, $resultadoFoto['ruta']);
+            } elseif ($resultadoFoto['estado'] === 'sin_foto' && !empty($empleado['foto'])) {
+                // La BD apuntaba a un archivo que ya no existe. Evitamos dejar una
+                // referencia rota.
+                EmpleadoModel::actualizarFoto($cedula, null);
+            }
+
+            $mensajesFoto = [
+                'sincronizada' => 'Foto reemplazada/sincronizada',
+                'ya_existia' => 'Foto OK',
+                'sin_foto' => 'Sin foto',
+            ];
+            echo ' -&gt; ' . ($mensajesFoto[$resultadoFoto['estado']] ?? 'Foto revisada') . '<br>';
             echo ' -&gt; Carpeta OK<br>';
         } catch (Throwable $e) {
             error_log('sync_carpetas (' . $cedula . '): ' . $e->getMessage());
