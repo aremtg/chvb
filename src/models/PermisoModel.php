@@ -460,10 +460,12 @@ class PermisoModel {
      */
     public static function resumenAusentismo(?string $desde = null, ?string $hasta = null): array {
         $pdo = getPDO();
+
+        // Las métricas del período usan solapamiento: un permiso cuenta si
+        // toca al menos un día del período, aunque haya comenzado en el mes anterior.
         $sql = "SELECT
                     COUNT(*) AS total,
                     COUNT(DISTINCT cedula_empleado) AS personas,
-                    COALESCE(SUM(CASE WHEN estado = 'firmado' THEN total_horas ELSE 0 END), 0) AS horas_firmadas,
                     COALESCE(SUM(estado = 'firmado'), 0) AS firmados,
                     COALESCE(SUM(estado = 'rechazado'), 0) AS rechazados,
                     COALESCE(SUM(estado IN ('devuelto','devuelto_regreso')), 0) AS devueltos,
@@ -475,17 +477,36 @@ class PermisoModel {
                 WHERE estado <> 'en_proceso'";
         $params = [];
         if ($desde !== null && $hasta !== null) {
-            $sql .= " AND fecha_inicio BETWEEN ? AND ?";
-            $params = [$desde, $hasta];
+            $sql .= " AND fecha_inicio <= ? AND (fecha_fin IS NULL OR fecha_fin >= ?)";
+            $params = [$hasta, $desde];
         }
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         $f = $stmt->fetch() ?: [];
 
+        // Las horas sí se prorratean por día: solo se suman los permisos_dias
+        // que realmente caen dentro del período. Así un permiso 31/oct-02/nov
+        // aporta sus horas de octubre a octubre y las de noviembre a noviembre.
+        $horasFirmadas = 0.0;
+        if ($desde !== null && $hasta !== null) {
+            $stmt = $pdo->prepare(
+                "SELECT COALESCE(SUM(pd.horas_netas), 0) AS horas
+                 FROM permisos_dias pd
+                 INNER JOIN permisos p ON p.id = pd.permiso_id
+                 WHERE p.estado = 'firmado'
+                   AND pd.incluido = 1
+                   AND pd.fecha BETWEEN ? AND ?"
+            );
+            $stmt->execute([$desde, $hasta]);
+            $horasFirmadas = (float)($stmt->fetchColumn() ?: 0);
+        } else {
+            $horasFirmadas = (float)($f['horas_firmadas'] ?? 0);
+        }
+
         return [
             'total'             => (int) ($f['total'] ?? 0),
             'personas'          => (int) ($f['personas'] ?? 0),
-            'horas_firmadas'    => (float) ($f['horas_firmadas'] ?? 0),
+            'horas_firmadas'    => round($horasFirmadas, 2),
             'firmados'          => (int) ($f['firmados'] ?? 0),
             'rechazados'        => (int) ($f['rechazados'] ?? 0),
             'devueltos'         => (int) ($f['devueltos'] ?? 0),
@@ -493,6 +514,37 @@ class PermisoModel {
             'pend_reemplazo'    => (int) ($f['pend_reemplazo'] ?? 0),
             'pend_jefe'         => (int) ($f['pend_jefe'] ?? 0),
             'esperando_regreso' => (int) ($f['esperando_regreso'] ?? 0),
+        ];
+    }
+
+    /**
+     * Estados pendientes/operativos ACTUALES.
+     *
+     * Estas métricas no dependen del mes seleccionado porque representan
+     * trabajo pendiente en este momento. Por ejemplo, un permiso iniciado
+     * en septiembre que fue devuelto en octubre sigue contando como
+     * "devuelto" mientras permanezca en ese estado.
+     */
+    public static function resumenEstadosActuales(): array {
+        $pdo = getPDO();
+        $stmt = $pdo->query(
+            "SELECT
+                COALESCE(SUM(estado IN ('devuelto','devuelto_regreso')), 0) AS devueltos,
+                COALESCE(SUM(estado = 'por_firmar_reemplazo'), 0) AS pend_reemplazo,
+                COALESCE(SUM(estado IN ('por_firmar_jefe','por_firmar_jefe_final')), 0) AS pend_jefe,
+                COALESCE(SUM(estado = 'aprobado_pendiente_regreso'), 0) AS esperando_regreso,
+                COALESCE(SUM(estado IN ('por_firmar_reemplazo','por_firmar_jefe','por_firmar_jefe_final')), 0) AS firmas_pendientes
+             FROM permisos
+             WHERE estado <> 'en_proceso'"
+        );
+        $f = $stmt->fetch() ?: [];
+
+        return [
+            'devueltos'          => (int) ($f['devueltos'] ?? 0),
+            'pend_reemplazo'     => (int) ($f['pend_reemplazo'] ?? 0),
+            'pend_jefe'          => (int) ($f['pend_jefe'] ?? 0),
+            'esperando_regreso'  => (int) ($f['esperando_regreso'] ?? 0),
+            'firmas_pendientes'  => (int) ($f['firmas_pendientes'] ?? 0),
         ];
     }
 
@@ -504,8 +556,8 @@ class PermisoModel {
                 WHERE estado <> 'en_proceso'";
         $params = [];
         if ($desde !== null && $hasta !== null) {
-            $sql .= " AND fecha_inicio BETWEEN ? AND ?";
-            $params = [$desde, $hasta];
+            $sql .= " AND fecha_inicio <= ? AND (fecha_fin IS NULL OR fecha_fin >= ?)";
+            $params = [$hasta, $desde];
         }
         $sql .= " GROUP BY tipo_permiso";
         $stmt = $pdo->prepare($sql);
@@ -522,16 +574,38 @@ class PermisoModel {
     public static function topEmpleadosAusentismo(?string $desde = null, ?string $hasta = null, int $limite = 5): array {
         $pdo = getPDO();
         $limite = max(1, min(20, $limite));
-        $sql = "SELECT cedula_empleado,
-                       MAX(nombre_empleado_snapshot) AS nombre,
-                       COUNT(*) AS total,
-                       COALESCE(SUM(CASE WHEN estado = 'firmado' THEN total_horas ELSE 0 END), 0) AS horas
-                FROM permisos
-                WHERE estado <> 'en_proceso'";
-        $params = [];
         if ($desde !== null && $hasta !== null) {
-            $sql .= " AND fecha_inicio BETWEEN ? AND ?";
-            $params = [$desde, $hasta];
+            // Para el período, las horas también se prorratean por fecha.
+            // Un permiso que cruza meses aporta a cada mes solo las horas de
+            // permisos_dias que realmente pertenecen a ese período.
+            $sql = "SELECT p.cedula_empleado,
+                           MAX(p.nombre_empleado_snapshot) AS nombre,
+                           COUNT(*) AS total,
+                           COALESCE(SUM(
+                               CASE WHEN p.estado = 'firmado' THEN
+                                   COALESCE(
+                                       (SELECT SUM(pd.horas_netas)
+                                        FROM permisos_dias pd
+                                        WHERE pd.permiso_id = p.id
+                                          AND pd.incluido = 1
+                                          AND pd.fecha BETWEEN ? AND ?),
+                                       p.total_horas
+                                   )
+                               ELSE 0 END
+                           ), 0) AS horas
+                    FROM permisos p
+                    WHERE p.estado <> 'en_proceso'
+                      AND p.fecha_inicio <= ?
+                      AND (p.fecha_fin IS NULL OR p.fecha_fin >= ?)";
+            $params = [$desde, $hasta, $hasta, $desde];
+        } else {
+            $sql = "SELECT cedula_empleado,
+                           MAX(nombre_empleado_snapshot) AS nombre,
+                           COUNT(*) AS total,
+                           COALESCE(SUM(CASE WHEN estado = 'firmado' THEN total_horas ELSE 0 END), 0) AS horas
+                    FROM permisos
+                    WHERE estado <> 'en_proceso'";
+            $params = [];
         }
         $sql .= " GROUP BY cedula_empleado ORDER BY total DESC, horas DESC LIMIT {$limite}";
         $stmt = $pdo->prepare($sql);
@@ -567,28 +641,32 @@ class PermisoModel {
      */
     public static function tendenciaMensual(int $anioFin, int $mesFin, int $meses = 6): array {
         $pdo = getPDO();
+        $meses = max(1, min(24, $meses));
         $fin = new DateTime(sprintf('%04d-%02d-01', $anioFin, $mesFin));
         $inicio = (clone $fin)->modify('-' . ($meses - 1) . ' months');
 
+        // Cada mes cuenta los permisos que se solapan con ese mes. Un permiso
+        // que cruza de octubre a noviembre aparece en ambos meses, sin duplicar
+        // horas: esta serie representa cantidad de permisos, no horas.
         $stmt = $pdo->prepare(
-            "SELECT DATE_FORMAT(fecha_inicio, '%Y-%m') AS ym, COUNT(*) AS total
+            "SELECT COUNT(*)
              FROM permisos
-             WHERE estado <> 'en_proceso' AND fecha_inicio BETWEEN ? AND ?
-             GROUP BY ym"
+             WHERE estado <> 'en_proceso'
+               AND fecha_inicio <= ?
+               AND (fecha_fin IS NULL OR fecha_fin >= ?)"
         );
-        $stmt->execute([$inicio->format('Y-m-01'), $fin->format('Y-m-t')]);
-        $porMes = [];
-        foreach ($stmt->fetchAll() as $f) {
-            $porMes[$f['ym']] = (int) $f['total'];
-        }
 
         $serie = [];
         $cursor = clone $inicio;
         for ($i = 0; $i < $meses; $i++) {
+            $desdeMes = $cursor->format('Y-m-01');
+            $hastaMes = $cursor->format('Y-m-t');
+            $stmt->execute([$hastaMes, $desdeMes]);
+
             $serie[] = [
                 'anio'  => (int) $cursor->format('Y'),
                 'mes'   => (int) $cursor->format('n'),
-                'total' => $porMes[$cursor->format('Y-m')] ?? 0,
+                'total' => (int) ($stmt->fetchColumn() ?: 0),
             ];
             $cursor->modify('+1 month');
         }

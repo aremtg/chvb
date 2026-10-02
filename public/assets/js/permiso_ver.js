@@ -104,7 +104,7 @@ function render() {
   if (esDueno && (p.estado === "en_proceso" || p.estado === "devuelto")) {
     acciones += `<button onclick="enviarPermiso()" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2.5 rounded-xl font-semibold">Enviar permiso</button>`;
     if (p.estado === "devuelto")
-      acciones += `<a href="./permiso_editar.php?id=${p.id}" class="border border-gray-300 text-sm px-4 py-2.5 rounded-xl text-gray-700 font-semibold">Editar permiso</a>`;
+      acciones += `<a href="./permiso_nuevo.php?editar=${p.id}" class="border border-gray-300 text-sm px-4 py-2.5 rounded-xl text-gray-700 font-semibold">Editar permiso</a>`;
   }
   if (esReemplazoPendiente || esJefePendiente) {
     const rol = esReemplazoPendiente ? "reemplazo" : "jefe";
