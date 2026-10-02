@@ -443,3 +443,109 @@ document.getElementById("formEditar").addEventListener("submit", async (e) => {
     erroresEditar.classList.remove("hidden");
   }
 });
+
+(function iniciarBuscadorEmpleadosEnVivo() {
+  const formulario = document
+    .querySelector('form[method="GET"] input[name="q"]')
+    ?.closest("form");
+  const input = formulario?.querySelector('input[name="q"]');
+  const main = document.querySelector("main");
+  if (!formulario || !input || !main) return;
+  const DEBOUNCE_MS = 300;
+  let temporizador = null;
+  let controlador = null;
+  let version = 0;
+  function obtenerSecciones(doc) {
+    const mainNuevo = doc.querySelector("main");
+    if (!mainNuevo) return null;
+    return {
+      resumen: mainNuevo.children[0] || null,
+      tabla: mainNuevo.children[2] || null,
+      paginacion:
+        mainNuevo.querySelector('nav[aria-label="Paginación de empleados"]') ||
+        null,
+    };
+  }
+  function actualizarPaginacion(nueva) {
+    const actual = main.querySelector(
+      'nav[aria-label="Paginación de empleados"]',
+    );
+    if (actual && nueva) {
+      actual.replaceWith(nueva);
+      return;
+    }
+    if (actual && !nueva) {
+      actual.remove();
+      return;
+    }
+    if (!actual && nueva) {
+      const tabla = main.children[2];
+      if (tabla) {
+        tabla.insertAdjacentElement("afterend", nueva);
+      }
+    }
+  }
+  async function buscar(valor) {
+    const miVersion = ++version;
+    if (controlador) {
+      controlador.abort();
+    }
+    controlador = new AbortController();
+    const url = new URL(window.location.href);
+    const q = valor.trim();
+    url.searchParams.delete("page");
+    if (q) {
+      url.searchParams.set("q", q);
+    } else {
+      url.searchParams.delete("q");
+    }
+    try {
+      const respuesta = await fetch(url.toString(), {
+        method: "GET",
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+        cache: "no-store",
+        signal: controlador.signal,
+      });
+      if (!respuesta.ok) {
+        throw new Error("No fue posible actualizar la búsqueda.");
+      }
+      const html = await respuesta.text();
+      if (miVersion !== version) return;
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      const secciones = obtenerSecciones(doc);
+      if (!secciones?.resumen || !secciones?.tabla) {
+        throw new Error("Respuesta de búsqueda inválida.");
+      }
+      if (main.children[0]) {
+        main.children[0].replaceWith(secciones.resumen);
+      }
+      if (main.children[2] && secciones.tabla) {
+        main.children[2].replaceWith(secciones.tabla);
+      }
+      actualizarPaginacion(secciones.paginacion);
+      window.history.replaceState({}, "", url.toString());
+    } catch (error) {
+      if (error.name === "AbortError" || miVersion !== version) {
+        return;
+      }
+      console.error("Buscador de empleados:", error);
+    }
+  }
+  input.addEventListener("input", () => {
+    clearTimeout(temporizador);
+    temporizador = setTimeout(() => buscar(input.value), DEBOUNCE_MS);
+  });
+  formulario.addEventListener("submit", (event) => {
+    event.preventDefault();
+    clearTimeout(temporizador);
+    buscar(input.value);
+  });
+  window.addEventListener("popstate", () => {
+    const url = new URL(window.location.href);
+    const valor = url.searchParams.get("q") || "";
+    if (input.value !== valor) {
+      input.value = valor;
+    }
+    buscar(valor);
+  });
+})();
