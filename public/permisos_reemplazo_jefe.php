@@ -58,7 +58,7 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
     </div>
 </div>
 
-<script src="./assets/js/camera_capture.js"></script>
+<script src="./assets/js/camera_capture.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/camera_capture.js') ?>"></script>
 <script src="./assets/js/firma_canvas.js"></script>
 <script src="./assets/js/permisos_reemplazo_jefe.js"></script>
 </body>

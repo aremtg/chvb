@@ -8,6 +8,10 @@ function formatearHorasJS(h) {
     if (hh > 0) return `${hh} h`;
     return `${mm} min`;
 }
+function diasTH(n) {
+    const d = parseInt(n, 10) || 0;
+    return `${d} ${d === 1 ? 'día' : 'días'}`;
+}
 function etiquetaEstadoTH(e) {
     const m = { en_proceso:['Borrador','bg-gray-100 text-gray-600'], por_firmar_reemplazo:['Por firmar (reemplazo)','bg-yellow-100 text-yellow-700'],
         por_firmar_jefe:['Por firmar (jefe)','bg-yellow-100 text-yellow-700'], firmado:['Firmado','bg-green-100 text-green-700'],
@@ -42,7 +46,7 @@ function pintarPermiso(p) {
             ${p.consecutivo} — ${p.nombre_empleado_snapshot}
         </p>
         <p class="text-xs text-gray-500 mt-0.5">
-            ${p.tipo_permiso} · Jefe: ${p.nombre_jefe || '-'} · ${formatearHorasJS(p.total_horas)} · Solicitado ${fechaTH(p.fecha_solicitud)}
+            ${p.tipo_permiso} · Jefe: ${p.nombre_jefe || '-'} · ${p.total_dias != null ? diasTH(p.total_dias) + ' · ' : ''}${formatearHorasJS(p.total_horas)} · Solicitado ${fechaTH(p.fecha_solicitud)}
         </p>
         <span class="inline-block text-xs font-medium px-2 py-1 rounded-lg mt-2 ${clase}">${texto}</span>
         <div class="mt-3"><a href="./permiso_ver.php?id=${p.id}" class="inline-flex items-center text-xs font-semibold text-red-600 border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-xl">Ver detalle completo</a></div>

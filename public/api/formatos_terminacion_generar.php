@@ -17,6 +17,33 @@ if (!in_array($_SESSION['superadmin_rol'] ?? '', ['superadmin_talento_humano', '
 
 validarCSRF();
 
+const AF02_MARCADOR_HISTORIAL = '${historial_renovaciones}';
+const AF02_NS_W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+
+/** XPath que nunca devuelve false: lanza excepción si la expresión es inválida. */
+function af02Query(DOMXPath $xp, string $expr, ?DOMNode $ctx = null): DOMNodeList
+{
+    $r = $ctx !== null ? $xp->query($expr, $ctx) : $xp->query($expr);
+    if ($r === false) throw new RuntimeException("Consulta XPath inválida: {$expr}");
+    return $r;
+}
+
+/** Crea un elemento del namespace de Word (createElementNS puede devolver false). */
+function af02Crear(DOMDocument $dom, string $nombre): DOMElement
+{
+    $el = $dom->createElementNS(AF02_NS_W, $nombre);
+    if ($el === false) throw new RuntimeException("No fue posible crear el elemento {$nombre}.");
+    return $el;
+}
+
+/** Serializa el DOM (saveXML puede devolver false). */
+function af02Xml(DOMDocument $dom): string
+{
+    $xml = $dom->saveXML();
+    if ($xml === false) throw new RuntimeException('No fue posible serializar el XML del documento Word.');
+    return $xml;
+}
+
 function af02JsonError(string $message, int $status = 400): never
 {
     http_response_code($status);
@@ -56,8 +83,8 @@ function af02TipoContrato(string $tipo): string
 function af02NombreArchivo(string $nombre, string $cedula): string
 {
     $nombre = mb_strtoupper(trim($nombre), 'UTF-8');
-    $nombre = preg_replace('/[\\\/:*?"<>|]/u', '', $nombre);
-    $nombre = trim(preg_replace('/\s+/u', ' ', $nombre));
+    $nombre = preg_replace('~[\\\\/:*?"<>|]~u', '', $nombre) ?? '';
+    $nombre = trim(preg_replace('/\s+/u', ' ', $nombre) ?? '');
     $cedula = preg_replace('/[^0-9A-Za-z.-]/', '', $cedula);
     return "AF-FT-02 NOTIFICACION DE TERMINACION CONTRATO {$nombre}_{$cedula}.docx";
 }
@@ -108,6 +135,20 @@ function af02FechaLarga(string $fecha): string
 }
 
 /**
+ * Asigna el texto de un nodo <w:t> sin usar la propiedad dinámica nodeValue.
+ * Fuerza xml:space="preserve": sin él Word descarta espacios al inicio/final
+ * (p. ej. el de "Yopal, Casanare, " antes de la fecha).
+ */
+function af02SetTexto(DOMNode $node, string $valor): void
+{
+    while ($node->firstChild !== null) $node->removeChild($node->firstChild);
+
+    $doc = $node->ownerDocument;
+    if ($doc !== null && $valor !== '') $node->appendChild($doc->createTextNode($valor));
+    if ($node instanceof DOMElement) $node->setAttribute('xml:space', 'preserve');
+}
+
+/**
  * Reemplaza texto dentro de párrafos Word conservando los estilos de los runs.
  * Word puede dividir un marcador entre varios runs; esta función lo maneja.
  */
@@ -119,13 +160,13 @@ function af02ReemplazarTextoEnParrafos(DOMDocument $dom, string $xml, array $ree
     }
 
     $xp = new DOMXPath($dom);
-    $xp->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
+    $xp->registerNamespace('w', AF02_NS_W);
 
-    foreach ($xp->query('//w:p') as $p) {
+    foreach (af02Query($xp, '//w:p') as $p) {
         $textNodes = [];
         $full = '';
 
-        foreach ($xp->query('.//w:t', $p) as $node) {
+        foreach (af02Query($xp, './/w:t', $p) as $node) {
             $value = $node->textContent;
             $textNodes[] = [
                 'node' => $node,
@@ -165,11 +206,11 @@ function af02ReemplazarTextoEnParrafos(DOMDocument $dom, string $xml, array $ree
                 $newValue = mb_substr($firstText, 0, $firstOffset, 'UTF-8')
                     . $reemplazo
                     . mb_substr($firstText, $lastOffset, null, 'UTF-8');
-                $first['node']->nodeValue = $newValue;
+                af02SetTexto($first['node'], $newValue);
             } else {
                 $prefix = mb_substr($firstText, 0, $firstOffset, 'UTF-8');
                 $suffix = mb_substr($lastText, $lastOffset, null, 'UTF-8');
-                $first['node']->nodeValue = $prefix . $reemplazo;
+                af02SetTexto($first['node'], $prefix . $reemplazo);
                 $between = false;
                 foreach ($textNodes as $item) {
                     if ($item['node'] === $first['node']) {
@@ -177,17 +218,17 @@ function af02ReemplazarTextoEnParrafos(DOMDocument $dom, string $xml, array $ree
                         continue;
                     }
                     if ($item['node'] === $last['node']) break;
-                    if ($between) $item['node']->nodeValue = '';
+                    if ($between) af02SetTexto($item['node'], '');
                 }
-                $last['node']->nodeValue = $suffix;
+                af02SetTexto($last['node'], $suffix);
             }
 
             // Recalcular el texto del párrafo para permitir varios marcadores en el mismo párrafo.
             $full = '';
-            foreach ($xp->query('.//w:t', $p) as $node) $full .= $node->textContent;
+            foreach (af02Query($xp, './/w:t', $p) as $node) $full .= $node->textContent;
             $textNodes = [];
             $cursor = 0;
-            foreach ($xp->query('.//w:t', $p) as $node) {
+            foreach (af02Query($xp, './/w:t', $p) as $node) {
                 $value = $node->textContent;
                 $length = mb_strlen($value, 'UTF-8');
                 $textNodes[] = [
@@ -200,32 +241,31 @@ function af02ReemplazarTextoEnParrafos(DOMDocument $dom, string $xml, array $ree
         }
     }
 
-    return $dom->saveXML();
+    return af02Xml($dom);
 }
 
 /** Reemplaza todo el texto visible de un párrafo usando el estilo del primer run. */
-function af02EscribirParrafo(DOMDocument $dom, DOMXPath $xp, DOMElement $p, string $texto, bool $negrita = false): void
+function af02EscribirParrafo(DOMDocument $dom, DOMXPath $xp, DOMNode $p, string $texto, bool $negrita = false): void
 {
-    $ns = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
-    $runs = $xp->query('./w:r', $p);
+    $runs = af02Query($xp, './w:r', $p);
     $prototype = $runs->item(0);
-    $rPr = $prototype ? $xp->query('./w:rPr', $prototype)->item(0) : null;
+    $rPr = $prototype ? af02Query($xp, './w:rPr', $prototype)->item(0) : null;
 
-    foreach (iterator_to_array($xp->query('./w:r', $p)) as $r) $p->removeChild($r);
+    foreach (iterator_to_array(af02Query($xp, './w:r', $p)) as $r) $p->removeChild($r);
 
-    $run = $dom->createElementNS($ns, 'w:r');
+    $run = af02Crear($dom, 'w:r');
     if ($rPr) $run->appendChild($rPr->cloneNode(true));
 
     if ($negrita) {
-        $runPr = $xp->query('./w:rPr', $run)->item(0);
+        $runPr = af02Query($xp, './w:rPr', $run)->item(0);
         if (!$runPr) {
-            $runPr = $dom->createElementNS($ns, 'w:rPr');
+            $runPr = af02Crear($dom, 'w:rPr');
             $run->insertBefore($runPr, $run->firstChild);
         }
-        if ($xp->query('./w:b', $runPr)->length === 0) $runPr->appendChild($dom->createElementNS($ns, 'w:b'));
+        if (af02Query($xp, './w:b', $runPr)->length === 0) $runPr->appendChild(af02Crear($dom, 'w:b'));
     }
 
-    $t = $dom->createElementNS($ns, 'w:t');
+    $t = af02Crear($dom, 'w:t');
     $t->setAttribute('xml:space', 'preserve');
     $t->appendChild($dom->createTextNode($texto));
     $run->appendChild($t);
@@ -233,16 +273,18 @@ function af02EscribirParrafo(DOMDocument $dom, DOMXPath $xp, DOMElement $p, stri
 }
 
 /**
- * Reemplaza el párrafo de renovaciones por uno por renovación.
+ * Reemplaza el párrafo ${historial_renovaciones} por uno por renovación (conserva viñeta y estilo del párrafo).
+ * Si no hay renovaciones, elimina el párrafo para no dejar una viñeta vacía.
  */
 function af02InsertarHistorial(DOMDocument $dom, DOMXPath $xp, array $renovaciones): void
 {
-    foreach ($xp->query('//w:body/w:p') as $p) {
+    foreach (af02Query($xp, '//w:body/w:p') as $p) {
         $texto = '';
-        foreach ($xp->query('.//w:t', $p) as $t) $texto .= $t->textContent;
-        if (mb_stripos($texto, 'Renovación N°${}:', 0, 'UTF-8') === false) continue;
+        foreach (af02Query($xp, './/w:t', $p) as $t) $texto .= $t->textContent;
+        if (!str_contains($texto, AF02_MARCADOR_HISTORIAL)) continue;
 
         $parent = $p->parentNode;
+        if ($parent === null) continue;
         if (!$renovaciones) {
             $parent->removeChild($p);
             return;
@@ -262,6 +304,24 @@ function af02InsertarHistorial(DOMDocument $dom, DOMXPath $xp, array $renovacion
         }
         return;
     }
+
+    throw new RuntimeException('La plantilla no contiene el marcador ' . AF02_MARCADOR_HISTORIAL . '.');
+}
+
+/**
+ * Falla si quedó algún marcador ${...} sin reemplazar: evita entregar un Word con texto de plantilla a medias.
+ */
+function af02ValidarSinMarcadores(DOMDocument $dom, DOMXPath $xp): void
+{
+    $pendientes = [];
+    foreach (af02Query($xp, '//w:p') as $p) {
+        $texto = '';
+        foreach (af02Query($xp, './/w:t', $p) as $t) $texto .= $t->textContent;
+        if (preg_match_all('/\$\{[^}]*\}/u', $texto, $m)) $pendientes = array_merge($pendientes, $m[0]);
+    }
+    if ($pendientes) {
+        throw new RuntimeException('La plantilla tiene marcadores sin resolver: ' . implode(', ', array_unique($pendientes)) . '.');
+    }
 }
 
 /**
@@ -269,12 +329,11 @@ function af02InsertarHistorial(DOMDocument $dom, DOMXPath $xp, array $renovacion
  */
 function af02NegritaExacta(DOMDocument $dom, DOMXPath $xp, array $objetivos): void
 {
-    $ns = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
-
-    foreach ($xp->query('//w:r') as $r) {
-        $texts = $xp->query('./w:t', $r);
+    foreach (af02Query($xp, '//w:r') as $r) {
+        $texts = af02Query($xp, './w:t', $r);
         if ($texts->length !== 1) continue;
         $textNode = $texts->item(0);
+        if ($textNode === null) continue;
         $text = $textNode->textContent;
 
         foreach ($objetivos as $objetivo) {
@@ -283,10 +342,10 @@ function af02NegritaExacta(DOMDocument $dom, DOMXPath $xp, array $objetivos): vo
             $pos = mb_strpos($text, $objetivo, 0, 'UTF-8');
             $antes = mb_substr($text, 0, $pos, 'UTF-8');
             $despues = mb_substr($text, $pos + mb_strlen($objetivo, 'UTF-8'), null, 'UTF-8');
-            $rPr = $xp->query('./w:rPr', $r)->item(0);
+            $rPr = af02Query($xp, './w:rPr', $r)->item(0);
 
-            $crearRun = static function (string $value, bool $bold) use ($dom, $rPr, $ns): DOMElement {
-                $nuevo = $dom->createElementNS($ns, 'w:r');
+            $crearRun = static function (string $value, bool $bold) use ($dom, $rPr): DOMElement {
+                $nuevo = af02Crear($dom, 'w:r');
                 if ($rPr) $nuevo->appendChild($rPr->cloneNode(true));
                 if ($bold) {
                     $nuevoPr = null;
@@ -294,12 +353,12 @@ function af02NegritaExacta(DOMDocument $dom, DOMXPath $xp, array $objetivos): vo
                         if ($child instanceof DOMElement && $child->localName === 'rPr') { $nuevoPr = $child; break; }
                     }
                     if (!$nuevoPr) {
-                        $nuevoPr = $dom->createElementNS($ns, 'w:rPr');
+                        $nuevoPr = af02Crear($dom, 'w:rPr');
                         $nuevo->insertBefore($nuevoPr, $nuevo->firstChild);
                     }
-                    if ($nuevoPr->getElementsByTagNameNS($ns, 'b')->length === 0) $nuevoPr->appendChild($dom->createElementNS($ns, 'w:b'));
+                    if ($nuevoPr->getElementsByTagNameNS(AF02_NS_W, 'b')->length === 0) $nuevoPr->appendChild(af02Crear($dom, 'w:b'));
                 }
-                $t = $dom->createElementNS($ns, 'w:t');
+                $t = af02Crear($dom, 'w:t');
                 $t->setAttribute('xml:space', 'preserve');
                 $t->appendChild($dom->createTextNode($value));
                 $nuevo->appendChild($t);
@@ -307,6 +366,7 @@ function af02NegritaExacta(DOMDocument $dom, DOMXPath $xp, array $objetivos): vo
             };
 
             $parent = $r->parentNode;
+            if ($parent === null) continue 2;
             if ($antes !== '') $parent->insertBefore($crearRun($antes, false), $r);
             $parent->insertBefore($crearRun($objetivo, true), $r);
             if ($despues !== '') $parent->insertBefore($crearRun($despues, false), $r);
@@ -423,50 +483,33 @@ try {
         throw new RuntimeException('La plantilla no contiene word/document.xml.');
     }
 
-    $dom = new DOMDocument();
-    $dom->preserveWhiteSpace = true;
-    $dom->loadXML($documentXml);
-    $xp = new DOMXPath($dom);
-    $xp->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
-
-    // Párrafos estructurales que dependen de la información variable.
-    foreach ($xp->query('//w:body/w:p') as $p) {
-        $texto = '';
-        foreach ($xp->query('.//w:t', $p) as $t) $texto .= $t->textContent;
-
-        if (str_contains($texto, 'Contrato inicial:')) {
-            af02EscribirParrafo($dom, $xp, $p, 'Contrato inicial: del ' . af02FechaLarga($inicioInicial) . ' al ' . af02FechaLarga($finInicial) . '.');
-        }
-    }
-
+    // Cada clave es un marcador ${...} de la plantilla AF-FT-02. ${historial_renovaciones} se resuelve aparte.
     $reemplazos = [
-        '{fecha actual día mes año}' => af02FechaLarga(date('Y-m-d')),
-        'Señor o señora {SEGÚN SEXO}' => $tratamiento,
-        '{Nombre cmlpeto mayuscua}' => $nombre,
-        '{Cargo}' => trim((string)$empleado['cargo']),
-        'Ciudad' => 'Yopal',
-        '{nombre}' => $nombre,
-        '{cedula}' => $cedulaFormateada,
-        '${tipo contrato}' => $tipoContrato,
-        '{tipo contrato}' => $tipoContrato,
-        '{fecha fin}' => af02FechaLarga($fechaFin),
-        'de 2026' => 'de ' . (new DateTimeImmutable($fechaFin))->format('Y'),
-        'NOMBRE Y APELLIDOS' => $nombre,
+        '${fecha_actual}' => af02FechaLarga(date('Y-m-d')),
+        '${tratamiento}' => $tratamiento,
+        '${nombre_mayus}' => $nombre,
+        '${cargo}' => trim((string)$empleado['cargo']),
+        '${cedula}' => $cedulaFormateada,
+        '${tipo_contrato}' => $tipoContrato,
+        '${fecha_inicio_inicial}' => af02FechaLarga($inicioInicial),
+        '${fecha_fin_inicial}' => af02FechaLarga($finInicial),
+        '${fecha_fin}' => af02FechaLarga($fechaFin),
     ];
 
-    $documentXml = af02ReemplazarTextoEnParrafos($dom, $documentXml, $reemplazos);
+    $documentXml = af02ReemplazarTextoEnParrafos(new DOMDocument(), $documentXml, $reemplazos);
 
     // Volvemos a cargar el XML ya reemplazado para trabajar sobre la estructura final.
     $dom = new DOMDocument();
     $dom->preserveWhiteSpace = true;
     if (!@$dom->loadXML($documentXml)) throw new RuntimeException('No fue posible preparar el contenido del documento Word.');
     $xp = new DOMXPath($dom);
-    $xp->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
+    $xp->registerNamespace('w', AF02_NS_W);
 
     af02InsertarHistorial($dom, $xp, $lineasHistorial);
     af02NegritaExacta($dom, $xp, [$nombre, $cedulaFormateada]);
+    af02ValidarSinMarcadores($dom, $xp);
 
-    $zip->addFromString('word/document.xml', $dom->saveXML());
+    $zip->addFromString('word/document.xml', af02Xml($dom));
     if (!$zip->close()) {
         @unlink($salida);
         throw new RuntimeException('No fue posible finalizar el archivo Word.');

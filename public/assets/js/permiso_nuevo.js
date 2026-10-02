@@ -219,6 +219,7 @@ function renderListaDiasConfig() {
                     <span class="text-sm font-medium text-gray-800">${formatearFechaEs(f)}${info.esFestivo ? ` <span class="text-xs text-green-700">(${info.festivoNombre})</span>` : ""}</span>
                     <span class="text-sm font-bold text-red-600">${info.calculando ? "..." : info.horasNetas.toFixed(2) + " h"}</span>
                 </div>
+                ${info.calculando ? "" : `<p class="text-[11px] mb-2 ${esDiaCompleto(info) ? "text-green-700" : "text-gray-500"}">${etiquetaConteoDia(info)}</p>`}
                 <label class="flex items-center gap-2 text-sm mb-2">
                     <input type="checkbox" ${info.diaCompleto ? "checked" : ""} onchange="toggleDiaCompleto('${f}', this.checked)" class="rounded">
                     Día completo (falto toda la jornada)
@@ -326,6 +327,40 @@ async function recalcularDia(fecha) {
   recalcularTotales();
 }
 
+// Jornada diaria de referencia del personal Civil: 07:00-12:00 + 14:00-17:24 = 8 h 24 min.
+// Un día cuenta como "1 día" solo si ese día alcanza la jornada completa; si no, cuenta únicamente como horas.
+const JORNADA_CIVIL_HORAS = 8.4;
+
+/**
+ * Cuenta días completos según las horas netas de cada día elegido.
+ * - Civil: día completo si horasNetas >= 8 h 24 min.
+ * - Bombero: opera por turnos (no tiene jornada fija administrativa), por eso solo cuenta
+ *   como día el que se marca "Día completo".
+ * Devuelve también las horas de los días que NO alcanzaron a ser día completo.
+ */
+function etiquetaConteoDia(info) {
+  if (esDiaCompleto(info)) return "Cuenta como 1 día";
+  if (tipoPersonalGlobal === "Bombero") return "Personal Bombero: cuenta como día solo con \"Día completo\"; si no, cuenta como horas";
+  return "Menos de 8,40 h: cuenta solo como horas";
+}
+
+function esDiaCompleto(info) {
+  const horas = info.horasNetas || 0;
+  if (tipoPersonalGlobal === "Bombero") return !!info.diaCompleto && horas > 0;
+  return horas >= JORNADA_CIVIL_HORAS - 0.001;
+}
+
+function calcularResumenDias(fechas) {
+  let dias = 0;
+  let horasSueltas = 0;
+  fechas.forEach((f) => {
+    const info = infoDias[f];
+    if (esDiaCompleto(info)) dias++;
+    else horasSueltas += info.horasNetas || 0;
+  });
+  return { dias, horasSueltas: Math.round(horasSueltas * 100) / 100 };
+}
+
 function recalcularTotales() {
   const fechas = fechasOrdenadas();
   const total = fechas.reduce(
@@ -334,6 +369,15 @@ function recalcularTotales() {
   );
   document.getElementById("totalHorasDisplay").textContent =
     total.toFixed(2) + " h";
+  const resumenDias = calcularResumenDias(fechas);
+  document.getElementById("totalDiasDisplay").textContent =
+    resumenDias.dias + (resumenDias.dias === 1 ? " día" : " días");
+  const filaSueltas = document.getElementById("filaHorasSueltas");
+  if (filaSueltas) {
+    filaSueltas.classList.toggle("hidden", resumenDias.horasSueltas <= 0);
+    document.getElementById("horasSueltasDisplay").textContent =
+      resumenDias.horasSueltas.toFixed(2) + " h";
+  }
 
   if (fechas.length > 0) {
     document.getElementById("fechaInicioHidden").value = fechas[0];

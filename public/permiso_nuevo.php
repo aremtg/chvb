@@ -108,9 +108,21 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                         <input type="hidden" name="fecha_fin" id="fechaFinHidden">
                         <input type="hidden" name="dias_confirmados" id="diasConfirmadosHidden">
 
-                        <div class="bg-gray-50 rounded-xl p-3 flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Total de horas</span>
-                            <span id="totalHorasDisplay" class="text-lg font-bold text-red-600">0.00 h</span>
+                        <div class="bg-gray-50 rounded-xl p-3 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Total de días</span>
+                                <span id="totalDiasDisplay" class="text-lg font-bold text-red-600">0 días</span>
+                            </div>
+                            <div id="filaHorasSueltas" class="hidden">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500">Horas que no completan un día</span>
+                                    <span id="horasSueltasDisplay" class="text-sm font-semibold text-gray-700">0.00 h</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Total de horas</span>
+                                <span id="totalHorasDisplay" class="text-lg font-bold text-red-600">0.00 h</span>
+                            </div>
                         </div>
                     </div>
 
@@ -266,9 +278,9 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
     <?php // Los scripts solo se cargan si el formulario existe; si no, buscan elementos que no están y dan errores en consola. ?>
     <?php if ($datosCompletos): ?>
     <script>window.PERMISO_EDITAR = <?= $editarId ? json_encode(['id'=>$editarId,'version'=>(int)$permisoEditar['version'],'permiso'=>$permisoEditar,'dias'=>PermisoModel::obtenerDias($editarId),'devoluciones'=>PermisoModel::obtenerDevoluciones($editarId)], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) : 'null' ?>;</script>
-    <script src="./assets/js/camera_capture.js"></script>
-    <script src="./assets/js/firma_canvas.js"></script>
-    <script src="./assets/js/permiso_nuevo.js"></script>
+    <script src="./assets/js/camera_capture.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/camera_capture.js') ?>"></script>
+    <script src="./assets/js/firma_canvas.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/firma_canvas.js') ?>"></script>
+    <script src="./assets/js/permiso_nuevo.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/permiso_nuevo.js') ?>"></script>
     <?php endif; ?>
 </body>
 

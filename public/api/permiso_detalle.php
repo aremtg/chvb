@@ -40,6 +40,7 @@ $permiso['cargo_reemplazo'] = $nombres[$permiso['cedula_reemplazo']]['cargo'] ??
 $permiso['cargo_jefe'] = $nombres[$permiso['cedula_jefe']]['cargo'] ?? '';
 
 $permiso['dias'] = PermisoModel::obtenerDias($id);
+$permiso = PermisoModel::agregarResumenDias([$permiso])[0];
 $permiso['devoluciones'] = PermisoModel::obtenerDevoluciones($id);
 
 $pdo = getPDO();

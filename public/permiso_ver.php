@@ -103,7 +103,7 @@ if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula
     </div>
 </div>
 
-<script src="./assets/js/camera_capture.js"></script>
+<script src="./assets/js/camera_capture.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/camera_capture.js') ?>"></script>
 <script src="./assets/js/firma_canvas.js"></script>
 <script src="./assets/js/permiso_ver.js"></script>
 </body>

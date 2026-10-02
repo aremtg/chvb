@@ -64,7 +64,7 @@ function renderPermisos(permisos) {
                 <div class="flex justify-between items-start gap-3">
                     <div>
                         <p class="font-medium text-gray-800">${p.consecutivo} — ${p.tipo_permiso}</p>
-                        <p class="text-xs text-gray-500 mt-0.5">Solicitado: ${formatearFechaEsP(p.fecha_solicitud)} · ${p.total_horas == null ? "Regreso pendiente" : parseFloat(p.total_horas).toFixed(2) + " h"}</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Solicitado: ${formatearFechaEsP(p.fecha_solicitud)} · ${p.total_horas == null ? "Regreso pendiente" : (p.total_dias != null ? diasP(p.total_dias) + " · " : "") + parseFloat(p.total_horas).toFixed(2) + " h"}</p>
                     </div>
                     <span class="text-xs font-medium px-2 py-1 rounded-lg shrink-0 ${est.clase}">${est.texto}</span>
                 </div>
@@ -102,3 +102,8 @@ const permisosIniciales = JSON.parse(
   document.getElementById("listaPermisos").dataset.permisosIniciales || "[]",
 );
 renderPermisos(permisosIniciales);
+
+function diasP(n) {
+    const d = parseInt(n, 10) || 0;
+    return `${d} ${d === 1 ? 'día' : 'días'}`;
+}

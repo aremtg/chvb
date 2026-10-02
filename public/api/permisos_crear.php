@@ -200,7 +200,7 @@ try {
     // Envío automático: el permiso nace directo en la fase de firmas, sin pasar por borrador.
     $estadoInicial = $tieneReemplazo ? 'por_firmar_reemplazo' : 'por_firmar_jefe';
     PermisoModel::actualizarConVersion($permisoId, 1, ['estado' => $estadoInicial]);
-    PermisoModel::registrarHistorial($permisoId, 1, 'en_proceso', $estadoInicial, 'empleado', $cedula, 'Permiso creado y enviado automáticamente');
+    PermisoModel::registrarHistorial($permisoId, 1, 'en_proceso', $estadoInicial, 'empleado', $cedula, 'Permiso creado y enviado');
 
     require_once __DIR__ . '/../../src/controllers/PermisoController.php';
     PermisoController::notificarEnvioPublico($permisoId);

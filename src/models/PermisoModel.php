@@ -153,6 +153,76 @@ class PermisoModel {
         $stmt->execute($params);
     }
 
+    // =========================================================================
+    //  CONTEO DE DÍAS (fuente única para detalle y listados)
+    // =========================================================================
+
+    /** Jornada diaria Civil: 07:00-12:00 + 14:00-17:24 = 8 h 24 min = 8,40 h. */
+    public const JORNADA_CIVIL_HORAS = 8.4;
+
+    /**
+     * Agrega 'total_dias' y 'horas_sueltas' a cada permiso (una sola consulta para todos).
+     * - Civil: un día cuenta como 1 día si sus horas netas llegan a 8,40 h; si no, cuenta solo como horas.
+     * - Bombero: opera por turnos; cuenta como día el día completo (00:00 a 23:59).
+     * - Días no incluidos (festivo no contado) no suman.
+     * - Permisos sin días (salida pendiente de regreso): total_dias = null.
+     */
+    public static function agregarResumenDias(array $permisos): array {
+        if (!$permisos) return $permisos;
+
+        $ids = array_values(array_unique(array_map('intval', array_column($permisos, 'id'))));
+        $cedulas = array_values(array_unique(array_filter(array_column($permisos, 'cedula_empleado'))));
+        if (!$ids) return $permisos;
+
+        $pdo = getPDO();
+
+        $params = [];
+        $marcas = [];
+        foreach ($ids as $i => $id) { $marcas[] = ":d{$i}"; $params["d{$i}"] = $id; }
+        $stmt = $pdo->prepare("SELECT permiso_id, hora_inicio, hora_fin, incluido, horas_netas
+                               FROM permisos_dias WHERE permiso_id IN (" . implode(',', $marcas) . ")");
+        $stmt->execute($params);
+        $diasPorPermiso = [];
+        foreach ($stmt->fetchAll() as $d) $diasPorPermiso[(int)$d['permiso_id']][] = $d;
+
+        $tipos = [];
+        if ($cedulas) {
+            $params = [];
+            $marcas = [];
+            foreach ($cedulas as $i => $c) { $marcas[] = ":c{$i}"; $params["c{$i}"] = $c; }
+            $stmt = $pdo->prepare("SELECT cedula, tipo_de_personal FROM empleados WHERE cedula IN (" . implode(',', $marcas) . ")");
+            $stmt->execute($params);
+            foreach ($stmt->fetchAll() as $e) $tipos[$e['cedula']] = $e['tipo_de_personal'];
+        }
+
+        foreach ($permisos as &$permiso) {
+            $dias = $diasPorPermiso[(int)($permiso['id'] ?? 0)] ?? [];
+            if (!$dias) {
+                $permiso['total_dias'] = null;
+                $permiso['horas_sueltas'] = null;
+                continue;
+            }
+
+            $esBombero = ($tipos[$permiso['cedula_empleado'] ?? ''] ?? 'Civil') === 'Bombero';
+            $contados = 0;
+            $sueltas = 0.0;
+            foreach ($dias as $d) {
+                if ((int)$d['incluido'] !== 1) continue;
+                $horas = (float)$d['horas_netas'];
+                $completo = $esBombero
+                    ? ($d['hora_inicio'] <= '00:00:59' && $d['hora_fin'] >= '23:59:00')
+                    : ($horas >= self::JORNADA_CIVIL_HORAS - 0.001);
+                if ($completo) $contados++;
+                else $sueltas += $horas;
+            }
+            $permiso['total_dias'] = $contados;
+            $permiso['horas_sueltas'] = round($sueltas, 2);
+        }
+        unset($permiso);
+
+        return $permisos;
+    }
+
     public static function obtenerDias(int $permisoId): array {
         $pdo = getPDO();
         $stmt = $pdo->prepare("SELECT * FROM permisos_dias WHERE permiso_id = :b1 ORDER BY fecha ASC");
@@ -236,7 +306,7 @@ class PermisoModel {
         $pdo = getPDO();
         $stmt = $pdo->prepare("SELECT * FROM permisos WHERE cedula_empleado = :b1 ORDER BY fecha_solicitud DESC");
         $stmt->execute(['b1' => $cedula]);
-        return $stmt->fetchAll();
+        return self::agregarResumenDias($stmt->fetchAll());
     }
 
     /**
@@ -281,7 +351,7 @@ class PermisoModel {
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll();
+        return self::agregarResumenDias($stmt->fetchAll());
     }
 
     /**
@@ -293,7 +363,7 @@ class PermisoModel {
             "SELECT * FROM permisos WHERE cedula_reemplazo = :b1 OR cedula_jefe = :b2 ORDER BY fecha_solicitud DESC"
         );
         $stmt->execute(['b1' => $cedula, 'b2' => $cedula]);
-        return $stmt->fetchAll();
+        return self::agregarResumenDias($stmt->fetchAll());
     }
 
 
@@ -306,13 +376,13 @@ class PermisoModel {
              ORDER BY p.fecha_solicitud DESC"
         );
         $stmt->execute(['b1' => $cedula]);
-        return $stmt->fetchAll();
+        return self::agregarResumenDias($stmt->fetchAll());
     }
 
     public static function listarTodos(): array {
         $pdo = getPDO();
         $stmt = $pdo->query("SELECT * FROM permisos ORDER BY fecha_solicitud DESC");
-        return $stmt->fetchAll();
+        return self::agregarResumenDias($stmt->fetchAll());
     }
 
         /**
@@ -361,7 +431,7 @@ class PermisoModel {
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll();
+        return self::agregarResumenDias($stmt->fetchAll());
     }
 
     /** Solo permisos actualizados después de $desde, para el polling parcial de TH. */
@@ -375,7 +445,7 @@ class PermisoModel {
              ORDER BY p.fecha_actualizacion ASC"
         );
         $stmt->execute(['b1' => $desdeISO]);
-        return $stmt->fetchAll();
+        return self::agregarResumenDias($stmt->fetchAll());
     }
 
     // =========================================================================
