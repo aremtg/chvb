@@ -73,7 +73,7 @@ $empleados = EmpleadoModel::listar($busqueda);
                 ```php
                         <?php else: ?>
                 <!-- LISTA DE EMPLEADOS -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <?php foreach ($empleados as $emp): ?>
                                     <?php $acceso = UsuarioEmpleadoModel::obtenerPorCedula($emp['cedula']); ?>
 
@@ -153,7 +153,7 @@ $empleados = EmpleadoModel::listar($busqueda);
                                     <!-- CREAR / RESETEAR PIN -->
                                     <button
                                         onclick="abrirModalPin('<?= $emp['cedula'] ?>', '<?= htmlspecialchars($emp['nombre'], ENT_QUOTES) ?>')"
-                                        class="flex-1 min-w-[120px] h-9 px-3 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold flex items-center justify-center transition whitespace-nowrap">
+                                        class="flex-1 min-w-[120px] h-9 px-3 rounded-lg bg-green-500 hover:bg-green-700 text-white text-xs font-semibold flex items-center justify-center transition whitespace-nowrap">
                                                     <?= $acceso ? 'Resetear PIN' : 'Crear acceso' ?>
                                     </button>
 
