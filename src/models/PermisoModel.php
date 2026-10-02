@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../config/database.php';
 class PermisoModel {
 
     /**
-     * Genera el consecutivo PER-{año}-{0001} usando bloqueo de fila (FOR UPDATE)
+     * Genera el consecutivo  usando bloqueo de fila (FOR UPDATE)
      * dentro de una transacción, para que dos solicitudes simultáneas nunca
      * puedan obtener el mismo número, aun con prepares reales de PDO.
      */
@@ -36,7 +36,7 @@ class PermisoModel {
             throw $e;
         }
 
-        return sprintf('PER-%d-%04d', $anio, $siguiente);
+        return sprintf('GH-FT-10-%d-%04d', $anio, $siguiente);
     }
 
     public static function crear(array $datos, array $dias): int {
