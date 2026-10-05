@@ -15,13 +15,13 @@ $csrf = csrfToken();
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AF-FT-02 · Terminación de contrato</title>
+<title>AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO · Terminación de contrato</title>
 <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
 <body class="bg-gray-50 min-h-screen text-gray-800">
 <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 <div class="md:ml-64 pt-14 md:pt-0">
-<?= formatosHeader('Terminación de contrato', 'AF-FT-02 · Notificación de terminación') ?>
+<?= formatosHeader('Terminación de contrato', 'AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO · Notificación de terminación') ?>
 <main class="p-3 sm:p-5 lg:p-6 max-w-5xl mx-auto space-y-5">
 
 <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
@@ -645,7 +645,7 @@ $('formTerminacion').addEventListener('submit', async ev => {
         try {
             data = JSON.parse(raw);
         } catch {
-            console.error('AF-FT-02 respuesta no JSON:', raw);
+            console.error('AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO respuesta no JSON:', raw);
             throw new Error('El servidor devolvió una respuesta inesperada. Revisa Network → Response.');
         }
         if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo generar el Word.');
@@ -653,7 +653,7 @@ $('formTerminacion').addEventListener('submit', async ev => {
         window.location.href = data.url;
         setTimeout(() => location.reload(), 1000);   // refresca la lista de generados
     } catch (error) {
-        console.error('AF-FT-02 generación:', error);
+        console.error('AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO generación:', error);
         mostrarError(error.message || 'No se pudo generar el Word.');
         enviando = false;
         btn.innerHTML = html;

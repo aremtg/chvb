@@ -86,7 +86,7 @@ function af02NombreArchivo(string $nombre, string $cedula): string
     $nombre = preg_replace('~[\\\\/:*?"<>|]~u', '', $nombre) ?? '';
     $nombre = trim(preg_replace('/\s+/u', ' ', $nombre) ?? '');
     $cedula = preg_replace('/[^0-9A-Za-z.-]/', '', $cedula);
-    return "AF-FT-02 NOTIFICACION DE TERMINACION CONTRATO {$nombre}_{$cedula}.docx";
+    return "AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO {$nombre}_{$cedula}.docx";
 }
 
 function af02FinPorMeses(string $inicio, int $meses): string
@@ -450,8 +450,8 @@ try {
         throw new InvalidArgumentException("La fecha de terminación debe coincidir con el fin del último contrato ({$prevFin}).");
     }
 
-    $plantilla = __DIR__ . '/../../uploads/plantillas/AF-FT-02 NOTIFICACION TERMINACION CONTRATO.docx';
-    if (!is_file($plantilla)) throw new RuntimeException('No se encontró la plantilla AF-FT-02 en uploads/plantillas/.');
+    $plantilla = __DIR__ . '/../../uploads/plantillas/AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO.docx';
+    if (!is_file($plantilla)) throw new RuntimeException('No se encontró la plantilla AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO en uploads/plantillas/.');
     if (!class_exists('ZipArchive')) throw new RuntimeException('La extensión PHP ZipArchive no está habilitada.');
     if (!class_exists('DOMDocument')) throw new RuntimeException('La extensión PHP DOM no está habilitada.');
 
@@ -483,7 +483,7 @@ try {
         throw new RuntimeException('La plantilla no contiene word/document.xml.');
     }
 
-    // Cada clave es un marcador ${...} de la plantilla AF-FT-02. ${historial_renovaciones} se resuelve aparte.
+    // Cada clave es un marcador ${...} de la plantilla AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO. ${historial_renovaciones} se resuelve aparte.
     $reemplazos = [
         '${fecha_actual}' => af02FechaLarga(date('Y-m-d')),
         '${tratamiento}' => $tratamiento,
@@ -528,6 +528,6 @@ try {
 } catch (JsonException $e) {
     af02JsonError('Los datos de renovaciones no tienen un formato JSON válido.');
 } catch (Throwable $e) {
-    error_log('AF-FT-02: ' . $e->getMessage());
+    error_log('AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO: ' . $e->getMessage());
     af02JsonError($e->getMessage(), 400);
 }

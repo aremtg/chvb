@@ -33,7 +33,7 @@ class FormatoModel
     public static function listarTerminacionesGeneradas(string $directorio): array
     {
         if (!is_dir($directorio)) return [];
-        $archivos = glob(rtrim($directorio, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'AF-FT-02 NOTIFICACION DE TERMINACION CONTRATO *.docx') ?: [];
+        $archivos = glob(rtrim($directorio, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO*.docx') ?: [];
         $resultado = [];
         foreach ($archivos as $archivo) {
             if (!is_file($archivo)) continue;

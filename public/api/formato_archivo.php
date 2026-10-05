@@ -73,7 +73,7 @@ $esOtrosiCambioSalario = preg_match(
 );
 
 $esTerminacion = preg_match(
-    '/^AF-FT-02 NOTIFICACION DE TERMINACION CONTRATO [^\/\\\\]+\.docx$/iu',
+    '/^AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO [^\/\\\\]+\.docx$/iu',
     $archivo
 );
 
