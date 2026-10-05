@@ -116,7 +116,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 hidden md:table-cell"><?= htmlspecialchars($emp['cedula']) ?></td>
-                                <td class="px-4 py-3 hidden md:table-cell"><?= htmlspecialchars($emp['cargo']) ?></td>
+                                <td class="px-4 py-3 hidden md:table-cell"><?= htmlspecialchars(JornadaHelper::cargoDetalle($emp)) ?></td>
                                 <td class="px-4 py-3 hidden md:table-cell">
                                     <?= $emp['es_bombero_integral'] ? 'Sí' : 'No' ?>
                                 </td>
@@ -273,10 +273,12 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                             caracteres</p>
                     </div>
 
+                    <?php $prefijo = 'crear'; $requerido = true; require __DIR__ . '/../includes/empleado_lugar_expedicion.php'; ?>
+
                     <div class="sm:col-span-2">
                         <label class="block text-xs text-gray-500 mb-1">Cargo <span
                                 class="text-red-600">*</span></label>
-                        <select name="cargo" required
+                        <select name="cargo" id="crearCargo" required
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
                             <option value="">Selecciona un cargo</option>
                             <?php foreach (EmpleadoController::$cargosValidos as $c): ?>
@@ -304,7 +306,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Tipo de personal <span
                                 class="text-red-600">*</span></label>
-                        <select name="tipo_de_personal" required
+                        <select name="tipo_de_personal" id="crearTipoPersonal" required
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
                             <option value="">Selecciona</option>
                             <?php foreach (EmpleadoController::$tiposDePersonal as $t): ?>
@@ -393,11 +395,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
                     </div>
 
-                    <div class="sm:col-span-2 flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-100">
-                        <input type="checkbox" name="es_bombero_integral" id="bomberoIntegral"
-                            class="rounded border-gray-300 text-red-600 focus:ring-red-500">
-                        <label for="bomberoIntegral" class="text-sm text-gray-700">¿Es Bombero Integral?</label>
-                    </div>
+                    <?php $prefijo = 'crear'; require __DIR__ . '/../includes/empleado_clasificacion.php'; ?>
 
                     <div class="sm:col-span-2 flex items-center gap-4 p-3 rounded-xl bg-gray-50 border border-gray-100">
                         <div
@@ -483,6 +481,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                                 class="text-red-600">*</span></label><input type="text" name="cedula" id="editCedula"
                             required maxlength="13" inputmode="numeric" autocomplete="off"
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div>
+                    <?php $prefijo = 'edit'; $requerido = false; require __DIR__ . '/../includes/empleado_lugar_expedicion.php'; ?>
                     <div class="sm:col-span-2"><label class="block text-xs text-gray-500 mb-1">Cargo <span
                                 class="text-red-600">*</span></label><select name="cargo" id="editCargo" required
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"><?php foreach (EmpleadoController::$cargosValidos as $c): ?>
@@ -559,10 +558,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                     <div class="sm:col-span-2"><label class="block text-xs text-gray-500 mb-1">Correo</label><input
                             type="email" name="correo" id="editCorreo"
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div>
-                    <div class="sm:col-span-2 flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-100">
-                        <input type="checkbox" name="es_bombero_integral" id="editBomberoIntegral"
-                            class="rounded border-gray-300 text-red-600 focus:ring-red-500"><label
-                            for="editBomberoIntegral" class="text-sm text-gray-700">¿Es Bombero Integral?</label></div>
+                    <?php $prefijo = 'edit'; require __DIR__ . '/../includes/empleado_clasificacion.php'; ?>
                     <div class="sm:col-span-2 flex items-center gap-4 p-3 rounded-xl bg-gray-50 border border-gray-100">
                         <img id="editFotoActual" src=""
                             class="w-14 h-14 rounded-xl object-cover border border-gray-200 hidden">
@@ -584,7 +580,8 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
         </div>
     </div>
 
-    <script src="./assets/js/empleados.js"></script>
+    <script src="./assets/js/municipio_select.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/municipio_select.js') ?>"></script>
+    <script src="./assets/js/empleados.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/empleados.js') ?>"></script>
 </body>
 
 </html>

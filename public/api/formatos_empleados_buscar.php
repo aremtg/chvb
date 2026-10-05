@@ -5,6 +5,7 @@ declare(strict_types=1);
 // ("juan dominguez" encuentra "Juan Fernando Dominguez Ibarguen").
 require_once __DIR__ . '/../../includes/formatos_guard.php';
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../src/helpers/JornadaHelper.php';
 
 header('Content-Type: application/json; charset=utf-8');
 requireFormatosAccess(true);
@@ -49,6 +50,7 @@ try {
         'nombre'                => (string)$e['nombre'],
         'sexo'                  => $e['sexo'],
         'cargo'                 => $e['cargo'],
+        'cargo_detalle'         => JornadaHelper::cargoDetalle($e),
         'tipo_de_personal'      => $e['tipo_de_personal'],
         'es_bombero_integral'   => (int)$e['es_bombero_integral'],
         'tipo_de_contrato'      => $e['tipo_de_contrato'],

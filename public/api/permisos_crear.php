@@ -87,7 +87,7 @@ try {
         exit;
     }
 
-    $tipoPersonal = !empty($empleado['tipo_de_personal']) ? $empleado['tipo_de_personal'] : 'Civil';
+    $tipoPersonal = JornadaHelper::tipoParaCalculo($empleado) ?? 'Civil';
     $recalculo = $esSalidaPendiente
         ? ['dias' => [], 'total_horas' => null]
         : PermisoController::recalcularConfirmado($diasConfirmados, $tipoPersonal);

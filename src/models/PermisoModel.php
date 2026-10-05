@@ -1,6 +1,7 @@
 <?php
 // src/models/PermisoModel.php
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../helpers/JornadaHelper.php';
 
 class PermisoModel {
 
@@ -157,13 +158,15 @@ class PermisoModel {
     //  CONTEO DE DÍAS (fuente única para detalle y listados)
     // =========================================================================
 
-    /** Jornada diaria Civil: 07:00-12:00 + 14:00-17:24 = 8 h 24 min = 8,40 h. */
-    public const JORNADA_CIVIL_HORAS = 8.4;
+    /** Jornada diaria administrativa (07:00-12:00 + 14:00-17:24 = 8,40 h). Fuente única: JornadaHelper. */
+    public const JORNADA_CIVIL_HORAS = JornadaHelper::ADMIN_HORAS;
 
     /**
      * Agrega 'total_dias' y 'horas_sueltas' a cada permiso (una sola consulta para todos).
-     * - Civil: un día cuenta como 1 día si sus horas netas llegan a 8,40 h; si no, cuenta solo como horas.
-     * - Bombero: opera por turnos; cuenta como día el día completo (00:00 a 23:59).
+     * La regla sale de la jornada de cada empleado (JornadaHelper::reglas):
+     * - Administrativa: 1 día si sus horas netas llegan a 8,40 h; si no, cuenta solo como horas.
+     * - Horario reducido: 1 día si llega a las horas de su propio horario (ej: 5 h).
+     * - Turnos (operativo): cuenta como día el día completo (00:00 a 23:59).
      * - Días no incluidos (festivo no contado) no suman.
      * - Permisos sin días (salida pendiente de regreso): total_dias = null.
      */
@@ -185,14 +188,15 @@ class PermisoModel {
         $diasPorPermiso = [];
         foreach ($stmt->fetchAll() as $d) $diasPorPermiso[(int)$d['permiso_id']][] = $d;
 
-        $tipos = [];
+        $jornadas = [];
         if ($cedulas) {
             $params = [];
             $marcas = [];
             foreach ($cedulas as $i => $c) { $marcas[] = ":c{$i}"; $params["c{$i}"] = $c; }
-            $stmt = $pdo->prepare("SELECT cedula, tipo_de_personal FROM empleados WHERE cedula IN (" . implode(',', $marcas) . ")");
+            $stmt = $pdo->prepare("SELECT cedula, tipo_de_personal, tipo_jornada, jornada_hora_entrada, jornada_hora_salida
+                                   FROM empleados WHERE cedula IN (" . implode(',', $marcas) . ")");
             $stmt->execute($params);
-            foreach ($stmt->fetchAll() as $e) $tipos[$e['cedula']] = $e['tipo_de_personal'];
+            foreach ($stmt->fetchAll() as $e) $jornadas[$e['cedula']] = JornadaHelper::reglas($e);
         }
 
         foreach ($permisos as &$permiso) {
@@ -203,15 +207,14 @@ class PermisoModel {
                 continue;
             }
 
-            $esBombero = ($tipos[$permiso['cedula_empleado'] ?? ''] ?? 'Civil') === 'Bombero';
+            // Empleado sin registro (ya eliminado): se cuenta como administrativo, igual que antes.
+            $reglas = $jornadas[$permiso['cedula_empleado'] ?? ''] ?? JornadaHelper::reglas([]);
             $contados = 0;
             $sueltas = 0.0;
             foreach ($dias as $d) {
                 if ((int)$d['incluido'] !== 1) continue;
                 $horas = (float)$d['horas_netas'];
-                $completo = $esBombero
-                    ? ($d['hora_inicio'] <= '00:00:59' && $d['hora_fin'] >= '23:59:00')
-                    : ($horas >= self::JORNADA_CIVIL_HORAS - 0.001);
+                $completo = JornadaHelper::esDiaCompleto($reglas, (string)$d['hora_inicio'], (string)$d['hora_fin'], $horas);
                 if ($completo) $contados++;
                 else $sueltas += $horas;
             }

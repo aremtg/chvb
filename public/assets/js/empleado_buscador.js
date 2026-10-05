@@ -54,7 +54,7 @@ function crearBuscadorEmpleado({
             <button type="button" data-i="${i}"
                 class="w-full text-left p-3 mb-1 rounded-xl border border-gray-100 bg-white hover:bg-red-50 transition">
                 <div class="font-medium text-gray-800">${esc(emp.nombre)}</div>
-                <div class="text-xs text-gray-500">CC. ${esc(emp.cedula)} · ${esc(emp.cargo || 'Sin cargo')}${emp.estado === 'no activo' ? ' · No activo' : ''}</div>
+                <div class="text-xs text-gray-500">CC. ${esc(emp.cedula)} · ${esc(emp.cargo_detalle || emp.cargo || 'Sin cargo')}${emp.estado === 'no activo' ? ' · No activo' : ''}</div>
             </button>`).join('');
     }
 

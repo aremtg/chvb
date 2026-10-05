@@ -222,6 +222,97 @@ formEliminar.addEventListener("submit", async (e) => {
   }
 });
 
+// --- Clasificación: bombero integral + jornada (crear y editar) ---
+// Misma regla que JornadaHelper.php: solo un Bombero puede ser integral o de turnos;
+// el horario reducido pide entrada y salida y descuenta el almuerzo 12:00-14:00.
+function horasEntreHHMM(entrada, salida) {
+  const aMin = (h) => Number(h.slice(0, 2)) * 60 + Number(h.slice(3, 5));
+  if (!/^\d{2}:\d{2}$/.test(entrada) || !/^\d{2}:\d{2}$/.test(salida)) return 0;
+  const e = aMin(entrada);
+  const s = aMin(salida);
+  if (s <= e) return 0;
+  const solape = Math.max(0, Math.min(s, 14 * 60) - Math.max(e, 12 * 60));
+  return Math.round(((s - e - solape) / 60) * 100) / 100;
+}
+
+function iniciarClasificacion(p, ids) {
+  const $ = (id) => document.getElementById(id);
+  const tipo = $(ids.tipoPersonal);
+  const cargo = $(ids.cargo);
+  const integral = $(p + "BomberoIntegral");
+  const jornada = $(p + "TipoJornada");
+  const horario = $(p + "HorarioReducido");
+  const entrada = $(p + "JornadaEntrada");
+  const salida = $(p + "JornadaSalida");
+  const horas = $(p + "JornadaHoras");
+  const vista = $(p + "CargoVista");
+  const ayuda = $(p + "JornadaAyuda");
+  if (!tipo || !cargo || !integral || !jornada || !horario) return null;
+
+  const AYUDAS = {
+    Turnos:
+      "Opera por turnos: un día cuenta completo solo si se marca \u201cDía completo\u201d (00:00 a 23:59); sin descuento de almuerzo.",
+    Administrativa:
+      "Horario de oficina 07:00 a 17:24 (8,4 h/día, con almuerzo de 12:00 a 14:00). Un día cuenta completo al llegar a 8,4 h.",
+    Restringida:
+      "Horario reducido (incapacidad o recomendación): un día cuenta completo al llegar a las horas de su horario.",
+  };
+
+  function actualizar() {
+    const esBombero = tipo.value === "Bombero";
+    integral.disabled = !esBombero;
+    if (!esBombero) integral.checked = false;
+
+    const optTurnos = Array.from(jornada.options).find((o) => o.value === "Turnos");
+    if (optTurnos) optTurnos.disabled = !esBombero;
+    if (!esBombero && jornada.value === "Turnos") jornada.value = "Administrativa";
+
+    const restringida = jornada.value === "Restringida";
+    horario.classList.toggle("hidden", !restringida);
+    entrada.required = restringida;
+    salida.required = restringida;
+    if (restringida) {
+      const h = horasEntreHHMM(entrada.value, salida.value);
+      horas.textContent = h > 0
+        ? `Equivale a ${String(h).replace(".", ",")} h por día (se descuenta el almuerzo si cruza 12:00-14:00).`
+        : "Indica entrada y salida (la salida debe ser posterior a la entrada).";
+    }
+    ayuda.textContent = AYUDAS[jornada.value] || "";
+
+    const c = cargo.value || "";
+    vista.textContent = !c
+      ? "-"
+      : integral.checked
+        ? c.toLowerCase() === "bombero integral"
+          ? "Bombero integral"
+          : `Bombero integral con funciones de ${c}`
+        : c;
+  }
+
+  // Al cambiar el tipo de personal se sugiere la jornada habitual (no pisa "Horario reducido").
+  tipo.addEventListener("change", () => {
+    if (jornada.value !== "Restringida") {
+      jornada.value = tipo.value === "Bombero" ? "Turnos" : "Administrativa";
+    }
+    actualizar();
+  });
+  [cargo, integral, jornada, entrada, salida].forEach((el) => {
+    el.addEventListener("change", actualizar);
+    el.addEventListener("input", actualizar);
+  });
+  actualizar();
+  return { actualizar };
+}
+
+const clasificacionCrear = iniciarClasificacion("crear", {
+  tipoPersonal: "crearTipoPersonal",
+  cargo: "crearCargo",
+});
+const clasificacionEditar = iniciarClasificacion("edit", {
+  tipoPersonal: "editTipoPersonal",
+  cargo: "editCargo",
+});
+
 // --- Ver Empleado ---
 async function abrirModalVer(cedula) {
   document
@@ -253,12 +344,14 @@ async function abrirModalVer(cedula) {
                 : `<span class="w-32 h-32 rounded-full bg-gray-100 border flex items-center justify-center text-3xl">👤</span>`
             }
             <p class="mt-0 font-semibold text-gray-900">${emp.nombre}</p>
-            <p class="text-sm text-gray-500">CC ${emp.cedula}</p>
+            <p class="text-sm text-gray-500">CC ${emp.cedula}${emp.lugar_expedicion ? ` · expedida en ${emp.lugar_expedicion}` : ""}</p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1">
-            <p class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="block text-xs text-gray-500">Cargo</span><span class="font-medium">${emp.es_bombero_integral == 1 ? `Bombero integral con funciones de ${emp.cargo}` : emp.cargo}</span></p>
+            <p class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="block text-xs text-gray-500">Cargo</span><span class="font-medium">${emp.cargo_detalle || emp.cargo}</span></p>
             <p class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="block text-xs text-gray-500">Tipo de personal</span><span class="font-medium">${emp.tipo_de_personal || "-"}</span></p>
+            <p class="p-3 rounded-xl bg-gray-50 border border-gray-100 sm:col-span-2"><span class="block text-xs text-gray-500">Jornada</span><span class="font-medium">${emp.jornada ? emp.jornada.etiqueta : "-"}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100 sm:col-span-2"><span class="block text-xs text-gray-500">Lugar de expedición de la cédula</span><span class="font-medium">${emp.lugar_expedicion || "-"}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Sexo</span><span class="font-medium">${emp.sexo === "F" ? "Femenino" : emp.sexo === "M" ? "Masculino" : "-"}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Fecha de nacimiento</span><span class="font-medium">${formatearFechaEs(emp.fecha_nacimiento)}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Estado</span><span class="font-medium">${emp.estado}</span></p>
@@ -298,6 +391,10 @@ async function abrirModalEditar(cedula) {
   document.getElementById("editCedulaActual").value = emp.cedula;
   document.getElementById("editNombre").value = emp.nombre;
   document.getElementById("editCedula").value = formatearCedula(emp.cedula);
+  window.municipioSet(
+    document.getElementById("editLugarExpedicionWrap"),
+    emp.lugar_expedicion || "",
+  );
   document.getElementById("editCargo").value = emp.cargo;
   document.getElementById("editSexo").value = emp.sexo || "";
   document.getElementById("editTipoPersonal").value =
@@ -308,6 +405,15 @@ async function abrirModalEditar(cedula) {
   document.getElementById("editSalario").value = emp.salario_basico || "";
   document.getElementById("editBomberoIntegral").checked =
     emp.es_bombero_integral == 1;
+  document.getElementById("editTipoJornada").value =
+    emp.tipo_jornada || "Administrativa";
+  document.getElementById("editJornadaEntrada").value = (
+    emp.jornada_hora_entrada || ""
+  ).substring(0, 5);
+  document.getElementById("editJornadaSalida").value = (
+    emp.jornada_hora_salida || ""
+  ).substring(0, 5);
+  if (clasificacionEditar) clasificacionEditar.actualizar();
   document.getElementById("editContrato").value = emp.tipo_de_contrato || "";
   document.getElementById("editFechaInicioContrato").value =
     emp.fecha_inicio_contrato || "";

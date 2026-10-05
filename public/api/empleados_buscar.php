@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../src/models/EmpleadoModel.php';
+require_once __DIR__ . '/../../src/helpers/JornadaHelper.php';
 
 header('Content-Type: application/json');
 
@@ -24,7 +25,7 @@ $resultados = EmpleadoModel::listar($q);
 $simplificado = [];
 foreach ($resultados as $e) {
     if ($cedulaPropia && $e['cedula'] === $cedulaPropia) continue; // no puedes elegirte a ti mismo
-    $simplificado[] = ['cedula' => $e['cedula'], 'nombre' => $e['nombre'], 'cargo' => $e['cargo']];
+    $simplificado[] = ['cedula' => $e['cedula'], 'nombre' => $e['nombre'], 'cargo' => $e['cargo'], 'cargo_detalle' => JornadaHelper::cargoDetalle($e)];
 }
 
 echo json_encode(array_slice($simplificado, 0, 10));

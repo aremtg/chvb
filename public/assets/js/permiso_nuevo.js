@@ -15,8 +15,17 @@ const MESES_ES = [
   "diciembre",
 ];
 const DIAS_SEMANA_ES = ["D", "L", "M", "X", "J", "V", "S"];
-const HORARIO_CIVIL_INICIO = "07:00";
-const HORARIO_CIVIL_FIN = "17:24";
+// Jornada del empleado que viene del servidor (JornadaHelper.php vía permiso_nuevo.php).
+// Si no llega (no debería pasar), se usan los valores administrativos de siempre.
+const JORNADA_EMPLEADO = window.JORNADA_EMPLEADO || null;
+const HORARIO_CIVIL_INICIO =
+  JORNADA_EMPLEADO && !JORNADA_EMPLEADO.por_turnos && JORNADA_EMPLEADO.entrada
+    ? JORNADA_EMPLEADO.entrada
+    : "07:00";
+const HORARIO_CIVIL_FIN =
+  JORNADA_EMPLEADO && !JORNADA_EMPLEADO.por_turnos && JORNADA_EMPLEADO.salida
+    ? JORNADA_EMPLEADO.salida
+    : "17:24";
 
 let mesCalendarioActual = new Date().getMonth();
 let anioCalendarioActual = new Date().getFullYear();
@@ -257,7 +266,9 @@ function actualizarHoraDia(fecha, campo, valor) {
   }
 }
 
-let tipoPersonalGlobal = null; // se obtiene del primer cálculo exitoso
+// 'Bombero' = jornada por turnos; 'Civil' = jornada con horas (administrativa o reducida).
+// Arranca con lo que ya sabe el servidor y se confirma en cada cálculo.
+let tipoPersonalGlobal = JORNADA_EMPLEADO ? JORNADA_EMPLEADO.tipo_calculo : null;
 
 async function recalcularDia(fecha) {
   const info = infoDias[fecha];
@@ -327,9 +338,13 @@ async function recalcularDia(fecha) {
   recalcularTotales();
 }
 
-// Jornada diaria de referencia del personal Civil: 07:00-12:00 + 14:00-17:24 = 8 h 24 min.
-// Un día cuenta como "1 día" solo si ese día alcanza la jornada completa; si no, cuenta únicamente como horas.
-const JORNADA_CIVIL_HORAS = 8.4;
+// Horas que equivalen a "1 día" para este empleado: administrativa 8,4 h (07:00-12:00 + 14:00-17:24)
+// u horas de su horario reducido (ej: 5 h). Un día cuenta como "1 día" solo si alcanza esa jornada;
+// si no, cuenta únicamente como horas.
+const JORNADA_CIVIL_HORAS =
+  JORNADA_EMPLEADO && JORNADA_EMPLEADO.horas_dia
+    ? Number(JORNADA_EMPLEADO.horas_dia)
+    : 8.4;
 
 /**
  * Cuenta días completos según las horas netas de cada día elegido.
@@ -341,7 +356,7 @@ const JORNADA_CIVIL_HORAS = 8.4;
 function etiquetaConteoDia(info) {
   if (esDiaCompleto(info)) return "Cuenta como 1 día";
   if (tipoPersonalGlobal === "Bombero") return "Personal Bombero: cuenta como día solo con \"Día completo\"; si no, cuenta como horas";
-  return "Menos de 8,40 h: cuenta solo como horas";
+  return `Menos de ${String(JORNADA_CIVIL_HORAS).replace(".", ",")} h: cuenta solo como horas`;
 }
 
 function esDiaCompleto(info) {

@@ -64,7 +64,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                     <div class="bg-white rounded-xl shadow p-4 grid grid-cols-2 gap-3 text-sm">
                         <p><strong>Nombre:</strong> <?= htmlspecialchars($empleado['nombre']) ?></p>
                         <p><strong>Cédula:</strong> <?= htmlspecialchars($cedula) ?></p>
-                        <p><strong>Cargo:</strong> <?= htmlspecialchars($empleado['cargo']) ?></p>
+                        <p><strong>Cargo:</strong> <?= htmlspecialchars(JornadaHelper::cargoDetalle($empleado)) ?></p>
                         <p><strong>Celular:</strong> <?= htmlspecialchars($empleado['celular'] ?: '-') ?></p>
                     </div>
 
@@ -277,6 +277,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
 
     <?php // Los scripts solo se cargan si el formulario existe; si no, buscan elementos que no están y dan errores en consola. ?>
     <?php if ($datosCompletos): ?>
+    <script>window.JORNADA_EMPLEADO = <?= json_encode(JornadaHelper::reglas($empleado) + ['tipo_calculo' => JornadaHelper::tipoParaCalculo($empleado) ?? 'Civil'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;</script>
     <script>window.PERMISO_EDITAR = <?= $editarId ? json_encode(['id'=>$editarId,'version'=>(int)$permisoEditar['version'],'permiso'=>$permisoEditar,'dias'=>PermisoModel::obtenerDias($editarId),'devoluciones'=>PermisoModel::obtenerDevoluciones($editarId)], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) : 'null' ?>;</script>
     <script src="./assets/js/camera_capture.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/camera_capture.js') ?>"></script>
     <script src="./assets/js/firma_canvas.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/firma_canvas.js') ?>"></script>

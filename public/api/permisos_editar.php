@@ -37,7 +37,7 @@ try {
     } else {
       $dias=json_decode($_POST['dias_confirmados'],true);
       if(!is_array($dias)||!$dias) throw new Exception('El desglose de días es inválido.');
-      $tipoPersonal=!empty($empleado['tipo_de_personal'])?$empleado['tipo_de_personal']:'Civil';
+      $tipoPersonal=JornadaHelper::tipoParaCalculo($empleado)??'Civil';
       $rec=PermisoController::recalcularConfirmado($dias,$tipoPersonal); $diasFinal=$rec['dias'];
       $campos += ['fecha_inicio'=>$diasFinal[0]['fecha'],'hora_inicio'=>$diasFinal[0]['hora_inicio'],'fecha_fin'=>$diasFinal[count($diasFinal)-1]['fecha'],'hora_fin'=>$diasFinal[count($diasFinal)-1]['hora_fin'],'total_horas'=>$rec['total_horas']];
     }

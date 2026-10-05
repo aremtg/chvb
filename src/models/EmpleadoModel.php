@@ -9,14 +9,17 @@ class EmpleadoModel
     {
         $pdo = getPDO();
         $sql = "INSERT INTO empleados 
-            (cedula, nombre, sexo, cargo, tipo_de_personal, eps, pension, arl, salario_basico,
-             es_bombero_integral, tipo_de_contrato, fecha_inicio_contrato, fecha_fin_contrato, estado, celular, correo, fecha_nacimiento)
+            (cedula, lugar_expedicion, nombre, sexo, cargo, tipo_de_personal, eps, pension, arl, salario_basico,
+             es_bombero_integral, tipo_jornada, jornada_hora_entrada, jornada_hora_salida,
+             tipo_de_contrato, fecha_inicio_contrato, fecha_fin_contrato, estado, celular, correo, fecha_nacimiento)
             VALUES 
-            (:cedula, :nombre, :sexo, :cargo, :tipo_personal, :eps, :pension, :arl, :salario,
-             :bombero, :contrato, :fecha_inicio_contrato, :fecha_fin_contrato, :estado, :celular, :correo, :fecha_nacimiento)";
+            (:cedula, :lugar_expedicion, :nombre, :sexo, :cargo, :tipo_personal, :eps, :pension, :arl, :salario,
+             :bombero, :tipo_jornada, :jornada_entrada, :jornada_salida,
+             :contrato, :fecha_inicio_contrato, :fecha_fin_contrato, :estado, :celular, :correo, :fecha_nacimiento)";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             'cedula' => $datos['cedula'],
+            'lugar_expedicion' => $datos['lugar_expedicion'] ?? null,
             'nombre' => $datos['nombre'],
             'sexo' => $datos['sexo'] ?? null,
             'cargo' => $datos['cargo'],
@@ -26,6 +29,9 @@ class EmpleadoModel
             'arl' => $datos['arl'] ?? null,
             'salario' => $datos['salario_basico'] ?? null,
             'bombero' => $datos['es_bombero_integral'],
+            'tipo_jornada' => $datos['tipo_jornada'],
+            'jornada_entrada' => $datos['jornada_hora_entrada'] ?? null,
+            'jornada_salida' => $datos['jornada_hora_salida'] ?? null,
             'contrato' => $datos['tipo_de_contrato'] ?: null,
             'fecha_inicio_contrato' => $datos['fecha_inicio_contrato'] ?? null,
             'fecha_fin_contrato' => $datos['fecha_fin_contrato'] ?? null,
@@ -235,13 +241,17 @@ class EmpleadoModel
     {
         $pdo = getPDO();
         $sql = "UPDATE empleados SET
+              lugar_expedicion = :lugar_expedicion,
               nombre = :nombre, sexo = :sexo, cargo = :cargo, tipo_de_personal = :tipo_personal,
               eps = :eps, pension = :pension, arl = :arl, salario_basico = :salario,
-              es_bombero_integral = :bombero, tipo_de_contrato = :contrato, fecha_inicio_contrato = :fecha_inicio_contrato, fecha_fin_contrato = :fecha_fin_contrato, estado = :estado,
+              es_bombero_integral = :bombero, tipo_jornada = :tipo_jornada,
+              jornada_hora_entrada = :jornada_entrada, jornada_hora_salida = :jornada_salida,
+              tipo_de_contrato = :contrato, fecha_inicio_contrato = :fecha_inicio_contrato, fecha_fin_contrato = :fecha_fin_contrato, estado = :estado,
               celular = :celular, correo = :correo, fecha_nacimiento = :fecha_nacimiento
             WHERE cedula = :cedula";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
+            'lugar_expedicion' => $datos['lugar_expedicion'] ?? null,
             'nombre' => $datos['nombre'],
             'sexo' => $datos['sexo'] ?? null,
             'cargo' => $datos['cargo'],
@@ -251,6 +261,9 @@ class EmpleadoModel
             'arl' => $datos['arl'] ?? null,
             'salario' => $datos['salario_basico'] ?? null,
             'bombero' => $datos['es_bombero_integral'],
+            'tipo_jornada' => $datos['tipo_jornada'],
+            'jornada_entrada' => $datos['jornada_hora_entrada'] ?? null,
+            'jornada_salida' => $datos['jornada_hora_salida'] ?? null,
             'contrato' => $datos['tipo_de_contrato'] ?: null,
             'fecha_inicio_contrato' => $datos['fecha_inicio_contrato'] ?? null,
             'fecha_fin_contrato' => $datos['fecha_fin_contrato'] ?? null,
