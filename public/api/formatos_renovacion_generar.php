@@ -318,9 +318,9 @@ try {
         );
     }
 
-    $plantilla = __DIR__ . '/../../uploads/plantillas/GH-FT-0000-RENOVACION.docx';
+    $plantilla = __DIR__ . '/../../uploads/plantillas/AF-FT-02-AF-RENOVACION DE CONTRATO.docx';
     if (!is_file($plantilla)) {
-        throw new RuntimeException('No se encontró la plantilla GH-FT-0000-RENOVACION.docx en uploads/plantillas/.');
+        throw new RuntimeException('No se encontró la plantilla AF-FT-02-AF-RENOVACION DE CONTRATO.docx en uploads/plantillas/.');
     }
 
     $generados = __DIR__ . '/../../uploads/generados';

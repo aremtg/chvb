@@ -76,7 +76,7 @@ requireFormatosAccess();
                             </a>
                         </div>
                         <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
-                            <p class="text-sm font-semibold text-gray-700 truncate">AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO · Renovación de Contrato</p>
+                            <p class="text-sm font-semibold text-gray-700 truncate">AF-FT-02-AF-RENOVACION DE CONTRATO · Renovación de Contrato</p>
                             <p class="text-xs text-gray-600">Plantilla oficial</p>
                         </div>
                     </div>

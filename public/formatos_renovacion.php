@@ -23,7 +23,7 @@ $csrf = csrfToken();
 <body class="bg-gray-50 min-h-screen text-gray-800">
 <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 <div class="md:ml-64 pt-14 md:pt-0">
-<?= formatosHeader('Renovación de Contrato', 'AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO · Gestión de renovaciones') ?>
+<?= formatosHeader('Renovación de Contrato', 'AF-FT-02-AF-RENOVACION DE CONTRATO · Gestión de renovaciones') ?>
 <main class="p-3 sm:p-5 lg:p-6 max-w-5xl mx-auto space-y-5">
 <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
 <div class="p-4 sm:p-5 lg:p-6 border-b border-gray-100"><div class="flex items-start gap-3"><span class="w-10 h-10 shrink-0 rounded-xl bg-red-50 text-red-600 flex items-center justify-center"><?= icon('file-signature','w-5 h-5') ?></span><div><h2 class="font-bold text-gray-800">Generar Renovación</h2><p class="text-xs text-gray-600">Busca al empleado por nombre o cédula y agrega las renovaciones.</p></div></div></div>
