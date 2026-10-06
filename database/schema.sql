@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-09-2026 a las 16:52:05
+-- Tiempo de generación: 06-10-2026 a las 02:26:14
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -42,6 +42,63 @@ CREATE TABLE `bolsillos` (
   `alarma_fecha_inicio` date DEFAULT NULL COMMENT 'Fecha desde la cual se cuenta el plazo',
   `alarma_dias_aviso` int(11) DEFAULT 35 COMMENT 'Días de anticipación para la alerta amarilla'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `cargos`
+--
+
+CREATE TABLE `cargos` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `nombre` varchar(100) NOT NULL,
+  `activo` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `certificados_consecutivos`
+--
+
+CREATE TABLE `certificados_consecutivos` (
+  `id` tinyint(3) UNSIGNED NOT NULL,
+  `ultimo_numero` int(10) UNSIGNED NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `certificados_laborales`
+--
+
+CREATE TABLE `certificados_laborales` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `numero` int(10) UNSIGNED NOT NULL,
+  `consecutivo` varchar(10) NOT NULL,
+  `tipo` enum('actual','retirado') NOT NULL,
+  `cedula` varchar(10) NOT NULL,
+  `nombre_snapshot` varchar(150) NOT NULL,
+  `cargo_snapshot` varchar(100) NOT NULL,
+  `fecha_inicio` date NOT NULL,
+  `fecha_retiro` date DEFAULT NULL,
+  `archivo` varchar(255) NOT NULL,
+  `creado_por` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `certificados_laborales_funciones`
+--
+
+CREATE TABLE `certificados_laborales_funciones` (
+  `certificado_id` int(10) UNSIGNED NOT NULL,
+  `posicion` tinyint(3) UNSIGNED NOT NULL,
+  `funcion_id` int(10) UNSIGNED DEFAULT NULL,
+  `texto_snapshot` varchar(160) NOT NULL
+) ;
 
 -- --------------------------------------------------------
 
@@ -141,6 +198,38 @@ CREATE TABLE `firmas_guardadas` (
   `cedula` varchar(10) NOT NULL,
   `ruta_imagen` varchar(255) NOT NULL COMMENT 'PNG del canvas o archivo subido, en uploads/hv_{cedula}/firma/',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `funciones_certificados`
+--
+
+CREATE TABLE `funciones_certificados` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `cargo_id` int(10) UNSIGNED NOT NULL,
+  `texto` varchar(160) NOT NULL,
+  `orden` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
+  `activo` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `funciones_contratos`
+--
+
+CREATE TABLE `funciones_contratos` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `cargo_id` int(10) UNSIGNED NOT NULL,
+  `texto` text NOT NULL,
+  `orden` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
+  `activo` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -312,8 +401,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `username`, `password_hash`, `rol`, `created_at`, `intentos_fallidos`, `bloqueado_hasta`) VALUES
-(1, 'Talento', '$2y$10$NGyVALKNFTFSp2RCTHsb8OkWNq5687eAzdD1fTtTEuSngyyk9lzQC', 'superadmin_talento_humano', '2026-09-17 19:26:28', 0, NULL),
-(2, 'Tatiana', '$2y$10$cQdMMnhoNeo3U58ygsXVCuLtBi2RKOF8D0kZWidtQHoeygqR6URNK', 'auxiliar_talento_humano', '2026-09-17 21:38:01', 0, NULL);
+(2, 'Tatiana', '$2y$10$cQdMMnhoNeo3U58ygsXVCuLtBi2RKOF8D0kZWidtQHoeygqR6URNK', 'auxiliar_talento_humano', '2026-09-17 21:38:01', 0, NULL),
+(3, 'Talento', '$2y$10$jTKCp2WcjVoE1cyGKmqqxekoeukZ6bKaJLyOdOzv67Tcw0a4C9Wmm', 'superadmin_talento_humano', '2026-09-29 21:24:40', 0, NULL),
+(4, 'Omar', '$2y$10$Ub.R51IzfyUY0Rs4ROKP0OQsn9VjxxsmJfRZsaBo8oMouHdi49pZ2', 'teniente', '2026-09-29 22:43:28', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -343,6 +433,35 @@ ALTER TABLE `bolsillos`
   ADD KEY `idx_cedula_seccion` (`cedula_empleado`,`seccion`);
 
 --
+-- Indices de la tabla `cargos`
+--
+ALTER TABLE `cargos`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_cargos_nombre` (`nombre`);
+
+--
+-- Indices de la tabla `certificados_consecutivos`
+--
+ALTER TABLE `certificados_consecutivos`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `certificados_laborales`
+--
+ALTER TABLE `certificados_laborales`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_cert_numero` (`numero`),
+  ADD UNIQUE KEY `uq_cert_archivo` (`archivo`),
+  ADD KEY `idx_cert_cedula` (`cedula`);
+
+--
+-- Indices de la tabla `certificados_laborales_funciones`
+--
+ALTER TABLE `certificados_laborales_funciones`
+  ADD PRIMARY KEY (`certificado_id`,`posicion`),
+  ADD KEY `fk_clf_func` (`funcion_id`);
+
+--
 -- Indices de la tabla `documentos`
 --
 ALTER TABLE `documentos`
@@ -369,6 +488,21 @@ ALTER TABLE `festivos_colombia`
 ALTER TABLE `firmas_guardadas`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unica_por_empleado` (`cedula`);
+
+--
+-- Indices de la tabla `funciones_certificados`
+--
+ALTER TABLE `funciones_certificados`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_fcert_cargo_texto` (`cargo_id`,`texto`),
+  ADD KEY `idx_fcert_cargo` (`cargo_id`,`activo`,`orden`);
+
+--
+-- Indices de la tabla `funciones_contratos`
+--
+ALTER TABLE `funciones_contratos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_fcont_cargo` (`cargo_id`,`activo`,`orden`);
 
 --
 -- Indices de la tabla `notificaciones`
@@ -448,6 +582,18 @@ ALTER TABLE `bolsillos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `cargos`
+--
+ALTER TABLE `cargos`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `certificados_laborales`
+--
+ALTER TABLE `certificados_laborales`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `documentos`
 --
 ALTER TABLE `documentos`
@@ -464,6 +610,18 @@ ALTER TABLE `festivos_colombia`
 --
 ALTER TABLE `firmas_guardadas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `funciones_certificados`
+--
+ALTER TABLE `funciones_certificados`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `funciones_contratos`
+--
+ALTER TABLE `funciones_contratos`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
@@ -499,7 +657,7 @@ ALTER TABLE `permisos_historial`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios_empleados`
@@ -518,60 +676,23 @@ ALTER TABLE `bolsillos`
   ADD CONSTRAINT `bolsillos_ibfk_1` FOREIGN KEY (`cedula_empleado`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `documentos`
+-- Filtros para la tabla `certificados_laborales_funciones`
 --
-ALTER TABLE `documentos`
-  ADD CONSTRAINT `documentos_ibfk_1` FOREIGN KEY (`bolsillo_id`) REFERENCES `bolsillos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `certificados_laborales_funciones`
+  ADD CONSTRAINT `fk_clf_cert` FOREIGN KEY (`certificado_id`) REFERENCES `certificados_laborales` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_clf_func` FOREIGN KEY (`funcion_id`) REFERENCES `funciones_certificados` (`id`) ON DELETE SET NULL;
 
 --
--- Filtros para la tabla `firmas_guardadas`
+-- Filtros para la tabla `funciones_certificados`
 --
-ALTER TABLE `firmas_guardadas`
-  ADD CONSTRAINT `firmas_guardadas_ibfk_1` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `funciones_certificados`
+  ADD CONSTRAINT `fk_fcert_cargo` FOREIGN KEY (`cargo_id`) REFERENCES `cargos` (`id`) ON DELETE CASCADE;
 
 --
--- Filtros para la tabla `notificaciones`
+-- Filtros para la tabla `funciones_contratos`
 --
-ALTER TABLE `notificaciones`
-  ADD CONSTRAINT `notificaciones_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `permisos`
---
-ALTER TABLE `permisos`
-  ADD CONSTRAINT `permisos_ibfk_1` FOREIGN KEY (`cedula_empleado`) REFERENCES `empleados` (`cedula`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `permisos_ibfk_2` FOREIGN KEY (`cedula_reemplazo`) REFERENCES `empleados` (`cedula`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `permisos_ibfk_3` FOREIGN KEY (`cedula_jefe`) REFERENCES `empleados` (`cedula`) ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `permisos_devoluciones`
---
-ALTER TABLE `permisos_devoluciones`
-  ADD CONSTRAINT `permisos_devoluciones_ibfk_1` FOREIGN KEY (`permiso_id`) REFERENCES `permisos` (`id`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `permisos_dias`
---
-ALTER TABLE `permisos_dias`
-  ADD CONSTRAINT `permisos_dias_ibfk_1` FOREIGN KEY (`permiso_id`) REFERENCES `permisos` (`id`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `permisos_historial`
---
-ALTER TABLE `permisos_historial`
-  ADD CONSTRAINT `permisos_historial_ibfk_1` FOREIGN KEY (`permiso_id`) REFERENCES `permisos` (`id`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `presencia_empleados`
---
-ALTER TABLE `presencia_empleados`
-  ADD CONSTRAINT `presencia_empleados_ibfk_1` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `usuarios_empleados`
---
-ALTER TABLE `usuarios_empleados`
-  ADD CONSTRAINT `usuarios_empleados_ibfk_1` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `funciones_contratos`
+  ADD CONSTRAINT `fk_fcont_cargo` FOREIGN KEY (`cargo_id`) REFERENCES `cargos` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
