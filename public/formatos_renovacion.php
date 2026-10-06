@@ -471,6 +471,7 @@ const buscadorRen = crearBuscadorEmpleado({
         <div><span class="block text-xs text-gray-600">Tipo de personal</span>${escapeHtml(emp.tipo_de_personal || '-')}</div>
         <div><span class="block text-xs text-gray-600">Cargo</span>${escapeHtml(emp.cargo || '-')}</div>
         <div><span class="block text-xs text-gray-600">Contrato</span>${escapeHtml(emp.tipo_de_contrato || '-')}</div>
+        <div><span class="block text-xs text-gray-600">Fecha inicio contrato inicial</span><strong>${fmtDate(emp.fecha_inicio_contrato)}</strong></div>
         <div><span class="block text-xs text-gray-600">Fecha fin contrato inicial</span><strong>${fmtDate(emp.fecha_fin_contrato)}</strong></div>
     `;
 
