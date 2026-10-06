@@ -167,7 +167,7 @@ if ($filtrosActivos) {
                                     <?= $emp['es_bombero_integral'] ? 'Sí' : 'No' ?>
                                 </td>
                                 <td class="px-4 py-3 hidden md:table-cell">
-                                    <?= htmlspecialchars($emp['tipo_de_contrato']) ?>
+                                    <?= htmlspecialchars($emp['tipo_de_contrato'] ?? '—') ?>
                                 </td>
                                 <td class="px-4 py-3">
                                     <span
@@ -364,8 +364,9 @@ if ($filtrosActivos) {
                     </div>
 
                     <div>
-                        <label class="block text-xs text-gray-500 mb-1">Tipo de contrato</label>
-                        <select name="tipo_de_contrato" id="tipoContrato"
+                        <label class="block text-xs text-gray-500 mb-1">Tipo de contrato <span
+                                class="text-red-600">*</span></label>
+                        <select name="tipo_de_contrato" id="tipoContrato" required
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
                             <option value="">Selecciona</option>
                             <?php foreach (EmpleadoController::$tiposDeContrato as $tc): ?>
@@ -552,8 +553,9 @@ if ($filtrosActivos) {
                     <div><label class="block text-xs text-gray-500 mb-1">Fecha de nacimiento</label><input type="date"
                             name="fecha_nacimiento" id="editFechaNacimiento"
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div>
-                    <div><label class="block text-xs text-gray-500 mb-1">Tipo de contrato</label><select
-                            name="tipo_de_contrato" id="editContrato"
+                    <div><label class="block text-xs text-gray-500 mb-1">Tipo de contrato <span
+                                class="text-red-600">*</span></label><select
+                            name="tipo_de_contrato" id="editContrato" required
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
                             <option value="">Selecciona</option>
                             <?php foreach (EmpleadoController::$tiposDeContrato as $tc): ?>

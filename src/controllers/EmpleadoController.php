@@ -140,7 +140,9 @@ class EmpleadoController
         if (!in_array($cargo, self::$cargosValidos, true)) {
             $errores[] = 'Debes seleccionar un cargo válido.';
         }
-        if ($tipoContrato !== '' && !in_array($tipoContrato, self::$tiposDeContrato, true)) {
+        if ($tipoContrato === '') {
+            $errores[] = 'El tipo de contrato es obligatorio.';
+        } elseif (!in_array($tipoContrato, self::$tiposDeContrato, true)) {
             $errores[] = 'Tipo de contrato inválido.';
         }
 
