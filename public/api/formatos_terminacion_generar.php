@@ -17,7 +17,8 @@ if (!in_array($_SESSION['superadmin_rol'] ?? '', ['superadmin_talento_humano', '
 
 validarCSRF();
 
-const AF02_MARCADOR_HISTORIAL = '${historial_renovaciones}';
+// La plantilla trae las líneas Rnv1..Rnv4 (igual que la de Renovación de Contrato).
+const AF02_MAX_RENOVACIONES = 4;
 const AF02_NS_W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
 
 /** XPath que nunca devuelve false: lanza excepción si la expresión es inválida. */
@@ -131,7 +132,7 @@ function af02CompararDuracion(array $a, array $b): int
 
 function af02FechaLarga(string $fecha): string
 {
-    return FormatoModel::fechaLarga($fecha);
+    return FormatoModel::fechaLarga($fecha, true);   // 09 de enero de 2026
 }
 
 /**
@@ -273,39 +274,30 @@ function af02EscribirParrafo(DOMDocument $dom, DOMXPath $xp, DOMNode $p, string 
 }
 
 /**
- * Reemplaza el párrafo ${historial_renovaciones} por uno por renovación (conserva viñeta y estilo del párrafo).
- * Si no hay renovaciones, elimina el párrafo para no dejar una viñeta vacía.
+ * La plantilla trae las líneas "Rnv1: del ${rnv1_inicio} al ${rnv1_fin}" ... "Rnv4".
+ * Se eliminan las que no se usan (RnvN con N mayor al número de renovaciones) y, si no hay
+ * ninguna renovación, también el título "Renovaciones:". Mismo comportamiento que Renovación de Contrato.
  */
-function af02InsertarHistorial(DOMDocument $dom, DOMXPath $xp, array $renovaciones): void
+function af02QuitarLineasRnv(string $xml, int $cantidad): string
 {
-    foreach (af02Query($xp, '//w:body/w:p') as $p) {
+    $dom = new DOMDocument();
+    $dom->preserveWhiteSpace = true;
+    if (!@$dom->loadXML($xml)) throw new RuntimeException('La plantilla Word contiene XML inválido.');
+    $xp = new DOMXPath($dom);
+    $xp->registerNamespace('w', AF02_NS_W);
+
+    foreach (iterator_to_array(af02Query($xp, '//w:body/w:p')) as $p) {
         $texto = '';
         foreach (af02Query($xp, './/w:t', $p) as $t) $texto .= $t->textContent;
-        if (!str_contains($texto, AF02_MARCADOR_HISTORIAL)) continue;
+        $texto = trim($texto);
 
-        $parent = $p->parentNode;
-        if ($parent === null) continue;
-        if (!$renovaciones) {
-            $parent->removeChild($p);
-            return;
-        }
+        $quitar = false;
+        if (preg_match('/\$\{rnv(\d+)_(inicio|fin)\}/iu', $texto, $m) && (int)$m[1] > $cantidad) $quitar = true;
+        if ($cantidad === 0 && preg_match('/^Renovaciones:\s*$/iu', $texto)) $quitar = true;
 
-        $prototipo = $p->cloneNode(true);
-        $referencia = $p;
-
-        foreach ($renovaciones as $index => $r) {
-            $linea = 'Renovación N°' . ($index + 1) . ': del ' . af02FechaLarga($r['inicio']) . ' al ' . af02FechaLarga($r['fin']) . '.';
-            $destino = $index === 0 ? $p : $prototipo->cloneNode(true);
-            af02EscribirParrafo($dom, $xp, $destino, $linea);
-            if ($index > 0) {
-                $parent->insertBefore($destino, $referencia->nextSibling);
-                $referencia = $destino;
-            }
-        }
-        return;
+        if ($quitar && $p->parentNode !== null) $p->parentNode->removeChild($p);
     }
-
-    throw new RuntimeException('La plantilla no contiene el marcador ' . AF02_MARCADOR_HISTORIAL . '.');
+    return af02Xml($dom);
 }
 
 /**
@@ -384,16 +376,32 @@ try {
 
     if ($cedula === '') throw new InvalidArgumentException('Selecciona un empleado.');
     if (!is_array($renovaciones)) throw new InvalidArgumentException('La información de renovaciones no es válida.');
-    if (count($renovaciones) > 20) throw new InvalidArgumentException('Puedes registrar máximo 20 renovaciones.');
+    if (count($renovaciones) > AF02_MAX_RENOVACIONES) throw new InvalidArgumentException('La plantilla de Terminación de Contrato está configurada hasta RNV' . AF02_MAX_RENOVACIONES . '.');
 
     $empleado = EmpleadoModel::obtenerPorCedula($cedula);
     if (!$empleado) throw new InvalidArgumentException('No se encontró el empleado seleccionado.');
 
-    foreach (['nombre', 'cedula', 'sexo', 'cargo', 'tipo_de_contrato', 'fecha_inicio_contrato', 'fecha_fin_contrato'] as $campo) {
-        if (trim((string)($empleado[$campo] ?? '')) === '') {
-            throw new InvalidArgumentException("Falta el dato obligatorio en la hoja de vida: {$campo}.");
-        }
+    $etiquetas = [
+        'nombre' => 'Nombre',
+        'cedula' => 'Cédula',
+        'lugar_expedicion' => 'Lugar de expedición de la cédula',
+        'sexo' => 'Sexo',
+        'cargo' => 'Cargo',
+        'tipo_de_personal' => 'Tipo de personal',
+        'tipo_de_contrato' => 'Tipo de contrato',
+        'fecha_inicio_contrato' => 'Fecha de inicio del contrato',
+        'fecha_fin_contrato' => 'Fecha de fin del contrato',
+    ];
+    $faltantes = [];
+    foreach ($etiquetas as $campo => $etiqueta) {
+        if (trim((string)($empleado[$campo] ?? '')) === '') $faltantes[] = $etiqueta;
     }
+    if ($faltantes) {
+        throw new InvalidArgumentException('No se puede generar la notificación. Faltan en la hoja de vida: ' . implode(', ', $faltantes) . '.');
+    }
+
+    $tipoPersonal = mb_strtolower(trim((string)$empleado['tipo_de_personal']), 'UTF-8');
+    $esBombero = $tipoPersonal !== 'civil' && ($tipoPersonal === 'bombero' || !empty($empleado['es_bombero_integral']));
 
     $tratamiento = af02Sexo((string)$empleado['sexo']);
     if ($tratamiento === '') throw new InvalidArgumentException('El sexo del empleado no está registrado correctamente.');
@@ -483,19 +491,29 @@ try {
         throw new RuntimeException('La plantilla no contiene word/document.xml.');
     }
 
-    // Cada clave es un marcador ${...} de la plantilla AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO. ${historial_renovaciones} se resuelve aparte.
+    // Cada clave es un marcador ${...} de la plantilla AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO.
     $reemplazos = [
-        '${fecha_actual}' => af02FechaLarga(date('Y-m-d')),
+        '${fecha_hoy}' => af02FechaLarga(date('Y-m-d')),
         '${tratamiento}' => $tratamiento,
+        '${prefijo_bombero}' => $esBombero ? 'BRO. ' : '',
         '${nombre_mayus}' => $nombre,
+        '${cedula_formateada}' => $cedulaFormateada,
+        '${lugar_expedicion}' => FormatoModel::municipioExpedicion((string)$empleado['lugar_expedicion']),
+        '${lugar_expedicion_completo}' => trim((string)$empleado['lugar_expedicion']),
         '${cargo}' => trim((string)$empleado['cargo']),
-        '${cedula}' => $cedulaFormateada,
         '${tipo_contrato}' => $tipoContrato,
-        '${fecha_inicio_inicial}' => af02FechaLarga($inicioInicial),
-        '${fecha_fin_inicial}' => af02FechaLarga($finInicial),
+        '${fecha_inicio_contrato_larga}' => af02FechaLarga($inicioInicial),
+        '${fecha_fin_contrato_larga}' => af02FechaLarga($finInicial),
         '${fecha_fin}' => af02FechaLarga($fechaFin),
     ];
+    for ($n = 1; $n <= AF02_MAX_RENOVACIONES; $n++) {
+        $r = $lineasHistorial[$n - 1] ?? null;
+        $reemplazos['${rnv' . $n . '_inicio}'] = $r ? af02FechaLarga($r['inicio']) : '';
+        $reemplazos['${rnv' . $n . '_fin}'] = $r ? af02FechaLarga($r['fin']) : '';
+    }
 
+    // Primero se quitan las líneas Rnv sobrantes y luego se reemplazan las variables.
+    $documentXml = af02QuitarLineasRnv($documentXml, count($lineasHistorial));
     $documentXml = af02ReemplazarTextoEnParrafos(new DOMDocument(), $documentXml, $reemplazos);
 
     // Volvemos a cargar el XML ya reemplazado para trabajar sobre la estructura final.
@@ -505,7 +523,6 @@ try {
     $xp = new DOMXPath($dom);
     $xp->registerNamespace('w', AF02_NS_W);
 
-    af02InsertarHistorial($dom, $xp, $lineasHistorial);
     af02NegritaExacta($dom, $xp, [$nombre, $cedulaFormateada]);
     af02ValidarSinMarcadores($dom, $xp);
 

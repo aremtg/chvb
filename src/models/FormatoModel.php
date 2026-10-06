@@ -102,12 +102,17 @@ class FormatoModel
         return $cedula;
     }
 
-    public static function fechaLarga(string $fecha): string
+    /**
+     * @param bool $diaDosDigitos true => "09 de enero de 2026" (días 1-9 con cero a la izquierda).
+     *                            false (por defecto) => "9 de enero de 2026", como lo usan los demás formatos.
+     */
+    public static function fechaLarga(string $fecha, bool $diaDosDigitos = false): string
     {
         $d = DateTime::createFromFormat('Y-m-d', $fecha);
         if (!$d || $d->format('Y-m-d') !== $fecha) throw new InvalidArgumentException('Fecha inválida.');
         $meses = [1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',5=>'mayo',6=>'junio',7=>'julio',8=>'agosto',9=>'septiembre',10=>'octubre',11=>'noviembre',12=>'diciembre'];
-        return (int)$d->format('d') . ' de ' . $meses[(int)$d->format('m')] . ' de ' . $d->format('Y');
+        $dia = $diaDosDigitos ? $d->format('d') : (string)(int)$d->format('d');
+        return $dia . ' de ' . $meses[(int)$d->format('m')] . ' de ' . $d->format('Y');
     }
 
     public static function fechaCorta(string $fecha): string
@@ -135,6 +140,17 @@ class FormatoModel
             41=>'cuarenta y un',42=>'cuarenta y dos',43=>'cuarenta y tres',44=>'cuarenta y cuatro',45=>'cuarenta y cinco',46=>'cuarenta y seis',47=>'cuarenta y siete',48=>'cuarenta y ocho'
         ];
         return $unidades[$meses] ?? (string)$meses;
+    }
+
+    /**
+     * Lugar de expedición "Municipio, Departamento" -> solo el municipio ("Yopal, Casanare" => "Yopal").
+     * Para la frase de la plantilla: "identificado con C.C. No. X de Yopal".
+     */
+    public static function municipioExpedicion(string $lugar): string
+    {
+        $lugar = trim($lugar);
+        $pos = strpos($lugar, ',');
+        return $pos === false ? $lugar : trim(substr($lugar, 0, $pos));
     }
 
     public static function primerNombre(string $nombre): string

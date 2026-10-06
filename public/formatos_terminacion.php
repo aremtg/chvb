@@ -60,7 +60,7 @@ $csrf = csrfToken();
                 <label for="termCantidad" class="block text-sm font-medium text-gray-700 mb-1">Número de renovaciones</label>
                 <select id="termCantidad" class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
                     <option value="0">Sin renovaciones</option>
-                    <?php for ($i = 1; $i <= 20; $i++): ?>
+                    <?php for ($i = 1; $i <= 4; $i++): ?>
                         <option value="<?= $i ?>"><?= $i ?> renovación<?= $i > 1 ? 'es' : '' ?></option>
                     <?php endfor; ?>
                 </select>
@@ -143,7 +143,7 @@ $csrf = csrfToken();
 const csrfToken = <?= json_encode($csrf, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?>;
 const ICONO_ALERTA = <?= json_encode(icon('circle-alert', 'w-4 h-4 shrink-0 mt-0.5'), JSON_HEX_TAG) ?>;
 
-const MAX_RENOVACIONES = 20;
+const MAX_RENOVACIONES = 4;             // la plantilla trae Rnv1..Rnv4 (igual que Renovación de Contrato)
 const MAX_MESES = 120;
 const PRIMERA_ANUAL = 3;               // índice (base 0) de RN4: desde ahí el mínimo es 1 año
 const MESES_MIN_ANUAL = 12;
@@ -466,7 +466,7 @@ function sexoNormalizado(sexo) {
 function normalizarEmpleado(e) {
     const t = v => String(v ?? '').trim();
     const f = v => t(v).slice(0, 10);
-    const n = { cedula: t(e.cedula), nombre: t(e.nombre), sexo: sexoNormalizado(e.sexo), cargo: t(e.cargo), tipo: t(e.tipo_de_contrato), inicio: f(e.fecha_inicio_contrato), fin: f(e.fecha_fin_contrato) };
+    const n = { cedula: t(e.cedula), lugar: t(e.lugar_expedicion), nombre: t(e.nombre), sexo: sexoNormalizado(e.sexo), cargo: t(e.cargo), tipo: t(e.tipo_de_contrato), inicio: f(e.fecha_inicio_contrato), fin: f(e.fecha_fin_contrato) };
     n.dur = duracion(n.inicio, n.fin);
     n.faltan = camposFaltantes(n);
     return n;
@@ -476,6 +476,7 @@ function camposFaltantes(e) {
     const falta = [];
     if (!e.nombre) falta.push('Nombre');
     if (!e.cedula) falta.push('Cédula');
+    if (!e.lugar) falta.push('Lugar de expedición de la cédula');
     if (!e.sexo) falta.push('Sexo');
     if (!e.cargo) falta.push('Cargo');
     if (!e.tipo) falta.push('Tipo de contrato');
@@ -520,6 +521,7 @@ function seleccionarEmpleado(raw) {
     $('termEmpleado').innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
         ${dato('Nombre', `<strong>${esc(emp.nombre)}</strong>`)}
         ${dato('Cédula', `<strong>${esc(emp.cedula)}</strong>`)}
+        ${dato('Lugar de expedición', emp.lugar ? `<strong>${esc(emp.lugar)}</strong>` : '<span class="text-red-600 font-semibold">Sin definir</span>')}
         ${dato('Sexo', emp.sexo === 'F' ? 'Femenino' : emp.sexo === 'M' ? 'Masculino' : 'Sin dato válido')}
         ${dato('Cargo', esc(emp.cargo || '-'))}
         ${dato('Tipo de contrato', esc(emp.tipo || '-'))}
@@ -528,7 +530,7 @@ function seleccionarEmpleado(raw) {
 
     const faltan = emp.faltan;
     if (faltan.length) {
-        $('termFaltantes').innerHTML = `<strong>No se puede generar la notificación todavía.</strong><div class="mt-2">Faltan o son inválidos en la hoja de vida:</div><ul class="list-disc ml-5 mt-1">${faltan.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+        $('termFaltantes').innerHTML = `<strong>No se puede generar la notificación todavía.</strong><div class="mt-2">Faltan o son inválidos en la hoja de vida:</div><ul class="list-disc ml-5 mt-1">${faltan.map(x => `<li>${esc(x)}</li>`).join('')}</ul><div class="mt-2">Complétalo en <strong>Empleados → Editar</strong> y vuelve a seleccionar a la persona.</div>`;
         $('termFaltantes').classList.remove('hidden');
         $('termCampos').classList.add('hidden');
         $('termFilas').innerHTML = '';
@@ -646,15 +648,13 @@ $('formTerminacion').addEventListener('submit', async ev => {
         try {
             data = JSON.parse(raw);
         } catch {
-            console.error('AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO respuesta no JSON:', raw);
-            throw new Error('El servidor devolvió una respuesta inesperada. Revisa Network → Response.');
+            throw new Error('El servidor devolvió una respuesta inesperada. Intenta de nuevo; si persiste, avisa al administrador.');
         }
         if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo generar el Word.');
 
         window.location.href = data.url;
         setTimeout(() => location.reload(), 1000);   // refresca la lista de generados
     } catch (error) {
-        console.error('AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO generación:', error);
         mostrarError(error.message || 'No se pudo generar el Word.');
         enviando = false;
         btn.innerHTML = html;

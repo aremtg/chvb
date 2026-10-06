@@ -128,6 +128,7 @@ const csrfToken = <?= json_encode($csrf) ?>;
             if (!String(emp.nombre ?? '').trim()) faltan.push('Nombre');
             if (!String(emp.cedula ?? '').trim()) faltan.push('Cédula');
             if (!sexoNormalizado(emp.sexo)) faltan.push('Sexo');
+            if (!String(emp.lugar_expedicion ?? '').trim()) faltan.push('Lugar de expedición de la cédula');
             if (!String(emp.cargo ?? '').trim()) faltan.push('Cargo');
             if (!String(emp.tipo_de_personal ?? '').trim()) faltan.push('Tipo de personal');
             if (!String(emp.fecha_inicio_contrato ?? '').trim()) faltan.push('Fecha de inicio del contrato');
@@ -467,6 +468,7 @@ const buscadorRen = crearBuscadorEmpleado({
             document.getElementById('renEmpleado').innerHTML = `
         <div><span class="block text-xs text-gray-600">Nombre</span><strong>${escapeHtml(emp.nombre)}</strong></div>
         <div><span class="block text-xs text-gray-600">Cédula</span><strong>${escapeHtml(emp.cedula)}</strong></div>
+        <div><span class="block text-xs text-gray-600">Lugar de expedición</span>${emp.lugar_expedicion ? `<strong>${escapeHtml(emp.lugar_expedicion)}</strong>` : '<span class="text-red-600 font-semibold">Sin definir</span>'}</div>
         <div><span class="block text-xs text-gray-600">Sexo</span>${sexo === 'F' ? 'Femenino' : sexo === 'M' ? 'Masculino' : 'Sin dato válido'}</div>
         <div><span class="block text-xs text-gray-600">Tipo de personal</span>${escapeHtml(emp.tipo_de_personal || '-')}</div>
         <div><span class="block text-xs text-gray-600">Cargo</span>${escapeHtml(emp.cargo || '-')}</div>
@@ -478,7 +480,7 @@ const buscadorRen = crearBuscadorEmpleado({
             const campos = document.getElementById('renCampos');
             if (faltan.length) {
                 campos.classList.add('hidden');
-                document.getElementById('renDatosFaltantes').innerHTML = `<strong>No se puede generar la renovación todavía.</strong><div class="mt-2">Faltan en la hoja de vida:</div><ul class="list-disc ml-5 mt-1">${faltan.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul>`;
+                document.getElementById('renDatosFaltantes').innerHTML = `<strong>No se puede generar la renovación todavía.</strong><div class="mt-2">Faltan en la hoja de vida:</div><ul class="list-disc ml-5 mt-1">${faltan.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul><div class="mt-2">Complétalo en <strong>Empleados → Editar</strong> y vuelve a seleccionar a la persona.</div>`;
                 document.getElementById('renDatosFaltantes').classList.remove('hidden');
                 return;
             }

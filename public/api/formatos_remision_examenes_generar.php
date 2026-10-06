@@ -83,11 +83,12 @@ try {
         9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
     ];
     $hoy = new DateTimeImmutable('now', new DateTimeZone('America/Bogota'));
-    $fechaActual = (int)$hoy->format('d') . ' de ' .
+    // Día siempre con dos dígitos: 09 de octubre de 2026
+    $fechaHoy = $hoy->format('d') . ' de ' .
         $meses[(int)$hoy->format('m')] . ' de ' . $hoy->format('Y');
 
     $valores = [
-        'fecha_actual' => $fechaActual,
+        'fecha_hoy' => $fechaHoy,
         'nombre_completo' => (string)$empleado['nombre'],
         'cedula' => (string)$empleado['cedula'],
         'cargo' => (string)($empleado['cargo'] ?? ''),
