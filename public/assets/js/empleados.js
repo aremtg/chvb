@@ -557,54 +557,69 @@ document.getElementById("formEditar").addEventListener("submit", async (e) => {
   const input = formulario?.querySelector('input[name="q"]');
   const main = document.querySelector("main");
   if (!formulario || !input || !main) return;
+
   const DEBOUNCE_MS = 300;
+  const FILTROS = ["contrato", "cargo", "estado"]; // nombres de los <select>
+  const SELECTOR_PAGINACION = 'nav[aria-label="Paginación de empleados"]';
   let temporizador = null;
   let controlador = null;
   let version = 0;
-  function obtenerSecciones(doc) {
-    const mainNuevo = doc.querySelector("main");
-    if (!mainNuevo) return null;
-    return {
-      resumen: mainNuevo.children[0] || null,
-      tabla: mainNuevo.children[2] || null,
-      paginacion:
-        mainNuevo.querySelector('nav[aria-label="Paginación de empleados"]') ||
-        null,
-    };
-  }
-  function actualizarPaginacion(nueva) {
-    const actual = main.querySelector(
-      'nav[aria-label="Paginación de empleados"]',
-    );
-    if (actual && nueva) {
-      actual.replaceWith(nueva);
-      return;
-    }
-    if (actual && !nueva) {
-      actual.remove();
-      return;
-    }
-    if (!actual && nueva) {
-      const tabla = main.children[2];
-      if (tabla) {
-        tabla.insertAdjacentElement("afterend", nueva);
-      }
-    }
-  }
-  async function buscar(valor) {
-    const miVersion = ++version;
-    if (controlador) {
-      controlador.abort();
-    }
-    controlador = new AbortController();
+
+  // URL con TODO lo que hay en el formulario (búsqueda + filtros), sin página.
+  function urlDesdeFormulario() {
     const url = new URL(window.location.href);
-    const q = valor.trim();
     url.searchParams.delete("page");
-    if (q) {
-      url.searchParams.set("q", q);
-    } else {
-      url.searchParams.delete("q");
+
+    const q = input.value.trim();
+    if (q) url.searchParams.set("q", q);
+    else url.searchParams.delete("q");
+
+    FILTROS.forEach((campo) => {
+      const valor = formulario.elements[campo]?.value || "";
+      if (valor) url.searchParams.set(campo, valor);
+      else url.searchParams.delete(campo);
+    });
+    return url;
+  }
+
+  // Reemplaza un bloque por su id (no por posición: no se rompe si cambia el HTML).
+  function reemplazarPorId(id, doc) {
+    const actual = document.getElementById(id);
+    const nuevo = doc.getElementById(id);
+    if (actual && nuevo) actual.replaceWith(nuevo);
+    return Boolean(actual && nuevo);
+  }
+
+  function actualizarPaginacion(doc) {
+    const actual = main.querySelector(SELECTOR_PAGINACION);
+    const nueva = doc.querySelector(SELECTOR_PAGINACION);
+    if (actual && nueva) actual.replaceWith(nueva);
+    else if (actual && !nueva) actual.remove();
+    else if (!actual && nueva) {
+      document
+        .getElementById("tablaEmpleados")
+        ?.insertAdjacentElement("afterend", nueva);
     }
+  }
+
+  // El botón de Excel y el de "Limpiar" deben reflejar los filtros actuales.
+  function sincronizarAcciones(doc) {
+    const exportar = document.getElementById("btnExportar");
+    const exportarNuevo = doc.getElementById("btnExportar");
+    if (exportar && exportarNuevo) {
+      exportar.setAttribute("href", exportarNuevo.getAttribute("href"));
+    }
+    const limpiar = document.getElementById("btnLimpiar");
+    const limpiarNuevo = doc.getElementById("btnLimpiar");
+    if (limpiar && limpiarNuevo) limpiar.className = limpiarNuevo.className;
+  }
+
+  async function buscar() {
+    const miVersion = ++version;
+    if (controlador) controlador.abort();
+    controlador = new AbortController();
+    const url = urlDesdeFormulario();
+
     try {
       const respuesta = await fetch(url.toString(), {
         method: "GET",
@@ -617,41 +632,48 @@ document.getElementById("formEditar").addEventListener("submit", async (e) => {
       }
       const html = await respuesta.text();
       if (miVersion !== version) return;
+
       const doc = new DOMParser().parseFromString(html, "text/html");
-      const secciones = obtenerSecciones(doc);
-      if (!secciones?.resumen || !secciones?.tabla) {
+      const okResumen = reemplazarPorId("resumenEmpleados", doc);
+      const okTabla = reemplazarPorId("tablaEmpleados", doc);
+      if (!okResumen || !okTabla) {
         throw new Error("Respuesta de búsqueda inválida.");
       }
-      if (main.children[0]) {
-        main.children[0].replaceWith(secciones.resumen);
-      }
-      if (main.children[2] && secciones.tabla) {
-        main.children[2].replaceWith(secciones.tabla);
-      }
-      actualizarPaginacion(secciones.paginacion);
+      actualizarPaginacion(doc);
+      sincronizarAcciones(doc);
       window.history.replaceState({}, "", url.toString());
     } catch (error) {
-      if (error.name === "AbortError" || miVersion !== version) {
-        return;
-      }
+      if (error.name === "AbortError" || miVersion !== version) return;
       console.error("Buscador de empleados:", error);
     }
   }
+
+  // Escribiendo: espera un momento. Cambiando un filtro: actualiza al instante.
   input.addEventListener("input", () => {
     clearTimeout(temporizador);
-    temporizador = setTimeout(() => buscar(input.value), DEBOUNCE_MS);
+    temporizador = setTimeout(buscar, DEBOUNCE_MS);
+  });
+  FILTROS.forEach((campo) => {
+    formulario.elements[campo]?.addEventListener("change", () => {
+      clearTimeout(temporizador);
+      buscar();
+    });
   });
   formulario.addEventListener("submit", (event) => {
     event.preventDefault();
     clearTimeout(temporizador);
-    buscar(input.value);
+    buscar();
   });
+
+  // Botones atrás/adelante del navegador: reflejar la URL en el formulario.
   window.addEventListener("popstate", () => {
-    const url = new URL(window.location.href);
-    const valor = url.searchParams.get("q") || "";
-    if (input.value !== valor) {
-      input.value = valor;
-    }
-    buscar(valor);
+    const params = new URL(window.location.href).searchParams;
+    input.value = params.get("q") || "";
+    FILTROS.forEach((campo) => {
+      if (formulario.elements[campo]) {
+        formulario.elements[campo].value = params.get(campo) || "";
+      }
+    });
+    buscar();
   });
 })();
