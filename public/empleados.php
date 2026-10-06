@@ -387,7 +387,7 @@ if ($filtrosActivos) {
 
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Salario básico</label>
-                        <input type="number" name="salario_basico" min="0" step="1" placeholder="Ej: 1750905"
+                        <input type="number" name="salario_basico" min="0" step="any" placeholder="Ej: 1750905"
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
                     </div>
 
@@ -567,7 +567,7 @@ if ($filtrosActivos) {
                                 class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div>
                     </div>
                     <div><label class="block text-xs text-gray-500 mb-1">Salario básico</label><input type="number"
-                            name="salario_basico" id="editSalario" min="0" step="1"
+                            name="salario_basico" id="editSalario" min="0" step="any"
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div>
                     <div><label class="block text-xs text-gray-500 mb-1">EPS</label><select name="eps" id="editEps"
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">

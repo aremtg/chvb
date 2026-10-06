@@ -350,6 +350,99 @@
   .col-span-2 {
     grid-column: span 2 / span 2;
   }
+  .m-15 {
+    margin: calc(var(--spacing) * 15);
+  }
+  .m-25 {
+    margin: calc(var(--spacing) * 25);
+  }
+  .m-33 {
+    margin: calc(var(--spacing) * 33);
+  }
+  .m-184 {
+    margin: calc(var(--spacing) * 184);
+  }
+  .m-233 {
+    margin: calc(var(--spacing) * 233);
+  }
+  .m-276 {
+    margin: calc(var(--spacing) * 276);
+  }
+  .m-420 {
+    margin: calc(var(--spacing) * 420);
+  }
+  .m-516 {
+    margin: calc(var(--spacing) * 516);
+  }
+  .m-649 {
+    margin: calc(var(--spacing) * 649);
+  }
+  .m-991 {
+    margin: calc(var(--spacing) * 991);
+  }
+  .m-1051 {
+    margin: calc(var(--spacing) * 1051);
+  }
+  .m-1137 {
+    margin: calc(var(--spacing) * 1137);
+  }
+  .m-1344 {
+    margin: calc(var(--spacing) * 1344);
+  }
+  .m-1367 {
+    margin: calc(var(--spacing) * 1367);
+  }
+  .m-1474 {
+    margin: calc(var(--spacing) * 1474);
+  }
+  .m-1579 {
+    margin: calc(var(--spacing) * 1579);
+  }
+  .m-1744 {
+    margin: calc(var(--spacing) * 1744);
+  }
+  .m-2105 {
+    margin: calc(var(--spacing) * 2105);
+  }
+  .m-2234 {
+    margin: calc(var(--spacing) * 2234);
+  }
+  .m-2493 {
+    margin: calc(var(--spacing) * 2493);
+  }
+  .m-3004 {
+    margin: calc(var(--spacing) * 3004);
+  }
+  .m-4043 {
+    margin: calc(var(--spacing) * 4043);
+  }
+  .m-4480 {
+    margin: calc(var(--spacing) * 4480);
+  }
+  .m-4709 {
+    margin: calc(var(--spacing) * 4709);
+  }
+  .m-4834 {
+    margin: calc(var(--spacing) * 4834);
+  }
+  .m-6516 {
+    margin: calc(var(--spacing) * 6516);
+  }
+  .m-6645 {
+    margin: calc(var(--spacing) * 6645);
+  }
+  .m-6767 {
+    margin: calc(var(--spacing) * 6767);
+  }
+  .m-8286 {
+    margin: calc(var(--spacing) * 8286);
+  }
+  .m-10170 {
+    margin: calc(var(--spacing) * 10170);
+  }
+  .m-10964 {
+    margin: calc(var(--spacing) * 10964);
+  }
   .mx-auto {
     margin-inline: auto;
   }
@@ -1827,15 +1920,6 @@
     }
     .md\:grid-cols-\[72px_1fr_1fr_1fr_auto\] {
       grid-template-columns: 72px 1fr 1fr 1fr auto;
-    }
-    .md\:flex-row {
-      flex-direction: row;
-    }
-    .md\:items-center {
-      align-items: center;
-    }
-    .md\:justify-between {
-      justify-content: space-between;
     }
     .md\:p-5 {
       padding: calc(var(--spacing) * 5);
