@@ -6,19 +6,23 @@ requireSuperAdmin();
 
 
 $busqueda = trim($_GET['q'] ?? '');
+$filtros = EmpleadoController::filtrosDesdeRequest($_GET);
+$hayFiltros = $busqueda !== '' || implode('', $filtros) !== '';
+
+// Parámetros que deben conservarse en paginación y exportación
+$paramsBase = array_filter(['q' => $busqueda] + $filtros, fn($v) => $v !== '');
 
 $porPagina = 7;
 $pagina = max(1, (int) ($_GET['page'] ?? 1));
 
-$totalEmpleados = EmpleadoModel::contar($busqueda);
+$totalEmpleados = EmpleadoModel::contar($busqueda, $filtros);
 $totalPaginas = max(1, (int) ceil($totalEmpleados / $porPagina));
-
 if ($pagina > $totalPaginas) {
     $pagina = $totalPaginas;
 }
 
 $offset = ($pagina - 1) * $porPagina;
-$empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
+$empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset, $filtros);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -61,17 +65,60 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
             </div>
 
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-                <form method="GET" class="flex-1 max-w-md">
-                    <input type="text" name="q" value="<?= htmlspecialchars($busqueda) ?>"
-                        placeholder="Buscar por cédula, nombre, cargo, celular o correo..."
-                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                <form method="GET" class="flex flex-wrap items-end gap-3 mb-3">
+                    <div class="flex-1 min-w-[220px] max-w-md">
+                        <input type="text" name="q" value="<?= htmlspecialchars($busqueda) ?>"
+                            placeholder="Buscar por cédula, nombre, cargo, celular o correo..."
+                            class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    </div>
+
+                    <select name="contrato" class="border border-gray-300 rounded px-3 py-2 bg-white text-sm">
+                        <option value="">Todos los contratos</option>
+                        <?php foreach (EmpleadoController::$tiposDeContrato as $tc): ?>
+                            <option value="<?= htmlspecialchars($tc) ?>" <?= $filtros['contrato'] === $tc ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($tc) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <select name="cargo"
+                        class="border border-gray-300 rounded px-3 py-2 bg-white text-sm max-w-[220px]">
+                        <option value="">Todos los cargos</option>
+                        <?php foreach (EmpleadoController::$cargosValidos as $c): ?>
+                            <option value="<?= htmlspecialchars($c) ?>" <?= $filtros['cargo'] === $c ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($c) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <select name="estado" class="border border-gray-300 rounded px-3 py-2 bg-white text-sm">
+                        <option value="">Todos los estados</option>
+                        <?php foreach (EmpleadoController::$estadosValidos as $e): ?>
+                            <option value="<?= $e ?>" <?= $filtros['estado'] === $e ? 'selected' : '' ?>><?= ucfirst($e) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <button type="submit"
+                        class="bg-gray-800 hover:bg-gray-900 text-white text-sm px-4 py-2 rounded">Filtrar</button>
+                    <?php if ($hayFiltros): ?>
+                        <a href="./empleados.php"
+                            class="text-sm text-gray-600 hover:text-gray-800 underline py-2">Limpiar</a>
+                    <?php endif; ?>
                 </form>
-                <?php if (($_SESSION['superadmin_rol'] ?? '') !== 'teniente'): ?>
-                    <button onclick="document.getElementById('modalCrear').classList.remove('hidden')"
-                        class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-xl transition whitespace-nowrap">
-                        <?= icon('plus', 'w-4 h-4') ?> Nuevo Empleado
-                    </button>
-                <?php endif; ?>
+
+                <div class="flex flex-wrap items-center justify-end gap-2 mb-4">
+                    <a href="./api/empleados_exportar.php?<?= htmlspecialchars(http_build_query($paramsBase)) ?>"
+                        class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-xl transition whitespace-nowrap">
+                        <?= icon('download', 'w-4 h-4') ?> Exportar a Excel
+                    </a>
+                    <?php if (($_SESSION['superadmin_rol'] ?? '') !== 'teniente'): ?>
+                        <button onclick="document.getElementById('modalCrear').classList.remove('hidden')"
+                            class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-xl transition whitespace-nowrap">
+                            <?= icon('plus', 'w-4 h-4') ?> Nuevo Empleado
+                        </button>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <div class="bg-white rounded-lg shadow overflow-x-auto">
@@ -90,7 +137,7 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                     <tbody class="divide-y divide-gray-100">
                         <?php if (empty($empleados)): ?>
                             <tr>
-                                <td colspan="9" class="px-4 py-6 text-center text-gray-600">No hay empleados
+                                <td colspan="7" class="px-4 py-6 text-center text-gray-600">No hay empleados
                                     registrados.</td>
                             </tr>
                         <?php endif; ?>
@@ -117,7 +164,9 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 hidden md:table-cell"><?= htmlspecialchars($emp['cedula']) ?></td>
-                                <td class="px-4 py-3 hidden md:table-cell"><?= htmlspecialchars(JornadaHelper::cargoDetalle($emp)) ?></td>
+                                <td class="px-4 py-3 hidden md:table-cell">
+                                    <?= htmlspecialchars(JornadaHelper::cargoDetalle($emp)) ?>
+                                </td>
                                 <td class="px-4 py-3 hidden md:table-cell">
                                     <?= $emp['es_bombero_integral'] ? 'Sí' : 'No' ?>
                                 </td>
@@ -180,12 +229,8 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
 
             <?php if ($totalPaginas > 1): ?>
                 <?php
-                $urlPagina = function (int $numero) use ($busqueda): string {
-                    $params = ['page' => $numero];
-                    if ($busqueda !== '') {
-                        $params['q'] = $busqueda;
-                    }
-                    return '?' . http_build_query($params);
+                $urlPagina = function (int $numero) use ($paramsBase): string {
+                    return '?' . http_build_query(['page' => $numero] + $paramsBase);
                 };
 
                 $inicio = max(1, $pagina - 2);
@@ -274,7 +319,9 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                             caracteres</p>
                     </div>
 
-                    <?php $prefijo = 'crear'; $requerido = true; require __DIR__ . '/../includes/empleado_lugar_expedicion.php'; ?>
+                    <?php $prefijo = 'crear';
+                    $requerido = true;
+                    require __DIR__ . '/../includes/empleado_lugar_expedicion.php'; ?>
 
                     <div class="sm:col-span-2">
                         <label class="block text-xs text-gray-500 mb-1">Cargo <span
@@ -396,7 +443,8 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
                     </div>
 
-                    <?php $prefijo = 'crear'; require __DIR__ . '/../includes/empleado_clasificacion.php'; ?>
+                    <?php $prefijo = 'crear';
+                    require __DIR__ . '/../includes/empleado_clasificacion.php'; ?>
 
                     <div class="sm:col-span-2 flex items-center gap-4 p-3 rounded-xl bg-gray-50 border border-gray-100">
                         <div
@@ -482,7 +530,9 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                                 class="text-red-600">*</span></label><input type="text" name="cedula" id="editCedula"
                             required maxlength="13" inputmode="numeric" autocomplete="off"
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div>
-                    <?php $prefijo = 'edit'; $requerido = false; require __DIR__ . '/../includes/empleado_lugar_expedicion.php'; ?>
+                    <?php $prefijo = 'edit';
+                    $requerido = false;
+                    require __DIR__ . '/../includes/empleado_lugar_expedicion.php'; ?>
                     <div class="sm:col-span-2"><label class="block text-xs text-gray-500 mb-1">Cargo <span
                                 class="text-red-600">*</span></label><select name="cargo" id="editCargo" required
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"><?php foreach (EmpleadoController::$cargosValidos as $c): ?>
@@ -559,7 +609,8 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
                     <div class="sm:col-span-2"><label class="block text-xs text-gray-500 mb-1">Correo</label><input
                             type="email" name="correo" id="editCorreo"
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"></div>
-                    <?php $prefijo = 'edit'; require __DIR__ . '/../includes/empleado_clasificacion.php'; ?>
+                    <?php $prefijo = 'edit';
+                    require __DIR__ . '/../includes/empleado_clasificacion.php'; ?>
                     <div class="sm:col-span-2 flex items-center gap-4 p-3 rounded-xl bg-gray-50 border border-gray-100">
                         <img id="editFotoActual" src=""
                             class="w-14 h-14 rounded-xl object-cover border border-gray-200 hidden">
@@ -581,8 +632,9 @@ $empleados = EmpleadoModel::listar($busqueda, $porPagina, $offset);
         </div>
     </div>
 
-    <script src="./assets/js/municipio_select.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/municipio_select.js') ?>"></script>
-    <script src="./assets/js/empleados.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/empleados.js') ?>"></script>
+    <script
+        src="./assets/js/municipio_select.js?v=<?= (int) @filemtime(__DIR__ . '/assets/js/municipio_select.js') ?>"></script>
+    <script src="./assets/js/empleados.js?v=<?= (int) @filemtime(__DIR__ . '/assets/js/empleados.js') ?>"></script>
 </body>
 
 </html>

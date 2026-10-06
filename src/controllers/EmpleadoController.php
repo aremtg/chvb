@@ -494,4 +494,20 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
 
         return ['ok' => true];
     }
+
+
+        public static array $estadosValidos = ['activo', 'no activo'];
+
+    /** Toma $_GET y devuelve solo filtros válidos ('' = sin filtro). */
+    public static function filtrosDesdeRequest(array $get): array
+    {
+        $pick = static fn(string $k, array $validos): string =>
+            in_array($get[$k] ?? '', $validos, true) ? $get[$k] : '';
+
+        return [
+            'contrato' => $pick('contrato', self::$tiposDeContrato),
+            'cargo'    => $pick('cargo', self::$cargosValidos),
+            'estado'   => $pick('estado', self::$estadosValidos),
+        ];
+    }
 }
