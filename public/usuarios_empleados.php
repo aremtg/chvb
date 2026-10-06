@@ -86,9 +86,11 @@ $empleados = EmpleadoModel::listar($busqueda);
                                 <!-- FOTO / ICONO -->
                                 <?php if (!empty($emp['foto'])): ?>
                                     <img src="./api/foto_ver.php?cedula=<?= urlencode($emp['cedula']) ?>"
+                                        data-visor-img="./api/foto_ver.php?cedula=<?= urlencode($emp['cedula']) ?>"
                                         alt="Foto de <?= htmlspecialchars($emp['nombre']) ?>"
+                                        role="button" tabindex="0"
                                         loading="lazy"
-                                        class="w-12 h-12 rounded-full object-cover object-center border border-gray-200 flex-shrink-0">
+                                        class="w-12 h-12 rounded-full object-cover object-center border border-gray-200 flex-shrink-0 cursor-zoom-in">
                                 <?php else: ?>
                                     <div
                                         class="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
@@ -284,6 +286,7 @@ $empleados = EmpleadoModel::listar($busqueda);
 
     </div>
 
+    <script src="./assets/js/visor_imagen.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/visor_imagen.js') ?>"></script>
     <script src="./assets/js/usuarios_empleados.js"></script>
 </body>
 

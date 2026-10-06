@@ -145,7 +145,9 @@ if ($filtrosActivos) {
                                     <div class="flex items-center gap-2">
                                         <?php if (!empty($emp['foto'])): ?>
                                             <img src="./api/foto_ver.php?cedula=<?= urlencode($emp['cedula']) ?>"
-                                                class="w-11 h-11 rounded-full object-cover object-center border border-gray-200 flex-shrink-0">
+                                                data-visor-img="./api/foto_ver.php?cedula=<?= urlencode($emp['cedula']) ?>"
+                                                alt="Foto de <?= htmlspecialchars($emp['nombre']) ?>" role="button" tabindex="0"
+                                                class="w-11 h-11 rounded-full object-cover object-center border border-gray-200 flex-shrink-0 cursor-zoom-in">
                                         <?php else: ?>
                                             <span
                                                 class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center"><?= icon('user', 'w-4 h-4 text-gray-500') ?></span>
@@ -621,6 +623,7 @@ if ($filtrosActivos) {
     </div>
 
     <script src="./assets/js/municipio_select.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/municipio_select.js') ?>"></script>
+    <script src="./assets/js/visor_imagen.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/visor_imagen.js') ?>"></script>
     <script src="./assets/js/empleados.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/empleados.js') ?>"></script>
 </body>
 

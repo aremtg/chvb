@@ -336,8 +336,10 @@ async function abrirModalVer(cedula) {
               emp.foto
                 ? `<img
       src="./api/foto_ver.php?cedula=${encodeURIComponent(emp.cedula)}"
+      data-visor-img="./api/foto_ver.php?cedula=${encodeURIComponent(emp.cedula)}"
       alt="Foto de ${emp.nombre}"
-      class="w-32 h-32 rounded-full object-cover object-center border border-gray-200 block"
+      role="button" tabindex="0"
+      class="w-32 h-32 rounded-full object-cover object-center border border-gray-200 block cursor-zoom-in"
       loading="eager"
       decoding="async"
    >`
