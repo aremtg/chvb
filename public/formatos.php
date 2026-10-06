@@ -19,12 +19,18 @@ requireFormatosAccess();
 
     <div class="md:ml-64 pt-14 md:pt-0">
         <header class="bg-white border-b border-gray-100 px-4 sm:px-6 py-4">
-            <div class="flex items-center gap-3"><span
-                    class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center"><?= icon('file-text', 'w-5 h-5') ?></span>
-                <div>
-                    <h1 class="text-base font-bold text-gray-800">Formatos</h1>
-                    <p class="text-xs text-gray-600">Gestión de formatos y renovaciones</p>
+            <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3"><span
+                        class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center"><?= icon('file-text', 'w-5 h-5') ?></span>
+                    <div>
+                        <h1 class="text-base font-bold text-gray-800">Formatos</h1>
+                        <p class="text-xs text-gray-600">Gestión de formatos y renovaciones</p>
+                    </div>
                 </div>
+                <button type="button" onclick="abrirModalFunciones()"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                    <?= icon('clipboard-list', 'w-4 h-4') ?> Funciones
+                </button>
             </div>
         </header>
 
@@ -82,21 +88,26 @@ requireFormatosAccess();
                         <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3"><p class="text-sm font-semibold text-gray-700">AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO</p><p class="text-xs text-gray-600">Plantilla oficial</p></div>
                     </div>
                 </section>
-                <?php foreach ([ ['Requisición', 'clipboard-list'] ] as $card): ?>
-    <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible"> 
-        <div class="p-5"> 
-            <div class="flex items-center gap-3"> 
- 
-                <div> 
-                    <h2 class="font-bold text-gray-800"><?= htmlspecialchars($card[0]) ?></h2> 
-                    <p class="text-xs text-gray-600">Próximamente</p> 
-                </div> 
-            </div> 
-            <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3 text-xs text-gray-600">Aquí 
-                estarán los formatos de esta categoría.</div> 
-        </div> 
-    </section> 
-<?php endforeach; ?>
+                <!-- CERTIFICADO LABORAL -->
+                <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <h2 class="font-bold text-gray-800">Certificado laboral</h2>
+                                <p class="text-xs text-gray-600">Labora actualmente</p>
+                            </div>
+                            <a href="./formatos_certificado_actual.php"
+                                class="w-9 h-9 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-500 flex items-center justify-center transition"
+                                title="Abrir certificado laboral">
+                                <?= icon('file-signature', 'w-5 h-5') ?>
+                            </a>
+                        </div>
+                        <div class="mt-5 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+                            <p class="text-sm font-semibold text-gray-700 truncate">GH-FT-10 · CERTIFICADO LABORAL</p>
+                            <p class="text-xs text-gray-600">Plantilla oficial</p>
+                        </div>
+                    </div>
+                </section>
 
 
 <!-- OTRO SÍ -->
@@ -155,6 +166,7 @@ requireFormatosAccess();
             </div>
         </main>
     </div>
+<?php require __DIR__ . '/../includes/funciones_modal.php'; ?>
 </body>
 
 </html>
