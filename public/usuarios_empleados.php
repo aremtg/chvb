@@ -71,7 +71,6 @@ $empleados = EmpleadoModel::listar($busqueda);
                     </p>
                 </div>
 
-                ```php
                         <?php else: ?>
                 <!-- LISTA DE EMPLEADOS -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -84,11 +83,18 @@ $empleados = EmpleadoModel::listar($busqueda);
                             <!-- INFORMACIÓN DEL EMPLEADO -->
                             <div class="flex items-center gap-3 min-w-0">
 
-                                <!-- ICONO -->
-                                <div
-                                    class="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
-                                                <?= icon('user', 'w-5 h-5') ?>
-                                </div>
+                                <!-- FOTO / ICONO -->
+                                <?php if (!empty($emp['foto'])): ?>
+                                    <img src="./api/foto_ver.php?cedula=<?= urlencode($emp['cedula']) ?>"
+                                        alt="Foto de <?= htmlspecialchars($emp['nombre']) ?>"
+                                        loading="lazy"
+                                        class="w-12 h-12 rounded-full object-cover object-center border border-gray-200 flex-shrink-0">
+                                <?php else: ?>
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
+                                        <?= icon('user', 'w-5 h-5') ?>
+                                    </div>
+                                <?php endif; ?>
 
                                 <div class="min-w-0 flex-1">
                                     <p class="text-sm font-semibold text-gray-800 truncate">
