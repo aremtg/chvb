@@ -102,6 +102,7 @@ $aniosSelector = range((int) date('Y') + 1, (int) date('Y') - 4);
 <html lang="es">
 
 <head>
+    <?php require __DIR__ . '/../includes/head.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Dashboard</title>

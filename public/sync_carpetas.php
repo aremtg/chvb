@@ -23,6 +23,7 @@ if ($ejecutar) {
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <?php require __DIR__ . '/../includes/head.php'; ?>
     <meta charset="UTF-8">
     <title>CHVB - Sincronizar carpetas</title>
 </head>
