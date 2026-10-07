@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 6.0.0-dev+20260915.9e4dc5b5f4
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 07-10-2026 a las 03:33:38
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Host: localhost:3306
+-- Generation Time: Oct 07, 2026 at 10:29 PM
+-- Server version: 8.4.3
+-- PHP Version: 8.3.33
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,45 +18,1944 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `chvb`
+-- Database: `chvb`
 --
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `bolsillos`
+-- Table structure for table `bolsillos`
 --
-
 CREATE TABLE `bolsillos` (
-  `id` int(11) NOT NULL,
-  `cedula_empleado` varchar(10) NOT NULL,
-  `seccion` enum('hoja_de_vida','documentos_contractuales') NOT NULL,
-  `nombre` varchar(100) NOT NULL COMMENT 'slug interno, ej: certificados',
-  `nombre_completo` varchar(150) NOT NULL COMMENT 'nombre visible, ej: Certificados',
-  `orden` int(11) NOT NULL DEFAULT 0,
-  `alarma_tipo` enum('1m','2m','6m','1a','custom') DEFAULT NULL,
+  `id` int NOT NULL,
+  `cedula_empleado` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `seccion` enum('hoja_de_vida','documentos_contractuales') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'slug interno, ej: certificados',
+  `nombre_completo` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'nombre visible, ej: Certificados',
+  `orden` int NOT NULL DEFAULT '0',
+  `alarma_tipo` enum('1m','2m','6m','1a','custom') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `alarma_fecha` date DEFAULT NULL,
-  `alarma_activa` tinyint(1) DEFAULT 0,
-  `alarma_valor` int(11) DEFAULT NULL COMMENT 'Cantidad numérica para alarma personalizada',
-  `alarma_unidad` enum('dias','meses','anios') DEFAULT NULL COMMENT 'Unidad para alarma personalizada',
+  `alarma_activa` tinyint(1) DEFAULT '0',
+  `alarma_valor` int DEFAULT NULL COMMENT 'Cantidad numérica para alarma personalizada',
+  `alarma_unidad` enum('dias','meses','anios') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Unidad para alarma personalizada',
   `alarma_fecha_inicio` date DEFAULT NULL COMMENT 'Fecha desde la cual se cuenta el plazo',
-  `alarma_dias_aviso` int(11) DEFAULT 35 COMMENT 'Días de anticipación para la alerta amarilla'
+  `alarma_dias_aviso` int DEFAULT '35' COMMENT 'Días de anticipación para la alerta amarilla'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `bolsillos`
+--
+
+INSERT INTO `bolsillos` (`id`, `cedula_empleado`, `seccion`, `nombre`, `nombre_completo`, `orden`, `alarma_tipo`, `alarma_fecha`, `alarma_activa`, `alarma_valor`, `alarma_unidad`, `alarma_fecha_inicio`, `alarma_dias_aviso`) VALUES
+(1, '1005719736', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(2, '1005719736', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(3, '1005719736', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(4, '1005719736', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(5, '1005719736', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(6, '1005719736', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(7, '1005719736', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(8, '1005719736', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(9, '1005719736', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(10, '1005719736', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(11, '1005719736', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(12, '1005719736', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(13, '1005719736', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(14, '1005719736', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(15, '1005719736', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(16, '1005719736', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(17, '1005719736', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(18, '1005719736', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(19, '1005719736', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(20, '1005719736', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(21, '1005719736', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(22, '1005719736', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(23, '1005719736', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(24, '1005719736', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(25, '1005719736', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(26, '1005719736', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(27, '1005719736', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(28, '1005719736', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(29, '1005719736', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(30, '1005719736', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(31, '1005719736', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(32, '1006555204', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(33, '1006555204', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(34, '1006555204', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(35, '1006555204', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(36, '1006555204', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(37, '1006555204', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(38, '1006555204', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(39, '1006555204', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(40, '1006555204', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(41, '1006555204', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(42, '1006555204', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(43, '1006555204', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(44, '1006555204', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(45, '1006555204', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(46, '1006555204', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(47, '1006555204', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(48, '1006555204', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(49, '1006555204', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(50, '1006555204', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(51, '1006555204', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(52, '1006555204', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(53, '1006555204', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(54, '1006555204', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(55, '1006555204', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(56, '1006555204', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(57, '1006555204', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(58, '1006555204', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(59, '1006555204', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(60, '1006555204', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(61, '1006555204', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(62, '1006555204', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(63, '1006555838', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(64, '1006555838', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(65, '1006555838', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(66, '1006555838', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(67, '1006555838', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(68, '1006555838', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(69, '1006555838', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(70, '1006555838', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(71, '1006555838', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(72, '1006555838', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(73, '1006555838', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(74, '1006555838', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(75, '1006555838', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(76, '1006555838', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(77, '1006555838', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(78, '1006555838', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(79, '1006555838', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(80, '1006555838', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(81, '1006555838', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(82, '1006555838', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(83, '1006555838', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(84, '1006555838', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(85, '1006555838', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(86, '1006555838', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(87, '1006555838', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(88, '1006555838', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(89, '1006555838', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(90, '1006555838', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(91, '1006555838', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(92, '1006555838', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(93, '1006555838', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(94, '1006556137', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(95, '1006556137', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(96, '1006556137', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(97, '1006556137', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(98, '1006556137', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(99, '1006556137', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(100, '1006556137', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(101, '1006556137', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(102, '1006556137', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(103, '1006556137', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(104, '1006556137', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(105, '1006556137', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(106, '1006556137', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(107, '1006556137', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(108, '1006556137', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(109, '1006556137', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(110, '1006556137', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(111, '1006556137', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(112, '1006556137', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(113, '1006556137', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(114, '1006556137', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(115, '1006556137', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(116, '1006556137', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(117, '1006556137', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(118, '1006556137', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(119, '1006556137', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(120, '1006556137', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(121, '1006556137', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(122, '1006556137', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(123, '1006556137', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(124, '1006556137', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(125, '1006556671', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(126, '1006556671', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(127, '1006556671', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(128, '1006556671', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(129, '1006556671', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(130, '1006556671', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(131, '1006556671', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(132, '1006556671', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(133, '1006556671', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(134, '1006556671', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(135, '1006556671', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(136, '1006556671', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(137, '1006556671', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(138, '1006556671', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(139, '1006556671', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(140, '1006556671', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(141, '1006556671', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(142, '1006556671', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(143, '1006556671', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(144, '1006556671', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(145, '1006556671', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(146, '1006556671', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(147, '1006556671', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(148, '1006556671', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(149, '1006556671', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(150, '1006556671', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(151, '1006556671', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(152, '1006556671', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(153, '1006556671', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(154, '1006556671', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(155, '1006556671', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(156, '1006636306', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(157, '1006636306', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(158, '1006636306', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(159, '1006636306', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(160, '1006636306', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(161, '1006636306', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(162, '1006636306', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(163, '1006636306', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(164, '1006636306', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(165, '1006636306', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(166, '1006636306', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(167, '1006636306', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(168, '1006636306', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(169, '1006636306', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(170, '1006636306', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(171, '1006636306', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(172, '1006636306', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(173, '1006636306', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(174, '1006636306', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(175, '1006636306', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(176, '1006636306', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(177, '1006636306', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(178, '1006636306', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(179, '1006636306', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(180, '1006636306', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(181, '1006636306', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(182, '1006636306', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(183, '1006636306', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(184, '1006636306', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(185, '1006636306', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(186, '1006636306', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(187, '1007703611', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(188, '1007703611', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(189, '1007703611', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(190, '1007703611', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(191, '1007703611', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(192, '1007703611', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(193, '1007703611', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(194, '1007703611', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(195, '1007703611', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(196, '1007703611', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(197, '1007703611', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(198, '1007703611', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(199, '1007703611', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(200, '1007703611', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(201, '1007703611', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(202, '1007703611', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(203, '1007703611', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(204, '1007703611', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(205, '1007703611', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(206, '1007703611', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(207, '1007703611', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(208, '1007703611', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(209, '1007703611', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(210, '1007703611', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(211, '1007703611', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(212, '1007703611', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(213, '1007703611', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(214, '1007703611', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(215, '1007703611', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(216, '1007703611', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(217, '1007703611', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(218, '1019024577', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(219, '1019024577', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(220, '1019024577', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(221, '1019024577', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(222, '1019024577', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(223, '1019024577', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(224, '1019024577', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(225, '1019024577', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(226, '1019024577', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(227, '1019024577', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(228, '1019024577', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(229, '1019024577', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(230, '1019024577', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(231, '1019024577', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(232, '1019024577', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(233, '1019024577', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(234, '1019024577', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(235, '1019024577', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(236, '1019024577', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(237, '1019024577', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(238, '1019024577', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(239, '1019024577', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(240, '1019024577', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(241, '1019024577', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(242, '1019024577', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(243, '1019024577', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(244, '1019024577', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(245, '1019024577', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(246, '1019024577', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(247, '1019024577', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(248, '1019024577', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(249, '1029643799', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(250, '1029643799', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(251, '1029643799', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(252, '1029643799', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(253, '1029643799', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(254, '1029643799', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(255, '1029643799', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(256, '1029643799', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(257, '1029643799', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(258, '1029643799', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(259, '1029643799', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(260, '1029643799', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(261, '1029643799', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(262, '1029643799', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(263, '1029643799', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(264, '1029643799', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(265, '1029643799', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(266, '1029643799', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(267, '1029643799', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(268, '1029643799', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(269, '1029643799', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(270, '1029643799', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(271, '1029643799', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(272, '1029643799', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(273, '1029643799', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(274, '1029643799', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(275, '1029643799', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(276, '1029643799', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(277, '1029643799', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(278, '1029643799', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(279, '1029643799', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(280, '1029661794', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(281, '1029661794', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(282, '1029661794', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(283, '1029661794', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(284, '1029661794', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(285, '1029661794', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(286, '1029661794', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(287, '1029661794', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(288, '1029661794', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(289, '1029661794', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(290, '1029661794', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(291, '1029661794', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(292, '1029661794', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(293, '1029661794', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(294, '1029661794', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(295, '1029661794', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(296, '1029661794', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(297, '1029661794', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(298, '1029661794', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(299, '1029661794', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(300, '1029661794', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(301, '1029661794', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(302, '1029661794', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(303, '1029661794', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(304, '1029661794', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(305, '1029661794', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(306, '1029661794', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(307, '1029661794', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(308, '1029661794', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(309, '1029661794', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(310, '1029661794', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(311, '1115911058', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(312, '1115911058', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(313, '1115911058', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(314, '1115911058', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(315, '1115911058', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(316, '1115911058', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(317, '1115911058', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(318, '1115911058', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(319, '1115911058', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(320, '1115911058', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(321, '1115911058', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(322, '1115911058', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(323, '1115911058', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(324, '1115911058', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(325, '1115911058', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(326, '1115911058', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(327, '1115911058', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(328, '1115911058', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(329, '1115911058', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(330, '1115911058', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(331, '1115911058', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(332, '1115911058', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(333, '1115911058', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(334, '1115911058', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(335, '1115911058', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(336, '1115911058', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(337, '1115911058', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(338, '1115911058', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(339, '1115911058', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(340, '1115911058', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(341, '1115911058', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(342, '1115913555', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(343, '1115913555', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(344, '1115913555', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(345, '1115913555', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(346, '1115913555', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(347, '1115913555', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(348, '1115913555', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(349, '1115913555', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(350, '1115913555', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(351, '1115913555', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(352, '1115913555', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(353, '1115913555', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(354, '1115913555', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(355, '1115913555', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(356, '1115913555', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(357, '1115913555', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(358, '1115913555', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(359, '1115913555', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(360, '1115913555', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(361, '1115913555', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(362, '1115913555', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(363, '1115913555', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(364, '1115913555', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(365, '1115913555', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(366, '1115913555', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(367, '1115913555', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(368, '1115913555', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(369, '1115913555', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(370, '1115913555', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(371, '1115913555', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(372, '1115913555', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(373, '1116043143', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(374, '1116043143', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(375, '1116043143', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(376, '1116043143', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(377, '1116043143', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(378, '1116043143', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(379, '1116043143', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(380, '1116043143', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(381, '1116043143', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(382, '1116043143', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(383, '1116043143', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(384, '1116043143', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(385, '1116043143', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(386, '1116043143', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(387, '1116043143', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(388, '1116043143', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(389, '1116043143', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(390, '1116043143', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(391, '1116043143', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(392, '1116043143', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(393, '1116043143', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(394, '1116043143', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(395, '1116043143', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(396, '1116043143', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(397, '1116043143', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(398, '1116043143', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(399, '1116043143', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(400, '1116043143', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(401, '1116043143', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(402, '1116043143', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(403, '1116043143', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35);
+INSERT INTO `bolsillos` (`id`, `cedula_empleado`, `seccion`, `nombre`, `nombre_completo`, `orden`, `alarma_tipo`, `alarma_fecha`, `alarma_activa`, `alarma_valor`, `alarma_unidad`, `alarma_fecha_inicio`, `alarma_dias_aviso`) VALUES
+(404, '1116552720', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(405, '1116552720', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(406, '1116552720', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(407, '1116552720', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(408, '1116552720', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(409, '1116552720', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(410, '1116552720', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(411, '1116552720', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(412, '1116552720', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(413, '1116552720', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(414, '1116552720', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(415, '1116552720', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(416, '1116552720', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(417, '1116552720', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(418, '1116552720', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(419, '1116552720', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(420, '1116552720', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(421, '1116552720', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(422, '1116552720', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(423, '1116552720', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(424, '1116552720', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(425, '1116552720', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(426, '1116552720', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(427, '1116552720', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(428, '1116552720', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(429, '1116552720', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(430, '1116552720', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(431, '1116552720', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(432, '1116552720', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(433, '1116552720', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(434, '1116552720', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(435, '1116992974', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(436, '1116992974', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(437, '1116992974', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(438, '1116992974', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(439, '1116992974', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(440, '1116992974', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(441, '1116992974', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(442, '1116992974', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(443, '1116992974', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(444, '1116992974', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(445, '1116992974', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(446, '1116992974', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(447, '1116992974', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(448, '1116992974', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(449, '1116992974', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(450, '1116992974', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(451, '1116992974', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(452, '1116992974', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(453, '1116992974', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(454, '1116992974', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(455, '1116992974', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(456, '1116992974', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(457, '1116992974', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(458, '1116992974', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(459, '1116992974', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(460, '1116992974', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(461, '1116992974', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(462, '1116992974', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(463, '1116992974', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(464, '1116992974', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(465, '1116992974', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(466, '1118198423', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(467, '1118198423', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(468, '1118198423', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(469, '1118198423', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(470, '1118198423', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(471, '1118198423', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(472, '1118198423', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(473, '1118198423', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(474, '1118198423', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(475, '1118198423', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(476, '1118198423', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(477, '1118198423', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(478, '1118198423', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(479, '1118198423', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(480, '1118198423', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(481, '1118198423', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(482, '1118198423', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(483, '1118198423', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(484, '1118198423', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(485, '1118198423', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(486, '1118198423', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(487, '1118198423', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(488, '1118198423', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(489, '1118198423', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(490, '1118198423', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(491, '1118198423', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(492, '1118198423', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(493, '1118198423', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(494, '1118198423', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(495, '1118198423', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(496, '1118198423', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(497, '1118529611', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(498, '1118529611', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(499, '1118529611', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(500, '1118529611', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(501, '1118529611', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(502, '1118529611', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(503, '1118529611', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(504, '1118529611', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(505, '1118529611', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(506, '1118529611', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(507, '1118529611', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(508, '1118529611', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(509, '1118529611', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(510, '1118529611', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(511, '1118529611', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(512, '1118529611', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(513, '1118529611', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(514, '1118529611', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(515, '1118529611', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(516, '1118529611', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(517, '1118529611', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(518, '1118529611', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(519, '1118529611', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(520, '1118529611', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(521, '1118529611', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(522, '1118529611', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(523, '1118529611', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(524, '1118529611', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(525, '1118529611', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(526, '1118529611', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(527, '1118529611', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(528, '1118530819', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(529, '1118530819', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(530, '1118530819', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(531, '1118530819', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(532, '1118530819', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(533, '1118530819', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(534, '1118530819', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(535, '1118530819', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(536, '1118530819', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(537, '1118530819', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(538, '1118530819', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(539, '1118530819', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(540, '1118530819', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(541, '1118530819', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(542, '1118530819', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(543, '1118530819', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(544, '1118530819', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(545, '1118530819', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(546, '1118530819', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(547, '1118530819', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(548, '1118530819', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(549, '1118530819', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(550, '1118530819', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(551, '1118530819', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(552, '1118530819', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(553, '1118530819', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(554, '1118530819', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(555, '1118530819', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(556, '1118530819', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(557, '1118530819', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(558, '1118530819', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(559, '1118534974', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(560, '1118534974', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(561, '1118534974', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(562, '1118534974', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(563, '1118534974', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(564, '1118534974', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(565, '1118534974', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(566, '1118534974', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(567, '1118534974', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(568, '1118534974', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(569, '1118534974', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(570, '1118534974', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(571, '1118534974', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(572, '1118534974', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(573, '1118534974', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(574, '1118534974', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(575, '1118534974', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(576, '1118534974', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(577, '1118534974', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(578, '1118534974', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(579, '1118534974', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(580, '1118534974', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(581, '1118534974', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(582, '1118534974', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(583, '1118534974', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(584, '1118534974', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(585, '1118534974', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(586, '1118534974', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(587, '1118534974', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(588, '1118534974', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(589, '1118534974', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(590, '1118536550', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(591, '1118536550', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(592, '1118536550', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(593, '1118536550', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(594, '1118536550', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(595, '1118536550', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(596, '1118536550', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(597, '1118536550', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(598, '1118536550', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(599, '1118536550', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(600, '1118536550', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(601, '1118536550', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(602, '1118536550', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(603, '1118536550', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(604, '1118536550', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(605, '1118536550', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(606, '1118536550', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(607, '1118536550', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(608, '1118536550', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(609, '1118536550', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(610, '1118536550', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(611, '1118536550', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(612, '1118536550', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(613, '1118536550', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(614, '1118536550', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(615, '1118536550', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(616, '1118536550', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(617, '1118536550', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(618, '1118536550', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(619, '1118536550', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(620, '1118536550', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(621, '1118543385', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(622, '1118543385', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(623, '1118543385', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(624, '1118543385', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(625, '1118543385', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(626, '1118543385', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(627, '1118543385', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(628, '1118543385', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(629, '1118543385', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(630, '1118543385', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(631, '1118543385', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(632, '1118543385', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(633, '1118543385', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(634, '1118543385', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(635, '1118543385', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(636, '1118543385', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(637, '1118543385', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(638, '1118543385', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(639, '1118543385', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(640, '1118543385', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(641, '1118543385', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(642, '1118543385', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(643, '1118543385', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(644, '1118543385', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(645, '1118543385', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(646, '1118543385', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(647, '1118543385', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(648, '1118543385', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(649, '1118543385', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(650, '1118543385', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(651, '1118543385', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(652, '1118544837', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(653, '1118544837', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(654, '1118544837', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(655, '1118544837', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(656, '1118544837', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(657, '1118544837', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(658, '1118544837', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(659, '1118544837', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(660, '1118544837', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(661, '1118544837', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(662, '1118544837', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(663, '1118544837', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(664, '1118544837', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(665, '1118544837', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(666, '1118544837', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(667, '1118544837', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(668, '1118544837', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(669, '1118544837', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(670, '1118544837', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(671, '1118544837', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(672, '1118544837', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(673, '1118544837', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(674, '1118544837', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(675, '1118544837', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(676, '1118544837', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(677, '1118544837', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(678, '1118544837', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(679, '1118544837', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(680, '1118544837', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(681, '1118544837', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(682, '1118544837', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(683, '1118547243', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(684, '1118547243', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(685, '1118547243', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(686, '1118547243', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(687, '1118547243', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(688, '1118547243', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(689, '1118547243', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(690, '1118547243', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(691, '1118547243', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(692, '1118547243', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(693, '1118547243', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(694, '1118547243', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(695, '1118547243', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(696, '1118547243', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(697, '1118547243', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(698, '1118547243', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(699, '1118547243', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(700, '1118547243', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(701, '1118547243', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(702, '1118547243', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(703, '1118547243', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(704, '1118547243', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(705, '1118547243', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(706, '1118547243', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(707, '1118547243', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(708, '1118547243', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(709, '1118547243', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(710, '1118547243', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(711, '1118547243', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(712, '1118547243', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(713, '1118547243', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(714, '1118547356', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(715, '1118547356', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(716, '1118547356', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(717, '1118547356', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(718, '1118547356', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(719, '1118547356', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(720, '1118547356', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(721, '1118547356', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(722, '1118547356', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(723, '1118547356', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(724, '1118547356', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(725, '1118547356', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(726, '1118547356', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(727, '1118547356', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(728, '1118547356', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(729, '1118547356', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(730, '1118547356', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(731, '1118547356', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(732, '1118547356', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(733, '1118547356', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(734, '1118547356', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(735, '1118547356', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(736, '1118547356', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(737, '1118547356', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(738, '1118547356', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(739, '1118547356', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(740, '1118547356', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(741, '1118547356', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(742, '1118547356', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(743, '1118547356', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(744, '1118547356', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(745, '1118550799', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(746, '1118550799', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(747, '1118550799', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(748, '1118550799', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(749, '1118550799', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(750, '1118550799', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(751, '1118550799', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(752, '1118550799', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(753, '1118550799', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(754, '1118550799', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(755, '1118550799', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(756, '1118550799', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(757, '1118550799', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(758, '1118550799', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(759, '1118550799', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(760, '1118550799', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(761, '1118550799', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(762, '1118550799', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(763, '1118550799', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(764, '1118550799', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(765, '1118550799', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(766, '1118550799', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(767, '1118550799', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(768, '1118550799', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(769, '1118550799', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(770, '1118550799', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(771, '1118550799', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(772, '1118550799', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(773, '1118550799', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(774, '1118550799', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(775, '1118550799', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(776, '1118555586', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(777, '1118555586', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(778, '1118555586', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(779, '1118555586', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(780, '1118555586', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(781, '1118555586', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(782, '1118555586', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(783, '1118555586', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(784, '1118555586', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(785, '1118555586', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(786, '1118555586', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(787, '1118555586', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(788, '1118555586', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(789, '1118555586', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(790, '1118555586', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(791, '1118555586', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(792, '1118555586', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(793, '1118555586', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(794, '1118555586', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(795, '1118555586', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(796, '1118555586', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(797, '1118555586', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(798, '1118555586', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(799, '1118555586', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(800, '1118555586', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(801, '1118555586', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(802, '1118555586', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(803, '1118555586', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(804, '1118555586', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(805, '1118555586', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35);
+INSERT INTO `bolsillos` (`id`, `cedula_empleado`, `seccion`, `nombre`, `nombre_completo`, `orden`, `alarma_tipo`, `alarma_fecha`, `alarma_activa`, `alarma_valor`, `alarma_unidad`, `alarma_fecha_inicio`, `alarma_dias_aviso`) VALUES
+(806, '1118555586', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(807, '1118564532', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(808, '1118564532', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(809, '1118564532', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(810, '1118564532', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(811, '1118564532', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(812, '1118564532', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(813, '1118564532', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(814, '1118564532', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(815, '1118564532', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(816, '1118564532', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(817, '1118564532', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(818, '1118564532', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(819, '1118564532', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(820, '1118564532', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(821, '1118564532', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(822, '1118564532', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(823, '1118564532', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(824, '1118564532', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(825, '1118564532', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(826, '1118564532', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(827, '1118564532', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(828, '1118564532', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(829, '1118564532', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(830, '1118564532', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(831, '1118564532', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(832, '1118564532', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(833, '1118564532', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(834, '1118564532', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(835, '1118564532', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(836, '1118564532', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(837, '1118564532', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(838, '1118564997', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(839, '1118564997', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(840, '1118564997', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(841, '1118564997', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(842, '1118564997', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(843, '1118564997', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(844, '1118564997', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(845, '1118564997', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(846, '1118564997', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(847, '1118564997', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(848, '1118564997', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(849, '1118564997', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(850, '1118564997', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(851, '1118564997', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(852, '1118564997', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(853, '1118564997', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(854, '1118564997', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(855, '1118564997', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(856, '1118564997', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(857, '1118564997', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(858, '1118564997', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(859, '1118564997', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(860, '1118564997', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(861, '1118564997', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(862, '1118564997', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(863, '1118564997', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(864, '1118564997', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(865, '1118564997', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(866, '1118564997', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(867, '1118564997', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(868, '1118564997', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(869, '1118565906', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(870, '1118565906', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(871, '1118565906', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(872, '1118565906', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(873, '1118565906', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(874, '1118565906', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(875, '1118565906', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(876, '1118565906', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(877, '1118565906', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(878, '1118565906', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(879, '1118565906', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(880, '1118565906', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(881, '1118565906', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(882, '1118565906', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(883, '1118565906', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(884, '1118565906', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(885, '1118565906', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(886, '1118565906', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(887, '1118565906', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(888, '1118565906', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(889, '1118565906', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(890, '1118565906', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(891, '1118565906', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(892, '1118565906', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(893, '1118565906', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(894, '1118565906', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(895, '1118565906', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(896, '1118565906', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(897, '1118565906', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(898, '1118565906', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(899, '1118565906', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(900, '1118565958', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(901, '1118565958', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(902, '1118565958', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(903, '1118565958', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(904, '1118565958', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(905, '1118565958', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(906, '1118565958', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(907, '1118565958', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(908, '1118565958', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(909, '1118565958', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(910, '1118565958', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(911, '1118565958', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(912, '1118565958', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(913, '1118565958', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(914, '1118565958', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(915, '1118565958', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(916, '1118565958', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(917, '1118565958', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(918, '1118565958', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(919, '1118565958', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(920, '1118565958', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(921, '1118565958', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(922, '1118565958', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(923, '1118565958', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(924, '1118565958', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(925, '1118565958', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(926, '1118565958', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(927, '1118565958', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(928, '1118565958', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(929, '1118565958', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(930, '1118565958', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(931, '1118567328', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(932, '1118567328', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(933, '1118567328', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(934, '1118567328', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(935, '1118567328', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(936, '1118567328', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(937, '1118567328', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(938, '1118567328', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(939, '1118567328', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(940, '1118567328', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(941, '1118567328', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(942, '1118567328', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(943, '1118567328', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(944, '1118567328', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(945, '1118567328', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(946, '1118567328', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(947, '1118567328', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(948, '1118567328', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(949, '1118567328', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(950, '1118567328', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(951, '1118567328', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(952, '1118567328', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(953, '1118567328', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(954, '1118567328', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(955, '1118567328', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(956, '1118567328', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(957, '1118567328', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(958, '1118567328', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(959, '1118567328', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(960, '1118567328', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(961, '1118567328', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(962, '1118572004', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(963, '1118572004', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(964, '1118572004', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(965, '1118572004', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(966, '1118572004', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(967, '1118572004', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(968, '1118572004', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(969, '1118572004', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(970, '1118572004', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(971, '1118572004', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(972, '1118572004', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(973, '1118572004', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(974, '1118572004', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(975, '1118572004', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(976, '1118572004', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(977, '1118572004', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(978, '1118572004', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(979, '1118572004', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(980, '1118572004', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(981, '1118572004', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(982, '1118572004', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(983, '1118572004', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(984, '1118572004', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(985, '1118572004', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(986, '1118572004', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(987, '1118572004', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(988, '1118572004', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(989, '1118572004', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(990, '1118572004', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(991, '1118572004', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(992, '1118572004', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(993, '1118573216', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(994, '1118573216', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(995, '1118573216', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(996, '1118573216', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(997, '1118573216', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(998, '1118573216', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(999, '1118573216', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1000, '1118573216', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1001, '1118573216', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1002, '1118573216', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1003, '1118573216', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1004, '1118573216', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1005, '1118573216', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1006, '1118573216', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1007, '1118573216', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1008, '1118573216', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1009, '1118573216', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1010, '1118573216', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1011, '1118573216', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1012, '1118573216', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1013, '1118573216', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1014, '1118573216', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1015, '1118573216', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1016, '1118573216', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1017, '1118573216', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1018, '1118573216', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1019, '1118573216', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1020, '1118573216', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1021, '1118573216', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1022, '1118573216', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1023, '1118573216', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1024, '1118575006', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1025, '1118575006', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1026, '1118575006', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1027, '1118575006', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1028, '1118575006', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1029, '1118575006', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1030, '1118575006', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1031, '1118575006', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1032, '1118575006', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1033, '1118575006', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1034, '1118575006', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1035, '1118575006', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1036, '1118575006', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1037, '1118575006', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1038, '1118575006', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1039, '1118575006', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1040, '1118575006', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1041, '1118575006', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1042, '1118575006', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1043, '1118575006', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1044, '1118575006', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1045, '1118575006', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1046, '1118575006', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1047, '1118575006', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1048, '1118575006', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1049, '1118575006', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1050, '1118575006', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1051, '1118575006', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1052, '1118575006', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1053, '1118575006', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1054, '1118575006', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1055, '1118775342', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1056, '1118775342', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1057, '1118775342', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1058, '1118775342', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1059, '1118775342', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1060, '1118775342', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1061, '1118775342', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1062, '1118775342', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1063, '1118775342', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1064, '1118775342', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1065, '1118775342', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1066, '1118775342', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1067, '1118775342', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1068, '1118775342', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1069, '1118775342', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1070, '1118775342', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1071, '1118775342', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1072, '1118775342', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1073, '1118775342', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1074, '1118775342', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1075, '1118775342', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1076, '1118775342', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1077, '1118775342', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1078, '1118775342', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1079, '1118775342', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1080, '1118775342', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1081, '1118775342', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1082, '1118775342', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1083, '1118775342', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1084, '1118775342', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1085, '1118775342', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1086, '11206377', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1087, '11206377', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1088, '11206377', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1089, '11206377', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1090, '11206377', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1091, '11206377', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1092, '11206377', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1093, '11206377', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1094, '11206377', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1095, '11206377', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1096, '11206377', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1097, '11206377', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1098, '11206377', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1099, '11206377', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1100, '11206377', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1101, '11206377', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1102, '11206377', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1103, '11206377', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1104, '11206377', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1105, '11206377', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1106, '11206377', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1107, '11206377', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1108, '11206377', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1109, '11206377', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1110, '11206377', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1111, '11206377', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1112, '11206377', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1113, '11206377', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1114, '11206377', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1115, '11206377', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1116, '11206377', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1117, '1121898640', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1118, '1121898640', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1119, '1121898640', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1120, '1121898640', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1121, '1121898640', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1122, '1121898640', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1123, '1121898640', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1124, '1121898640', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1125, '1121898640', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1126, '1121898640', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1127, '1121898640', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1128, '1121898640', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1129, '1121898640', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1130, '1121898640', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1131, '1121898640', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1132, '1121898640', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1133, '1121898640', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1134, '1121898640', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1135, '1121898640', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1136, '1121898640', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1137, '1121898640', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1138, '1121898640', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1139, '1121898640', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1140, '1121898640', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1141, '1121898640', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1142, '1121898640', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1143, '1121898640', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1144, '1121898640', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1145, '1121898640', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1146, '1121898640', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1147, '1121898640', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1148, '1124989349', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1149, '1124989349', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1150, '1124989349', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1151, '1124989349', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1152, '1124989349', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1153, '1124989349', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1154, '1124989349', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1155, '1124989349', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1156, '1124989349', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1157, '1124989349', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1158, '1124989349', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1159, '1124989349', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1160, '1124989349', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1161, '1124989349', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1162, '1124989349', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1163, '1124989349', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1164, '1124989349', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1165, '1124989349', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1166, '1124989349', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1167, '1124989349', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1168, '1124989349', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1169, '1124989349', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1170, '1124989349', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1171, '1124989349', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1172, '1124989349', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1173, '1124989349', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1174, '1124989349', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1175, '1124989349', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1176, '1124989349', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1177, '1124989349', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1178, '1124989349', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1179, '1143954094', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1180, '1143954094', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1181, '1143954094', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1182, '1143954094', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1183, '1143954094', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1184, '1143954094', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1185, '1143954094', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1186, '1143954094', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1187, '1143954094', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1188, '1143954094', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1189, '1143954094', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1190, '1143954094', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1191, '1143954094', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1192, '1143954094', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1193, '1143954094', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1194, '1143954094', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1195, '1143954094', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1196, '1143954094', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1197, '1143954094', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1198, '1143954094', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1199, '1143954094', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1200, '1143954094', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1201, '1143954094', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1202, '1143954094', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1203, '1143954094', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1204, '1143954094', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1205, '1143954094', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1206, '1143954094', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35);
+INSERT INTO `bolsillos` (`id`, `cedula_empleado`, `seccion`, `nombre`, `nombre_completo`, `orden`, `alarma_tipo`, `alarma_fecha`, `alarma_activa`, `alarma_valor`, `alarma_unidad`, `alarma_fecha_inicio`, `alarma_dias_aviso`) VALUES
+(1207, '1143954094', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1208, '1143954094', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1209, '1143954094', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1210, '16672796', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1211, '16672796', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1212, '16672796', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1213, '16672796', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1214, '16672796', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1215, '16672796', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1216, '16672796', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1217, '16672796', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1218, '16672796', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1219, '16672796', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1220, '16672796', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1221, '16672796', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1222, '16672796', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1223, '16672796', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1224, '16672796', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1225, '16672796', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1226, '16672796', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1227, '16672796', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1228, '16672796', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1229, '16672796', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1230, '16672796', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1231, '16672796', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1232, '16672796', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1233, '16672796', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1234, '16672796', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1235, '16672796', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1236, '16672796', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1237, '16672796', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1238, '16672796', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1239, '16672796', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1240, '16672796', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1241, '4284762', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1242, '4284762', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1243, '4284762', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1244, '4284762', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1245, '4284762', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1246, '4284762', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1247, '4284762', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1248, '4284762', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1249, '4284762', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1250, '4284762', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1251, '4284762', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1252, '4284762', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1253, '4284762', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1254, '4284762', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1255, '4284762', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1256, '4284762', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1257, '4284762', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1258, '4284762', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1259, '4284762', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1260, '4284762', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1261, '4284762', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1262, '4284762', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1263, '4284762', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1264, '4284762', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1265, '4284762', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1266, '4284762', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1267, '4284762', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1268, '4284762', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1269, '4284762', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1270, '4284762', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1271, '4284762', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1272, '47428604', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1273, '47428604', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1274, '47428604', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1275, '47428604', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1276, '47428604', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1277, '47428604', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1278, '47428604', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1279, '47428604', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1280, '47428604', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1281, '47428604', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1282, '47428604', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1283, '47428604', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1284, '47428604', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1285, '47428604', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1286, '47428604', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1287, '47428604', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1288, '47428604', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1289, '47428604', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1290, '47428604', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1291, '47428604', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1292, '47428604', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1293, '47428604', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1294, '47428604', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1295, '47428604', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1296, '47428604', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1297, '47428604', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1298, '47428604', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1299, '47428604', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1300, '47428604', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1301, '47428604', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1302, '47428604', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1303, '47430097', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1304, '47430097', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1305, '47430097', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1306, '47430097', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1307, '47430097', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1308, '47430097', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1309, '47430097', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1310, '47430097', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1311, '47430097', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1312, '47430097', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1313, '47430097', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1314, '47430097', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1315, '47430097', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1316, '47430097', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1317, '47430097', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1318, '47430097', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1319, '47430097', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1320, '47430097', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1321, '47430097', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1322, '47430097', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1323, '47430097', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1324, '47430097', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1325, '47430097', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1326, '47430097', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1327, '47430097', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1328, '47430097', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1329, '47430097', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1330, '47430097', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1331, '47430097', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1332, '47430097', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1333, '47430097', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1334, '47431008', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1335, '47431008', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1336, '47431008', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1337, '47431008', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1338, '47431008', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1339, '47431008', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1340, '47431008', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1341, '47431008', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1342, '47431008', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1343, '47431008', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1344, '47431008', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1345, '47431008', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1346, '47431008', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1347, '47431008', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1348, '47431008', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1349, '47431008', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1350, '47431008', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1351, '47431008', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1352, '47431008', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1353, '47431008', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1354, '47431008', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1355, '47431008', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1356, '47431008', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1357, '47431008', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1358, '47431008', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1359, '47431008', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1360, '47431008', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1361, '47431008', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1362, '47431008', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1363, '47431008', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1364, '47431008', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1365, '47441163', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1366, '47441163', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1367, '47441163', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1368, '47441163', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1369, '47441163', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1370, '47441163', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1371, '47441163', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1372, '47441163', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1373, '47441163', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1374, '47441163', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1375, '47441163', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1376, '47441163', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1377, '47441163', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1378, '47441163', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1379, '47441163', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1380, '47441163', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1381, '47441163', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1382, '47441163', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1383, '47441163', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1384, '47441163', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1385, '47441163', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1386, '47441163', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1387, '47441163', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1388, '47441163', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1389, '47441163', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1390, '47441163', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1391, '47441163', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1392, '47441163', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1393, '47441163', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1394, '47441163', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1395, '47441163', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1396, '47441979', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1397, '47441979', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1398, '47441979', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1399, '47441979', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1400, '47441979', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1401, '47441979', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1402, '47441979', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1403, '47441979', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1404, '47441979', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1405, '47441979', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1406, '47441979', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1407, '47441979', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1408, '47441979', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1409, '47441979', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1410, '47441979', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1411, '47441979', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1412, '47441979', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1413, '47441979', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1414, '47441979', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1415, '47441979', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1416, '47441979', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1417, '47441979', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1418, '47441979', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1419, '47441979', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1420, '47441979', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1421, '47441979', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1422, '47441979', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1423, '47441979', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1424, '47441979', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1425, '47441979', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1426, '47441979', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1427, '52308103', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1428, '52308103', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1429, '52308103', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1430, '52308103', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1431, '52308103', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1432, '52308103', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1433, '52308103', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1434, '52308103', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1435, '52308103', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1436, '52308103', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1437, '52308103', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1438, '52308103', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1439, '52308103', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1440, '52308103', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1441, '52308103', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1442, '52308103', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1443, '52308103', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1444, '52308103', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1445, '52308103', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1446, '52308103', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1447, '52308103', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1448, '52308103', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1449, '52308103', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1450, '52308103', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1451, '52308103', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1452, '52308103', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1453, '52308103', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1454, '52308103', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1455, '52308103', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1456, '52308103', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1457, '52308103', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1458, '7180789', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1459, '7180789', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1460, '7180789', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1461, '7180789', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1462, '7180789', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1463, '7180789', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1464, '7180789', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1465, '7180789', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1466, '7180789', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1467, '7180789', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1468, '7180789', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1469, '7180789', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1470, '7180789', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1471, '7180789', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1472, '7180789', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1473, '7180789', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1474, '7180789', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1475, '7180789', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1476, '7180789', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1477, '7180789', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1478, '7180789', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1479, '7180789', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1480, '7180789', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1481, '7180789', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1482, '7180789', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1483, '7180789', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1484, '7180789', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1485, '7180789', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1486, '7180789', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1487, '7180789', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1488, '7180789', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1489, '7254795', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1490, '7254795', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1491, '7254795', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1492, '7254795', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1493, '7254795', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1494, '7254795', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1495, '7254795', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1496, '7254795', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1497, '7254795', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1498, '7254795', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1499, '7254795', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1500, '7254795', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1501, '7254795', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1502, '7254795', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1503, '7254795', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1504, '7254795', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1505, '7254795', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1506, '7254795', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1507, '7254795', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1508, '7254795', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1509, '7254795', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1510, '7254795', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1511, '7254795', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1512, '7254795', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1513, '7254795', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1514, '7254795', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1515, '7254795', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1516, '7254795', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1517, '7254795', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1518, '7254795', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1519, '7254795', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1520, '74770870', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1521, '74770870', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1522, '74770870', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1523, '74770870', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1524, '74770870', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1525, '74770870', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1526, '74770870', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1527, '74770870', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1528, '74770870', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1529, '74770870', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1530, '74770870', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1531, '74770870', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1532, '74770870', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1533, '74770870', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1534, '74770870', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1535, '74770870', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1536, '74770870', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1537, '74770870', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1538, '74770870', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1539, '74770870', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1540, '74770870', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1541, '74770870', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1542, '74770870', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1543, '74770870', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1544, '74770870', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1545, '74770870', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1546, '74770870', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1547, '74770870', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1548, '74770870', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1549, '74770870', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1550, '74770870', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1551, '74814305', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1552, '74814305', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1553, '74814305', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1554, '74814305', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1555, '74814305', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1556, '74814305', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1557, '74814305', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1558, '74814305', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1559, '74814305', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1560, '74814305', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1561, '74814305', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1562, '74814305', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1563, '74814305', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1564, '74814305', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1565, '74814305', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1566, '74814305', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1567, '74814305', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1568, '74814305', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1569, '74814305', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1570, '74814305', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1571, '74814305', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1572, '74814305', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1573, '74814305', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1574, '74814305', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1575, '74814305', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1576, '74814305', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1577, '74814305', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1578, '74814305', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1579, '74814305', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1580, '74814305', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1581, '74814305', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1582, '74859815', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1583, '74859815', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1584, '74859815', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1585, '74859815', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1586, '74859815', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1587, '74859815', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1588, '74859815', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1589, '74859815', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1590, '74859815', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1591, '74859815', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1592, '74859815', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1593, '74859815', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1594, '74859815', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1595, '74859815', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1596, '74859815', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1597, '74859815', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1598, '74859815', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1599, '74859815', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1600, '74859815', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1601, '74859815', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1602, '74859815', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1603, '74859815', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1604, '74859815', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1605, '74859815', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1606, '74859815', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1607, '74859815', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1608, '74859815', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1609, '74859815', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1610, '74859815', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1611, '74859815', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1612, '74859815', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35);
+INSERT INTO `bolsillos` (`id`, `cedula_empleado`, `seccion`, `nombre`, `nombre_completo`, `orden`, `alarma_tipo`, `alarma_fecha`, `alarma_activa`, `alarma_valor`, `alarma_unidad`, `alarma_fecha_inicio`, `alarma_dias_aviso`) VALUES
+(1613, '74861664', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1614, '74861664', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1615, '74861664', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1616, '74861664', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1617, '74861664', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1618, '74861664', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1619, '74861664', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1620, '74861664', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1621, '74861664', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1622, '74861664', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1623, '74861664', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1624, '74861664', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1625, '74861664', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1626, '74861664', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1627, '74861664', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1628, '74861664', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1629, '74861664', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1630, '74861664', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1631, '74861664', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1632, '74861664', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1633, '74861664', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1634, '74861664', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1635, '74861664', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1636, '74861664', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1637, '74861664', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1638, '74861664', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1639, '74861664', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1640, '74861664', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1641, '74861664', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1642, '74861664', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1643, '74861664', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1644, '74861711', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1645, '74861711', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1646, '74861711', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1647, '74861711', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1648, '74861711', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1649, '74861711', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1650, '74861711', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1651, '74861711', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1652, '74861711', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1653, '74861711', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1654, '74861711', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1655, '74861711', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1656, '74861711', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1657, '74861711', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1658, '74861711', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1659, '74861711', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1660, '74861711', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1661, '74861711', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1662, '74861711', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1663, '74861711', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1664, '74861711', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1665, '74861711', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1666, '74861711', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1667, '74861711', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1668, '74861711', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1669, '74861711', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1670, '74861711', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1671, '74861711', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1672, '74861711', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1673, '74861711', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1674, '74861711', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1675, '80033385', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1676, '80033385', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1677, '80033385', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1678, '80033385', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1679, '80033385', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1680, '80033385', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1681, '80033385', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1682, '80033385', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1683, '80033385', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1684, '80033385', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1685, '80033385', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1686, '80033385', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1687, '80033385', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1688, '80033385', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1689, '80033385', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1690, '80033385', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1691, '80033385', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1692, '80033385', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1693, '80033385', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1694, '80033385', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1695, '80033385', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1696, '80033385', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1697, '80033385', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1698, '80033385', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1699, '80033385', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1700, '80033385', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1701, '80033385', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1702, '80033385', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1703, '80033385', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1704, '80033385', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1705, '80033385', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1706, '9433076', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1707, '9433076', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1708, '9433076', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1709, '9433076', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1710, '9433076', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1711, '9433076', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1712, '9433076', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1713, '9433076', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1714, '9433076', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1715, '9433076', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1716, '9433076', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1717, '9433076', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1718, '9433076', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1719, '9433076', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1720, '9433076', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1721, '9433076', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1722, '9433076', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1723, '9433076', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1724, '9433076', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1725, '9433076', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1726, '9433076', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1727, '9433076', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1728, '9433076', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1729, '9433076', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1730, '9433076', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1731, '9433076', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1732, '9433076', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1733, '9433076', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1734, '9433076', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1735, '9433076', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1736, '9433076', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1737, '9434678', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1738, '9434678', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1739, '9434678', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1740, '9434678', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1741, '9434678', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1742, '9434678', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1743, '9434678', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1744, '9434678', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1745, '9434678', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1746, '9434678', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1747, '9434678', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1748, '9434678', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1749, '9434678', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1750, '9434678', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1751, '9434678', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1752, '9434678', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1753, '9434678', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1754, '9434678', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1755, '9434678', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1756, '9434678', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1757, '9434678', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1758, '9434678', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1759, '9434678', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1760, '9434678', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1761, '9434678', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1762, '9434678', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1763, '9434678', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1764, '9434678', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1765, '9434678', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1766, '9434678', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1767, '9434678', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1768, '9656509', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1769, '9656509', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1770, '9656509', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1771, '9656509', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1772, '9656509', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1773, '9656509', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1774, '9656509', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1775, '9656509', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1776, '9656509', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1777, '9656509', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1778, '9656509', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1779, '9656509', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1780, '9656509', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1781, '9656509', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1782, '9656509', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1783, '9656509', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1784, '9656509', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1785, '9656509', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1786, '9656509', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1787, '9656509', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1788, '9656509', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1789, '9656509', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1790, '9656509', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1791, '9656509', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1792, '9656509', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1793, '9656509', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1794, '9656509', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1795, '9656509', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1796, '9656509', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1797, '9656509', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1798, '9656509', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1799, '9658799', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1800, '9658799', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1801, '9658799', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1802, '9658799', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1803, '9658799', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1804, '9658799', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1805, '9658799', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1806, '9658799', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1807, '9658799', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1808, '9658799', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1809, '9658799', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1810, '9658799', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1811, '9658799', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1812, '9658799', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1813, '9658799', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1814, '9658799', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1815, '9658799', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1816, '9658799', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1817, '9658799', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1818, '9658799', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1819, '9658799', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1820, '9658799', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1821, '9658799', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1822, '9658799', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1823, '9658799', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1824, '9658799', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1825, '9658799', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1826, '9658799', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1827, '9658799', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1828, '9658799', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1829, '9658799', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1830, '33445352', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1831, '33445352', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1832, '33445352', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1833, '33445352', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1834, '33445352', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1835, '33445352', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1836, '33445352', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1837, '33445352', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1838, '33445352', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1839, '33445352', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1840, '33445352', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1841, '33445352', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1842, '33445352', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1843, '33445352', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1844, '33445352', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1845, '33445352', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1846, '33445352', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1847, '33445352', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1848, '33445352', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1849, '33445352', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1850, '33445352', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1851, '33445352', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1852, '33445352', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1853, '33445352', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1854, '33445352', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1855, '33445352', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1856, '33445352', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1857, '33445352', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1858, '33445352', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1859, '33445352', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1860, '33445352', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1861, '1007013786', 'hoja_de_vida', 'hv_formal', 'Hoja de Vida Formal', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1862, '1007013786', 'hoja_de_vida', 'cedula', 'Cédula', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1863, '1007013786', 'hoja_de_vida', 'hv_libretaMilitar', 'Libreta Militar', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1864, '1007013786', 'hoja_de_vida', 'licenciaDeConduccion', 'Licencia de Conducción', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1865, '1007013786', 'hoja_de_vida', 'bachillerYotrosestudios', 'Bachiller y Otros Estudios', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1866, '1007013786', 'hoja_de_vida', 'certificados', 'Certificados', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1867, '1007013786', 'hoja_de_vida', 'formularioDeIngreso', 'Formulario de Ingreso', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1868, '1007013786', 'hoja_de_vida', 'resolucionesDeAscenso', 'Resoluciones de Ascenso', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1869, '1007013786', 'hoja_de_vida', 'hv_bomberil', 'Hoja de Vida Bomberil', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1870, '1007013786', 'hoja_de_vida', 'autorizacion', 'Autorización', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1871, '1007013786', 'hoja_de_vida', 'antecedentes', 'Antecedentes', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1872, '1007013786', 'hoja_de_vida', 'vacunas', 'Vacunas', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1873, '1007013786', 'hoja_de_vida', 'entregaDeDotacion', 'Entrega de Dotación', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1874, '1007013786', 'documentos_contractuales', 'examenesMedicos', 'Exámenes Médicos', 1, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1875, '1007013786', 'documentos_contractuales', 'entrevistaDeSeleccion', 'Entrevista de Selección', 2, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1876, '1007013786', 'documentos_contractuales', 'certificadoEPS', 'Certificado EPS', 3, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1877, '1007013786', 'documentos_contractuales', 'certificadoFP', 'Certificado FP', 4, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1878, '1007013786', 'documentos_contractuales', 'certificadoARL', 'Certificado ARL', 5, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1879, '1007013786', 'documentos_contractuales', 'certificadoCCF', 'Certificado CCF', 6, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1880, '1007013786', 'documentos_contractuales', 'funcionesDelCargo', 'Funciones del Cargo', 7, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1881, '1007013786', 'documentos_contractuales', 'induccionSST', 'Inducción SST', 8, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1882, '1007013786', 'documentos_contractuales', 'induccionAlCargo', 'Inducción al Cargo', 9, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1883, '1007013786', 'documentos_contractuales', 'contratosFirmados', 'Contratos Firmados', 10, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1884, '1007013786', 'documentos_contractuales', 'notificacionDeTerminacion', 'Notificación de Terminación', 11, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1885, '1007013786', 'documentos_contractuales', 'renovacion', 'Renovación', 12, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1886, '1007013786', 'documentos_contractuales', 'evaluacionesDeDesempeno', 'Evaluaciones de Desempeño', 13, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1887, '1007013786', 'documentos_contractuales', 'planDeMejoramiento', 'Plan de Mejoramiento', 14, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1888, '1007013786', 'documentos_contractuales', 'felicitacionesYLlamadosDeAtencion', 'Felicitaciones y Llamados de Atención', 15, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1889, '1007013786', 'documentos_contractuales', 'novedadesEIncapacidades', 'Novedades e Incapacidades', 16, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1890, '1007013786', 'documentos_contractuales', 'pazYSalvos', 'Paz y Salvos', 17, NULL, NULL, 0, NULL, NULL, NULL, 35),
+(1891, '1007013786', 'documentos_contractuales', 'otros', 'Otros', 18, NULL, NULL, 0, NULL, NULL, NULL, 35);
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `cargos`
+-- Table structure for table `cargos`
 --
-
 CREATE TABLE `cargos` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `activo` tinyint(1) NOT NULL DEFAULT 1
+  `id` int UNSIGNED NOT NULL,
+  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `activo` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `cargos`
+-- Dumping data for table `cargos`
 --
 
 INSERT INTO `cargos` (`id`, `nombre`, `activo`) VALUES
@@ -95,182 +1994,198 @@ INSERT INTO `cargos` (`id`, `nombre`, `activo`) VALUES
 (33, 'Revisor(a) fiscal', 1),
 (34, 'Comandante de estación', 1),
 (35, 'Director administrativo y financiero', 1),
-(36, 'Bombero integral', 1);
+(36, 'Bombero integral', 1),
+(1621, 'Auxiliar en Talento Humano', 1),
+(1655, 'Directora administrativa y financiera', 1);
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `certificados_consecutivos`
+-- Table structure for table `certificados_consecutivos`
 --
-
 CREATE TABLE `certificados_consecutivos` (
-  `id` tinyint(3) UNSIGNED NOT NULL,
-  `ultimo_numero` int(10) UNSIGNED NOT NULL DEFAULT 0
+  `id` tinyint UNSIGNED NOT NULL,
+  `ultimo_numero` int UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `certificados_laborales`
+-- Table structure for table `certificados_laborales`
 --
-
 CREATE TABLE `certificados_laborales` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `numero` int(10) UNSIGNED NOT NULL,
-  `consecutivo` varchar(10) NOT NULL,
-  `tipo` enum('actual','retirado') NOT NULL,
-  `cedula` varchar(10) NOT NULL,
-  `nombre_snapshot` varchar(150) NOT NULL,
-  `cargo_snapshot` varchar(100) NOT NULL,
+  `id` int UNSIGNED NOT NULL,
+  `numero` int UNSIGNED NOT NULL,
+  `consecutivo` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo` enum('actual','retirado') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre_snapshot` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cargo_snapshot` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `fecha_inicio` date NOT NULL,
   `fecha_retiro` date DEFAULT NULL,
-  `archivo` varchar(255) NOT NULL,
-  `creado_por` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `archivo` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `creado_por` int DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `certificados_laborales_funciones`
+-- Table structure for table `certificados_laborales_funciones`
 --
-
 CREATE TABLE `certificados_laborales_funciones` (
-  `certificado_id` int(10) UNSIGNED NOT NULL,
-  `posicion` tinyint(3) UNSIGNED NOT NULL,
-  `funcion_id` int(10) UNSIGNED DEFAULT NULL,
-  `texto_snapshot` varchar(160) NOT NULL
+  `certificado_id` int UNSIGNED NOT NULL,
+  `posicion` tinyint UNSIGNED NOT NULL,
+  `funcion_id` int UNSIGNED DEFAULT NULL,
+  `texto_snapshot` varchar(160) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `certificados_laborales_funciones`
+--
+
+INSERT INTO `certificados_laborales_funciones` (`certificado_id`, `posicion`, `funcion_id`, `texto_snapshot`) VALUES
+(1, 1, 1, 'respuesta en incendios, rescates y atención de emergencias, y todas aquellas funciones de acuerdo a su cargo');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `documentos`
+-- Table structure for table `documentos`
 --
-
 CREATE TABLE `documentos` (
-  `id` int(11) NOT NULL,
-  `bolsillo_id` int(11) NOT NULL,
-  `nombre_archivo` varchar(255) NOT NULL,
-  `ruta` varchar(500) NOT NULL COMMENT 'ruta relativa dentro de uploads/',
-  `orden` int(11) NOT NULL DEFAULT 1,
-  `fecha_subida` timestamp NOT NULL DEFAULT current_timestamp(),
-  `subido_por_cedula` varchar(10) DEFAULT NULL,
-  `subido_por_tipo` enum('empleado','panel') NOT NULL DEFAULT 'panel'
+  `id` int NOT NULL,
+  `bolsillo_id` int NOT NULL,
+  `nombre_archivo` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ruta` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'ruta relativa dentro de uploads/',
+  `orden` int NOT NULL DEFAULT '1',
+  `fecha_subida` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `subido_por_cedula` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `subido_por_tipo` enum('empleado','panel') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'panel'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `documentos`
+--
+
+INSERT INTO `documentos` (`id`, `bolsillo_id`, `nombre_archivo`, `ruta`, `orden`, `fecha_subida`, `subido_por_cedula`, `subido_por_tipo`) VALUES
+(1, 188, 'YESID_LARGO_1791298230.pdf', 'hv_1007703611/hoja_de_vida/cedula_hv_1007703611/YESID_LARGO_1791298230.pdf', 1, '2026-10-07 19:00:23', NULL, 'panel'),
+(2, 777, 'ANGEL_GABRIEL_CAMARGO_PEZCA_1791298074.pdf', 'hv_1118555586/hoja_de_vida/cedula_hv_1118555586/ANGEL_GABRIEL_CAMARGO_PEZCA_1791298074.pdf', 1, '2026-10-07 19:00:24', NULL, 'panel'),
+(3, 994, 'CAMILO_CORREDOR_1791297425.pdf', 'hv_1118573216/hoja_de_vida/cedula_hv_1118573216/CAMILO_CORREDOR_1791297425.pdf', 1, '2026-10-07 19:00:25', NULL, 'panel'),
+(4, 1025, 'ANGELA_BRITHEY_MALDONADO_1791298114.pdf', 'hv_1118575006/hoja_de_vida/cedula_hv_1118575006/ANGELA_BRITHEY_MALDONADO_1791298114.pdf', 1, '2026-10-07 19:00:25', NULL, 'panel'),
+(5, 1697, 'CONTRATO_JORGE_SEGURA_1791204830.pdf', 'hv_80033385/documentos_contractuales/contratosFirmados_hv_80033385/CONTRATO_JORGE_SEGURA_1791204830.pdf', 1, '2026-10-07 19:00:27', NULL, 'panel');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `empleados`
+-- Table structure for table `empleados`
 --
-
 CREATE TABLE `empleados` (
-  `cedula` varchar(10) NOT NULL COMMENT 'Max 10 caracteres, permite extranjera alfanumérica',
-  `lugar_expedicion` varchar(120) DEFAULT NULL COMMENT 'Municipio, Departamento (lista en public/assets/data/municipios.json)',
-  `nombre` varchar(150) NOT NULL,
-  `sexo` enum('F','M') DEFAULT NULL,
-  `cargo` enum('Auxiliar en Talento Humano','Director de talento humano','Auxiliar de Extintores','Enfermero/a','Practicante Sena','Practicante Fundetec','Practicante otra entidad','Servicios Generales','Maquinista','Guardia','Recepcionista','Administrativo','Auxiliar administrativo','Director Académico','Director de negocios','Tecnico en soporte sistemas','Tecnico archivista','Coordinador SST','Auxiliar SST','Jefe de prensa','Contador','Auxiliar de contaduría','Almacenista','Supervisor','Coordinador de banda','Conductor de ambulancia','Aspirante','Voluntario','Secretario recaudador','Auxiliar de enfermería','Docente de banda marcial','PAMEC','Revisor(a) fiscal','Comandante de estación','Directora administrativa y financiera','Bombero integral') NOT NULL,
-  `tipo_de_personal` enum('Bombero','Civil') DEFAULT NULL,
-  `eps` enum('Sanitas','Nueva EPS','Capresoca','Salud Total') DEFAULT NULL,
-  `pension` enum('Colfondos','Porvenir','Colpensiones','Protección','NA') DEFAULT NULL,
-  `arl` enum('Positiva','SURA','Colmena','AXA Colpatria','Seguros Bolívar') DEFAULT NULL,
+  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Max 10 caracteres, permite extranjera alfanumérica',
+  `lugar_expedicion` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Municipio, Departamento (lista en public/assets/data/municipios.json)',
+  `nombre` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sexo` enum('F','M') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cargo` enum('Auxiliar en Talento Humano','Director de talento humano','Auxiliar de Extintores','Enfermero/a','Practicante Sena','Practicante Fundetec','Practicante otra entidad','Servicios Generales','Maquinista','Guardia','Recepcionista','Administrativo','Auxiliar administrativo','Director Académico','Director de negocios','Tecnico en soporte sistemas','Tecnico archivista','Coordinador SST','Auxiliar SST','Jefe de prensa','Contador','Auxiliar de contaduría','Almacenista','Supervisor','Coordinador de banda','Conductor de ambulancia','Aspirante','Voluntario','Secretario recaudador','Auxiliar de enfermería','Docente de banda marcial','PAMEC','Revisor(a) fiscal','Comandante de estación','Directora administrativa y financiera','Bombero integral') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo_de_personal` enum('Bombero','Civil') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `eps` enum('Sanitas','Nueva EPS','Capresoca','Salud Total') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pension` enum('Colfondos','Porvenir','Colpensiones','Protección','NA') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `arl` enum('Positiva','SURA','Colmena','AXA Colpatria','Seguros Bolívar') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `salario_basico` decimal(12,2) DEFAULT NULL,
-  `es_bombero_integral` tinyint(1) DEFAULT 0,
-  `tipo_jornada` enum('Turnos','Administrativa','Restringida') NOT NULL DEFAULT 'Administrativa' COMMENT 'Cómo se cuentan horas/días en permisos: Turnos (operativo), Administrativa (07:00-17:24) o Restringida (horario reducido)',
+  `es_bombero_integral` tinyint(1) DEFAULT '0',
+  `tipo_jornada` enum('Turnos','Administrativa','Restringida') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Administrativa' COMMENT 'Cómo se cuentan horas/días en permisos: Turnos (operativo), Administrativa (07:00-17:24) o Restringida (horario reducido)',
   `jornada_hora_entrada` time DEFAULT NULL COMMENT 'Solo si tipo_jornada = Restringida',
   `jornada_hora_salida` time DEFAULT NULL COMMENT 'Solo si tipo_jornada = Restringida',
-  `tipo_de_contrato` enum('Fijo','Indefinido','OPS','SENA','OPS SEMY','No aplica') DEFAULT NULL,
+  `tipo_de_contrato` enum('Fijo','Indefinido','OPS','SENA','OPS SEMY','No aplica') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fecha_inicio_contrato` date DEFAULT NULL,
   `fecha_fin_contrato` date DEFAULT NULL,
-  `estado` enum('activo','no activo') DEFAULT 'activo',
-  `celular` varchar(15) DEFAULT NULL COMMENT 'Numero de celular, validar 10 digitos',
-  `correo` varchar(150) DEFAULT NULL,
+  `estado` enum('activo','no activo') COLLATE utf8mb4_unicode_ci DEFAULT 'activo',
+  `celular` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Numero de celular, validar 10 digitos',
+  `correo` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fecha_nacimiento` date DEFAULT NULL COMMENT 'Para notificacion de cumpleaños',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `foto` varchar(255) DEFAULT NULL COMMENT 'Ruta relativa dentro de uploads/'
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `foto` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Ruta relativa dentro de uploads/'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `empleados`
+-- Dumping data for table `empleados`
 --
 
 INSERT INTO `empleados` (`cedula`, `lugar_expedicion`, `nombre`, `sexo`, `cargo`, `tipo_de_personal`, `eps`, `pension`, `arl`, `salario_basico`, `es_bombero_integral`, `tipo_jornada`, `jornada_hora_entrada`, `jornada_hora_salida`, `tipo_de_contrato`, `fecha_inicio_contrato`, `fecha_fin_contrato`, `estado`, `celular`, `correo`, `fecha_nacimiento`, `created_at`, `foto`) VALUES
-('1005719736', NULL, 'Carlos Augusto Triana Lozano', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'OPS', NULL, '2026-10-06', 'activo', NULL, NULL, NULL, '2026-09-29 23:30:02', NULL),
-('1006555204', 'Maní, Casanare', 'Juan', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-10-07 00:28:58', NULL),
+('1005719736', 'Yopal, Casanare', 'Carlos Augusto Triana Lozano', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'OPS', NULL, '2026-10-06', 'activo', NULL, NULL, NULL, '2026-09-29 23:30:02', NULL),
+('1006555204', 'Maní, Casanare', 'Usuario Prueba', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-10-07 00:28:58', NULL),
 ('1006555838', 'Yopal, Casanare', 'Lourdes Ester Guarin Garcia', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-05', '2025-11-04', 'activo', NULL, NULL, NULL, '2026-09-23 03:32:54', NULL),
-('1006556137', NULL, 'Javier David Moreno', 'M', 'Auxiliar de Extintores', 'Civil', 'Nueva EPS', NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-03-12', '2026-09-11', 'activo', '3224045766', NULL, NULL, '2026-09-23 22:46:04', NULL),
-('1006556671', NULL, 'Jhon Marco Rincon Castaño', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-01-08', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:41:28', NULL),
+('1006556137', 'Yopal, Casanare', 'Javier David Moreno', 'M', 'Auxiliar de Extintores', 'Civil', 'Nueva EPS', NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-03-12', '2026-09-11', 'activo', '3224045766', NULL, NULL, '2026-09-23 22:46:04', NULL),
+('1006556671', 'Yopal, Casanare', 'Jhon Marco Rincon Castaño', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-01-08', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:41:28', NULL),
 ('1006636306', 'Yopal, Casanare', 'Karen Lizeth Diaz Pineda', 'F', 'Auxiliar de Extintores', 'Bombero', 'Sanitas', 'Porvenir', NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-04-09', '2026-10-08', 'activo', NULL, NULL, NULL, '2026-09-23 23:07:53', NULL),
-('1007703611', NULL, 'Eduard Yecid Largo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-04-05', '2027-04-04', 'activo', NULL, NULL, '1995-11-15', '2026-09-29 21:01:48', NULL),
-('1019024577', NULL, 'Nohora Rocio Duran Torres', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:07:51', NULL),
-('1029643799', NULL, 'Samuel Santiago Fonseca Patarroyo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-07', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:09:04', NULL),
-('1029661794', NULL, 'Darwin Camilo Bedoya Gutierrez', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-07', NULL, 'activo', NULL, NULL, '2007-09-22', '2026-09-23 18:08:27', NULL),
-('1115911058', NULL, 'Edwar Santiago Alfonso Ducon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-01', NULL, 'activo', NULL, NULL, '2006-01-27', '2026-09-23 18:06:47', NULL),
-('1115913555', NULL, 'Wilder Andrey Chaparro Chaparro', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-01-01', NULL, 'activo', NULL, NULL, '1991-11-28', '2026-09-23 03:43:10', NULL),
-('1116043143', NULL, 'Lina Maria Aponte Fonseca', 'F', 'Auxiliar SST', 'Civil', 'Sanitas', NULL, 'Positiva', 1964430.00, 0, 'Administrativa', NULL, NULL, 'Fijo', '2024-05-15', '2024-08-14', 'activo', NULL, NULL, '1997-11-10', '2026-09-25 02:25:10', NULL),
-('1116552720', 'Aguazul, Casanare', 'Juan Fernando Dominguez Ibarguen', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-01-08', NULL, 'activo', NULL, NULL, '1997-02-10', '2026-09-23 03:38:48', NULL),
+('1007013786', 'Yopal, Casanare', 'Laura Sofia Cisneros Arango', 'F', 'Auxiliar administrativo', 'Civil', NULL, NULL, NULL, 1750905.00, 0, 'Administrativa', NULL, NULL, 'SENA', NULL, NULL, 'activo', '3144823073', NULL, '2002-09-21', '2026-10-07 19:56:37', NULL),
+('1007703611', 'Yopal, Casanare', 'Eduard Yecid Largo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-04-05', '2027-04-04', 'activo', NULL, NULL, '1995-11-15', '2026-09-29 21:01:48', NULL),
+('1019024577', 'Yopal, Casanare', 'Nohora Rocio Duran Torres', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:07:51', NULL),
+('1029643799', 'Yopal, Casanare', 'Samuel Santiago Fonseca Patarroyo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-07', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:09:04', NULL),
+('1029661794', 'Yopal, Casanare', 'Darwin Camilo Bedoya Gutierrez', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-07', NULL, 'activo', NULL, NULL, '2007-09-22', '2026-09-23 18:08:27', NULL),
+('1115911058', 'Yopal, Casanare', 'Edwar Santiago Alfonso Ducon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-01', NULL, 'activo', NULL, NULL, '2006-01-27', '2026-09-23 18:06:47', NULL),
+('1115913555', 'Yopal, Casanare', 'Wilder Andrey Chaparro Chaparro', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-01-01', NULL, 'activo', NULL, NULL, '1991-11-28', '2026-09-23 03:43:10', NULL),
+('1116043143', 'Yopal, Casanare', 'Lina Maria Aponte Fonseca', 'F', 'Auxiliar SST', 'Civil', 'Sanitas', NULL, 'Positiva', 1964430.00, 0, 'Administrativa', NULL, NULL, 'Fijo', '2024-05-15', '2024-08-14', 'activo', NULL, NULL, '1997-11-10', '2026-09-25 02:25:10', NULL),
+('1116552720', 'Yopal, Casanare', 'Juan Fernando Dominguez Ibarguen', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-01-08', NULL, 'activo', NULL, NULL, '1997-02-10', '2026-09-23 03:38:48', NULL),
 ('1116992974', 'Sabanalarga, Casanare', 'Angelica Alfonso Alfonso', 'F', 'Auxiliar administrativo', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2025-04-11', '2025-10-10', 'activo', NULL, NULL, NULL, '2026-10-06 16:43:12', NULL),
-('1118198423', NULL, 'Carlos Hugo Cubides Villalba', 'M', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-02-04', '2025-05-03', 'activo', NULL, NULL, NULL, '2026-10-03 03:22:07', NULL),
-('1118529611', NULL, 'Jimmy Alejandro Garcia Chinchilla', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-03-22', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 02:08:05', NULL),
-('1118530819', NULL, 'Omar David Linares Alvarez', 'M', 'Auxiliar de contaduría', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2025-10-01', '2026-04-30', 'activo', '3005484351', NULL, NULL, '2026-09-29 23:32:41', 'hv_1118530819/perfil/foto.jpg'),
-('1118534974', NULL, 'Soraida Sepulveda Gordillo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-04-15', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:25:05', NULL),
-('1118536550', NULL, 'Rodrigo Hernan Ramirez Morales', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-10-01', '2025-03-31', 'activo', NULL, NULL, NULL, '2026-10-05 21:13:59', NULL),
-('1118543385', NULL, 'Lewis Arfrey Ardila Achagua', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-01', '2025-11-30', 'activo', NULL, NULL, '1989-11-28', '2026-09-23 03:30:44', NULL),
-('1118544837', NULL, 'José Ferney Rodriguez Barrera', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2015-12-01', '2016-11-30', 'activo', NULL, NULL, NULL, '2026-09-23 02:05:57', NULL),
-('1118547243', NULL, 'Tito Enrique Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2019-01-15', NULL, 'activo', NULL, NULL, '1991-04-21', '2026-09-23 01:11:57', NULL),
-('1118547356', 'Yopal, Casanare', 'Adriana Marcela Galan Hernandez', 'F', 'Director administrativo y financiero', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-08-10', '2026-09-30', 'no activo', NULL, NULL, NULL, '2026-10-06 15:10:32', NULL),
-('1118550799', NULL, 'Deyna Yurany Torres Cuervo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-01-17', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:27:52', NULL),
-('1118555586', 'Yopal, Casanare', 'Angel Gabriel Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2021-09-24', NULL, 'activo', '3133691214', NULL, '1993-10-05', '2026-09-23 02:06:39', 'hv_1118555586/perfil/foto.png'),
-('111856453', 'Yopal, Casanare', 'Astrid Mariana Aquite Gómez', 'F', 'Auxiliar en Gestion de Talento Humano', 'Bombero', 'Nueva EPS', 'Colfondos', 'Positiva', 1964430.00, 1, 'Restringida', '08:00:00', '12:00:00', 'Fijo', '2024-02-15', '2024-08-15', 'activo', '3209308877', NULL, '1996-04-13', '2026-09-23 00:46:12', NULL),
-('1118564997', NULL, 'Kewin Alexis Adan Jeronimo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', NULL, NULL, 'no activo', NULL, NULL, NULL, '2026-09-23 03:18:30', NULL),
-('1118565906', NULL, 'Jeidi Carolina Acevedo Lopez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-11-12', '2026-05-11', 'activo', NULL, NULL, NULL, '2026-09-23 03:44:42', NULL),
-('1118565958', NULL, 'Yeritsa Tatiana Egue Chaparro', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-11-27', NULL, 'activo', NULL, NULL, NULL, '2026-09-30 15:04:28', NULL),
-('1118567328', NULL, 'Nelson Fabian Chaparro Rincon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2016-02-11', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:11:40', NULL),
-('1118572004', NULL, 'Luisa Fernanda Abril Bernal', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-09-05', NULL, 'activo', NULL, NULL, NULL, '2026-09-30 15:01:28', NULL),
+('1118198423', 'Yopal, Casanare', 'Carlos Hugo Cubides Villalba', 'M', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-02-04', '2025-05-03', 'activo', NULL, NULL, NULL, '2026-10-03 03:22:07', NULL),
+('1118529611', 'Yopal, Casanare', 'Jimmy Alejandro Garcia Chinchilla', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-03-22', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 02:08:05', NULL),
+('1118530819', 'Yopal, Casanare', 'Omar David Linares Alvarez', 'M', 'Auxiliar de contaduría', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2025-10-01', '2026-04-30', 'activo', '3005484351', NULL, NULL, '2026-09-29 23:32:41', NULL),
+('1118534974', 'Yopal, Casanare', 'Soraida Sepulveda Gordillo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-04-15', '2026-10-14', 'activo', NULL, NULL, NULL, '2026-09-23 03:25:05', NULL),
+('1118536550', 'Yopal, Casanare', 'Rodrigo Hernan Ramirez Morales', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-10-01', '2025-03-31', 'activo', NULL, NULL, NULL, '2026-10-05 21:13:59', NULL),
+('1118543385', 'Yopal, Casanare', 'Lewis Arfrey Ardila Achagua', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-01', '2025-11-30', 'activo', NULL, NULL, '1989-11-28', '2026-09-23 03:30:44', NULL),
+('1118544837', 'Yopal, Casanare', 'José Ferney Rodriguez Barrera', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2015-12-01', '2016-11-30', 'activo', NULL, NULL, NULL, '2026-09-23 02:05:57', NULL),
+('1118547243', 'Yopal, Casanare', 'Tito Enrique Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2019-01-15', NULL, 'activo', NULL, NULL, '1991-04-21', '2026-09-23 01:11:57', 'hv_1118547243/perfil/foto.jpg'),
+('1118547356', 'Yopal, Casanare', 'Adriana Marcela Galan Hernandez', 'F', 'Directora administrativa y financiera', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-08-10', '2026-09-30', 'no activo', NULL, NULL, NULL, '2026-10-06 15:10:32', NULL),
+('1118550799', 'Yopal, Casanare', 'Deyna Yurany Torres Cuervo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-01-17', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:27:52', NULL),
+('1118555586', 'Yopal, Casanare', 'Angel Gabriel Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2021-09-24', NULL, 'activo', '3133691214', NULL, '1993-10-05', '2026-09-23 02:06:39', 'hv_1118555586/perfil/foto.jpg'),
+('1118564532', 'Yopal, Casanare', 'Astrid Mariana Aquite Gómez', 'F', 'Auxiliar en Talento Humano', 'Bombero', 'Nueva EPS', 'Colfondos', 'Positiva', 1964430.00, 1, 'Restringida', '08:00:00', '12:00:00', 'Fijo', '2024-02-15', '2024-08-15', 'activo', '3209308877', NULL, '1996-04-13', '2026-09-23 00:46:12', NULL),
+('1118564997', 'Yopal, Casanare', 'Kewin Alexis Adan Jeronimo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', NULL, NULL, 'no activo', NULL, NULL, NULL, '2026-09-23 03:18:30', NULL),
+('1118565906', 'Yopal, Casanare', 'Jeidi Carolina Acevedo Lopez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-11-12', '2026-05-11', 'activo', NULL, NULL, NULL, '2026-09-23 03:44:42', NULL),
+('1118565958', 'Yopal, Casanare', 'Yeritsa Tatiana Egue Chaparro', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-11-27', NULL, 'activo', NULL, NULL, NULL, '2026-09-30 15:04:28', NULL),
+('1118567328', 'Yopal, Casanare', 'Nelson Fabian Chaparro Rincon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2016-02-11', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:11:40', NULL),
+('1118572004', 'Yopal, Casanare', 'Luisa Fernanda Abril Bernal', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-09-05', NULL, 'activo', NULL, NULL, NULL, '2026-09-30 15:01:28', NULL),
 ('1118573216', 'Yopal, Casanare', 'Camilo Andres Corredor Garcia', 'M', 'Maquinista', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-11-01', '2025-04-30', 'activo', NULL, NULL, '1999-01-17', '2026-09-23 03:22:10', NULL),
-('1118575006', 'Yopal, Casanare', 'Angela Brithey Maldonado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-16', '2025-11-15', 'activo', NULL, NULL, '1999-08-24', '2026-09-23 03:37:51', NULL),
-('1118775342', NULL, 'Daniel Fernando Gutierrez Riaño', 'M', 'Bombero integral', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', 0.00, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-01-17', '2025-01-17', 'activo', NULL, NULL, '1993-03-12', '2026-09-23 01:04:54', NULL),
+('1118575006', 'Yopal, Casanare', 'Angela Brithey Maldonado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-16', '2025-11-15', 'activo', NULL, NULL, '1999-08-24', '2026-09-23 03:37:51', 'hv_1118575006/perfil/foto.jpg'),
+('1118775342', 'Yopal, Casanare', 'Daniel Fernando Gutierrez Riaño', 'M', 'Bombero integral', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', 0.00, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-01-17', '2025-01-17', 'activo', NULL, NULL, '1993-03-12', '2026-09-23 01:04:54', NULL),
 ('11206377', 'Yopal, Casanare', 'Juan Fernando Guzman Guzman', 'M', 'Bombero integral', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2023-07-21', NULL, 'activo', NULL, NULL, '1995-12-08', '2026-09-23 01:34:23', NULL),
-('1121898640', NULL, 'Arlyn Johanna Sanchez Gutierrez', 'F', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 22:47:28', NULL),
+('1121898640', 'Villavicencio, Meta', 'Arlyn Johanna Sanchez Gutierrez', 'F', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 22:47:28', NULL),
 ('1124989349', 'Aguazul, Casanare', 'Tatiana Andrea Guzman Galindo', 'F', 'Practicante Fundetec', 'Civil', 'Capresoca', 'NA', 'Positiva', NULL, 0, 'Administrativa', NULL, NULL, 'No aplica', '2026-05-04', NULL, 'activo', '3229496595', 'tgz57031@gmail.com', '2003-04-13', '2026-09-22 01:48:16', 'hv_1124989349/perfil/foto.jpg'),
-('1143954094', NULL, 'Jonnathan Alexander Daza Barrera', 'M', 'Secretario recaudador', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1993-02-02', '2026-09-25 02:29:26', NULL),
-('16672796', NULL, 'Juan Carlos Santacoloma Piedrahita', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-15', '2025-11-14', 'activo', NULL, NULL, NULL, '2026-09-23 03:35:08', NULL),
-('4284762', NULL, 'Jose Manuel Gutierrez Teatin', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '1999-08-20', NULL, 'activo', NULL, NULL, '1970-09-29', '2026-09-23 18:03:27', NULL),
-('47428604', NULL, 'Graciela Garcia Chinchilla', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2010-02-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:57:55', NULL),
-('47430097', NULL, 'Sthella Gutierrez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2007-12-04', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:01:10', NULL),
+('1143954094', 'Yopal, Casanare', 'Jonnathan Alexander Daza Barrera', 'M', 'Secretario recaudador', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1993-02-02', '2026-09-25 02:29:26', NULL),
+('16672796', 'Yopal, Casanare', 'Juan Carlos Santacoloma Piedrahita', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-15', '2025-11-14', 'activo', NULL, NULL, NULL, '2026-09-23 03:35:08', NULL),
+('33445352', 'Yopal, Casanare', 'Gladys Escobar De Hernandez', 'F', 'Revisor(a) fiscal', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-01-01', '2027-01-01', 'activo', NULL, NULL, NULL, '2026-10-07 19:41:51', NULL),
+('4284762', 'Yopal, Casanare', 'Jose Manuel Gutierrez Teatin', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '1999-08-20', NULL, 'activo', NULL, NULL, '1970-09-29', '2026-09-23 18:03:27', NULL),
+('47428604', 'Nunchía, Casanare', 'Graciela Garcia Chinchilla', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2010-02-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:57:55', NULL),
+('47430097', 'Yopal, Casanare', 'Sthella Gutierrez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2007-12-04', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:01:10', NULL),
 ('47431008', 'Yopal, Casanare', 'Romelia Medina Martinez', 'F', 'Servicios Generales', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, '2027-02-04', 'activo', NULL, NULL, NULL, '2026-10-06 15:32:04', NULL),
-('47441163', NULL, 'Sandra Milena Castaño Vargas', 'F', 'Administrativo', 'Civil', 'Sanitas', 'Porvenir', 'Positiva', 2071830.00, 0, 'Administrativa', NULL, NULL, 'Fijo', '2024-02-13', '2024-08-12', 'activo', NULL, NULL, '1983-06-13', '2026-09-23 00:56:25', NULL),
-('47441979', NULL, 'Angela Maria Moreno', 'F', 'Comandante de estación', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-29 21:33:52', 'hv_47441979/perfil/foto.jpg'),
-('52308103', NULL, 'Fanny Paola Mercado Delgado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2022-07-07', NULL, 'activo', NULL, NULL, '1975-10-14', '2026-09-23 18:10:43', NULL),
-('7180789', NULL, 'Hector Favian Auzaque Parra', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2008-03-10', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:45:50', NULL),
-('7254795', NULL, 'Yobanis Alberto Castrillon Cano', 'M', 'Maquinista', 'Bombero', NULL, 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-07-01', '2025-06-30', 'activo', NULL, NULL, NULL, '2026-09-29 20:58:48', NULL),
-('74770870', NULL, 'Ariosto Castelblanco Zorro', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2008-06-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:56:03', NULL),
+('47441163', 'Yopal, Casanare', 'Sandra Milena Castaño Vargas', 'F', 'Administrativo', 'Civil', 'Sanitas', 'Porvenir', 'Positiva', 2071830.00, 0, 'Administrativa', NULL, NULL, 'Fijo', '2024-02-13', '2024-08-12', 'activo', NULL, NULL, '1983-06-13', '2026-09-23 00:56:25', NULL),
+('47441979', 'Yopal, Casanare', 'Angela Maria Moreno', 'F', 'Comandante de estación', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-29 21:33:52', 'hv_47441979/perfil/foto.jpg'),
+('52308103', 'Yopal, Casanare', 'Fanny Paola Mercado Delgado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2022-07-07', NULL, 'activo', NULL, NULL, '1975-10-14', '2026-09-23 18:10:43', NULL),
+('7180789', 'Yopal, Casanare', 'Hector Favian Auzaque Parra', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2008-03-10', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:45:50', NULL),
+('7254795', 'Yopal, Casanare', 'Yobanis Alberto Castrillon Cano', 'M', 'Maquinista', 'Bombero', NULL, 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-07-01', '2025-06-30', 'activo', NULL, NULL, NULL, '2026-09-29 20:58:48', NULL),
+('74770870', 'Yopal, Casanare', 'Ariosto Castelblanco Zorro', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2008-06-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:56:03', NULL),
 ('74814305', 'Yopal, Casanare', 'Nelson Morales Cubides', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Indefinido', '2007-11-01', NULL, 'activo', NULL, NULL, '1979-11-14', '2026-09-23 18:04:03', NULL),
-('74859815', NULL, 'Waldo Ramirez Avila', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2005-01-11', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:04:43', NULL),
-('74861664', NULL, 'Guillermo Enrique Guarin Fonseca', 'M', 'Director Académico', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, NULL, 'activo', '3123878482', NULL, '1979-09-25', '2026-09-25 02:19:35', 'hv_74861664/perfil/foto.png'),
-('74861711', NULL, 'Wilmar Vargas Teatin', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:05:33', NULL),
-('80033385', NULL, 'Jorge Antonio Segura Poveda', 'M', 'Conductor de ambulancia', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-09-26', '2026-12-25', 'activo', '3212038841', NULL, '1982-05-13', '2026-09-25 02:02:05', 'hv_80033385/perfil/foto.png'),
-('9433076', NULL, 'Rafael Rojas Rico', 'M', 'Comandante de estación', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', 7046.33, 1, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', '3216547896', NULL, NULL, '2026-09-29 21:05:27', 'hv_9433076/perfil/foto.jpg'),
-('9434678', NULL, 'Jose Alejandro Fernandez Cardenas', 'M', 'Tecnico archivista', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2015-12-01', '2016-11-30', 'activo', NULL, NULL, NULL, '2026-10-05 20:04:25', NULL),
-('9656509', NULL, 'Jose Orlando Gonzalez Gonzales', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2013-02-26', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:59:42', NULL),
-('9658799', NULL, 'Javier Fernando Fuquen Calderon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2009-04-01', NULL, 'activo', NULL, NULL, '1971-12-05', '2026-09-23 17:57:02', NULL);
+('74859815', 'Yopal, Casanare', 'Waldo Ramirez Avila', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2005-01-11', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:04:43', NULL),
+('74861664', 'Yopal, Casanare', 'Guillermo Enrique Guarin Fonseca', 'M', 'Director Académico', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, NULL, 'activo', '3123878482', NULL, '1979-09-25', '2026-09-25 02:19:35', NULL),
+('74861711', 'Yopal, Casanare', 'Wilmar Vargas Teatin', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:05:33', NULL),
+('80033385', 'Yopal, Casanare', 'Jorge Antonio Segura Poveda', 'M', 'Conductor de ambulancia', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-09-26', '2026-12-25', 'activo', '3212038841', NULL, '1982-05-13', '2026-09-25 02:02:05', NULL),
+('9433076', 'Yopal, Casanare', 'Rafael Rojas Rico', 'M', 'Comandante de estación', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', 7046.33, 1, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', '3216547896', NULL, NULL, '2026-09-29 21:05:27', 'hv_9433076/perfil/foto.jpg'),
+('9434678', 'Yopal, Casanare', 'Jose Alejandro Fernandez Cardenas', 'M', 'Tecnico archivista', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2015-12-01', '2016-11-30', 'activo', NULL, NULL, NULL, '2026-10-05 20:04:25', NULL),
+('9656509', 'Yopal, Casanare', 'Jose Orlando Gonzalez Gonzales', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2013-02-26', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:59:42', NULL),
+('9658799', 'Yopal, Casanare', 'Javier Fernando Fuquen Calderon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2009-04-01', NULL, 'activo', NULL, NULL, '1971-12-05', '2026-09-23 17:57:02', NULL);
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `festivos_colombia`
+-- Table structure for table `festivos_colombia`
 --
-
 CREATE TABLE `festivos_colombia` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `fecha` date NOT NULL,
-  `nombre` varchar(150) NOT NULL,
-  `anio` int(11) NOT NULL
+  `nombre` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `anio` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `festivos_colombia`
+-- Dumping data for table `festivos_colombia`
 --
 
 INSERT INTO `festivos_colombia` (`id`, `fecha`, `nombre`, `anio`) VALUES
@@ -372,141 +2287,141 @@ INSERT INTO `festivos_colombia` (`id`, `fecha`, `nombre`, `anio`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `firmas_guardadas`
+-- Table structure for table `firmas_guardadas`
 --
-
 CREATE TABLE `firmas_guardadas` (
-  `id` int(11) NOT NULL,
-  `cedula` varchar(10) NOT NULL,
-  `ruta_imagen` varchar(255) NOT NULL COMMENT 'PNG del canvas o archivo subido, en uploads/hv_{cedula}/firma/',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` int NOT NULL,
+  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ruta_imagen` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'PNG del canvas o archivo subido, en uploads/hv_{cedula}/firma/',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `funciones_certificados`
+-- Table structure for table `funciones_certificados`
 --
-
 CREATE TABLE `funciones_certificados` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `cargo_id` int(10) UNSIGNED NOT NULL,
-  `texto` varchar(160) NOT NULL,
-  `orden` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
-  `activo` tinyint(1) NOT NULL DEFAULT 1,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int UNSIGNED NOT NULL,
+  `cargo_id` int UNSIGNED NOT NULL,
+  `texto` varchar(160) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `orden` tinyint UNSIGNED NOT NULL DEFAULT '0',
+  `activo` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `funciones_certificados`
+--
+
+INSERT INTO `funciones_certificados` (`id`, `cargo_id`, `texto`, `orden`, `activo`, `created_at`, `updated_at`) VALUES
+(1, 36, 'respuesta en incendios, rescates y atención de emergencias, y todas aquellas funciones de acuerdo a su cargo', 0, 1, '2026-10-07 21:12:38', '2026-10-07 21:13:07');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `funciones_contratos`
+-- Table structure for table `funciones_contratos`
 --
-
 CREATE TABLE `funciones_contratos` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `cargo_id` int(10) UNSIGNED NOT NULL,
-  `texto` text NOT NULL,
-  `orden` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
-  `activo` tinyint(1) NOT NULL DEFAULT 1,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int UNSIGNED NOT NULL,
+  `cargo_id` int UNSIGNED NOT NULL,
+  `texto` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `orden` tinyint UNSIGNED NOT NULL DEFAULT '0',
+  `activo` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `notificaciones`
+-- Table structure for table `notificaciones`
 --
-
 CREATE TABLE `notificaciones` (
-  `id` int(11) NOT NULL,
-  `usuario_id` int(11) DEFAULT NULL,
-  `destinatario_tipo` enum('talento_humano','empleado') NOT NULL DEFAULT 'talento_humano',
-  `usuario_nombre` varchar(50) NOT NULL,
-  `cedula_empleado` varchar(10) NOT NULL,
-  `campo` varchar(50) NOT NULL,
-  `mensaje` varchar(500) NOT NULL,
-  `enlace` varchar(255) DEFAULT NULL COMMENT 'Ruta relativa a la que redirige la notificación',
-  `leida` tinyint(1) NOT NULL DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` int NOT NULL,
+  `usuario_id` int DEFAULT NULL,
+  `destinatario_tipo` enum('talento_humano','empleado') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'talento_humano',
+  `usuario_nombre` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cedula_empleado` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `campo` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mensaje` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `enlace` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Ruta relativa a la que redirige la notificación',
+  `leida` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `permisos`
+-- Table structure for table `permisos`
 --
-
 CREATE TABLE `permisos` (
-  `id` int(11) NOT NULL,
-  `consecutivo` varchar(20) NOT NULL,
-  `cedula_empleado` varchar(10) NOT NULL,
-  `nombre_empleado_snapshot` varchar(150) NOT NULL,
-  `cargo_empleado_snapshot` varchar(150) NOT NULL,
-  `celular_empleado_snapshot` varchar(15) DEFAULT NULL,
-  `tipo_permiso` enum('Permiso','Vacaciones','Licencia','Mision institucional') NOT NULL,
-  `motivo` text NOT NULL,
+  `id` int NOT NULL,
+  `consecutivo` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cedula_empleado` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre_empleado_snapshot` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cargo_empleado_snapshot` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `celular_empleado_snapshot` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_permiso` enum('Permiso','Vacaciones','Licencia','Mision institucional') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `motivo` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `fecha_inicio` date NOT NULL,
   `hora_inicio` time NOT NULL,
   `fecha_fin` date DEFAULT NULL,
   `hora_fin` time DEFAULT NULL,
   `total_horas` decimal(6,2) DEFAULT NULL,
-  `incluye_festivo` tinyint(1) DEFAULT 0,
-  `festivo_confirmado` tinyint(1) DEFAULT 0,
-  `remunerado` tinyint(1) NOT NULL DEFAULT 0,
-  `es_compensatorio` tinyint(1) NOT NULL DEFAULT 0,
+  `incluye_festivo` tinyint(1) DEFAULT '0',
+  `festivo_confirmado` tinyint(1) DEFAULT '0',
+  `remunerado` tinyint(1) NOT NULL DEFAULT '0',
+  `es_compensatorio` tinyint(1) NOT NULL DEFAULT '0',
   `fecha_horas_extra` date DEFAULT NULL,
-  `es_devolucion` tinyint(1) NOT NULL DEFAULT 0,
-  `es_salida_pendiente_regreso` tinyint(1) NOT NULL DEFAULT 0,
+  `es_devolucion` tinyint(1) NOT NULL DEFAULT '0',
+  `es_salida_pendiente_regreso` tinyint(1) NOT NULL DEFAULT '0',
   `devolucion_fecha` date DEFAULT NULL,
   `devolucion_hora_inicio` time DEFAULT NULL,
   `devolucion_hora_fin` time DEFAULT NULL,
   `devolucion_total_horas` decimal(6,2) DEFAULT NULL,
-  `tiene_reemplazo` tinyint(1) NOT NULL DEFAULT 0,
-  `cedula_reemplazo` varchar(10) DEFAULT NULL,
-  `cedula_jefe` varchar(10) NOT NULL,
-  `foto_solicitante` varchar(255) NOT NULL,
-  `firma_solicitante` varchar(255) NOT NULL,
-  `foto_reemplazo` varchar(255) DEFAULT NULL,
-  `firma_reemplazo` varchar(255) DEFAULT NULL,
-  `foto_jefe` varchar(255) DEFAULT NULL,
-  `firma_jefe` varchar(255) DEFAULT NULL,
-  `foto_jefe_prefirmado` varchar(255) DEFAULT NULL,
-  `firma_jefe_prefirmado` varchar(255) DEFAULT NULL,
-  `evidencia_archivo` varchar(255) DEFAULT NULL,
-  `estado` enum('en_proceso','por_firmar_reemplazo','por_firmar_jefe','por_firmar_jefe_final','firmado','devuelto','devuelto_regreso','rechazado','aprobado_pendiente_regreso','anulado') NOT NULL DEFAULT 'en_proceso',
-  `motivo_devolucion` text DEFAULT NULL,
-  `motivo_rechazo` text DEFAULT NULL,
-  `motivo_anulacion` text DEFAULT NULL,
-  `anulado_por` varchar(50) DEFAULT NULL,
+  `tiene_reemplazo` tinyint(1) NOT NULL DEFAULT '0',
+  `cedula_reemplazo` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cedula_jefe` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `foto_solicitante` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `firma_solicitante` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `foto_reemplazo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `firma_reemplazo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `foto_jefe` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `firma_jefe` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `foto_jefe_prefirmado` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `firma_jefe_prefirmado` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `evidencia_archivo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `estado` enum('en_proceso','por_firmar_reemplazo','por_firmar_jefe','por_firmar_jefe_final','firmado','devuelto','devuelto_regreso','rechazado','aprobado_pendiente_regreso','anulado') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'en_proceso',
+  `motivo_devolucion` text COLLATE utf8mb4_unicode_ci,
+  `motivo_rechazo` text COLLATE utf8mb4_unicode_ci,
+  `motivo_anulacion` text COLLATE utf8mb4_unicode_ci,
+  `anulado_por` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fecha_anulacion` timestamp NULL DEFAULT NULL,
-  `version` int(11) NOT NULL DEFAULT 1,
-  `fecha_solicitud` timestamp NOT NULL DEFAULT current_timestamp(),
-  `fecha_actualizacion` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `version` int NOT NULL DEFAULT '1',
+  `fecha_solicitud` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `permisos_consecutivos`
+-- Table structure for table `permisos_consecutivos`
 --
-
 CREATE TABLE `permisos_consecutivos` (
-  `anio` int(11) NOT NULL,
-  `ultimo_numero` int(11) NOT NULL DEFAULT 0
+  `anio` int NOT NULL,
+  `ultimo_numero` int NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `permisos_devoluciones`
+-- Table structure for table `permisos_devoluciones`
 --
-
 CREATE TABLE `permisos_devoluciones` (
-  `id` int(11) NOT NULL,
-  `permiso_id` int(11) NOT NULL,
+  `id` int NOT NULL,
+  `permiso_id` int NOT NULL,
   `fecha` date NOT NULL,
   `hora_inicio` time NOT NULL,
   `hora_fin` time NOT NULL,
@@ -516,70 +2431,66 @@ CREATE TABLE `permisos_devoluciones` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `permisos_dias`
+-- Table structure for table `permisos_dias`
 --
-
 CREATE TABLE `permisos_dias` (
-  `id` int(11) NOT NULL,
-  `permiso_id` int(11) NOT NULL,
+  `id` int NOT NULL,
+  `permiso_id` int NOT NULL,
   `fecha` date NOT NULL,
   `hora_inicio` time NOT NULL,
   `hora_fin` time NOT NULL,
-  `es_festivo` tinyint(1) NOT NULL DEFAULT 0,
-  `festivo_nombre` varchar(150) DEFAULT NULL,
-  `incluido` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'si es_festivo=1, el empleado decide; si es_festivo=0, siempre 1',
+  `es_festivo` tinyint(1) NOT NULL DEFAULT '0',
+  `festivo_nombre` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `incluido` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'si es_festivo=1, el empleado decide; si es_festivo=0, siempre 1',
   `horas_brutas` decimal(6,2) NOT NULL,
-  `horas_descuento_almuerzo` decimal(6,2) NOT NULL DEFAULT 0.00,
+  `horas_descuento_almuerzo` decimal(6,2) NOT NULL DEFAULT '0.00',
   `horas_netas` decimal(6,2) NOT NULL COMMENT '0 si incluido=0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `permisos_historial`
+-- Table structure for table `permisos_historial`
 --
-
 CREATE TABLE `permisos_historial` (
-  `id` int(11) NOT NULL,
-  `permiso_id` int(11) NOT NULL,
-  `version_anterior` int(11) NOT NULL,
-  `estado_anterior` varchar(30) NOT NULL,
-  `estado_nuevo` varchar(30) NOT NULL,
-  `actor_tipo` enum('empleado','reemplazo','jefe','talento_humano') NOT NULL,
-  `actor_cedula_o_usuario` varchar(50) NOT NULL,
-  `detalle` varchar(500) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` int NOT NULL,
+  `permiso_id` int NOT NULL,
+  `version_anterior` int NOT NULL,
+  `estado_anterior` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `estado_nuevo` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `actor_tipo` enum('empleado','reemplazo','jefe','talento_humano') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `actor_cedula_o_usuario` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `detalle` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `presencia_empleados`
+-- Table structure for table `presencia_empleados`
 --
-
 CREATE TABLE `presencia_empleados` (
-  `cedula` varchar(10) NOT NULL,
-  `ultima_actividad` timestamp NOT NULL DEFAULT current_timestamp()
+  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ultima_actividad` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuarios`
+-- Table structure for table `usuarios`
 --
-
 CREATE TABLE `usuarios` (
-  `id` int(11) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `password_hash` varchar(255) NOT NULL,
-  `rol` enum('superadmin_talento_humano','auxiliar_talento_humano','teniente') NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `intentos_fallidos` int(11) DEFAULT 0,
+  `id` int NOT NULL,
+  `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rol` enum('superadmin_talento_humano','auxiliar_talento_humano','teniente') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `intentos_fallidos` int DEFAULT '0',
   `bloqueado_hasta` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `usuarios`
+-- Dumping data for table `usuarios`
 --
 
 INSERT INTO `usuarios` (`id`, `username`, `password_hash`, `rol`, `created_at`, `intentos_fallidos`, `bloqueado_hasta`) VALUES
@@ -590,45 +2501,44 @@ INSERT INTO `usuarios` (`id`, `username`, `password_hash`, `rol`, `created_at`, 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuarios_empleados`
+-- Table structure for table `usuarios_empleados`
 --
-
 CREATE TABLE `usuarios_empleados` (
-  `id` int(11) NOT NULL,
-  `cedula` varchar(10) NOT NULL,
-  `password_hash` varchar(255) NOT NULL COMMENT 'hash del PIN de 4 digitos',
-  `activo` tinyint(1) DEFAULT 1,
-  `intentos_fallidos` int(11) DEFAULT 0,
+  `id` int NOT NULL,
+  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'hash del PIN de 4 digitos',
+  `activo` tinyint(1) DEFAULT '1',
+  `intentos_fallidos` int DEFAULT '0',
   `bloqueado_hasta` datetime DEFAULT NULL,
-  `pin_encriptado` varchar(255) DEFAULT NULL COMMENT 'PIN cifrado reversible, solo visible para superadmin/auxiliar'
+  `pin_encriptado` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'PIN cifrado reversible, solo visible para superadmin/auxiliar'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Índices para tablas volcadas
+-- Indexes for dumped tables
 --
 
 --
--- Indices de la tabla `bolsillos`
+-- Indexes for table `bolsillos`
 --
 ALTER TABLE `bolsillos`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_cedula_seccion` (`cedula_empleado`,`seccion`);
 
 --
--- Indices de la tabla `cargos`
+-- Indexes for table `cargos`
 --
 ALTER TABLE `cargos`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uq_cargos_nombre` (`nombre`);
 
 --
--- Indices de la tabla `certificados_consecutivos`
+-- Indexes for table `certificados_consecutivos`
 --
 ALTER TABLE `certificados_consecutivos`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `certificados_laborales`
+-- Indexes for table `certificados_laborales`
 --
 ALTER TABLE `certificados_laborales`
   ADD PRIMARY KEY (`id`),
@@ -637,27 +2547,27 @@ ALTER TABLE `certificados_laborales`
   ADD KEY `idx_cert_cedula` (`cedula`);
 
 --
--- Indices de la tabla `certificados_laborales_funciones`
+-- Indexes for table `certificados_laborales_funciones`
 --
 ALTER TABLE `certificados_laborales_funciones`
   ADD PRIMARY KEY (`certificado_id`,`posicion`),
   ADD KEY `fk_clf_func` (`funcion_id`);
 
 --
--- Indices de la tabla `documentos`
+-- Indexes for table `documentos`
 --
 ALTER TABLE `documentos`
   ADD PRIMARY KEY (`id`),
   ADD KEY `bolsillo_id` (`bolsillo_id`);
 
 --
--- Indices de la tabla `empleados`
+-- Indexes for table `empleados`
 --
 ALTER TABLE `empleados`
   ADD PRIMARY KEY (`cedula`);
 
 --
--- Indices de la tabla `festivos_colombia`
+-- Indexes for table `festivos_colombia`
 --
 ALTER TABLE `festivos_colombia`
   ADD PRIMARY KEY (`id`),
@@ -665,14 +2575,14 @@ ALTER TABLE `festivos_colombia`
   ADD KEY `idx_anio` (`anio`);
 
 --
--- Indices de la tabla `firmas_guardadas`
+-- Indexes for table `firmas_guardadas`
 --
 ALTER TABLE `firmas_guardadas`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unica_por_empleado` (`cedula`);
 
 --
--- Indices de la tabla `funciones_certificados`
+-- Indexes for table `funciones_certificados`
 --
 ALTER TABLE `funciones_certificados`
   ADD PRIMARY KEY (`id`),
@@ -680,21 +2590,21 @@ ALTER TABLE `funciones_certificados`
   ADD KEY `idx_fcert_cargo` (`cargo_id`,`activo`,`orden`);
 
 --
--- Indices de la tabla `funciones_contratos`
+-- Indexes for table `funciones_contratos`
 --
 ALTER TABLE `funciones_contratos`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_fcont_cargo` (`cargo_id`,`activo`,`orden`);
 
 --
--- Indices de la tabla `notificaciones`
+-- Indexes for table `notificaciones`
 --
 ALTER TABLE `notificaciones`
   ADD PRIMARY KEY (`id`),
   ADD KEY `usuario_id` (`usuario_id`);
 
 --
--- Indices de la tabla `permisos`
+-- Indexes for table `permisos`
 --
 ALTER TABLE `permisos`
   ADD PRIMARY KEY (`id`),
@@ -706,20 +2616,20 @@ ALTER TABLE `permisos`
   ADD KEY `idx_fecha_inicio` (`fecha_inicio`);
 
 --
--- Indices de la tabla `permisos_consecutivos`
+-- Indexes for table `permisos_consecutivos`
 --
 ALTER TABLE `permisos_consecutivos`
   ADD PRIMARY KEY (`anio`);
 
 --
--- Indices de la tabla `permisos_devoluciones`
+-- Indexes for table `permisos_devoluciones`
 --
 ALTER TABLE `permisos_devoluciones`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_permiso` (`permiso_id`);
 
 --
--- Indices de la tabla `permisos_dias`
+-- Indexes for table `permisos_dias`
 --
 ALTER TABLE `permisos_dias`
   ADD PRIMARY KEY (`id`),
@@ -727,151 +2637,151 @@ ALTER TABLE `permisos_dias`
   ADD KEY `idx_fecha` (`fecha`);
 
 --
--- Indices de la tabla `permisos_historial`
+-- Indexes for table `permisos_historial`
 --
 ALTER TABLE `permisos_historial`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_permiso` (`permiso_id`);
 
 --
--- Indices de la tabla `presencia_empleados`
+-- Indexes for table `presencia_empleados`
 --
 ALTER TABLE `presencia_empleados`
   ADD PRIMARY KEY (`cedula`);
 
 --
--- Indices de la tabla `usuarios`
+-- Indexes for table `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`username`);
 
 --
--- Indices de la tabla `usuarios_empleados`
+-- Indexes for table `usuarios_empleados`
 --
 ALTER TABLE `usuarios_empleados`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `cedula` (`cedula`);
 
 --
--- AUTO_INCREMENT de las tablas volcadas
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT de la tabla `bolsillos`
+-- AUTO_INCREMENT for table `bolsillos`
 --
 ALTER TABLE `bolsillos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1892;
 
 --
--- AUTO_INCREMENT de la tabla `cargos`
+-- AUTO_INCREMENT for table `cargos`
 --
 ALTER TABLE `cargos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1621;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1801;
 
 --
--- AUTO_INCREMENT de la tabla `certificados_laborales`
+-- AUTO_INCREMENT for table `certificados_laborales`
 --
 ALTER TABLE `certificados_laborales`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `documentos`
+-- AUTO_INCREMENT for table `documentos`
 --
 ALTER TABLE `documentos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT de la tabla `festivos_colombia`
+-- AUTO_INCREMENT for table `festivos_colombia`
 --
 ALTER TABLE `festivos_colombia`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
 
 --
--- AUTO_INCREMENT de la tabla `firmas_guardadas`
+-- AUTO_INCREMENT for table `firmas_guardadas`
 --
 ALTER TABLE `firmas_guardadas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `funciones_certificados`
+-- AUTO_INCREMENT for table `funciones_certificados`
 --
 ALTER TABLE `funciones_certificados`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT de la tabla `funciones_contratos`
+-- AUTO_INCREMENT for table `funciones_contratos`
 --
 ALTER TABLE `funciones_contratos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `notificaciones`
+-- AUTO_INCREMENT for table `notificaciones`
 --
 ALTER TABLE `notificaciones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `permisos`
+-- AUTO_INCREMENT for table `permisos`
 --
 ALTER TABLE `permisos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `permisos_devoluciones`
+-- AUTO_INCREMENT for table `permisos_devoluciones`
 --
 ALTER TABLE `permisos_devoluciones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `permisos_dias`
+-- AUTO_INCREMENT for table `permisos_dias`
 --
 ALTER TABLE `permisos_dias`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `permisos_historial`
+-- AUTO_INCREMENT for table `permisos_historial`
 --
 ALTER TABLE `permisos_historial`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `usuarios`
+-- AUTO_INCREMENT for table `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT de la tabla `usuarios_empleados`
+-- AUTO_INCREMENT for table `usuarios_empleados`
 --
 ALTER TABLE `usuarios_empleados`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- Restricciones para tablas volcadas
+-- Constraints for dumped tables
 --
 
 --
--- Filtros para la tabla `bolsillos`
+-- Constraints for table `bolsillos`
 --
 ALTER TABLE `bolsillos`
   ADD CONSTRAINT `bolsillos_ibfk_1` FOREIGN KEY (`cedula_empleado`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `certificados_laborales_funciones`
+-- Constraints for table `certificados_laborales_funciones`
 --
 ALTER TABLE `certificados_laborales_funciones`
   ADD CONSTRAINT `fk_clf_cert` FOREIGN KEY (`certificado_id`) REFERENCES `certificados_laborales` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_clf_func` FOREIGN KEY (`funcion_id`) REFERENCES `funciones_certificados` (`id`) ON DELETE SET NULL;
 
 --
--- Filtros para la tabla `funciones_certificados`
+-- Constraints for table `funciones_certificados`
 --
 ALTER TABLE `funciones_certificados`
   ADD CONSTRAINT `fk_fcert_cargo` FOREIGN KEY (`cargo_id`) REFERENCES `cargos` (`id`) ON DELETE CASCADE;
 
 --
--- Filtros para la tabla `funciones_contratos`
+-- Constraints for table `funciones_contratos`
 --
 ALTER TABLE `funciones_contratos`
   ADD CONSTRAINT `fk_fcont_cargo` FOREIGN KEY (`cargo_id`) REFERENCES `cargos` (`id`) ON DELETE CASCADE;
