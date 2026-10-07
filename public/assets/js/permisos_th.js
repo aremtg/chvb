@@ -1,5 +1,18 @@
-const MESES_TH = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-function fechaTH(f) { if (!f) return '-'; const [fp] = f.split(' '); const [y,m,d] = fp.split('-').map(Number); return `${d} de ${MESES_TH[m-1]} de ${y}`; }
+// public/assets/js/permisos_th.js
+// Panel "Permisos" (superadmin / auxiliar / teniente). Estilos: assets/css/permisos_ui.css
+
+const MESES_TH = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+function escTH(s) {
+    return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function fechaTH(f) {
+    if (!f) return '-';
+    const [fp] = f.split(' ');
+    const [y, m, d] = fp.split('-').map(Number);
+    if (!y || !m || !d) return f;
+    return `${d} ${MESES_TH[m - 1]} ${y}`;
+}
 function formatearHorasJS(h) {
     if (h === null || h === undefined) return 'Pendiente';
     const totalMin = Math.round(parseFloat(h) * 60);
@@ -12,74 +25,171 @@ function diasTH(n) {
     const d = parseInt(n, 10) || 0;
     return `${d} ${d === 1 ? 'día' : 'días'}`;
 }
-function etiquetaEstadoTH(e) {
-    const m = { en_proceso:['Borrador','bg-gray-100 text-gray-600'], por_firmar_reemplazo:['Por firmar (reemplazo)','bg-yellow-100 text-yellow-700'],
-        por_firmar_jefe:['Por firmar (jefe)','bg-yellow-100 text-yellow-700'], firmado:['Firmado','bg-green-100 text-green-700'],
-        devuelto:['Devuelto','bg-orange-100 text-orange-700'], rechazado:['Rechazado','bg-red-100 text-red-700'],
-        aprobado_pendiente_regreso:['Aprobado — regreso pendiente','bg-blue-100 text-blue-700'], por_firmar_jefe_final:['Pendiente firma final','bg-yellow-100 text-yellow-700'], devuelto_regreso:['Llegada devuelta','bg-orange-100 text-orange-700'], anulado:['Anulado','bg-red-100 text-red-700'] };
-    return m[e] || [e, 'bg-gray-100 text-gray-600'];
+function iniciales(nombre) {
+    const partes = String(nombre || '').trim().split(/\s+/).filter(Boolean);
+    if (!partes.length) return '?';
+    return (partes[0][0] + (partes.length > 1 ? partes[partes.length - 1][0] : '')).toUpperCase();
 }
+
+// v = variante de color (ver permisos_ui.css)
+const ESTADOS_TH = {
+    en_proceso: ['Borrador', 'borrador'],
+    por_firmar_reemplazo: ['Por firmar (reemplazo)', 'revision'],
+    por_firmar_jefe: ['Por firmar (jefe)', 'revision'],
+    por_firmar_jefe_final: ['Firma final pendiente', 'revision'],
+    aprobado_pendiente_regreso: ['Regreso pendiente', 'regreso'],
+    firmado: ['Firmado', 'firmado'],
+    devuelto: ['Devuelto', 'accion'],
+    devuelto_regreso: ['Llegada devuelta', 'accion'],
+    rechazado: ['Rechazado', 'rechazado'],
+    anulado: ['Anulado', 'anulado'],
+};
+function etiquetaEstadoTH(e) {
+    return ESTADOS_TH[e] || [String(e || '-').replace(/_/g, ' '), 'borrador'];
+}
+
+const GRUPO_POR_FIRMAR = ['por_firmar_reemplazo', 'por_firmar_jefe', 'por_firmar_jefe_final'];
+const GRUPO_REGRESO = ['aprobado_pendiente_regreso', 'devuelto_regreso'];
+
+const listaEl = document.getElementById('listaPermisosTH');
+const PUEDE_ANULAR = listaEl.dataset.puedeAnular === '1';
 
 let permisosEnMemoria = {};
 let cedulasEnLinea = new Set();
+
 function fechaHoraLocal() {
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  const hh = String(d.getHours()).padStart(2, '0');
-  const mi = String(d.getMinutes()).padStart(2, '0');
-  const ss = String(d.getSeconds()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mi = String(d.getMinutes()).padStart(2, '0');
+    const ss = String(d.getSeconds()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
 }
 
 let ultimaActualizacion = fechaHoraLocal();
 
-function pintarPermiso(p) {
+// ---------------------------------------------------------------- resumen
+function actualizarResumen() {
+    const lista = Object.values(permisosEnMemoria);
+    const cuenta = (grupo) => lista.filter((p) => grupo.includes(p.estado)).length;
+    document.getElementById('pmStatTotal').textContent = lista.length;
+    document.getElementById('pmStatRevision').textContent = cuenta(GRUPO_POR_FIRMAR);
+    document.getElementById('pmStatRegreso').textContent = cuenta(GRUPO_REGRESO);
+    document.getElementById('pmStatFirmados').textContent = cuenta(['firmado']);
+    document.getElementById('pmContador').innerHTML = lista.length
+        ? `Mostrando <strong>${lista.length}</strong> ${lista.length === 1 ? 'permiso' : 'permisos'}`
+        : '';
+}
+
+// ---------------------------------------------------------------- filas
+function htmlFila(p, enLinea, est) {
+    const acciones = `
+        <a href="./permiso_ver.php?id=${encodeURIComponent(p.id)}" class="pm-btn pm-btn--outline-brand pm-btn--sm">Ver detalle</a>
+        ${p.estado === 'firmado' && PUEDE_ANULAR
+            ? `<button type="button" class="pm-btn pm-btn--text-danger pm-btn--sm" data-anular data-id="${escTH(p.id)}" data-version="${escTH(p.version)}">Anular</button>`
+            : ''}`;
+
+    return `
+        <div class="pm-cell pm-cell--emp">
+            <span class="pm-avatar" aria-hidden="true">${escTH(iniciales(p.nombre_empleado_snapshot))}<i class="pm-presence ${enLinea ? 'is-on' : ''}" data-presencia></i></span>
+            <div class="pm-emp">
+                <p class="pm-emp__name" title="${escTH(p.nombre_empleado_snapshot)}">${escTH(p.nombre_empleado_snapshot)}</p>
+                <p class="pm-emp__sub">Cédula ${escTH(p.cedula_empleado)}<span class="pm-sr" data-presencia-texto> · ${enLinea ? 'En línea' : 'Desconectado'}</span></p>
+            </div>
+        </div>
+        <div class="pm-cell">
+            <span class="pm-cell__label">Permiso</span>
+            <p class="pm-strong">${escTH(p.consecutivo)}</p>
+            <p class="pm-sub">${escTH(p.tipo_permiso)}</p>
+        </div>
+        <div class="pm-cell">
+            <span class="pm-cell__label">Jefe inmediato</span>
+            <p>${escTH(p.nombre_jefe || '—')}</p>
+        </div>
+        <div class="pm-cell">
+            <span class="pm-cell__label">Duración</span>
+            <p>${p.total_dias != null ? escTH(diasTH(p.total_dias)) : '—'}</p>
+            <p class="pm-sub">${escTH(formatearHorasJS(p.total_horas))}</p>
+        </div>
+        <div class="pm-cell">
+            <span class="pm-cell__label">Solicitado</span>
+            <p>${escTH(fechaTH(p.fecha_solicitud))}</p>
+        </div>
+        <div class="pm-cell">
+            <span class="pm-cell__label">Estado</span>
+            <span class="pm-pill"><i class="pm-dot"></i>${escTH(est[0])}</span>
+        </div>
+        <div class="pm-cell pm-cell--act">${acciones}</div>`;
+}
+
+// alFinal=true en la carga inicial (respeta el orden que manda el servidor);
+// los permisos que llegan en vivo entran arriba.
+function pintarPermiso(p, alFinal = false) {
     permisosEnMemoria[p.id] = p;
-    const [texto, clase] = etiquetaEstadoTH(p.estado);
+    const est = etiquetaEstadoTH(p.estado);
     const enLinea = cedulasEnLinea.has(p.cedula_empleado);
+    const vacio = document.getElementById('pmVacioTH');
+    if (vacio) vacio.remove();
+
     let el = document.getElementById(`permisoTH-${p.id}`);
-    const html = `
-        <p class="font-medium text-gray-800 flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full ${enLinea ? 'bg-green-500' : 'bg-gray-300'}"></span>
-            ${p.consecutivo} — ${p.nombre_empleado_snapshot}
-        </p>
-        <p class="text-xs text-gray-500 mt-0.5">
-            ${p.tipo_permiso} · Jefe: ${p.nombre_jefe || '-'} · ${p.total_dias != null ? diasTH(p.total_dias) + ' · ' : ''}${formatearHorasJS(p.total_horas)} · Solicitado ${fechaTH(p.fecha_solicitud)}
-        </p>
-        <span class="inline-block text-xs font-medium px-2 py-1 rounded-lg mt-2 ${clase}">${texto}</span>
-        <div class="mt-3"><a href="./permiso_ver.php?id=${p.id}" class="inline-flex items-center text-xs font-semibold text-red-600 border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-xl">Ver detalle completo</a></div>
-        ${p.estado === 'firmado' ? `<button type="button" onclick="anularPermiso(${p.id}, ${p.version})" class="block mt-3 text-xs text-red-600 hover:underline">Anular permiso firmado</button>` : ''}
-    `;
-    if (el) { el.innerHTML = html; el.classList.add('ring-2','ring-blue-300'); setTimeout(() => el.classList.remove('ring-2','ring-blue-300'), 1500); }
-    else {
+    const html = htmlFila(p, enLinea, est);
+    if (el) {
+        el.className = `pm-row pm-s-${est[1]}`;
+        el.innerHTML = html;
+        el.dataset.cedula = p.cedula_empleado;
+        // Reinicia la animación de "recién actualizado"
+        void el.offsetWidth;
+        el.classList.add('pm-flash');
+        setTimeout(() => el.classList.remove('pm-flash'), 1600);
+    } else {
         el = document.createElement('div');
         el.id = `permisoTH-${p.id}`;
-        el.className = 'bg-white rounded-xl shadow p-4';
+        el.className = `pm-row pm-s-${est[1]}`;
+        el.dataset.cedula = p.cedula_empleado;
         el.innerHTML = html;
-        document.getElementById('listaPermisosTH').prepend(el);
+        if (alFinal) listaEl.append(el); else listaEl.prepend(el);
     }
+    actualizarResumen();
 }
 
+// ---------------------------------------------------------------- vacío / error
+const SVG_TH = (paths) =>
+    `<svg class="pm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+const ICO_ARCHIVO = SVG_TH('<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>');
+const ICO_ALERTA = SVG_TH('<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>');
+
+const IDS_FILTROS_TH = ['fEmpleado', 'fJefe', 'fTipo', 'fEstado', 'fDesde', 'fHasta', 'fOrdenHoras'];
+
+function hayFiltrosTH() {
+    return IDS_FILTROS_TH.some((id) => document.getElementById(id).value !== '');
+}
+
+function pintarVacioTH() {
+    listaEl.innerHTML = `
+        <div class="pm-empty" id="pmVacioTH">
+            <span class="pm-empty__ico">${ICO_ARCHIVO}</span>
+            <h3>${hayFiltrosTH() ? 'Sin resultados' : 'Aún no hay permisos'}</h3>
+            <p>${hayFiltrosTH()
+                ? 'Ningún permiso coincide con los filtros elegidos. Prueba cambiándolos o quitándolos.'
+                : 'Cuando los empleados soliciten permisos, vacaciones o licencias, aparecerán aquí automáticamente.'}</p>
+            ${hayFiltrosTH() ? '<button type="button" class="pm-btn pm-btn--outline-brand" data-accion="limpiar">Limpiar filtros</button>' : ''}
+        </div>`;
+}
+
+function pintarErrorTH() {
+    listaEl.innerHTML = `
+        <div class="pm-empty" id="pmVacioTH">
+            <span class="pm-empty__ico">${ICO_ALERTA}</span>
+            <h3>No pudimos cargar los permisos</h3>
+            <p>Revisa tu conexión e inténtalo de nuevo.</p>
+            <button type="button" class="pm-btn pm-btn--outline-brand" data-accion="reintentar">Reintentar</button>
+        </div>`;
+}
+
+// ---------------------------------------------------------------- carga y filtros
 const permisoTHId = Number(new URLSearchParams(window.location.search).get('id') || 0);
-
-async function cargarInicial() {
-    const params = construirParams();
-    if (permisoTHId > 0) params.set('id', String(permisoTHId));
-    Loading.section('listaPermisosTH', true);
-    try {
-        const res = await fetch(`./api/permisos_th_listar.php?${params}`);
-        const data = await res.json();
-        if (data.ok) {
-            document.getElementById('listaPermisosTH').innerHTML = '';
-            permisosEnMemoria = {};
-            data.permisos.forEach(pintarPermiso);
-        }
-    } finally {
-        Loading.section('listaPermisosTH', false);
-    }
-}
 
 function construirParams() {
     return new URLSearchParams({
@@ -93,40 +203,140 @@ function construirParams() {
     });
 }
 
-['fEmpleado','fJefe','fTipo','fEstado','fDesde','fHasta','fOrdenHoras'].forEach(id => {
+function actualizarIndicadoresFiltros() {
+    let activos = 0;
+    IDS_FILTROS_TH.forEach((id) => {
+        const el = document.getElementById(id);
+        const lleno = el.value !== '';
+        el.classList.toggle('is-filled', lleno);
+        if (lleno) activos++;
+    });
+    const badge = document.getElementById('pmFiltrosActivos');
+    badge.textContent = activos;
+    badge.hidden = activos === 0;
+    document.getElementById('pmLimpiar').hidden = activos === 0;
+}
+
+async function cargarInicial() {
+    actualizarIndicadoresFiltros();
+    const params = construirParams();
+    if (permisoTHId > 0) params.set('id', String(permisoTHId));
+    Loading.section('listaPermisosTH', true);
+    try {
+        const res = await fetch(`./api/permisos_th_listar.php?${params}`);
+        const data = await res.json();
+        if (data.ok) {
+            listaEl.innerHTML = '';
+            permisosEnMemoria = {};
+            if (data.permisos.length === 0) pintarVacioTH();
+            else data.permisos.forEach((p) => pintarPermiso(p, true));
+            actualizarResumen();
+        } else {
+            pintarErrorTH();
+        }
+    } catch (e) {
+        pintarErrorTH();
+    } finally {
+        Loading.section('listaPermisosTH', false);
+    }
+}
+
+function limpiarFiltrosTH() {
+    IDS_FILTROS_TH.forEach((id) => (document.getElementById(id).value = ''));
+    cargarInicial();
+}
+
+// Selects y fechas: al cambiar. Cédulas: mientras escribes, con una pequeña espera.
+['fTipo', 'fEstado', 'fDesde', 'fHasta', 'fOrdenHoras'].forEach((id) => {
     document.getElementById(id).addEventListener('change', cargarInicial);
 });
+let temporizadorBusqueda = null;
+['fEmpleado', 'fJefe'].forEach((id) => {
+    document.getElementById(id).addEventListener('input', () => {
+        clearTimeout(temporizadorBusqueda);
+        temporizadorBusqueda = setTimeout(cargarInicial, 450);
+    });
+});
+document.getElementById('pmLimpiar').addEventListener('click', limpiarFiltrosTH);
+
+const btnToggleFiltros = document.getElementById('pmToggleFiltros');
+const cuerpoFiltros = document.getElementById('pmFiltrosBody');
+btnToggleFiltros.addEventListener('click', () => {
+    const abierto = cuerpoFiltros.classList.toggle('is-open');
+    btnToggleFiltros.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+    btnToggleFiltros.firstChild.textContent = abierto ? 'Ocultar ' : 'Mostrar ';
+});
+
+// Acciones dentro de la lista (anular, limpiar, reintentar) con un solo listener
+listaEl.addEventListener('click', (e) => {
+    const btnAnular = e.target.closest('[data-anular]');
+    if (btnAnular) {
+        anularPermiso(Number(btnAnular.dataset.id), Number(btnAnular.dataset.version));
+        return;
+    }
+    const btn = e.target.closest('[data-accion]');
+    if (!btn) return;
+    if (btn.dataset.accion === 'limpiar') limpiarFiltrosTH();
+    if (btn.dataset.accion === 'reintentar') cargarInicial();
+});
+
+// ---------------------------------------------------------------- presencia y polling
+function refrescarPresencia() {
+    listaEl.querySelectorAll('.pm-row[data-cedula]').forEach((fila) => {
+        const enLinea = cedulasEnLinea.has(fila.dataset.cedula);
+        const punto = fila.querySelector('[data-presencia]');
+        const texto = fila.querySelector('[data-presencia-texto]');
+        if (punto) punto.classList.toggle('is-on', enLinea);
+        if (texto) texto.textContent = ` · ${enLinea ? 'En línea' : 'Desconectado'}`;
+    });
+}
 
 async function actualizarPresencia() {
-    const res = await fetch('./api/presencia_estado.php');
-    const data = await res.json();
-    if (data.ok) cedulasEnLinea = new Set(data.en_linea);
+    try {
+        const res = await fetch('./api/presencia_estado.php');
+        const data = await res.json();
+        if (data.ok) {
+            cedulasEnLinea = new Set(data.en_linea);
+            refrescarPresencia();
+        }
+    } catch (e) { /* silencioso */ }
 }
 
 async function polling() {
     // Si llegamos desde una notificación con ?id=123, la vista debe permanecer
     // enfocada exclusivamente en ese permiso y no volver a poblar la lista completa.
     if (permisoTHId > 0) return;
-    const res = await fetch(`./api/permisos_th_actualizados.php?desde=${encodeURIComponent(ultimaActualizacion)}`);
-    const data = await res.json();
-    if (data.ok) {
-        data.permisos.forEach(pintarPermiso);
-        ultimaActualizacion = data.servidor_ahora;
-    }
+    try {
+        const res = await fetch(`./api/permisos_th_actualizados.php?desde=${encodeURIComponent(ultimaActualizacion)}`);
+        const data = await res.json();
+        if (data.ok) {
+            data.permisos.forEach((p) => pintarPermiso(p));
+            ultimaActualizacion = data.servidor_ahora;
+        }
+    } catch (e) { /* silencioso: se reintenta en el siguiente ciclo */ }
 }
 
 cargarInicial();
 actualizarPresencia();
-setInterval(() => { if (document.visibilityState === 'visible') { polling(); actualizarPresencia(); } }, 6000);
+setInterval(() => {
+    if (document.visibilityState === 'visible') { polling(); actualizarPresencia(); }
+}, 6000);
+
+// ---------------------------------------------------------------- anular
 async function anularPermiso(id, version) {
     const motivo = window.prompt('Escribe el motivo obligatorio de la anulación:');
     if (motivo === null) return;
     if (!motivo.trim()) { alert('El motivo de anulación es obligatorio.'); return; }
-    const fd = new FormData(); fd.append('id', id); fd.append('version', version); fd.append('motivo', motivo.trim()); fd.append('csrf_token', document.getElementById('csrfToken').value);
+    const fd = new FormData();
+    fd.append('id', id);
+    fd.append('version', version);
+    fd.append('motivo', motivo.trim());
+    fd.append('csrf_token', document.getElementById('csrfToken').value);
     Loading.show('Anulando permiso...');
     try {
-        const r = await fetch('./api/permisos_anular.php', {method:'POST', body:fd}); const d=await r.json();
-        if(d.ok) await cargarInicial(); else alert(d.error || 'No se pudo anular.');
+        const r = await fetch('./api/permisos_anular.php', { method: 'POST', body: fd });
+        const d = await r.json();
+        if (d.ok) await cargarInicial(); else alert(d.error || 'No se pudo anular.');
     } catch (e) { alert('Error de conexión con el servidor.'); }
     finally { Loading.hide(); }
 }
