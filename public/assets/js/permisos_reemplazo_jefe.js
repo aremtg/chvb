@@ -54,6 +54,15 @@ let accionActual = null,
   permisoIdActual = null,
   versionActual = null;
 const canvasBandeja = inicializarCanvasFirma("canvasFirmaBandeja");
+const chkFirmaGuardadaBandeja = document.getElementById("usarFirmaGuardadaBandeja");
+if (chkFirmaGuardadaBandeja) {
+  chkFirmaGuardadaBandeja.addEventListener("change", () => {
+    document
+      .getElementById("cajaCanvasBandeja")
+      .classList.toggle("hidden", chkFirmaGuardadaBandeja.checked);
+    if (!chkFirmaGuardadaBandeja.checked) canvasBandeja.redimensionar();
+  });
+}
 const capturaFotoBandeja = inicializarCapturaFoto("capturaFotoBandeja");
 
 function abrirModalFirma(id, version, rol, accion) {

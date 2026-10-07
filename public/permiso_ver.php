@@ -80,7 +80,7 @@ if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula
                 <?php endif;?>
                 <div id="cajaCanvasAccion" class="<?= $firmaGuardada? 'hidden' : ''?> space-y-2">
                     <p class="text- font-semibold tracking-widest uppercase text-gray-600">Dibuja tu firma</p>
-                    <canvas id="canvasFirmaAccion" class="border border-gray-200 rounded-xl w-full bg-white touch-none" height="160"></canvas>
+                    <canvas id="canvasFirmaAccion" data-alto="200" class="border border-gray-200 rounded-xl w-full bg-white touch-none" style="height:200px"></canvas>
                     <button type="button" id="btnLimpiarFirmaAccion" class="text- font-medium text-gray-500 hover:text-red-600">Limpiar firma</button>
                 </div>
                 <div class="space-y-2">

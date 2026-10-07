@@ -247,8 +247,9 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                                 </div>
                                 <div id="panelFirmaCanvas">
                                     <canvas id="canvasFirma"
+                                        data-alto="200"
                                         class="border border-gray-300 rounded-xl w-full bg-white touch-none"
-                                        height="150"></canvas>
+                                        style="height:200px"></canvas>
                                     <button type="button" id="btnLimpiarFirma"
                                         class="text-xs text-gray-500 hover:text-red-600 mt-1">Limpiar</button>
                                 </div>

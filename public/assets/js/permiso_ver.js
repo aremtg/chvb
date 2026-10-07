@@ -313,6 +313,16 @@ function abrirModalAccion(accion, rol) {
   if (accion === "firmar") canvasAccion.redimensionar();
 }
 
+const chkFirmaGuardadaAccion = document.getElementById("usarFirmaGuardadaAccion");
+if (chkFirmaGuardadaAccion) {
+  chkFirmaGuardadaAccion.addEventListener("change", () => {
+    document
+      .getElementById("cajaCanvasAccion")
+      .classList.toggle("hidden", chkFirmaGuardadaAccion.checked);
+    if (!chkFirmaGuardadaAccion.checked) canvasAccion.redimensionar();
+  });
+}
+
 document
   .getElementById("btnLimpiarFirmaAccion")
   .addEventListener("click", () => canvasAccion.limpiar());
