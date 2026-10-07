@@ -217,6 +217,7 @@ try {
     echo json_encode(['ok' => true, 'id' => $permisoId, 'consecutivo' => $consecutivo]);
 
 } catch (Throwable $e) {
+    error_log('permisos_crear: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => 'Error interno al crear el permiso: ' . $e->getMessage()]);
+    echo json_encode(['ok' => false, 'error' => 'Error interno al crear el permiso.']);
 }

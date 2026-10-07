@@ -74,4 +74,8 @@ try {
     if($nuevoReemplazo) NotificacionModel::crearParaEmpleado($nuevoReemplazo, 'Tienes un permiso pendiente de firma como reemplazo: "' . $p['consecutivo'] . '"', '/chvb/public/permiso_ver.php?id=' . $id, 'permiso');
     NotificacionModel::crearParaEmpleado($jefe, 'Tienes un permiso pendiente de firma: "' . $p['consecutivo'] . '"', '/chvb/public/permiso_ver.php?id=' . $id, 'permiso');
     echo json_encode(['ok'=>true,'id'=>$id,'consecutivo'=>$p['consecutivo'],'estado'=>$campos['estado']]);
-} catch(Throwable $e){ http_response_code(500); echo json_encode(['ok'=>false,'error'=>$e->getMessage()]); }
+} catch (Throwable $e) {
+    error_log('permisos_editar: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'Error interno al editar el permiso.']);
+}

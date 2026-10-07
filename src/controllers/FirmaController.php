@@ -10,8 +10,23 @@ class FirmaController {
         if (!preg_match('/^data:image\/png;base64,(.+)$/', $dataUrl, $m)) {
             return ['ok' => false, 'error' => 'Formato de firma inválido.'];
         }
-        $binario = base64_decode($m[1]);
+
+        // Límite previo para evitar consumo excesivo de memoria al decodificar Base64.
+        if (strlen($m[1]) > 3 * 1024 * 1024) {
+            return ['ok' => false, 'error' => 'La firma supera el tamaño permitido.'];
+        }
+
+        $binario = base64_decode($m[1], true);
         if ($binario === false) return ['ok' => false, 'error' => 'No se pudo decodificar la firma.'];
+
+        if (strlen($binario) > 2 * 1024 * 1024) {
+            return ['ok' => false, 'error' => 'La firma no puede superar 2MB.'];
+        }
+
+        $info = @getimagesizefromstring($binario);
+        if ($info === false || ($info['mime'] ?? '') !== 'image/png') {
+            return ['ok' => false, 'error' => 'El contenido no es una firma PNG válida.'];
+        }
 
         $carpeta = FileManager::rutaBase($cedula) . '/firma';
         if (!is_dir($carpeta)) mkdir($carpeta, 0777, true);

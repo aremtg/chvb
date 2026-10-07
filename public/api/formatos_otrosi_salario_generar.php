@@ -529,9 +529,11 @@ try {
 
 } catch (Throwable $e) {
 
+    error_log('formatos_otrosi_salario_generar (validación): ' . $e->getMessage());
+    http_response_code(500);
     echo json_encode([
         'ok' => false,
-        'error' => $e->getMessage()
+        'error' => 'No fue posible preparar los datos para generar el documento.'
     ], JSON_UNESCAPED_UNICODE);
 
     exit;
@@ -806,7 +808,6 @@ try {
     echo json_encode([
         'ok' => false,
         'error' => 'No se pudo generar el documento Word.',
-        'detalle' => $e->getMessage()
     ], JSON_UNESCAPED_UNICODE);
 
     exit;

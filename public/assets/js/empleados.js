@@ -322,6 +322,16 @@ const clasificacionEditar = iniciarClasificacion("edit", {
 });
 
 // --- Ver Empleado ---
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[char]));
+}
+
 async function abrirModalVer(cedula) {
   document
     .querySelectorAll('[id^="menu-"]')
@@ -354,7 +364,7 @@ async function abrirModalVer(cedula) {
                 ? `<img
       src="./api/foto_ver.php?cedula=${encodeURIComponent(emp.cedula)}"
       data-visor-img="./api/foto_ver.php?cedula=${encodeURIComponent(emp.cedula)}"
-      alt="Foto de ${emp.nombre}"
+      alt="Foto de ${escapeHtml(emp.nombre)}"
       role="button" tabindex="0"
       class="w-32 h-32 rounded-full object-cover object-center border border-gray-200 block cursor-zoom-in"
       loading="eager"
@@ -362,29 +372,29 @@ async function abrirModalVer(cedula) {
    >`
                 : `<span class="w-32 h-32 rounded-full bg-gray-100 border flex items-center justify-center text-3xl">👤</span>`
             }
-            <p class="mt-0 font-semibold text-gray-900">${emp.nombre}</p>
-            <p class="text-sm text-gray-500">CC ${emp.cedula}${emp.lugar_expedicion ? ` · expedida en ${emp.lugar_expedicion}` : ""}</p>
+            <p class="mt-0 font-semibold text-gray-900">${escapeHtml(emp.nombre)}</p>
+            <p class="text-sm text-gray-500">CC ${escapeHtml(emp.cedula)}${emp.lugar_expedicion ? ` · expedida en ${escapeHtml(emp.lugar_expedicion)}` : ""}</p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1">
-            <p class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="block text-xs text-gray-500">Cargo</span><span class="font-medium">${emp.cargo_detalle || emp.cargo}</span></p>
-            <p class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="block text-xs text-gray-500">Tipo de personal</span><span class="font-medium">${emp.tipo_de_personal || "-"}</span></p>
-            <p class="p-3 rounded-xl bg-gray-50 border border-gray-100 sm:col-span-2"><span class="block text-xs text-gray-500">Jornada</span><span class="font-medium">${emp.jornada ? emp.jornada.etiqueta : "-"}</span></p>
-            <p class="p-3 rounded-xl bg-white border border-gray-100 sm:col-span-2"><span class="block text-xs text-gray-500">Lugar de expedición de la cédula</span><span class="font-medium">${emp.lugar_expedicion || "-"}</span></p>
+            <p class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="block text-xs text-gray-500">Cargo</span><span class="font-medium">${escapeHtml(emp.cargo_detalle || emp.cargo)}</span></p>
+            <p class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="block text-xs text-gray-500">Tipo de personal</span><span class="font-medium">${escapeHtml(emp.tipo_de_personal || "-")}</span></p>
+            <p class="p-3 rounded-xl bg-gray-50 border border-gray-100 sm:col-span-2"><span class="block text-xs text-gray-500">Jornada</span><span class="font-medium">${escapeHtml(emp.jornada ? emp.jornada.etiqueta : "-")}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100 sm:col-span-2"><span class="block text-xs text-gray-500">Lugar de expedición de la cédula</span><span class="font-medium">${escapeHtml(emp.lugar_expedicion || "-")}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Sexo</span><span class="font-medium">${emp.sexo === "F" ? "Femenino" : emp.sexo === "M" ? "Masculino" : "-"}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Fecha de nacimiento</span><span class="font-medium">${formatearFechaEs(emp.fecha_nacimiento)}</span></p>
-            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Estado</span><span class="font-medium">${emp.estado}</span></p>
-            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">EPS</span><span class="font-medium">${emp.eps || "-"}</span></p>
-            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Fondo de pensión</span><span class="font-medium">${emp.pension || "-"}</span></p>
-            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">ARL</span><span class="font-medium">${emp.arl || "-"}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Estado</span><span class="font-medium">${escapeHtml(emp.estado)}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">EPS</span><span class="font-medium">${escapeHtml(emp.eps || "-")}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Fondo de pensión</span><span class="font-medium">${escapeHtml(emp.pension || "-")}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">ARL</span><span class="font-medium">${escapeHtml(emp.arl || "-")}</span></p>
             
             <p class="p-3 rounded-xl bg-green-50 border border-green-100"><span class="block text-xs text-green-600">Salario básico</span><span class="font-semibold text-green-800">${emp.salario_basico ? "$" + Number(emp.salario_basico).toLocaleString("es-CO") : "-"}</span></p>
-            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Tipo de contrato</span><span class="font-medium">${emp.tipo_de_contrato || "-"}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Tipo de contrato</span><span class="font-medium">${escapeHtml(emp.tipo_de_contrato || "-")}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Fecha de inicio del contrato</span><span class="font-medium">${formatearFechaEs(emp.fecha_inicio_contrato)}</span></p>
             <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Fecha de fin del contrato</span><span class="font-medium">${formatearFechaEs(emp.fecha_fin_contrato)}</span></p>
             
-            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Celular</span><span class="font-medium">${emp.celular || "-"}</span></p>
-            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Correo</span><span class="font-medium break-all">${emp.correo || "-"}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Celular</span><span class="font-medium">${escapeHtml(emp.celular || "-")}</span></p>
+            <p class="p-3 rounded-xl bg-white border border-gray-100"><span class="block text-xs text-gray-500">Correo</span><span class="font-medium break-all">${escapeHtml(emp.correo || "-")}</span></p>
         </div>
     </div>
 `;

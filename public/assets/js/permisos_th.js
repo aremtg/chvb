@@ -252,7 +252,13 @@ function limpiarFiltrosTH() {
 });
 let temporizadorBusqueda = null;
 ['fEmpleado', 'fJefe'].forEach((id) => {
-    document.getElementById(id).addEventListener('input', () => {
+    document.getElementById(id).addEventListener('input', (e) => {
+        // Las cédulas se muestran con puntos en CHVB, pero en la BD se guardan
+        // como dígitos. Normalizamos aquí para que pegar/escribir 1.118.569.829
+        // sea equivalente a 1118569829.
+        const normalizada = String(e.target.value ?? '').replace(/\D/g, '');
+        if (e.target.value !== normalizada) e.target.value = normalizada;
+
         clearTimeout(temporizadorBusqueda);
         temporizadorBusqueda = setTimeout(cargarInicial, 450);
     });

@@ -36,6 +36,8 @@ class AuthEmpleadoController {
         // Login correcto
         UsuarioEmpleadoModel::resetearIntentos($cedula);
         session_regenerate_id(true);
+        unset($_SESSION['superadmin_id'], $_SESSION['superadmin_username'], $_SESSION['superadmin_rol']);
+        $_SESSION['auth_type'] = 'empleado';
         $_SESSION['empleado_cedula'] = $cedula;
 
         return ['ok' => true];

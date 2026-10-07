@@ -113,9 +113,10 @@ try {
     ], JSON_UNESCAPED_UNICODE);
 
 } catch (Throwable $e) {
-    http_response_code(400);
+    error_log('formatos_remision_examenes_generar: ' . $e->getMessage());
+    http_response_code(500);
     echo json_encode([
         'ok' => false,
-        'error' => $e->getMessage()
+        'error' => 'No se pudo generar la remisión de exámenes.'
     ], JSON_UNESCAPED_UNICODE);
 }

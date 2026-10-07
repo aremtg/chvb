@@ -409,10 +409,10 @@ class PermisoModel {
             $sql .= " AND DATE(p.fecha_solicitud) <= :b{$i}"; $params["b{$i}"] = $filtros['fecha_hasta']; $i++;
         }
         if (!empty($filtros['cedula_jefe'])) {
-            $sql .= " AND p.cedula_jefe = :b{$i}"; $params["b{$i}"] = $filtros['cedula_jefe']; $i++;
+            $sql .= " AND p.cedula_jefe LIKE :b{$i}"; $params["b{$i}"] = $filtros['cedula_jefe'] . '%'; $i++;
         }
         if (!empty($filtros['cedula_empleado'])) {
-            $sql .= " AND p.cedula_empleado = :b{$i}"; $params["b{$i}"] = $filtros['cedula_empleado']; $i++;
+            $sql .= " AND p.cedula_empleado LIKE :b{$i}"; $params["b{$i}"] = $filtros['cedula_empleado'] . '%'; $i++;
         }
         if (!empty($filtros['tipo_permiso'])) {
             $sql .= " AND p.tipo_permiso = :b{$i}"; $params["b{$i}"] = $filtros['tipo_permiso']; $i++;

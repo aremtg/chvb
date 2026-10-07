@@ -292,9 +292,24 @@ public static function guardarFoto(string $cedula, array $archivo): array {
         if (!preg_match('/^data:image\/(png|jpeg);base64,(.+)$/', $dataUrl, $m)) {
             return ['ok' => false, 'error' => 'Formato de foto inválido.'];
         }
+
+        // Límite previo para evitar consumo excesivo de memoria al decodificar Base64.
+        if (strlen($m[2]) > 7 * 1024 * 1024) {
+            return ['ok' => false, 'error' => 'La imagen supera el tamaño permitido.'];
+        }
+
         $extension = $m[1] === 'png' ? 'png' : 'jpg';
-        $binario = base64_decode($m[2]);
+        $binario = base64_decode($m[2], true);
         if ($binario === false) return ['ok' => false, 'error' => 'No se pudo decodificar la foto.'];
+
+        if (strlen($binario) > 5 * 1024 * 1024) {
+            return ['ok' => false, 'error' => 'La imagen no puede superar 5MB.'];
+        }
+
+        $info = @getimagesizefromstring($binario);
+        if ($info === false || !in_array($info['mime'] ?? '', ['image/png', 'image/jpeg'], true)) {
+            return ['ok' => false, 'error' => 'El contenido no es una imagen PNG o JPG válida.'];
+        }
 
         $carpeta = self::rutaBase($cedula) . '/' . $subcarpeta;
         if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);

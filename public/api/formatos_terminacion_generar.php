@@ -547,5 +547,5 @@ try {
     af02JsonError('Los datos de renovaciones no tienen un formato JSON válido.');
 } catch (Throwable $e) {
     error_log('AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO: ' . $e->getMessage());
-    af02JsonError($e->getMessage(), 400);
+    af02JsonError('No se pudo generar la terminación de contrato.', 500);
 }

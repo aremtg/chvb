@@ -2,10 +2,22 @@
 // includes/session.php
 date_default_timezone_set('America/Bogota'); 
 if (session_status() === PHP_SESSION_NONE) {
-    session_start([
-        'cookie_httponly' => true,
-        'cookie_samesite' => 'Lax',
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.use_trans_sid', '0');
+
+    $secureCookie = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '',
+        'secure' => $secureCookie,
+        'httponly' => true,
+        'samesite' => 'Lax',
     ]);
+
+    session_start();
 }
 
 /**
@@ -13,7 +25,7 @@ if (session_status() === PHP_SESSION_NONE) {
  * Inclúyelo al inicio de cada página protegida del panel.
  */
 function requireSuperAdmin(): void {
-    if (empty($_SESSION['superadmin_id'])) {
+    if (($_SESSION['auth_type'] ?? '') !== 'admin' || empty($_SESSION['superadmin_id'])) {
         header('Location: /chvb/public/login.php');
         exit;
     }
@@ -28,7 +40,7 @@ function requireSuperAdmin(): void {
     // reciclado por AUTO_INCREMENT y ahora pertenece a otra persona), la
     // sesión queda invalidada de inmediato, sin importar cuánto tiempo llevaba activa.
     if (!$usuario || $usuario['username'] !== ($_SESSION['superadmin_username'] ?? null)) {
-        unset($_SESSION['superadmin_id'], $_SESSION['superadmin_username'], $_SESSION['superadmin_rol']);
+        unset($_SESSION['superadmin_id'], $_SESSION['superadmin_username'], $_SESSION['superadmin_rol'], $_SESSION['auth_type']);
         header('Location: /chvb/public/login.php?motivo=sesion_invalida');
         exit;
     }
@@ -42,7 +54,7 @@ function requireSuperAdmin(): void {
  * Inclúyelo al inicio de las páginas del portal del empleado.
  */
 function requireEmpleado(): void {
-    if (empty($_SESSION['empleado_cedula'])) {
+    if (($_SESSION['auth_type'] ?? '') !== 'empleado' || empty($_SESSION['empleado_cedula'])) {
         header('Location: /chvb/public/login_empleado.php');
         exit;
     }
@@ -60,7 +72,7 @@ function requireEmpleado(): void {
     $acceso = $stmt2->fetch();
 
     if (!$empleadoExiste || !$acceso || !$acceso['activo']) {
-        unset($_SESSION['empleado_cedula']);
+        unset($_SESSION['empleado_cedula'], $_SESSION['auth_type']);
         header('Location: /chvb/public/login_empleado.php?motivo=sesion_invalida');
         exit;
     }

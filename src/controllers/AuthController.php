@@ -36,6 +36,8 @@ class AuthController
         // Regenerar ID de sesión previene fijación de sesión
         session_regenerate_id(true);
 
+        unset($_SESSION['empleado_cedula']);
+        $_SESSION['auth_type'] = 'admin';
         $_SESSION['superadmin_id'] = $usuario['id'];
         $_SESSION['superadmin_username'] = $usuario['username'];
         $_SESSION['superadmin_rol'] = $usuario['rol'];

@@ -24,6 +24,7 @@ try {
     $resultado = EmpleadoController::actualizar($cedulaActual, $_POST, $_FILES['foto'] ?? null);
     echo json_encode($resultado);
 } catch (Throwable $e) {
+    error_log('empleados_actualizar: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['ok' => false, 'errores' => ['Error interno: ' . $e->getMessage()]]);
+    echo json_encode(['ok' => false, 'errores' => ['Error interno al actualizar el empleado.']]);
 }

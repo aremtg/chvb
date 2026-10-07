@@ -276,7 +276,8 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
         } catch (Exception $e) {
             EmpleadoModel::eliminar($cedula);
             FileManager::borrarEstructuraEmpleado($cedula);
-            return ['ok' => false, 'errores' => ['Error creando estructura del empleado: ' . $e->getMessage()]];
+            error_log('EmpleadoController::crear estructura: ' . $e->getMessage());
+            return ['ok' => false, 'errores' => ['Error creando la estructura del empleado.']];
         }
 
         if ($archivoFoto && isset($archivoFoto['error']) && $archivoFoto['error'] !== UPLOAD_ERR_NO_FILE) {
@@ -358,7 +359,8 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
                 }
                 // La BD queda con la cédula anterior y restauramos la carpeta física.
                 FileManager::renombrarEstructuraEmpleado($cedulaNueva, $cedulaActual);
-                return ['ok' => false, 'errores' => ['Error actualizando la base de datos: ' . $e->getMessage()]];
+                error_log('EmpleadoController::actualizar BD: ' . $e->getMessage());
+                return ['ok' => false, 'errores' => ['Error actualizando la base de datos.']];
             }
             $cedulaFinal = $cedulaNueva;
         }

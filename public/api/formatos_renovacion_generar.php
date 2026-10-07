@@ -277,6 +277,7 @@ try {
         'url' => './api/formato_archivo.php?f=' . rawurlencode($archivo) . '&accion=descargar'
     ], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    error_log('formatos_renovacion_generar: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'No se pudo generar la renovación.'], JSON_UNESCAPED_UNICODE);
 }

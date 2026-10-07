@@ -17,4 +17,8 @@ try {
         $rutaEvidencia=$ruta['ruta'];
     }
     echo json_encode(PermisoController::registrarLlegada($id,$version,$fechaFin,$horaFin,$rutaEvidencia));
-} catch(Throwable $e) { http_response_code(500); echo json_encode(['ok'=>false,'error'=>'Error interno: '.$e->getMessage()]); }
+} catch (Throwable $e) {
+    error_log('permisos_registrar_llegada: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'Error interno al registrar la llegada.']);
+}

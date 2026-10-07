@@ -25,21 +25,25 @@ class NotificacionModel
     /**
      * Borra automáticamente notificaciones con más de 3 meses, y luego devuelve las vigentes.
      */
-    public static function listar(): array {
-    self::purgarExpiradas();
-    $pdo = getPDO();
-    $stmt = $pdo->prepare("SELECT * FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND (usuario_id = :usuario_id OR usuario_id IS NULL) ORDER BY created_at DESC");
-    $stmt->execute(['usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
-    return $stmt->fetchAll();
-}
+    public static function listar(): array
+    {
+        self::purgarExpiradas();
+        self::normalizarNotificacionesCompartidasTalentoHumano();
+        $pdo = getPDO();
+        $stmt = $pdo->prepare("SELECT * FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND usuario_id = :usuario_id ORDER BY created_at DESC");
+        $stmt->execute(['usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
+        return $stmt->fetchAll();
+    }
 
-    public static function contar(): int {
-    self::purgarExpiradas();
-    $pdo = getPDO();
-    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND (usuario_id = :usuario_id OR usuario_id IS NULL)");
-    $stmt->execute(['usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
-    return (int)$stmt->fetch()['total'];
-}
+    public static function contar(): int
+    {
+        self::purgarExpiradas();
+        self::normalizarNotificacionesCompartidasTalentoHumano();
+        $pdo = getPDO();
+        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND usuario_id = :usuario_id");
+        $stmt->execute(['usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
+        return (int)$stmt->fetch()['total'];
+    }
 
     public static function marcar(int $id, bool $leida): void
     {
@@ -48,25 +52,29 @@ class NotificacionModel
         $stmt->execute(['leida' => $leida ? 1 : 0, 'id' => $id, 'usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
     }
 
-   public static function contarNoLeidas(): int {
-    self::purgarExpiradas();
-    $pdo = getPDO();
-    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND leida = 0 AND (usuario_id = :usuario_id OR usuario_id IS NULL)");
-    $stmt->execute(['usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
-    return (int)$stmt->fetch()['total'];
-}
+    public static function contarNoLeidas(): int
+    {
+        self::purgarExpiradas();
+        self::normalizarNotificacionesCompartidasTalentoHumano();
+        $pdo = getPDO();
+        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND leida = 0 AND usuario_id = :usuario_id");
+        $stmt->execute(['usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
+        return (int)$stmt->fetch()['total'];
+    }
 
     public static function eliminar(int $id): void
     {
+        self::normalizarNotificacionesCompartidasTalentoHumano();
         $pdo = getPDO();
-        $stmt = $pdo->prepare("DELETE FROM notificaciones WHERE id = :id AND usuario_id = :usuario_id");
+        $stmt = $pdo->prepare("DELETE FROM notificaciones WHERE id = :id AND usuario_id = :usuario_id AND destinatario_tipo = 'talento_humano'");
         $stmt->execute(['id' => $id, 'usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
     }
 
     public static function eliminarTodas(): void
     {
+        self::normalizarNotificacionesCompartidasTalentoHumano();
         $pdo = getPDO();
-        $stmt = $pdo->prepare("DELETE FROM notificaciones WHERE usuario_id = :usuario_id");
+        $stmt = $pdo->prepare("DELETE FROM notificaciones WHERE usuario_id = :usuario_id AND destinatario_tipo = 'talento_humano'");
         $stmt->execute(['usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
     }
 
@@ -74,6 +82,42 @@ class NotificacionModel
     {
         $pdo = getPDO();
         $pdo->exec("DELETE FROM notificaciones WHERE created_at < DATE_SUB(NOW(), INTERVAL 3 MONTH)");
+    }
+
+    private static function normalizarNotificacionesCompartidasTalentoHumano(): void
+    {
+        $pdo = getPDO();
+        $compartidas = $pdo->query("SELECT * FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND usuario_id IS NULL ORDER BY id ASC")->fetchAll();
+        if (!$compartidas) return;
+
+        $usuarios = $pdo->query("SELECT id FROM usuarios WHERE rol IN ('superadmin_talento_humano','auxiliar_talento_humano')")->fetchAll();
+        if (!$usuarios) return;
+
+        $insert = $pdo->prepare("INSERT INTO notificaciones (usuario_id, destinatario_tipo, usuario_nombre, cedula_empleado, campo, mensaje, enlace, leida, created_at) VALUES (:usuario_id, 'talento_humano', :usuario_nombre, :cedula, :campo, :mensaje, :enlace, :leida, :created_at)");
+        $delete = $pdo->prepare("DELETE FROM notificaciones WHERE id = :id AND usuario_id IS NULL");
+
+        $pdo->beginTransaction();
+        try {
+            foreach ($compartidas as $n) {
+                foreach ($usuarios as $u) {
+                    $insert->execute([
+                        'usuario_id' => (int)$u['id'],
+                        'usuario_nombre' => $n['usuario_nombre'],
+                        'cedula' => $n['cedula_empleado'],
+                        'campo' => $n['campo'],
+                        'mensaje' => $n['mensaje'],
+                        'enlace' => $n['enlace'],
+                        'leida' => (int)$n['leida'],
+                        'created_at' => $n['created_at'],
+                    ]);
+                }
+                $delete->execute(['id' => (int)$n['id']]);
+            }
+            $pdo->commit();
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            error_log('NotificacionModel::normalizarNotificacionesCompartidasTalentoHumano: ' . $e->getMessage());
+        }
     }
 
 
@@ -277,12 +321,33 @@ class NotificacionModel
      * con sesión de usuarios), por eso usuario_id puede ser NULL. Reutiliza el
      * mismo mecanismo de polling/badge/sonido ya construido para el superadmin.
      */
-    public static function crearParaTalentoHumano(?int $usuarioId, string $actorNombre, string $cedulaEmpleado, string $campo, string $mensaje, ?string $enlace = null): void {
+    public static function crearParaTalentoHumano(?int $usuarioId, string $actorNombre, string $cedulaEmpleado, string $campo, string $mensaje, ?string $enlace = null): void
+    {
         $pdo = getPDO();
-        $stmt = $pdo->prepare(
-            "INSERT INTO notificaciones (usuario_id, destinatario_tipo, usuario_nombre, cedula_empleado, campo, mensaje, enlace)
-             VALUES (:b1, 'talento_humano', :b2, :b3, :b4, :b5, :b6)"
-        );
-        $stmt->execute(['b1' => $usuarioId, 'b2' => $actorNombre, 'b3' => $cedulaEmpleado, 'b4' => $campo, 'b5' => $mensaje, 'b6' => $enlace]);
+        $stmt = $pdo->prepare("INSERT INTO notificaciones (usuario_id, destinatario_tipo, usuario_nombre, cedula_empleado, campo, mensaje, enlace) VALUES (:usuario_id, 'talento_humano', :usuario_nombre, :cedula, :campo, :mensaje, :enlace)");
+
+        if ($usuarioId !== null) {
+            $stmt->execute([
+                'usuario_id' => $usuarioId,
+                'usuario_nombre' => $actorNombre,
+                'cedula' => $cedulaEmpleado,
+                'campo' => $campo,
+                'mensaje' => $mensaje,
+                'enlace' => $enlace,
+            ]);
+            return;
+        }
+
+        $usuarios = $pdo->query("SELECT id FROM usuarios WHERE rol IN ('superadmin_talento_humano','auxiliar_talento_humano')")->fetchAll();
+        foreach ($usuarios as $usuario) {
+            $stmt->execute([
+                'usuario_id' => (int)$usuario['id'],
+                'usuario_nombre' => $actorNombre,
+                'cedula' => $cedulaEmpleado,
+                'campo' => $campo,
+                'mensaje' => $mensaje,
+                'enlace' => $enlace,
+            ]);
+        }
     }
 }
