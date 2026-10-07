@@ -163,6 +163,8 @@ formCrear.addEventListener("submit", async (e) => {
 
   const formData = new FormData(formCrear);
 
+  const btn = Loading.submitter(e);
+  Loading.start(btn, "Creando empleado...");
   try {
     const res = await fetch("./api/empleados_crear.php", {
       method: "POST",
@@ -174,10 +176,12 @@ formCrear.addEventListener("submit", async (e) => {
     if (data.ok) {
       window.location.reload();
     } else {
+      Loading.stop(btn);
       erroresCrear.innerHTML = data.errores.join("<br>");
       erroresCrear.classList.remove("hidden");
     }
   } catch (err) {
+    Loading.stop(btn);
     erroresCrear.innerHTML = "Error de conexión con el servidor.";
     erroresCrear.classList.remove("hidden");
   }
@@ -203,6 +207,8 @@ formEliminar.addEventListener("submit", async (e) => {
 
   const formData = new FormData(formEliminar);
 
+  const btn = Loading.submitter(e);
+  Loading.start(btn, "Eliminando...");
   try {
     const res = await fetch("./api/empleados_eliminar.php", {
       method: "POST",
@@ -213,10 +219,12 @@ formEliminar.addEventListener("submit", async (e) => {
     if (data.ok) {
       window.location.reload();
     } else {
+      Loading.stop(btn);
       errorEliminar.textContent = data.error;
       errorEliminar.classList.remove("hidden");
     }
   } catch (err) {
+    Loading.stop(btn);
     errorEliminar.textContent = "Error de conexión con el servidor.";
     errorEliminar.classList.remove("hidden");
   }
@@ -318,10 +326,19 @@ async function abrirModalVer(cedula) {
   document
     .querySelectorAll('[id^="menu-"]')
     .forEach((m) => m.classList.add("hidden"));
-  const res = await fetch(
-    `./api/empleados_obtener.php?cedula=${encodeURIComponent(cedula)}`,
-  );
-  const data = await res.json();
+  let data;
+  Loading.show("Cargando empleado...");
+  try {
+    const res = await fetch(
+      `./api/empleados_obtener.php?cedula=${encodeURIComponent(cedula)}`,
+    );
+    data = await res.json();
+  } catch (err) {
+    alert("Error de conexión con el servidor.");
+    return;
+  } finally {
+    Loading.hide();
+  }
 
   if (!data.ok) {
     alert(data.error || "Error al cargar el empleado.");
@@ -379,10 +396,19 @@ async function abrirModalEditar(cedula) {
   document
     .querySelectorAll('[id^="menu-"]')
     .forEach((m) => m.classList.add("hidden"));
-  const res = await fetch(
-    `./api/empleados_obtener.php?cedula=${encodeURIComponent(cedula)}`,
-  );
-  const data = await res.json();
+  let data;
+  Loading.show("Cargando empleado...");
+  try {
+    const res = await fetch(
+      `./api/empleados_obtener.php?cedula=${encodeURIComponent(cedula)}`,
+    );
+    data = await res.json();
+  } catch (err) {
+    alert("Error de conexión con el servidor.");
+    return;
+  } finally {
+    Loading.hide();
+  }
 
   if (!data.ok) {
     alert(data.error || "Error al cargar el empleado.");
@@ -533,6 +559,8 @@ document.getElementById("formEditar").addEventListener("submit", async (e) => {
 
   const formData = new FormData(formEditar);
 
+  const btn = Loading.submitter(e);
+  Loading.start(btn, "Guardando cambios...");
   try {
     const res = await fetch("./api/empleados_actualizar.php", {
       method: "POST",
@@ -543,10 +571,12 @@ document.getElementById("formEditar").addEventListener("submit", async (e) => {
     if (data.ok) {
       window.location.reload();
     } else {
+      Loading.stop(btn);
       erroresEditar.innerHTML = data.errores.join("<br>");
       erroresEditar.classList.remove("hidden");
     }
   } catch (err) {
+    Loading.stop(btn);
     erroresEditar.innerHTML = "Error de conexión con el servidor.";
     erroresEditar.classList.remove("hidden");
   }

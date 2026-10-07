@@ -636,10 +636,9 @@ $('formTerminacion').addEventListener('submit', async ev => {
     fd.append('renovaciones', JSON.stringify(ren.map(r => ({ inicio: r.inicio, meses: r.meses, fin: r.fin }))));
 
     const btn = $('btnGenerarTerm');
-    const html = btn.innerHTML;
+    Loading.start(btn, 'Generando Word...');
     enviando = true;
     pintar();
-    btn.textContent = 'Generando...';
 
     try {
         const response = await fetch('./api/formatos_terminacion_generar.php', { method: 'POST', body: fd, headers: { Accept: 'application/json' } });
@@ -657,7 +656,7 @@ $('formTerminacion').addEventListener('submit', async ev => {
     } catch (error) {
         mostrarError(error.message || 'No se pudo generar el Word.');
         enviando = false;
-        btn.innerHTML = html;
+        Loading.stop(btn);
         pintar();
     }
 });
@@ -666,12 +665,14 @@ async function eliminarTerm(archivo) {
     if (!confirm('¿Eliminar este formato generado?')) return;
     const fd = new FormData();
     fd.append('csrf_token', csrfToken);
+    Loading.show('Eliminando...');
     try {
         const response = await fetch('./api/formato_archivo.php?f=' + encodeURIComponent(archivo) + '&accion=eliminar', { method: 'POST', body: fd, headers: { Accept: 'application/json' } });
         const data = await response.json();
         if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo eliminar el archivo.');
         location.reload();
     } catch (error) {
+        Loading.hide();
         alert(error.message || 'No se pudo eliminar el archivo.');
     }
 }

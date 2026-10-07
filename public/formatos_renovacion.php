@@ -504,9 +504,7 @@ const buscadorRen = crearBuscadorEmpleado({
             fd.append('cedula', empleadoRen.cedula);
             renovacionesRen.forEach((r, index) => fd.append(`duraciones[${index + 1}]`, String(r.meses)));
 
-            btn.disabled = true;
-            btn.dataset.html = btn.innerHTML;
-            btn.textContent = 'Generando...';
+            Loading.start(btn, 'Generando Word...');
 
             try {
                 const r = await fetch('./api/formatos_renovacion_generar.php', { method: 'POST', body: fd });
@@ -517,8 +515,7 @@ const buscadorRen = crearBuscadorEmpleado({
             } catch (ex) {
                 err.textContent = ex.message;
                 err.classList.remove('hidden');
-                btn.disabled = false;
-                btn.innerHTML = btn.dataset.html;
+                Loading.stop(btn);
                 validarFormulario();
             }
         });
@@ -528,12 +525,14 @@ const buscadorRen = crearBuscadorEmpleado({
             const fd = new FormData();
             fd.append('csrf_token', csrfToken);
             const url = './api/formato_archivo.php?f=' + encodeURIComponent(archivo) + '&accion=eliminar';
+            Loading.show('Eliminando...');
             try {
                 const r = await fetch(url, { method: 'POST', body: fd });
                 const d = await r.json();
                 if (d.ok) location.reload();
-                else alert(d.error || 'No se pudo eliminar.');
+                else { Loading.hide(); alert(d.error || 'No se pudo eliminar.'); }
             } catch (e) {
+                Loading.hide();
                 alert('No se pudo eliminar el archivo.');
             }
         }

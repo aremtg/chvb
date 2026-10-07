@@ -231,9 +231,7 @@ async function generarRemision() {
     fd.append('cedula', empleadoRemision.cedula);
     fd.append('tipo_examen', tipo);
 
-    const htmlOriginal = btn.innerHTML;
-    btn.disabled = true;
-    btn.textContent = 'Generando...';
+    Loading.start(btn, 'Generando Word...');
 
     try {
         const r = await fetch('./api/formatos_remision_examenes_generar.php', {
@@ -251,7 +249,7 @@ async function generarRemision() {
         setTimeout(() => location.reload(), 1000);
     } catch (e) {
         mostrarErrorRemision(e.message || 'No se pudo generar el Word.');
-        btn.innerHTML = htmlOriginal;
+        Loading.stop(btn);
         formatosSetBoton(btn, true);
     }
 }
@@ -266,6 +264,7 @@ async function eliminarRemision(archivo) {
     const fd = new FormData();
     fd.append('csrf_token', csrfToken);
 
+    Loading.show('Eliminando...');
     try {
         const r = await fetch(
             './api/formato_archivo.php?f=' + encodeURIComponent(archivo) + '&accion=eliminar',
@@ -276,9 +275,11 @@ async function eliminarRemision(archivo) {
         if (data.ok) {
             location.reload();
         } else {
+            Loading.hide();
             alert(data.error || 'No se pudo eliminar.');
         }
     } catch (e) {
+        Loading.hide();
         alert('No se pudo eliminar el archivo.');
     }
 }

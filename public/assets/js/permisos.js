@@ -84,11 +84,16 @@ async function aplicarFiltros() {
     fecha_hasta: document.getElementById("filtroFechaHasta").value,
   });
 
-  const res = await fetch(
-    `./api/permisos_listar_propios.php?${params}`,
-  );
-  const data = await res.json();
-  if (data.ok) renderPermisos(data.permisos);
+  Loading.section("listaPermisos", true);
+  try {
+    const res = await fetch(
+      `./api/permisos_listar_propios.php?${params}`,
+    );
+    const data = await res.json();
+    if (data.ok) renderPermisos(data.permisos);
+  } finally {
+    Loading.section("listaPermisos", false);
+  }
 }
 
 ["filtroTipo", "filtroEstado", "filtroFechaDesde", "filtroFechaHasta"].forEach(

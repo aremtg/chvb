@@ -287,15 +287,13 @@ async function generarCertificado() {
     if (!empleado || elegidas.length < 1) { error('Selecciona un empleado y al menos una función.'); return; }
 
     const btn = $('btnGenerarCert');
-    const original = btn.innerHTML;
     const fd = new FormData();
     fd.append('csrf_token', csrfToken);
     fd.append('tipo', 'actual');
     fd.append('cedula', empleado.cedula);
     elegidas.forEach(id => fd.append('funcion_ids[]', id));
 
-    btn.disabled = true;
-    btn.textContent = 'Generando...';
+    Loading.start(btn, 'Generando Word...');
     try {
         const r = await fetch('./api/formatos_certificado_generar.php', { method: 'POST', body: fd, headers: { Accept: 'application/json' } });
         const data = await r.json();
@@ -304,7 +302,7 @@ async function generarCertificado() {
         setTimeout(() => location.reload(), 1000);
     } catch (e) {
         error(e.message || 'No se pudo generar el Word.');
-        btn.innerHTML = original;
+        Loading.stop(btn);
         pintar();
     }
 }
@@ -313,12 +311,13 @@ async function eliminarCertificado(archivo) {
     if (!confirm('¿Eliminar este certificado generado? El consecutivo no se reutiliza.')) return;
     const fd = new FormData();
     fd.append('csrf_token', csrfToken);
+    Loading.show('Eliminando...');
     try {
         const r = await fetch('./api/formato_archivo.php?f=' + encodeURIComponent(archivo) + '&accion=eliminar',
             { method: 'POST', body: fd, headers: { Accept: 'application/json' } });
         const data = await r.json();
-        if (data.ok) location.reload(); else alert(data.error || 'No se pudo eliminar.');
-    } catch (e) { alert('No se pudo eliminar el archivo.'); }
+        if (data.ok) location.reload(); else { Loading.hide(); alert(data.error || 'No se pudo eliminar.'); }
+    } catch (e) { Loading.hide(); alert('No se pudo eliminar el archivo.'); }
 }
 </script>
 </body>

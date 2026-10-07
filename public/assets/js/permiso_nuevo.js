@@ -895,6 +895,12 @@ document.getElementById("formPermiso").addEventListener("submit", async (e) => {
     formData.append("firma_solicitante_base64", canvasFirma.obtenerDataURL());
   }
 
+  const btn = Loading.submitter(e);
+  const textoBtn = permisoEdicion ? "Guardando cambios..." : "Enviando permiso...";
+  Loading.start(btn, textoBtn);
+  Loading.show(textoBtn, "Subiendo foto y firma, no cierres la página");
+  let redirigiendo = false; // si redirige, el spinner se queda hasta que cargue la otra página
+
   try {
     if (permisoEdicion) {
       formData.append("id", permisoEdicion.id);
@@ -903,7 +909,7 @@ document.getElementById("formPermiso").addEventListener("submit", async (e) => {
       if (!capturaFoto.tieneFoto()) formData.delete("foto_solicitante_base64");
       const res = await fetch("./api/permisos_editar.php", { method: "POST", body: formData });
       const data = await res.json();
-      if (data.ok) { window.location.href = `./permiso_ver.php?id=${data.id}`; return; }
+      if (data.ok) { redirigiendo = true; window.location.href = `./permiso_ver.php?id=${data.id}`; return; }
       erroresForm.innerHTML = data.errores ? data.errores.join("<br>") : (data.error || "Error desconocido.");
       erroresForm.classList.remove("hidden"); window.scrollTo(0,0); return;
     }
@@ -914,6 +920,7 @@ document.getElementById("formPermiso").addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (data.ok) {
+      redirigiendo = true;
       window.location.href = `./permisos.php?id=${data.id}`;
     } else {
       erroresForm.innerHTML = data.errores
@@ -925,5 +932,10 @@ document.getElementById("formPermiso").addEventListener("submit", async (e) => {
   } catch (err) {
     erroresForm.textContent = "Error de conexión con el servidor.";
     erroresForm.classList.remove("hidden");
+  } finally {
+    if (!redirigiendo) {
+      Loading.stop(btn);
+      Loading.hide();
+    }
   }
 });

@@ -332,9 +332,7 @@ async function generarOtrosi() {
     fd.append('csrf_token', csrfToken);
     fd.append('cedula', empleadoOtrosi.cedula);
 
-    btn.dataset.html = btn.innerHTML;
-    btn.disabled = true;
-    btn.textContent = 'Generando...';
+    Loading.start(btn, 'Generando Word...');
 
     try {
         const r = await fetch('./api/formatos_otrosi_generar.php', {
@@ -353,7 +351,7 @@ async function generarOtrosi() {
 
     } catch (e) {
         mostrarErrorOtrosi(e.message || 'No se pudo generar el Word.');
-        btn.innerHTML = btn.dataset.html;
+        Loading.stop(btn);
         formatosSetBoton(btn, true);
     }
 }
@@ -371,6 +369,7 @@ async function eliminarOtrosi(archivo) {
     const url = './api/formato_archivo.php?f=' +
         encodeURIComponent(archivo) + '&accion=eliminar';
 
+    Loading.show('Eliminando...');
     try {
         const r = await fetch(url, {
             method: 'POST',
@@ -382,9 +381,11 @@ async function eliminarOtrosi(archivo) {
         if (data.ok) {
             location.reload();
         } else {
+            Loading.hide();
             alert(data.error || 'No se pudo eliminar.');
         }
     } catch (e) {
+        Loading.hide();
         alert('No se pudo eliminar el archivo.');
     }
 }

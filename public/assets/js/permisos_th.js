@@ -67,12 +67,17 @@ const permisoTHId = Number(new URLSearchParams(window.location.search).get('id')
 async function cargarInicial() {
     const params = construirParams();
     if (permisoTHId > 0) params.set('id', String(permisoTHId));
-    const res = await fetch(`./api/permisos_th_listar.php?${params}`);
-    const data = await res.json();
-    if (data.ok) {
-        document.getElementById('listaPermisosTH').innerHTML = '';
-        permisosEnMemoria = {};
-        data.permisos.forEach(pintarPermiso);
+    Loading.section('listaPermisosTH', true);
+    try {
+        const res = await fetch(`./api/permisos_th_listar.php?${params}`);
+        const data = await res.json();
+        if (data.ok) {
+            document.getElementById('listaPermisosTH').innerHTML = '';
+            permisosEnMemoria = {};
+            data.permisos.forEach(pintarPermiso);
+        }
+    } finally {
+        Loading.section('listaPermisosTH', false);
     }
 }
 
@@ -118,6 +123,10 @@ async function anularPermiso(id, version) {
     if (motivo === null) return;
     if (!motivo.trim()) { alert('El motivo de anulación es obligatorio.'); return; }
     const fd = new FormData(); fd.append('id', id); fd.append('version', version); fd.append('motivo', motivo.trim()); fd.append('csrf_token', document.getElementById('csrfToken').value);
-    const r = await fetch('./api/permisos_anular.php', {method:'POST', body:fd}); const d=await r.json();
-    if(d.ok) cargarInicial(); else alert(d.error || 'No se pudo anular.');
+    Loading.show('Anulando permiso...');
+    try {
+        const r = await fetch('./api/permisos_anular.php', {method:'POST', body:fd}); const d=await r.json();
+        if(d.ok) await cargarInicial(); else alert(d.error || 'No se pudo anular.');
+    } catch (e) { alert('Error de conexión con el servidor.'); }
+    finally { Loading.hide(); }
 }

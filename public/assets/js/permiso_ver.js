@@ -267,15 +267,22 @@ async function enviarPermiso() {
   formData.append("id", permisoActual.id);
   formData.append("version", permisoActual.version);
   formData.append("csrf_token", document.getElementById("csrfToken").value);
-  const res = await fetch("./api/permisos_enviar.php", {
-    method: "POST",
-    body: formData,
-  });
-  const data = await res.json();
-  if (data.ok) {
-    cargarPermiso();
-  } else {
-    alert(data.error || "Error al enviar.");
+  Loading.show("Enviando permiso...");
+  try {
+    const res = await fetch("./api/permisos_enviar.php", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    if (data.ok) {
+      await cargarPermiso();
+    } else {
+      alert(data.error || "Error al enviar.");
+    }
+  } catch (err) {
+    alert("Error de conexión con el servidor.");
+  } finally {
+    Loading.hide();
   }
 }
 
@@ -312,7 +319,8 @@ document
 
 document
   .getElementById("btnConfirmarAccionPermiso")
-  .addEventListener("click", async () => {
+  .addEventListener("click", async (e) => {
+    const btn = e.currentTarget; // se toma antes de cualquier await
     const error = document.getElementById("errorAccion");
     error.classList.add("hidden");
 
@@ -353,14 +361,22 @@ document
       formData.append("motivo", motivo);
     }
 
-    const res = await fetch(url, { method: "POST", body: formData });
-    const data = await res.json();
-    if (data.ok) {
-      document.getElementById("modalAccionPermiso").classList.add("hidden");
-      cargarPermiso();
-    } else {
-      error.textContent = data.error || "Error al procesar.";
+    Loading.start(btn, "Procesando...");
+    try {
+      const res = await fetch(url, { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.ok) {
+        document.getElementById("modalAccionPermiso").classList.add("hidden");
+        await cargarPermiso();
+      } else {
+        error.textContent = data.error || "Error al procesar.";
+        error.classList.remove("hidden");
+      }
+    } catch (err) {
+      error.textContent = "Error de conexión con el servidor.";
       error.classList.remove("hidden");
+    } finally {
+      Loading.stop(btn);
     }
   });
 

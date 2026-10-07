@@ -163,7 +163,7 @@
 
     async function guardar() {
         const btn = $('fnFormGuardar');
-        btn.disabled = true;
+        Loading.start(btn, 'Guardando...');
         try {
             await postForm('./api/funciones_guardar.php', {
                 tipo: S.tipo,
@@ -181,7 +181,7 @@
         } catch (e) {
             mensaje(e.message, false);
         } finally {
-            btn.disabled = false;
+            Loading.stop(btn);
         }
     }
 

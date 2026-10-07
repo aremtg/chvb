@@ -15,6 +15,8 @@ document.getElementById("formPin").addEventListener("submit", async (e) => {
 
   const formData = new FormData(e.target);
 
+  const btn = Loading.submitter(e);
+  Loading.start(btn, "Creando acceso...");
   try {
     const res = await fetch("./api/usuarios_empleados_crear.php", {
       method: "POST",
@@ -25,10 +27,12 @@ document.getElementById("formPin").addEventListener("submit", async (e) => {
     if (data.ok) {
       window.location.reload();
     } else {
+      Loading.stop(btn);
       errorPin.textContent = data.error;
       errorPin.classList.remove("hidden");
     }
   } catch (err) {
+    Loading.stop(btn);
     errorPin.textContent = "Error de conexión con el servidor.";
     errorPin.classList.remove("hidden");
   }
@@ -46,12 +50,22 @@ async function revocarAcceso(cedula) {
   formData.append("cedula", cedula);
   formData.append("csrf_token", document.getElementById("csrfToken").value);
 
-  const res = await fetch("./api/usuarios_empleados_revocar.php", {
-    method: "POST",
-    body: formData,
-  });
-  const data = await res.json();
-  if (data.ok) window.location.reload();
+  Loading.show("Revocando acceso...");
+  try {
+    const res = await fetch("./api/usuarios_empleados_revocar.php", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    if (data.ok) window.location.reload();
+    else {
+      Loading.hide();
+      alert(data.error || "No se pudo revocar el acceso.");
+    }
+  } catch (err) {
+    Loading.hide();
+    alert("Error de conexión con el servidor.");
+  }
 }
 
 async function reactivarAcceso(cedula) {
@@ -59,12 +73,22 @@ async function reactivarAcceso(cedula) {
   formData.append("cedula", cedula);
   formData.append("csrf_token", document.getElementById("csrfToken").value);
 
-  const res = await fetch("./api/usuarios_empleados_reactivar.php", {
-    method: "POST",
-    body: formData,
-  });
-  const data = await res.json();
-  if (data.ok) window.location.reload();
+  Loading.show("Reactivando acceso...");
+  try {
+    const res = await fetch("./api/usuarios_empleados_reactivar.php", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    if (data.ok) window.location.reload();
+    else {
+      Loading.hide();
+      alert(data.error || "No se pudo reactivar el acceso.");
+    }
+  } catch (err) {
+    Loading.hide();
+    alert("Error de conexión con el servidor.");
+  }
 }
 
 async function verPin(cedula) {

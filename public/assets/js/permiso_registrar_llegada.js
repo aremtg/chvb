@@ -12,12 +12,20 @@ document.getElementById('formLlegada').addEventListener('submit', async (e) => {
     const evidencia = document.getElementById('evidenciaLlegada').files[0];
     if (evidencia) formData.append('evidencia', evidencia);
 
-    const res = await fetch('./api/permisos_registrar_llegada.php', { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data.ok) {
-        window.location.href = './permisos.php';
-    } else {
+    const btn = Loading.submitter(e);
+    Loading.start(btn, 'Registrando llegada...');
+    try {
+        const res = await fetch('./api/permisos_registrar_llegada.php', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.ok) {
+            window.location.href = './permisos.php';
+            return; // el spinner queda hasta que cargue la otra página
+        }
         error.textContent = data.error || 'Error al registrar la llegada.';
         error.classList.remove('hidden');
+    } catch (err) {
+        error.textContent = 'Error de conexión con el servidor.';
+        error.classList.remove('hidden');
     }
+    Loading.stop(btn);
 });

@@ -86,7 +86,8 @@ function cerrarModalFirma() {
 
 document
   .getElementById("btnConfirmarAccion")
-  .addEventListener("click", async () => {
+  .addEventListener("click", async (e) => {
+    const btn = e.currentTarget; // se toma antes de cualquier await
     const error = document.getElementById("errorBandeja");
     error.classList.add("hidden");
     const rol = document.getElementById("modalFirmarPermiso").dataset.rol;
@@ -133,12 +134,20 @@ document
       formData.append("motivo", motivo);
     }
 
-    const res = await fetch(url, { method: "POST", body: formData });
-    const data = await res.json();
-    if (data.ok) {
-      window.location.reload();
-    } else {
-      error.textContent = data.error || "Error al procesar la acción.";
+    Loading.start(btn, "Procesando...");
+    try {
+      const res = await fetch(url, { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.ok) {
+        window.location.reload(); // el spinner queda hasta que recargue
+      } else {
+        Loading.stop(btn);
+        error.textContent = data.error || "Error al procesar la acción.";
+        error.classList.remove("hidden");
+      }
+    } catch (err) {
+      Loading.stop(btn);
+      error.textContent = "Error de conexión con el servidor.";
       error.classList.remove("hidden");
     }
   });
