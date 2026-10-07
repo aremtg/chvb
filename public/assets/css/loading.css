@@ -1,0 +1,150 @@
+/* ==========================================================================
+   CHVB · Sistema de loading
+   Independiente de Tailwind: no hace falta recompilar tailwind.css.
+   Para cambiar el color de toda la app, edita --chv-loading-color.
+   ========================================================================== */
+
+:root {
+  --chv-loading-color: #dc2626; /* red-600 (mismo rojo del login) */
+  --chv-overlay-bg: rgba(17, 24, 39, 0.45);
+}
+
+@keyframes chv-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes chv-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes chv-pop-in {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ---------- 1. Spinner base (hereda el color del texto: currentColor) ------ */
+.chv-spinner {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 9999px;
+  vertical-align: -0.125em;
+  animation: chv-spin 0.7s linear infinite;
+}
+.chv-spinner--lg {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-width: 3px;
+  color: var(--chv-loading-color);
+}
+
+/* ---------- 2. Botón en estado "cargando" --------------------------------- */
+.chv-btn-loading {
+  cursor: wait !important;
+  pointer-events: none;
+  /* !important: formatosSetBoton() agrega opacity-50 / cursor-not-allowed al deshabilitar */
+  opacity: 0.85 !important;
+}
+.chv-btn-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* ---------- 3. Overlay de pantalla completa ------------------------------- */
+.chv-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999; /* por encima de los modales (z-50) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--chv-overlay-bg);
+  backdrop-filter: blur(2px);
+  /* El retraso de .15s evita el "parpadeo" en operaciones casi instantáneas */
+  animation: chv-fade-in 0.2s ease 0.15s both;
+}
+.chv-overlay[hidden] { display: none; }
+.chv-overlay__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 13rem;
+  max-width: 20rem;
+  padding: 1.5rem 2rem;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  animation: chv-pop-in 0.22s ease 0.15s both;
+}
+.chv-overlay__msg {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151; /* gray-700 */
+}
+.chv-overlay__sub {
+  margin: -0.4rem 0 0;
+  font-size: 0.75rem;
+  color: #6b7280; /* gray-500 */
+}
+
+/* ---------- 4. Barra de progreso superior (estilo YouTube / GitHub) -------- */
+.chv-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  width: 100%;
+  height: 3px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.chv-bar.is-on { opacity: 1; }
+.chv-bar > i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--chv-loading-color);
+  box-shadow: 0 0 8px var(--chv-loading-color);
+  transition: width 0.3s ease;
+}
+
+/* ---------- 5. Sección que se está refrescando (listas, tablas) ----------- */
+.chv-section-loading {
+  position: relative;
+  pointer-events: none;
+  min-height: 5rem;
+}
+.chv-section-loading > * {
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+}
+.chv-section-loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2rem;
+  height: 2rem;
+  margin: -1rem 0 0 -1rem;
+  border: 3px solid var(--chv-loading-color);
+  border-right-color: transparent;
+  border-radius: 9999px;
+  animation: chv-spin 0.7s linear infinite;
+}
+
+/* ---------- Accesibilidad: respeta "reducir movimiento" ------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .chv-spinner,
+  .chv-section-loading::after { animation-duration: 1.8s; }
+  .chv-overlay,
+  .chv-overlay__card { animation: none; }
+}
