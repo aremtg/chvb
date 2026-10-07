@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../src/models/NotificacionModel.php';
+require_once __DIR__ . '/renovaciones_guard.php';
 $paginaActual = basename($_SERVER['PHP_SELF']);
 $rolActual = $_SESSION['superadmin_rol'] ?? '';
 
@@ -20,6 +21,15 @@ if ($rolActual === 'teniente') {
     if (in_array($rolActual, ['superadmin_talento_humano','auxiliar_talento_humano'], true)) {
         $linksSidebar[] = ['url' => '/chvb/public/permisos_th.php', 'label' => 'Permisos', 'icon' => 'file-text'];
         $linksSidebar[] = ['url' => '/chvb/public/formatos.php', 'label' => 'Formatos', 'icon' => 'layout-grid'];
+    }
+
+    // Renovaciones: visibilidad derivada de ROLES_RENOVACIONES (includes/renovaciones_guard.php).
+    // El acceso real se valida en backend en cada página/API; ocultar el enlace es solo cortesía de UI.
+    if (in_array($rolActual, ROLES_RENOVACIONES, true)) {
+        $linksSidebar[] = ['url' => '/chvb/public/renovaciones.php', 'label' => 'Renovaciones', 'icon' => 'file-signature'];
+    }
+
+    if (in_array($rolActual, ['superadmin_talento_humano','auxiliar_talento_humano'], true)) {
         $linksSidebar[] = [
             'url' => '/chvb/public/notificaciones.php',
             'label' => 'Notificaciones',
