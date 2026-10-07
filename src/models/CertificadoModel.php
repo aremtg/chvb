@@ -39,7 +39,7 @@ class CertificadoModel
     {
         $p = [];
         if (($e['estado'] ?? '') !== 'activo') {
-            $p[] = 'El empleado figura como NO ACTIVO. Para él corresponde el certificado «Laboró hasta».';
+            $p[] = 'El empleado está NO ACTIVO. Para generarle formatos primero actívalo en Empleados → Editar.';
         }
         if (empty($e['fecha_inicio_contrato'])) {
             $p[] = 'Falta la fecha de inicio de contrato del empleado.';

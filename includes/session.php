@@ -50,7 +50,8 @@ function requireEmpleado(): void {
     require_once __DIR__ . '/../config/database.php';
     $pdo = getPDO();
 
-    $stmt = $pdo->prepare("SELECT cedula FROM empleados WHERE cedula = :b1");
+    // Solo empleados ACTIVOS pueden mantener sesión en el portal.
+    $stmt = $pdo->prepare("SELECT cedula FROM empleados WHERE cedula = :b1 AND estado = 'activo'");
     $stmt->execute(['b1' => $_SESSION['empleado_cedula']]);
     $empleadoExiste = (bool) $stmt->fetch();
 

@@ -18,6 +18,11 @@ class AuthEmpleadoController {
             return ['ok' => false, 'error' => 'No tienes acceso habilitado. Contacta a Talento Humano.'];
         }
 
+        $empleado = EmpleadoModel::obtenerPorCedula($cedula);
+        if (!$empleado || ($empleado['estado'] ?? '') !== 'activo') {
+            return ['ok' => false, 'error' => 'No tienes acceso habilitado. Contacta a Talento Humano.'];
+        }
+
         if (UsuarioEmpleadoModel::estaBloqueado($usuarioEmpleado)) {
             $min = UsuarioEmpleadoModel::minutosRestantesBloqueo($usuarioEmpleado);
             return ['ok' => false, 'error' => "Cuenta bloqueada por intentos fallidos. Intenta de nuevo en $min minuto(s)."];

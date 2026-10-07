@@ -139,7 +139,7 @@ if ($filtrosActivos) {
                         <?php endif; ?>
 
                         <?php foreach ($empleados as $emp): ?>
-                            <?php $cumple = EmpleadoModel::infoCumpleanos($emp['fecha_nacimiento']); ?>
+                            <?php $cumple = ($emp['estado'] ?? '') === 'activo' ? EmpleadoModel::infoCumpleanos($emp['fecha_nacimiento']) : ['cumple' => false, 'dias_faltantes' => null, 'fecha_texto' => null]; ?>
                             <tr class="<?= $cumple['cumple'] ? 'bg-yellow-50' : '' ?>">
                                 <td class="px-4 py-3 font-medium text-gray-800">
                                     <div class="flex items-center gap-2">

@@ -44,7 +44,7 @@ try {
 
     $pdo = getPDO();
     $stmt = $pdo->prepare(
-        "SELECT cedula, nombre, cargo
+        "SELECT cedula, nombre, cargo, estado
          FROM empleados
          WHERE cedula = :cedula
          LIMIT 1"
@@ -54,6 +54,9 @@ try {
 
     if (!$empleado) {
         throw new InvalidArgumentException('No se encontró el empleado seleccionado.');
+    }
+    if (($empleado['estado'] ?? '') !== 'activo') {
+        throw new InvalidArgumentException('El empleado está NO ACTIVO. Para generarle formatos primero actívalo en Empleados → Editar.');
     }
 
     $plantilla = __DIR__ . '/../../uploads/plantillas/GH-FT-03 REMISION EXAMENES MEDICOS OCUPACIONALES.docx';

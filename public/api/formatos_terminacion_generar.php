@@ -380,6 +380,7 @@ try {
 
     $empleado = EmpleadoModel::obtenerPorCedula($cedula);
     if (!$empleado) throw new InvalidArgumentException('No se encontró el empleado seleccionado.');
+    EmpleadoModel::exigirActivo($empleado);
 
     $etiquetas = [
         'nombre' => 'Nombre',

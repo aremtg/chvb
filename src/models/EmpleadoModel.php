@@ -50,6 +50,17 @@ class EmpleadoModel
         return (bool) $stmt->fetch();
     }
 
+    /**
+     * Regla de negocio: a un empleado NO ACTIVO no se le generan formatos.
+     * Los generadores la llaman justo después de cargar al empleado.
+     */
+    public static function exigirActivo(array $empleado): void
+    {
+        if (($empleado['estado'] ?? '') !== 'activo') {
+            throw new InvalidArgumentException('El empleado está NO ACTIVO. Para generarle formatos primero actívalo en Empleados → Editar.');
+        }
+    }
+
     /** Arma WHERE + parámetros a partir de búsqueda y filtros (única fuente). */
     private static function construirWhere(string $busqueda, array $filtros): array
     {

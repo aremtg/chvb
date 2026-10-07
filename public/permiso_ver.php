@@ -48,9 +48,9 @@ if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula
         </div>
     </header>
 
-    <main class="p-4 md:p-8 max-w-3xl mx-auto">
+    <main class="p-2 md:p-4 max-w-3xl mx-auto">
         <!-- Contenedor que llena tu JS -->
-        <div id="contenidoPermiso" class="space-y-4"
+        <div id="contenidoPermiso" class="space-y-1"
              data-id="<?= $id?>" data-cedula="<?= htmlspecialchars($cedula)?>" data-es-th="<?= $esTH ? '1' : '0' ?>"
              data-tiene-firma-guardada="<?= $firmaGuardada? '1' : '0'?>">
             <!-- Skeleton loader pro mientras carga permiso_ver.js -->

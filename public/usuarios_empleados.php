@@ -5,7 +5,8 @@ require_once __DIR__ . '/../src/models/UsuarioEmpleadoModel.php';
 requireSuperAdmin();
 
 $busqueda = trim($_GET['q'] ?? '');
-$empleados = EmpleadoModel::listar($busqueda);
+// Solo empleados ACTIVOS: un empleado no activo no tiene usuario/PIN y no aparece en esta lista.
+$empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
 ?>
 <!DOCTYPE html>
 <html lang="es">

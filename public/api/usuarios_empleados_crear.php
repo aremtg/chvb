@@ -22,6 +22,12 @@ if (!preg_match('/^[0-9]{4}$/', $pin)) {
     exit;
 }
 
+$empleado = EmpleadoModel::obtenerPorCedula($cedula);
+if (!$empleado || ($empleado['estado'] ?? '') !== 'activo') {
+    echo json_encode(['ok' => false, 'error' => 'El empleado está NO ACTIVO. Actívalo primero en Empleados → Editar para poder darle acceso.']);
+    exit;
+}
+
 UsuarioEmpleadoModel::crearAcceso($cedula, $pin);
 if (($_SESSION['superadmin_rol'] ?? '') === 'auxiliar_talento_humano') {
     $empleado = EmpleadoModel::obtenerPorCedula($cedula);

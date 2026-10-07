@@ -202,10 +202,10 @@ function render() {
   contenedorPermiso.innerHTML = `
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-wrap justify-between gap-3 items-start">
-        <div><p class="text-xs font-bold uppercase  text-gray-600">Permiso</p><h2 class="text-xl font-bold text-gray-900 mt-1">${escaparV(p.consecutivo)}</h2><p class="text-sm text-gray-500 mt-1">${escaparV(p.tipo_permiso)}</p></div>
+        <div><h2 class="text-lg font-bold text-gray-900 mt-1">${escaparV(p.consecutivo)}</h2><p class="text-sm text-gray-500 mt-1">Tipo de permiso: ${escaparV(p.tipo_permiso)}</p></div>
         <span class="text-xs font-bold px-3 py-1.5 rounded-full ${claseEstado}">${textoEstado}</span>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-5">
         <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase  text-gray-600">Solicitante</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.nombre_empleado_snapshot)}</p></div>
         <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase  text-gray-600">Cédula</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.cedula_empleado)}</p></div>
         <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase  text-gray-600">Cargo</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.cargo_empleado_snapshot)}</p></div>
@@ -227,7 +227,7 @@ function render() {
       p.total_dias != null
         ? `
     <div>
-      <p class="text-md text-gray-600">Total de días</p>
+      <p class="text-xs font-bold uppercase  text-gray-600">Total de días</p>
       <p class="text-sm font-semibold text-red-600 mt-0.5">${diasV(p.total_dias)}</p>
     </div>
     `
@@ -235,7 +235,7 @@ function render() {
     }
 
     <div class="text-right">
-      <p class="text-md text-gray-600">Total de horas</p>
+      <p class="text-xs font-bold uppercase  text-gray-600">Total de horas</p>
       <p class="text-sm font-semibold text-red-600 mt-0.5">${horasV(p.total_horas)}</p>
     </div>
 
@@ -244,8 +244,8 @@ function render() {
   ${devolucionesHtml}
 </div>
 
-    <div class="space-y-3">
-      <div><p class="text-xs font-bold uppercase  text-gray-600">Firmas</p></div>
+    <div class="space-y-1">
+      <p class="text-xs text-center font-bold uppercase  text-gray-600">Firmas</p>
       ${bloqueFirmante("Solicitante", p.nombre_empleado_snapshot, p.cedula_empleado, "foto_solicitante", "firma_solicitante")}
       ${bloqueFirmante("Reemplazo", p.nombre_reemplazo, p.cedula_reemplazo, "foto_reemplazo", "firma_reemplazo")}
       ${bloqueFirmante("Jefe", p.nombre_jefe, p.cedula_jefe, "foto_jefe", "firma_jefe")}

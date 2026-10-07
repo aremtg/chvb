@@ -178,6 +178,7 @@ try {
     if ($cedula === '') throw new InvalidArgumentException('Cédula no válida.');
     $empleado = EmpleadoModel::obtenerPorCedula($cedula);
     if (!$empleado) throw new InvalidArgumentException('No se encontró un empleado con esa cédula.');
+    EmpleadoModel::exigirActivo($empleado);
     $nombreOriginal = trim((string)($empleado['nombre'] ?? ''));
     $cedulaEmpleado = preg_replace('/\D+/', '', trim((string)($empleado['cedula'] ?? '')));
     if ($nombreOriginal === '') throw new InvalidArgumentException('El empleado no tiene nombre registrado.');

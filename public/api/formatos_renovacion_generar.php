@@ -124,6 +124,7 @@ try {
     $empleado = EmpleadoModel::obtenerPorCedula($cedula);
     if (!$empleado)
         throw new InvalidArgumentException('El empleado no existe.');
+    EmpleadoModel::exigirActivo($empleado);
 
     $faltantes = [];
     if (trim((string) ($empleado['nombre'] ?? '')) === '')

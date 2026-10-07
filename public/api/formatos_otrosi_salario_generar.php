@@ -461,6 +461,17 @@ if (!$empleado) {
     exit;
 }
 
+// Regla: a un empleado NO ACTIVO no se le generan formatos.
+if (($empleado['estado'] ?? '') !== 'activo') {
+
+    echo json_encode([
+        'ok' => false,
+        'error' => 'El empleado está NO ACTIVO. Para generarle formatos primero actívalo en Empleados → Editar.'
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
+
 
 /*
 |--------------------------------------------------------------------------

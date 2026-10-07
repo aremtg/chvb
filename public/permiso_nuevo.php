@@ -37,7 +37,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
             <h1 class="text-lg font-bold text-gray-800"><?= $editarId ? 'Editar y reenviar permiso' : 'Nueva solicitud de permiso' ?></h1>
         </header>
 
-        <main class="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
+        <main class="p-2 md:p-4 max-w-3xl mx-auto">
 
             <?php if (!$datosCompletos): ?>
                 <div class="bg-white rounded-xl shadow p-6 text-center">
@@ -57,7 +57,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                     class="hidden bg-blue-50 border border-blue-200 text-blue-800 text-sm rounded-xl p-3"></div>
                 <div id="erroresForm" class="hidden bg-red-100 text-red-700 text-sm rounded-xl p-3"></div>
 
-                <form id="formPermiso" class="space-y-6">
+                <form id="formPermiso" class="space-y-2">
                     <?= csrfCampoHTML() ?>
                     <?php if ($editarId): ?><input type="hidden" id="permisoEditarId" value="<?= $editarId ?>"><input type="hidden" id="permisoEditarVersion" value="<?= (int)$permisoEditar['version'] ?>"><?php endif; ?>
 

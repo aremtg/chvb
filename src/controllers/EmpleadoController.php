@@ -1,6 +1,7 @@
 <?php
 // src/controllers/EmpleadoController.php
 require_once __DIR__ . '/../models/EmpleadoModel.php';
+require_once __DIR__ . '/../models/UsuarioEmpleadoModel.php';
 require_once __DIR__ . '/../helpers/FileManager.php';
 require_once __DIR__ . '/../models/BolsilloModel.php';
 require_once __DIR__ . '/../models/DocumentoModel.php';
@@ -389,6 +390,12 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
             'fecha_nacimiento' => trim($datos['fecha_nacimiento'] ?? ''),
         ];
         EmpleadoModel::actualizar($cedulaFinal, $datosNuevos);
+
+        // Un empleado NO ACTIVO no puede entrar al portal: si tenía acceso (PIN), se desactiva.
+        // Al volver a activarlo el acceso NO se reactiva solo; Talento Humano lo reactiva desde Usuarios de Empleados.
+        if ($datosNuevos['estado'] === 'no activo') {
+            UsuarioEmpleadoModel::revocar($cedulaFinal);
+        }
 
         if ($esAuxiliar && $empleadoAnterior) {
             self::registrarNotificacionesCambios($cedulaFinal, $empleadoAnterior, $datosNuevos);
