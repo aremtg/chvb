@@ -66,6 +66,7 @@ $tiposPeriodo = PermisoModel::ausentismoPorTipo($desdeMetricas, $hastaMetricas);
 $tiposTotal = $periodoTodos ? $tiposPeriodo : PermisoModel::ausentismoPorTipo();
 $topEmpleados = PermisoModel::topEmpleadosAusentismo($desdeMetricas, $hastaMetricas, 5);
 $jefesPendientes = PermisoModel::jefesConFirmasPendientes(5);
+$estadosActuales = PermisoModel::resumenEstadosActuales();
 $tendencia = PermisoModel::tendenciaMensual($anioMetricas, $mesMetricas, 6);
 
 $pct = fn(int $parte, int $todo): int => $todo > 0 ? (int) round($parte * 100 / $todo) : 0;
@@ -81,6 +82,7 @@ $fmtHoras = function (float $h): string {
 
 $pendFirmasPeriodo = $resPeriodo['pend_reemplazo'] + $resPeriodo['pend_jefe'];
 $pendFirmasTotal = $resTotal['pend_reemplazo'] + $resTotal['pend_jefe'];
+$pendFirmasActuales = $estadosActuales['firmas_pendientes'];
 $decididos = $resPeriodo['firmados'] + $resPeriodo['rechazados'];
 $tasaAprobacion = $decididos > 0 ? $pct($resPeriodo['firmados'], $decididos) : null;
 $promedioHoras = $resPeriodo['firmados'] > 0 ? $resPeriodo['horas_firmadas'] / $resPeriodo['firmados'] : 0.0;
@@ -100,6 +102,7 @@ $aniosSelector = range((int) date('Y') + 1, (int) date('Y') - 4);
 <html lang="es">
 
 <head>
+    <?php require __DIR__ . '/../includes/head.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Dashboard</title>
@@ -399,54 +402,46 @@ $aniosSelector = range((int) date('Y') + 1, (int) date('Y') - 4);
                         </div>
 
                         <div class="aus-card">
-                            <h3>Firmas pendientes</h3>
-                            <p class="aus-hint">Permisos que todavía esperan una firma</p>
-                            <div class="aus-num" style="margin-top:8px"><?= $pendFirmasPeriodo ?>
-                                <span style="font-size:13px;font-weight:600;color:#6b7280">en <?= htmlspecialchars($etiquetaPeriodo) ?></span>
+                            <h3>Estados pendientes actuales</h3>
+                            <p class="aus-hint">Estado actual, sin importar cuándo inició el permiso</p>
+                            <div class="aus-num" style="margin-top:8px"><?= $pendFirmasActuales ?>
+                                <span style="font-size:13px;font-weight:600;color:#6b7280">esperando firmas ahora</span>
                             </div>
-                            <?php if (!$periodoTodos): ?>
-                                <div class="aus-sub">En toda la base de datos: <strong><?= $pendFirmasTotal ?></strong></div>
-                            <?php endif; ?>
 
                             <table class="aus-tabla">
                                 <thead>
                                     <tr>
-                                        <th>Qué falta</th>
-                                        <th><?= $periodoTodos ? 'Total' : 'Periodo' ?></th>
-                                        <?php if (!$periodoTodos): ?><th>Total BD</th><?php endif; ?>
+                                        <th>Estado actual</th>
+                                        <th>Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td>Firma del reemplazo</td>
-                                        <td><?= $resPeriodo['pend_reemplazo'] ?></td>
-                                        <?php if (!$periodoTodos): ?><td><?= $resTotal['pend_reemplazo'] ?></td><?php endif; ?>
+                                        <td><?= $estadosActuales['pend_reemplazo'] ?></td>
                                     </tr>
                                     <tr>
                                         <td>Firma del jefe</td>
-                                        <td><?= $resPeriodo['pend_jefe'] ?></td>
-                                        <?php if (!$periodoTodos): ?><td><?= $resTotal['pend_jefe'] ?></td><?php endif; ?>
+                                        <td><?= $estadosActuales['pend_jefe'] ?></td>
                                     </tr>
                                     <tr>
                                         <td>Esperando regreso <small>falta llegada y firma final</small></td>
-                                        <td><?= $resPeriodo['esperando_regreso'] ?></td>
-                                        <?php if (!$periodoTodos): ?><td><?= $resTotal['esperando_regreso'] ?></td><?php endif; ?>
+                                        <td><?= $estadosActuales['esperando_regreso'] ?></td>
                                     </tr>
                                     <tr>
                                         <td>Devueltos al empleado <small>debe corregir y reenviar</small></td>
-                                        <td><?= $resPeriodo['devueltos'] ?></td>
-                                        <?php if (!$periodoTodos): ?><td><?= $resTotal['devueltos'] ?></td><?php endif; ?>
+                                        <td><strong><?= $estadosActuales['devueltos'] ?></strong></td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- Estado de las solicitudes + tendencia -->
+                    <!-- Estado histórico del período + tendencia -->
                     <div class="aus-dos">
                         <div class="aus-card">
-                            <h3>Estado de las solicitudes</h3>
-                            <p class="aus-hint"><?= htmlspecialchars($etiquetaPeriodo) ?> · <?= $resPeriodo['total'] ?> permiso(s)</p>
+                            <h3>Estado de las solicitudes del período</h3>
+                            <p class="aus-hint"><?= htmlspecialchars($etiquetaPeriodo) ?> · <?= $resPeriodo['total'] ?> permiso(s) según fecha de inicio</p>
                             <?php
                             $enTramite = $pendFirmasPeriodo + $resPeriodo['esperando_regreso'];
                             $segmentos = [

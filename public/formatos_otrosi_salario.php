@@ -15,6 +15,7 @@ $hoyIso = $hoy->format('Y-m-d');
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <?php require __DIR__ . '/../includes/head.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Otrosí Cambio de Salario</title>
@@ -239,14 +240,14 @@ async function generarOtrosiSalario() {
     mostrarErrorSalario('');
     const btn=document.getElementById('btnGenerarSalario'); const fd=new FormData();
     fd.append('csrf_token',csrfToken); fd.append('cedula',empleadoSalario.cedula); fd.append('fecha_remuneracion',fecha); fd.append('salario',salario);
-    btn.dataset.html=btn.innerHTML; btn.disabled=true; btn.textContent='Generando...';
+    Loading.start(btn, 'Generando Word...');
     try {
         const r=await fetch('./api/formatos_otrosi_salario_generar.php',{method:'POST',body:fd});
         const data=await r.json();
         if(!data.ok) throw new Error(data.error || 'No se pudo generar el Word.');
         window.location.href=data.url;
         setTimeout(()=>location.reload(),1000);
-    } catch(e) { mostrarErrorSalario(e.message || 'No se pudo generar el Word.'); btn.innerHTML=btn.dataset.html; formatosSetBoton(btn,true); }
+    } catch(e) { mostrarErrorSalario(e.message || 'No se pudo generar el Word.'); Loading.stop(btn); formatosSetBoton(btn,true); }
 }
 
 function limpiarSalario() {
@@ -259,7 +260,8 @@ function limpiarSalario() {
 async function eliminarSalario(archivo) {
     if (!confirm('¿Eliminar este Otrosí de cambio de salario generado?')) return;
     const fd=new FormData(); fd.append('csrf_token',csrfToken);
-    try { const r=await fetch('./api/formato_archivo.php?f='+encodeURIComponent(archivo)+'&accion=eliminar',{method:'POST',body:fd}); const d=await r.json(); if(d.ok) location.reload(); else alert(d.error||'No se pudo eliminar.'); } catch(e) { alert('No se pudo eliminar el archivo.'); }
+    Loading.show('Eliminando...');
+    try { const r=await fetch('./api/formato_archivo.php?f='+encodeURIComponent(archivo)+'&accion=eliminar',{method:'POST',body:fd}); const d=await r.json(); if(d.ok) location.reload(); else { Loading.hide(); alert(d.error||'No se pudo eliminar.'); } } catch(e) { Loading.hide(); alert('No se pudo eliminar el archivo.'); }
 }
 actualizarPreview();
 </script>

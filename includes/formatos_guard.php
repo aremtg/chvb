@@ -24,3 +24,31 @@ function requireFormatosAccess(bool $json = false): void
         exit;
     }
 }
+
+const ROL_ADMIN_FORMATOS = 'superadmin_talento_humano';
+
+/** true si el usuario en sesión puede crear/editar/eliminar funciones (solo super admin). */
+function esAdminFormatos(): bool
+{
+    return ($_SESSION['superadmin_rol'] ?? '') === ROL_ADMIN_FORMATOS;
+}
+
+/**
+ * Para endpoints que ESCRIBEN (crear/editar/eliminar funciones).
+ * El auxiliar de Talento Humano pasa requireFormatosAccess() pero NO este.
+ */
+function requireFormatosAdmin(bool $json = true): void
+{
+    requireFormatosAccess($json);
+
+    if (!esAdminFormatos()) {
+        http_response_code(403);
+        if ($json) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['ok' => false, 'error' => 'Solo el super administrador puede modificar funciones.'], JSON_UNESCAPED_UNICODE);
+        } else {
+            echo 'No autorizado.';
+        }
+        exit;
+    }
+}

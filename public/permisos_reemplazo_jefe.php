@@ -11,6 +11,7 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <?php require __DIR__ . '/../includes/head.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Permisos por firmar - CHVB</title>
@@ -38,7 +39,7 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
                 </label>
             <?php endif; ?>
             <div id="cajaCanvasBandeja" class="<?= $firmaGuardada ? 'hidden' : '' ?>">
-                <canvas id="canvasFirmaBandeja" class="border border-gray-300 rounded-xl w-full bg-white touch-none" height="140"></canvas>
+                <canvas id="canvasFirmaBandeja" data-alto="200" class="border border-gray-300 rounded-xl w-full bg-white touch-none" style="height:200px"></canvas>
                 <button type="button" id="btnLimpiarFirmaBandeja" class="text-xs text-gray-500 hover:text-red-600 mt-1">Limpiar</button>
             </div>
         </div>
@@ -58,7 +59,7 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
     </div>
 </div>
 
-<script src="./assets/js/camera_capture.js"></script>
+<script src="./assets/js/camera_capture.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/camera_capture.js') ?>"></script>
 <script src="./assets/js/firma_canvas.js"></script>
 <script src="./assets/js/permisos_reemplazo_jefe.js"></script>
 </body>

@@ -9,14 +9,17 @@ class EmpleadoModel
     {
         $pdo = getPDO();
         $sql = "INSERT INTO empleados 
-            (cedula, nombre, sexo, cargo, tipo_de_personal, eps, pension, arl, salario_basico,
-             es_bombero_integral, tipo_de_contrato, fecha_inicio_contrato, fecha_fin_contrato, estado, celular, correo, fecha_nacimiento)
+            (cedula, lugar_expedicion, nombre, sexo, cargo, tipo_de_personal, eps, pension, arl, salario_basico,
+             es_bombero_integral, tipo_jornada, jornada_hora_entrada, jornada_hora_salida,
+             tipo_de_contrato, fecha_inicio_contrato, fecha_fin_contrato, estado, celular, correo, fecha_nacimiento)
             VALUES 
-            (:cedula, :nombre, :sexo, :cargo, :tipo_personal, :eps, :pension, :arl, :salario,
-             :bombero, :contrato, :fecha_inicio_contrato, :fecha_fin_contrato, :estado, :celular, :correo, :fecha_nacimiento)";
+            (:cedula, :lugar_expedicion, :nombre, :sexo, :cargo, :tipo_personal, :eps, :pension, :arl, :salario,
+             :bombero, :tipo_jornada, :jornada_entrada, :jornada_salida,
+             :contrato, :fecha_inicio_contrato, :fecha_fin_contrato, :estado, :celular, :correo, :fecha_nacimiento)";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             'cedula' => $datos['cedula'],
+            'lugar_expedicion' => $datos['lugar_expedicion'] ?? null,
             'nombre' => $datos['nombre'],
             'sexo' => $datos['sexo'] ?? null,
             'cargo' => $datos['cargo'],
@@ -26,6 +29,9 @@ class EmpleadoModel
             'arl' => $datos['arl'] ?? null,
             'salario' => $datos['salario_basico'] ?? null,
             'bombero' => $datos['es_bombero_integral'],
+            'tipo_jornada' => $datos['tipo_jornada'],
+            'jornada_entrada' => $datos['jornada_hora_entrada'] ?? null,
+            'jornada_salida' => $datos['jornada_hora_salida'] ?? null,
             'contrato' => $datos['tipo_de_contrato'] ?: null,
             'fecha_inicio_contrato' => $datos['fecha_inicio_contrato'] ?? null,
             'fecha_fin_contrato' => $datos['fecha_fin_contrato'] ?? null,
@@ -44,66 +50,79 @@ class EmpleadoModel
         return (bool) $stmt->fetch();
     }
 
-    public static function contar(string $busqueda = ''): int
+    /**
+     * Regla de negocio: a un empleado NO ACTIVO no se le generan formatos.
+     * Los generadores la llaman justo después de cargar al empleado.
+     */
+    public static function exigirActivo(array $empleado): void
     {
-        $pdo = getPDO();
+        if (($empleado['estado'] ?? '') !== 'activo') {
+            throw new InvalidArgumentException('El empleado está NO ACTIVO. Para generarle formatos primero actívalo en Empleados → Editar.');
+        }
+    }
 
-        $sql = "SELECT COUNT(*) FROM empleados";
+    /** Arma WHERE + parámetros a partir de búsqueda y filtros (única fuente). */
+    private static function construirWhere(string $busqueda, array $filtros): array
+    {
+        $condiciones = [];
         $params = [];
 
         if ($busqueda !== '') {
-            $sql .= " WHERE cedula LIKE :b1 OR nombre LIKE :b2 OR cargo LIKE :b3 OR celular LIKE :b4 OR correo LIKE :b5";
+            $condiciones[] = '(cedula LIKE :b1 OR nombre LIKE :b2 OR cargo LIKE :b3 OR celular LIKE :b4 OR correo LIKE :b5)';
             $valor = '%' . $busqueda . '%';
-            $params = [
-                'b1' => $valor,
-                'b2' => $valor,
-                'b3' => $valor,
-                'b4' => $valor,
-                'b5' => $valor,
-            ];
+            foreach (['b1', 'b2', 'b3', 'b4', 'b5'] as $k) {
+                $params[$k] = $valor;
+            }
+        }
+        if (!empty($filtros['contrato'])) {
+            $condiciones[] = 'tipo_de_contrato = :f_contrato';
+            $params['f_contrato'] = $filtros['contrato'];
+        }
+        if (!empty($filtros['cargo'])) {
+            $condiciones[] = 'cargo = :f_cargo';
+            $params['f_cargo'] = $filtros['cargo'];
+        }
+        if (!empty($filtros['estado'])) {
+            $condiciones[] = 'estado = :f_estado';
+            $params['f_estado'] = $filtros['estado'];
         }
 
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
+        $where = $condiciones ? ' WHERE ' . implode(' AND ', $condiciones) : '';
+        return [$where, $params];
+    }
 
+    public static function contar(string $busqueda = '', array $filtros = []): int
+    {
+        [$where, $params] = self::construirWhere($busqueda, $filtros);
+        $stmt = getPDO()->prepare("SELECT COUNT(*) FROM empleados" . $where);
+        $stmt->execute($params);
         return (int) $stmt->fetchColumn();
     }
 
-    public static function listar(string $busqueda = '', int $limite = 10, int $offset = 0): array
+    public static function listar(string $busqueda = '', int $limite = 10, int $offset = 0, array $filtros = []): array
     {
-        $pdo = getPDO();
-
         $limite = max(1, min(100, $limite));
         $offset = max(0, $offset);
+        [$where, $params] = self::construirWhere($busqueda, $filtros);
 
-        $sql = "SELECT * FROM empleados";
-        $params = [];
-
-        if ($busqueda !== '') {
-            $sql .= " WHERE cedula LIKE :b1 OR nombre LIKE :b2 OR cargo LIKE :b3 OR celular LIKE :b4 OR correo LIKE :b5";
-            $valor = '%' . $busqueda . '%';
-            $params = [
-                'b1' => $valor,
-                'b2' => $valor,
-                'b3' => $valor,
-                'b4' => $valor,
-                'b5' => $valor,
-            ];
-        }
-
-        $sql .= " ORDER BY nombre ASC LIMIT :limite OFFSET :offset";
-
-        $stmt = $pdo->prepare($sql);
+        $stmt = getPDO()->prepare("SELECT * FROM empleados" . $where . " ORDER BY nombre ASC LIMIT :limite OFFSET :offset");
         foreach ($params as $clave => $valor) {
             $stmt->bindValue(':' . $clave, $valor, PDO::PARAM_STR);
         }
         $stmt->bindValue(':limite', $limite, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
-
         return $stmt->fetchAll();
     }
 
+    /** Todos los empleados que cumplen búsqueda + filtros, sin paginar (para Excel). */
+    public static function listarParaExportar(string $busqueda = '', array $filtros = []): array
+    {
+        [$where, $params] = self::construirWhere($busqueda, $filtros);
+        $stmt = getPDO()->prepare("SELECT * FROM empleados" . $where . " ORDER BY nombre ASC");
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
     public static function obtenerPorCedula(string $cedula): ?array
     {
         $pdo = getPDO();
@@ -235,13 +254,17 @@ class EmpleadoModel
     {
         $pdo = getPDO();
         $sql = "UPDATE empleados SET
+              lugar_expedicion = :lugar_expedicion,
               nombre = :nombre, sexo = :sexo, cargo = :cargo, tipo_de_personal = :tipo_personal,
               eps = :eps, pension = :pension, arl = :arl, salario_basico = :salario,
-              es_bombero_integral = :bombero, tipo_de_contrato = :contrato, fecha_inicio_contrato = :fecha_inicio_contrato, fecha_fin_contrato = :fecha_fin_contrato, estado = :estado,
+              es_bombero_integral = :bombero, tipo_jornada = :tipo_jornada,
+              jornada_hora_entrada = :jornada_entrada, jornada_hora_salida = :jornada_salida,
+              tipo_de_contrato = :contrato, fecha_inicio_contrato = :fecha_inicio_contrato, fecha_fin_contrato = :fecha_fin_contrato, estado = :estado,
               celular = :celular, correo = :correo, fecha_nacimiento = :fecha_nacimiento
             WHERE cedula = :cedula";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
+            'lugar_expedicion' => $datos['lugar_expedicion'] ?? null,
             'nombre' => $datos['nombre'],
             'sexo' => $datos['sexo'] ?? null,
             'cargo' => $datos['cargo'],
@@ -251,6 +274,9 @@ class EmpleadoModel
             'arl' => $datos['arl'] ?? null,
             'salario' => $datos['salario_basico'] ?? null,
             'bombero' => $datos['es_bombero_integral'],
+            'tipo_jornada' => $datos['tipo_jornada'],
+            'jornada_entrada' => $datos['jornada_hora_entrada'] ?? null,
+            'jornada_salida' => $datos['jornada_hora_salida'] ?? null,
             'contrato' => $datos['tipo_de_contrato'] ?: null,
             'fecha_inicio_contrato' => $datos['fecha_inicio_contrato'] ?? null,
             'fecha_fin_contrato' => $datos['fecha_fin_contrato'] ?? null,
@@ -273,7 +299,7 @@ class EmpleadoModel
         $stmt->execute(['nueva' => $cedulaNueva, 'actual' => $cedulaActual]);
     }
 
-    public static function actualizarFoto(string $cedula, string $rutaFoto): void
+    public static function actualizarFoto(string $cedula, ?string $rutaFoto): void
     {
         $pdo = getPDO();
         $stmt = $pdo->prepare("UPDATE empleados SET foto = :foto WHERE cedula = :cedula");

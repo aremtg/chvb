@@ -5,6 +5,7 @@ require_once __DIR__ . '/../models/PermisoModel.php';
 require_once __DIR__ . '/../models/NotificacionModel.php';
 require_once __DIR__ . '/../models/EmpleadoModel.php';
 require_once __DIR__ . '/../models/FirmaModel.php';
+require_once __DIR__ . '/../helpers/JornadaHelper.php';
 
 class PermisoController
 {
@@ -407,7 +408,7 @@ class PermisoController
         if ($fechaFin === '' || $horaFin === '') return ['ok' => false, 'error' => 'La fecha y hora de llegada son obligatorias.'];
 
         $empleado = EmpleadoModel::obtenerPorCedula($cedula);
-        $tipoPersonal = !empty($empleado['tipo_de_personal']) ? $empleado['tipo_de_personal'] : 'Civil';
+        $tipoPersonal = JornadaHelper::tipoParaCalculo($empleado ?? []) ?? 'Civil';
         $calculo = self::calcularHorasPorDias($permiso['fecha_inicio'], $permiso['hora_inicio'], $fechaFin, $horaFin, $tipoPersonal);
         if (!$calculo['ok']) return ['ok' => false, 'error' => $calculo['error']];
         $recalculo = self::recalcularConfirmado($calculo['dias'], $tipoPersonal);
@@ -462,7 +463,7 @@ class PermisoController
 
             require_once __DIR__ . '/../models/EmpleadoModel.php';
             $empleado = EmpleadoModel::obtenerPorCedula($permiso['cedula_empleado']);
-            $tipoPersonal = !empty($empleado['tipo_de_personal']) ? $empleado['tipo_de_personal'] : 'Civil';
+            $tipoPersonal = JornadaHelper::tipoParaCalculo($empleado ?? []) ?? 'Civil';
 
             $recalculo = self::recalcularConfirmado($diasConfirmados, $tipoPersonal);
             $camposNuevos['total_horas'] = $recalculo['total_horas'];

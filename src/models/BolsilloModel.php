@@ -105,28 +105,37 @@ class BolsilloModel {
     }
 
     /**
- * Trae todos los bolsillos con alarma activa cuya fecha vence en los próximos $diasVentana días,
- * incluyendo los que ya vencieron (para que no se pierdan de vista).
- */
-    public static function alarmasProximas(int $diasVentana = 30): array {
-    $pdo = getPDO();
-    $sql = "SELECT b.*, e.nombre AS nombre_empleado, e.cedula AS cedula_empleado_full
-            FROM bolsillos b
-            INNER JOIN empleados e ON e.cedula = b.cedula_empleado
-            WHERE b.alarma_activa = 1
-              AND b.alarma_fecha IS NOT NULL
-              AND b.alarma_fecha <= DATE_ADD(CURDATE(), INTERVAL :dias DAY)
-            ORDER BY b.alarma_fecha ASC";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindValue(':dias', $diasVentana, PDO::PARAM_INT);
-    $stmt->execute();
-    $filas = $stmt->fetchAll();
+     * Trae las alarmas activas que ya están dentro de su propia ventana de aviso
+     * o que ya vencieron. La ventana se toma de alarma_dias_aviso para mantener
+     * la consulta alineada con calcularEstadoAlarma().
+     */
+    public static function alarmasProximas(): array {
+        $pdo = getPDO();
 
-    foreach ($filas as &$fila) {
-        $fila['estado_alarma'] = self::calcularEstadoAlarma($fila);
+        $sql = "SELECT b.*,
+                       e.nombre AS nombre_empleado,
+                       e.cedula AS cedula_empleado_full
+                FROM bolsillos b
+                INNER JOIN empleados e ON e.cedula = b.cedula_empleado
+                WHERE b.alarma_activa = 1
+                  AND b.alarma_fecha IS NOT NULL
+                  AND (
+                      b.alarma_fecha <= CURDATE()
+                      OR b.alarma_fecha <= DATE_ADD(
+                          CURDATE(),
+                          INTERVAL COALESCE(b.alarma_dias_aviso, 35) DAY
+                      )
+                  )
+                ORDER BY b.alarma_fecha ASC";
+
+        $stmt = $pdo->query($sql);
+        $filas = $stmt->fetchAll();
+
+        foreach ($filas as &$fila) {
+            $fila['estado_alarma'] = self::calcularEstadoAlarma($fila);
+        }
+        unset($fila);
+
+        return $filas;
     }
-    unset($fila); // buena práctica: rompe la referencia después del foreach
-
-    return $filas;
-}
 }

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../src/controllers/PermisoController.php';
 require_once __DIR__ . '/../../src/models/EmpleadoModel.php';
+require_once __DIR__ . '/../../src/helpers/JornadaHelper.php';
 
 header('Content-Type: application/json');
 
@@ -30,5 +31,9 @@ if (!$empleado) {
     exit;
 }
 
-$resultado = PermisoController::calcularHorasPorDias($fechaInicio, $horaInicio, $fechaFin, $horaFin, $empleado['tipo_de_personal'] ?? null);
+// null = empleado sin tipo_de_personal: el cálculo lo trata como Civil y avisa.
+$resultado = PermisoController::calcularHorasPorDias($fechaInicio, $horaInicio, $fechaFin, $horaFin, JornadaHelper::tipoParaCalculo($empleado));
+if (!empty($resultado['ok'])) {
+    $resultado['jornada'] = JornadaHelper::reglas($empleado);
+}
 echo json_encode($resultado);

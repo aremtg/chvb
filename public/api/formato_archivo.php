@@ -73,7 +73,7 @@ $esOtrosiCambioSalario = preg_match(
 );
 
 $esTerminacion = preg_match(
-    '/^AF-FT-02 NOTIFICACION DE TERMINACION CONTRATO [^\/\\\\]+\.docx$/iu',
+    '/^AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO [^\/\\\\]+\.docx$/iu',
     $archivo
 );
 
@@ -82,7 +82,12 @@ $esRemisionExamenes = preg_match(
     $archivo
 );
 
-if (!$esRenovacion && !$esOtrosiAnterior && !$esOtrosiNuevo && !$esOtrosiCambioSalario && !$esRemisionExamenes && !$esTerminacion) {
+$esCertificadoLaboral = preg_match(
+    '/^GH-FT-10-\d{4,}-CERTIFICADO LABORAL [^\/\\\\]+\.docx$/iu',
+    $archivo
+);
+
+if (!$esRenovacion && !$esOtrosiAnterior && !$esOtrosiNuevo && !$esOtrosiCambioSalario && !$esRemisionExamenes && !$esTerminacion && !$esCertificadoLaboral) {
     http_response_code(400);
     exit('Archivo no válido.');
 }

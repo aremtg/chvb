@@ -11,6 +11,7 @@ $csrf = csrfToken();
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <?php require __DIR__ . '/../includes/head.php'; ?>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CHVB - Renovación de Contrato</title>
@@ -22,7 +23,7 @@ $csrf = csrfToken();
 <body class="bg-gray-50 min-h-screen text-gray-800">
 <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 <div class="md:ml-64 pt-14 md:pt-0">
-<?= formatosHeader('Renovación de Contrato', 'AF-FT-02 · Gestión de renovaciones') ?>
+<?= formatosHeader('Renovación de Contrato', 'AF-FT-02-AF-RENOVACION DE CONTRATO · Gestión de renovaciones') ?>
 <main class="p-3 sm:p-5 lg:p-6 max-w-5xl mx-auto space-y-5">
 <section class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-visible">
 <div class="p-4 sm:p-5 lg:p-6 border-b border-gray-100"><div class="flex items-start gap-3"><span class="w-10 h-10 shrink-0 rounded-xl bg-red-50 text-red-600 flex items-center justify-center"><?= icon('file-signature','w-5 h-5') ?></span><div><h2 class="font-bold text-gray-800">Generar Renovación</h2><p class="text-xs text-gray-600">Busca al empleado por nombre o cédula y agrega las renovaciones.</p></div></div></div>
@@ -127,6 +128,7 @@ const csrfToken = <?= json_encode($csrf) ?>;
             if (!String(emp.nombre ?? '').trim()) faltan.push('Nombre');
             if (!String(emp.cedula ?? '').trim()) faltan.push('Cédula');
             if (!sexoNormalizado(emp.sexo)) faltan.push('Sexo');
+            if (!String(emp.lugar_expedicion ?? '').trim()) faltan.push('Lugar de expedición de la cédula');
             if (!String(emp.cargo ?? '').trim()) faltan.push('Cargo');
             if (!String(emp.tipo_de_personal ?? '').trim()) faltan.push('Tipo de personal');
             if (!String(emp.fecha_inicio_contrato ?? '').trim()) faltan.push('Fecha de inicio del contrato');
@@ -466,17 +468,19 @@ const buscadorRen = crearBuscadorEmpleado({
             document.getElementById('renEmpleado').innerHTML = `
         <div><span class="block text-xs text-gray-600">Nombre</span><strong>${escapeHtml(emp.nombre)}</strong></div>
         <div><span class="block text-xs text-gray-600">Cédula</span><strong>${escapeHtml(emp.cedula)}</strong></div>
+        <div><span class="block text-xs text-gray-600">Lugar de expedición</span>${emp.lugar_expedicion ? `<strong>${escapeHtml(emp.lugar_expedicion)}</strong>` : '<span class="text-red-600 font-semibold">Sin definir</span>'}</div>
         <div><span class="block text-xs text-gray-600">Sexo</span>${sexo === 'F' ? 'Femenino' : sexo === 'M' ? 'Masculino' : 'Sin dato válido'}</div>
         <div><span class="block text-xs text-gray-600">Tipo de personal</span>${escapeHtml(emp.tipo_de_personal || '-')}</div>
         <div><span class="block text-xs text-gray-600">Cargo</span>${escapeHtml(emp.cargo || '-')}</div>
         <div><span class="block text-xs text-gray-600">Contrato</span>${escapeHtml(emp.tipo_de_contrato || '-')}</div>
+        <div><span class="block text-xs text-gray-600">Fecha inicio contrato inicial</span><strong>${fmtDate(emp.fecha_inicio_contrato)}</strong></div>
         <div><span class="block text-xs text-gray-600">Fecha fin contrato inicial</span><strong>${fmtDate(emp.fecha_fin_contrato)}</strong></div>
     `;
 
             const campos = document.getElementById('renCampos');
             if (faltan.length) {
                 campos.classList.add('hidden');
-                document.getElementById('renDatosFaltantes').innerHTML = `<strong>No se puede generar la renovación todavía.</strong><div class="mt-2">Faltan en la hoja de vida:</div><ul class="list-disc ml-5 mt-1">${faltan.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul>`;
+                document.getElementById('renDatosFaltantes').innerHTML = `<strong>No se puede generar la renovación todavía.</strong><div class="mt-2">Faltan en la hoja de vida:</div><ul class="list-disc ml-5 mt-1">${faltan.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul><div class="mt-2">Complétalo en <strong>Empleados → Editar</strong> y vuelve a seleccionar a la persona.</div>`;
                 document.getElementById('renDatosFaltantes').classList.remove('hidden');
                 return;
             }
@@ -500,9 +504,7 @@ const buscadorRen = crearBuscadorEmpleado({
             fd.append('cedula', empleadoRen.cedula);
             renovacionesRen.forEach((r, index) => fd.append(`duraciones[${index + 1}]`, String(r.meses)));
 
-            btn.disabled = true;
-            btn.dataset.html = btn.innerHTML;
-            btn.textContent = 'Generando...';
+            Loading.start(btn, 'Generando Word...');
 
             try {
                 const r = await fetch('./api/formatos_renovacion_generar.php', { method: 'POST', body: fd });
@@ -513,8 +515,7 @@ const buscadorRen = crearBuscadorEmpleado({
             } catch (ex) {
                 err.textContent = ex.message;
                 err.classList.remove('hidden');
-                btn.disabled = false;
-                btn.innerHTML = btn.dataset.html;
+                Loading.stop(btn);
                 validarFormulario();
             }
         });
@@ -524,12 +525,14 @@ const buscadorRen = crearBuscadorEmpleado({
             const fd = new FormData();
             fd.append('csrf_token', csrfToken);
             const url = './api/formato_archivo.php?f=' + encodeURIComponent(archivo) + '&accion=eliminar';
+            Loading.show('Eliminando...');
             try {
                 const r = await fetch(url, { method: 'POST', body: fd });
                 const d = await r.json();
                 if (d.ok) location.reload();
-                else alert(d.error || 'No se pudo eliminar.');
+                else { Loading.hide(); alert(d.error || 'No se pudo eliminar.'); }
             } catch (e) {
+                Loading.hide();
                 alert('No se pudo eliminar el archivo.');
             }
         }

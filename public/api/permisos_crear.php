@@ -87,7 +87,7 @@ try {
         exit;
     }
 
-    $tipoPersonal = !empty($empleado['tipo_de_personal']) ? $empleado['tipo_de_personal'] : 'Civil';
+    $tipoPersonal = JornadaHelper::tipoParaCalculo($empleado) ?? 'Civil';
     $recalculo = $esSalidaPendiente
         ? ['dias' => [], 'total_horas' => null]
         : PermisoController::recalcularConfirmado($diasConfirmados, $tipoPersonal);
@@ -200,7 +200,7 @@ try {
     // Envío automático: el permiso nace directo en la fase de firmas, sin pasar por borrador.
     $estadoInicial = $tieneReemplazo ? 'por_firmar_reemplazo' : 'por_firmar_jefe';
     PermisoModel::actualizarConVersion($permisoId, 1, ['estado' => $estadoInicial]);
-    PermisoModel::registrarHistorial($permisoId, 1, 'en_proceso', $estadoInicial, 'empleado', $cedula, 'Permiso creado y enviado automáticamente');
+    PermisoModel::registrarHistorial($permisoId, 1, 'en_proceso', $estadoInicial, 'empleado', $cedula, 'Permiso creado y enviado');
 
     require_once __DIR__ . '/../../src/controllers/PermisoController.php';
     PermisoController::notificarEnvioPublico($permisoId);
@@ -217,6 +217,7 @@ try {
     echo json_encode(['ok' => true, 'id' => $permisoId, 'consecutivo' => $consecutivo]);
 
 } catch (Throwable $e) {
+    error_log('permisos_crear: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => 'Error interno al crear el permiso: ' . $e->getMessage()]);
+    echo json_encode(['ok' => false, 'error' => 'Error interno al crear el permiso.']);
 }

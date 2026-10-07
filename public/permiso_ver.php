@@ -25,6 +25,7 @@ if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <?php require __DIR__ . '/../includes/head.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Permiso <?= htmlspecialchars($permiso['consecutivo'])?> - CHVB</title>
@@ -47,9 +48,9 @@ if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula
         </div>
     </header>
 
-    <main class="p-4 md:p-8 max-w-3xl mx-auto">
+    <main class="p-2 md:p-4 max-w-3xl mx-auto">
         <!-- Contenedor que llena tu JS -->
-        <div id="contenidoPermiso" class="space-y-4"
+        <div id="contenidoPermiso" class="space-y-1"
              data-id="<?= $id?>" data-cedula="<?= htmlspecialchars($cedula)?>" data-es-th="<?= $esTH ? '1' : '0' ?>"
              data-tiene-firma-guardada="<?= $firmaGuardada? '1' : '0'?>">
             <!-- Skeleton loader pro mientras carga permiso_ver.js -->
@@ -79,7 +80,7 @@ if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula
                 <?php endif;?>
                 <div id="cajaCanvasAccion" class="<?= $firmaGuardada? 'hidden' : ''?> space-y-2">
                     <p class="text- font-semibold tracking-widest uppercase text-gray-600">Dibuja tu firma</p>
-                    <canvas id="canvasFirmaAccion" class="border border-gray-200 rounded-xl w-full bg-white touch-none" height="160"></canvas>
+                    <canvas id="canvasFirmaAccion" data-alto="200" class="border border-gray-200 rounded-xl w-full bg-white touch-none" style="height:200px"></canvas>
                     <button type="button" id="btnLimpiarFirmaAccion" class="text- font-medium text-gray-500 hover:text-red-600">Limpiar firma</button>
                 </div>
                 <div class="space-y-2">
@@ -103,7 +104,7 @@ if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula
     </div>
 </div>
 
-<script src="./assets/js/camera_capture.js"></script>
+<script src="./assets/js/camera_capture.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/camera_capture.js') ?>"></script>
 <script src="./assets/js/firma_canvas.js"></script>
 <script src="./assets/js/permiso_ver.js"></script>
 </body>

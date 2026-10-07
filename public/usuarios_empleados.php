@@ -5,12 +5,14 @@ require_once __DIR__ . '/../src/models/UsuarioEmpleadoModel.php';
 requireSuperAdmin();
 
 $busqueda = trim($_GET['q'] ?? '');
-$empleados = EmpleadoModel::listar($busqueda);
+// Solo empleados ACTIVOS: un empleado no activo no tiene usuario/PIN y no aparece en esta lista.
+$empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
 ?>
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
+    <?php require __DIR__ . '/../includes/head.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Usuarios de Empleados</title>
@@ -70,10 +72,9 @@ $empleados = EmpleadoModel::listar($busqueda);
                     </p>
                 </div>
 
-                ```php
                         <?php else: ?>
                 <!-- LISTA DE EMPLEADOS -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <?php foreach ($empleados as $emp): ?>
                                     <?php $acceso = UsuarioEmpleadoModel::obtenerPorCedula($emp['cedula']); ?>
 
@@ -83,11 +84,20 @@ $empleados = EmpleadoModel::listar($busqueda);
                             <!-- INFORMACIÓN DEL EMPLEADO -->
                             <div class="flex items-center gap-3 min-w-0">
 
-                                <!-- ICONO -->
-                                <div
-                                    class="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
-                                                <?= icon('user', 'w-5 h-5') ?>
-                                </div>
+                                <!-- FOTO / ICONO -->
+                                <?php if (!empty($emp['foto'])): ?>
+                                    <img src="./api/foto_ver.php?cedula=<?= urlencode($emp['cedula']) ?>"
+                                        data-visor-img="./api/foto_ver.php?cedula=<?= urlencode($emp['cedula']) ?>"
+                                        alt="Foto de <?= htmlspecialchars($emp['nombre']) ?>"
+                                        role="button" tabindex="0"
+                                        loading="lazy"
+                                        class="w-12 h-12 rounded-full object-cover object-center border border-gray-200 flex-shrink-0 cursor-zoom-in">
+                                <?php else: ?>
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
+                                        <?= icon('user', 'w-5 h-5') ?>
+                                    </div>
+                                <?php endif; ?>
 
                                 <div class="min-w-0 flex-1">
                                     <p class="text-sm font-semibold text-gray-800 truncate">
@@ -153,7 +163,7 @@ $empleados = EmpleadoModel::listar($busqueda);
                                     <!-- CREAR / RESETEAR PIN -->
                                     <button
                                         onclick="abrirModalPin('<?= $emp['cedula'] ?>', '<?= htmlspecialchars($emp['nombre'], ENT_QUOTES) ?>')"
-                                        class="flex-1 min-w-[120px] h-9 px-3 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold flex items-center justify-center transition whitespace-nowrap">
+                                        class="flex-1 min-w-[120px] h-9 px-3 rounded-lg bg-green-500 hover:bg-green-700 text-white text-xs font-semibold flex items-center justify-center transition whitespace-nowrap">
                                                     <?= $acceso ? 'Resetear PIN' : 'Crear acceso' ?>
                                     </button>
 
@@ -277,6 +287,7 @@ $empleados = EmpleadoModel::listar($busqueda);
 
     </div>
 
+    <script src="./assets/js/visor_imagen.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/visor_imagen.js') ?>"></script>
     <script src="./assets/js/usuarios_empleados.js"></script>
 </body>
 

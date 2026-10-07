@@ -30,7 +30,7 @@ function render() {
     html += `
             <div class="bg-white rounded-xl shadow p-4 border-2 border-yellow-300">
                 <p class="font-medium text-gray-800">${p.consecutivo} — ${p.nombre_empleado_snapshot}</p>
-                <p class="text-xs text-gray-500">${p.tipo_permiso} · ${p.total_horas ? parseFloat(p.total_horas).toFixed(2) + " h" : "Regreso pendiente"}</p>
+                <p class="text-xs text-gray-500">${p.tipo_permiso} · ${p.total_horas ? (p.total_dias != null ? p.total_dias + (Number(p.total_dias) === 1 ? " día" : " días") + " · " : "") + parseFloat(p.total_horas).toFixed(2) + " h" : "Regreso pendiente"}</p>
                 <div class="flex gap-2 mt-3 flex-wrap">
                     <a href="./permiso_ver.php?id=${p.id}" class="text-xs border border-gray-300 px-3 py-1.5 rounded-xl text-gray-700">Ver detalle completo</a>
                     <button onclick="abrirModalFirma(${p.id}, ${p.version}, '${rol}', 'firmar')" class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-xl">Firmar</button>
@@ -54,6 +54,15 @@ let accionActual = null,
   permisoIdActual = null,
   versionActual = null;
 const canvasBandeja = inicializarCanvasFirma("canvasFirmaBandeja");
+const chkFirmaGuardadaBandeja = document.getElementById("usarFirmaGuardadaBandeja");
+if (chkFirmaGuardadaBandeja) {
+  chkFirmaGuardadaBandeja.addEventListener("change", () => {
+    document
+      .getElementById("cajaCanvasBandeja")
+      .classList.toggle("hidden", chkFirmaGuardadaBandeja.checked);
+    if (!chkFirmaGuardadaBandeja.checked) canvasBandeja.redimensionar();
+  });
+}
 const capturaFotoBandeja = inicializarCapturaFoto("capturaFotoBandeja");
 
 function abrirModalFirma(id, version, rol, accion) {
@@ -86,7 +95,8 @@ function cerrarModalFirma() {
 
 document
   .getElementById("btnConfirmarAccion")
-  .addEventListener("click", async () => {
+  .addEventListener("click", async (e) => {
+    const btn = e.currentTarget; // se toma antes de cualquier await
     const error = document.getElementById("errorBandeja");
     error.classList.add("hidden");
     const rol = document.getElementById("modalFirmarPermiso").dataset.rol;
@@ -133,12 +143,20 @@ document
       formData.append("motivo", motivo);
     }
 
-    const res = await fetch(url, { method: "POST", body: formData });
-    const data = await res.json();
-    if (data.ok) {
-      window.location.reload();
-    } else {
-      error.textContent = data.error || "Error al procesar la acción.";
+    Loading.start(btn, "Procesando...");
+    try {
+      const res = await fetch(url, { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.ok) {
+        window.location.reload(); // el spinner queda hasta que recargue
+      } else {
+        Loading.stop(btn);
+        error.textContent = data.error || "Error al procesar la acción.";
+        error.classList.remove("hidden");
+      }
+    } catch (err) {
+      Loading.stop(btn);
+      error.textContent = "Error de conexión con el servidor.";
       error.classList.remove("hidden");
     }
   });

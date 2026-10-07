@@ -10,4 +10,5 @@ require_once __DIR__ . '/../../src/helpers/FileManager.php';
 $ruta = FileManager::rutaAbsolutaDesdeRelativa($firma['ruta_imagen']);
 if (!$ruta || !is_file($ruta)) { http_response_code(404); exit; }
 $mime = mime_content_type($ruta) ?: 'image/png';
+while (ob_get_level()) ob_end_clean(); // evita que cualquier salida previa corrompa la imagen
 header('Content-Type: '.$mime); header('Cache-Control: private, max-age=300'); readfile($ruta);

@@ -18,6 +18,11 @@ class AuthEmpleadoController {
             return ['ok' => false, 'error' => 'No tienes acceso habilitado. Contacta a Talento Humano.'];
         }
 
+        $empleado = EmpleadoModel::obtenerPorCedula($cedula);
+        if (!$empleado || ($empleado['estado'] ?? '') !== 'activo') {
+            return ['ok' => false, 'error' => 'No tienes acceso habilitado. Contacta a Talento Humano.'];
+        }
+
         if (UsuarioEmpleadoModel::estaBloqueado($usuarioEmpleado)) {
             $min = UsuarioEmpleadoModel::minutosRestantesBloqueo($usuarioEmpleado);
             return ['ok' => false, 'error' => "Cuenta bloqueada por intentos fallidos. Intenta de nuevo en $min minuto(s)."];
@@ -31,6 +36,8 @@ class AuthEmpleadoController {
         // Login correcto
         UsuarioEmpleadoModel::resetearIntentos($cedula);
         session_regenerate_id(true);
+        unset($_SESSION['superadmin_id'], $_SESSION['superadmin_username'], $_SESSION['superadmin_rol']);
+        $_SESSION['auth_type'] = 'empleado';
         $_SESSION['empleado_cedula'] = $cedula;
 
         return ['ok' => true];

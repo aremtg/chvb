@@ -10,6 +10,11 @@ validarCSRF();
 bloquearSiSoloLectura();
 
 $cedula = trim($_POST['cedula'] ?? '');
+$empleadoActual = EmpleadoModel::obtenerPorCedula($cedula);
+if (!$empleadoActual || ($empleadoActual['estado'] ?? '') !== 'activo') {
+    echo json_encode(['ok' => false, 'error' => 'El empleado está NO ACTIVO. Actívalo primero en Empleados → Editar para poder darle acceso.']);
+    exit;
+}
 UsuarioEmpleadoModel::reactivar($cedula);
 if (($_SESSION['superadmin_rol'] ?? '') === 'auxiliar_talento_humano') {
     $empleado = EmpleadoModel::obtenerPorCedula($cedula);

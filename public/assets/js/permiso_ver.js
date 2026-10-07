@@ -32,6 +32,10 @@ function horasV(h) {
   if (hh > 0) return `${hh} h`;
   return `${mm} min`;
 }
+function diasV(n) {
+  const d = parseInt(n, 10) || 0;
+  return `${d} ${d === 1 ? "día" : "días"}`;
+}
 function etiquetaEstadoV(e) {
   const m = {
     en_proceso: ["Borrador", "bg-gray-100 text-gray-600"],
@@ -46,9 +50,18 @@ function etiquetaEstadoV(e) {
     firmado: ["Firmado", "bg-green-100 text-green-700"],
     devuelto: ["Devuelto", "bg-orange-100 text-orange-700"],
     rechazado: ["Rechazado", "bg-red-100 text-red-700"],
-    aprobado_pendiente_regreso: ["Aprobado — regreso pendiente", "bg-blue-100 text-blue-700"],
-    por_firmar_jefe_final: ["Pendiente de firma final del jefe", "bg-yellow-100 text-yellow-700"],
-    devuelto_regreso: ["Llegada devuelta — corregir", "bg-orange-100 text-orange-700"],
+    aprobado_pendiente_regreso: [
+      "Aprobado — regreso pendiente",
+      "bg-blue-100 text-blue-700",
+    ],
+    por_firmar_jefe_final: [
+      "Pendiente de firma final del jefe",
+      "bg-yellow-100 text-yellow-700",
+    ],
+    devuelto_regreso: [
+      "Llegada devuelta — corregir",
+      "bg-orange-100 text-orange-700",
+    ],
     anulado: ["Anulado", "bg-red-100 text-red-700"],
   };
   return m[e] || [e, "bg-gray-100 text-gray-600"];
@@ -57,9 +70,7 @@ function etiquetaEstadoV(e) {
 let permisoActual = null;
 
 async function cargarPermiso() {
-  const res = await fetch(
-    `./api/permiso_detalle.php?id=${permisoId}`,
-  );
+  const res = await fetch(`./api/permiso_detalle.php?id=${permisoId}`);
   const data = await res.json();
   if (!data.ok) {
     contenedorPermiso.innerHTML = `<p class="text-sm text-red-600">${data.error}</p>`;
@@ -70,65 +81,96 @@ async function cargarPermiso() {
 }
 
 function escaparV(v) {
-  return String(v ?? "").replace(/[&<>'"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+  return String(v ?? "").replace(
+    /[&<>'"]/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[
+        c
+      ],
+  );
 }
 
 function render() {
   const p = permisoActual;
   const [textoEstado, claseEstado] = etiquetaEstadoV(p.estado);
   const esDueno = p.cedula_empleado === cedulaPropia;
-  const esReemplazoPendiente = p.cedula_reemplazo === cedulaPropia && p.estado === "por_firmar_reemplazo";
-  const esJefePendiente = p.cedula_jefe === cedulaPropia && ["por_firmar_jefe", "por_firmar_jefe_final"].includes(p.estado);
+  const esReemplazoPendiente =
+    p.cedula_reemplazo === cedulaPropia && p.estado === "por_firmar_reemplazo";
+  const esJefePendiente =
+    p.cedula_jefe === cedulaPropia &&
+    ["por_firmar_jefe", "por_firmar_jefe_final"].includes(p.estado);
 
   let acciones = "";
   if (esDueno && (p.estado === "en_proceso" || p.estado === "devuelto")) {
     acciones += `<button onclick="enviarPermiso()" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2.5 rounded-xl font-semibold">Enviar permiso</button>`;
-    if (p.estado === "devuelto") acciones += `<a href="./permiso_editar.php?id=${p.id}" class="border border-gray-300 text-sm px-4 py-2.5 rounded-xl text-gray-700 font-semibold">Editar permiso</a>`;
+    if (p.estado === "devuelto")
+      acciones += `<a href="./permiso_nuevo.php?editar=${p.id}" class="border border-gray-300 text-sm px-4 py-2.5 rounded-xl text-gray-700 font-semibold">Editar permiso</a>`;
   }
   if (esReemplazoPendiente || esJefePendiente) {
     const rol = esReemplazoPendiente ? "reemplazo" : "jefe";
     acciones += `<button onclick="abrirModalAccion('firmar','${rol}')" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2.5 rounded-xl font-semibold">Firmar</button>`;
     acciones += `<button onclick="abrirModalAccion('devolver','${rol}')" class="border border-gray-300 text-sm px-4 py-2.5 rounded-xl text-gray-700 font-semibold">Devolver</button>`;
-    if (rol === "jefe" && p.estado === "por_firmar_jefe") acciones += `<button onclick="abrirModalAccion('rechazar','${rol}')" class="text-red-600 hover:bg-red-50 border border-red-200 text-sm px-4 py-2.5 rounded-xl font-semibold">Rechazar</button>`;
+    if (rol === "jefe" && p.estado === "por_firmar_jefe")
+      acciones += `<button onclick="abrirModalAccion('rechazar','${rol}')" class="text-red-600 hover:bg-red-50 border border-red-200 text-sm px-4 py-2.5 rounded-xl font-semibold">Rechazar</button>`;
   }
-  if (["aprobado_pendiente_regreso", "devuelto_regreso"].includes(p.estado) && esDueno) {
+  if (
+    ["aprobado_pendiente_regreso", "devuelto_regreso"].includes(p.estado) &&
+    esDueno
+  ) {
     acciones += `<a href="./permiso_registrar_llegada.php?id=${p.id}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2.5 rounded-xl font-semibold">Registrar llegada</a>`;
   }
 
   let diasHtml = "";
   if (p.dias && p.dias.length) {
-    diasHtml = p.dias.map(d => `
+    diasHtml = p.dias
+      .map(
+        (d) => `
       <div class="flex items-center justify-between gap-3 py-2.5 border-b border-gray-100 last:border-0">
-        <div><p class="text-sm font-semibold text-gray-800">${fechaV(d.fecha)}</p><p class="text-xs text-gray-500">${d.hora_inicio?.substring(0,5) || "--:--"} — ${d.hora_fin?.substring(0,5) || "--:--"}</p></div>
+        <div><p class="text-sm font-semibold text-gray-800">${fechaV(d.fecha)}</p><p class="text-xs text-gray-500">${d.hora_inicio?.substring(0, 5) || "--:--"} — ${d.hora_fin?.substring(0, 5) || "--:--"}</p></div>
         <span class="text-sm font-semibold text-gray-700">${horasV(d.horas_netas)}${d.es_festivo ? ` · festivo ${d.incluido == 1 ? "contado" : "no contado"}` : ""}</span>
-      </div>`).join("");
+      </div>`,
+      )
+      .join("");
   } else if (p.es_salida_pendiente_regreso == 1) {
-    diasHtml = `<div class="py-2.5"><p class="text-sm font-semibold text-gray-800">Salida: ${fechaV(p.fecha_inicio)}</p><p class="text-xs text-gray-500">${p.hora_inicio?.substring(0,5) || "--:--"} — llegada por confirmar</p></div>`;
+    diasHtml = `<div class="py-2.5"><p class="text-sm font-semibold text-gray-800">Salida: ${fechaV(p.fecha_inicio)}</p><p class="text-xs text-gray-500">${p.hora_inicio?.substring(0, 5) || "--:--"} — llegada por confirmar</p></div>`;
   }
 
-  const devolucionesHtml = p.devoluciones?.length ? `
+  const devolucionesHtml = p.devoluciones?.length
+    ? `
     <div class="mt-4 rounded-xl bg-gray-50 border border-gray-100 p-3">
-      <p class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Tiempo de devolución</p>
-      ${p.devoluciones.map(d => `<p class="text-sm text-gray-700">${fechaV(d.fecha)} · ${d.hora_inicio.substring(0,5)} — ${d.hora_fin.substring(0,5)} · <strong>${horasV(d.total_horas)}</strong></p>`).join("")}
-    </div>` : "";
+      <p class="text-xs font-bold uppercase  text-gray-500 mb-2">Tiempo de devolución</p>
+      ${p.devoluciones.map((d) => `<p class="text-sm text-gray-700">${fechaV(d.fecha)} · ${d.hora_inicio.substring(0, 5)} — ${d.hora_fin.substring(0, 5)} · <strong>${horasV(d.total_horas)}</strong></p>`).join("")}
+    </div>`
+    : "";
 
   const alertas = [];
-  if (p.motivo_devolucion) alertas.push(`<div class="rounded-xl border border-orange-200 bg-orange-50 p-4"><p class="text-xs font-bold uppercase tracking-wider text-orange-700">Motivo de devolución</p><p class="text-sm text-orange-900 mt-1 whitespace-pre-line">${escaparV(p.motivo_devolucion)}</p></div>`);
-  if (p.motivo_rechazo) alertas.push(`<div class="rounded-xl border border-red-200 bg-red-50 p-4"><p class="text-xs font-bold uppercase tracking-wider text-red-700">Motivo de rechazo</p><p class="text-sm text-red-900 mt-1 whitespace-pre-line">${escaparV(p.motivo_rechazo)}</p></div>`);
-  if (p.motivo_anulacion) alertas.push(`<div class="rounded-xl border border-red-200 bg-red-50 p-4"><p class="text-xs font-bold uppercase tracking-wider text-red-700">Motivo de anulación</p><p class="text-sm text-red-900 mt-1 whitespace-pre-line">${escaparV(p.motivo_anulacion)}</p></div>`);
+  if (p.motivo_devolucion)
+    alertas.push(
+      `<div class="rounded-xl border border-orange-200 bg-orange-50 p-4"><p class="text-xs font-bold uppercase  text-orange-700">Motivo de devolución</p><p class="text-sm text-orange-900 mt-1 whitespace-pre-line">${escaparV(p.motivo_devolucion)}</p></div>`,
+    );
+  if (p.motivo_rechazo)
+    alertas.push(
+      `<div class="rounded-xl border border-red-200 bg-red-50 p-4"><p class="text-xs font-bold uppercase  text-red-700">Motivo de rechazo</p><p class="text-sm text-red-900 mt-1 whitespace-pre-line">${escaparV(p.motivo_rechazo)}</p></div>`,
+    );
+  if (p.motivo_anulacion)
+    alertas.push(
+      `<div class="rounded-xl border border-red-200 bg-red-50 p-4"><p class="text-xs font-bold uppercase  text-red-700">Motivo de anulación</p><p class="text-sm text-red-900 mt-1 whitespace-pre-line">${escaparV(p.motivo_anulacion)}</p></div>`,
+    );
 
-  function imgUrl(campo) { return `./api/permiso_imagen.php?id=${p.id}&campo=${campo}`; }
+  function imgUrl(campo) {
+    return `./api/permiso_imagen.php?id=${p.id}&campo=${campo}`;
+  }
   function bloqueFirmante(titulo, nombre, cedula, campoFoto, campoFirma) {
     if (!cedula && titulo === "Reemplazo") return "";
     const firmado = !!p[campoFirma];
-    return `<div class="rounded-2xl border ${firmado ? 'border-gray-200 bg-white' : 'border-yellow-200 bg-yellow-50/40'} p-4">
+    return `<div class="rounded-2xl border ${firmado ? "border-gray-200 bg-white" : "border-yellow-200 bg-yellow-50/40"} p-4">
       <div class="flex items-start justify-between gap-3 mb-3">
-        <div><p class="text-sm font-bold text-gray-900">Firma del ${titulo.toLowerCase()}${nombre ? ` (${escaparV(nombre)})` : ''}</p><p class="text-xs text-gray-500 mt-0.5">${escaparV(nombre || 'Sin nombre')} · C.C. ${escaparV(cedula || '-')}</p></div>
-        ${firmado ? '' : '<span class="text-[10px] font-bold uppercase tracking-wider text-yellow-700 bg-yellow-100 px-2 py-1 rounded-full">En proceso</span>'}
+        <div><p class="text-sm font-bold text-gray-900">Firma del ${titulo.toLowerCase()}</p><p class="text-xs text-gray-500 mt-0.5">${escaparV(nombre || "Sin nombre")} · C.C. ${escaparV(cedula || "-")}</p></div>
+        ${firmado ? "" : '<span class="text-[10px] font-bold uppercase  text-yellow-700 bg-yellow-100 px-2 py-1 rounded-full">En proceso</span>'}
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div class="w-full h-36 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center overflow-hidden">
-          ${p[campoFoto] ? `<img src="${imgUrl(campoFoto)}" class="w-full h-full object-cover">` : '<span class="text-xs text-gray-600">Sin foto</span>'}
+          ${p[campoFoto] ? `<img src="${imgUrl(campoFoto)}" data-visor-img="${imgUrl(campoFoto)}" alt="Foto de ${titulo.toLowerCase()}" role="button" tabindex="0" class="w-full h-full object-cover cursor-zoom-in">` : '<span class="text-xs text-gray-600">Sin foto</span>'}
         </div>
         <div class="w-full h-36 bg-white border border-gray-200 rounded-xl flex items-center justify-center p-3">
           ${firmado ? `<img src="${imgUrl(campoFirma)}" class="w-full h-full object-contain">` : '<span class="text-xs text-gray-600">Firma pendiente</span>'}
@@ -137,56 +179,84 @@ function render() {
     </div>`;
   }
 
-  const historialHtml = (p.historial || []).map(h => {
-    const nuevo = String(h.estado_nuevo || '').toLowerCase();
-    const cls = nuevo.includes('rechaz') ? 'border-red-300 bg-red-50' : nuevo.includes('devuelto') ? 'border-orange-300 bg-orange-50' : nuevo.includes('firm') || nuevo.includes('aprobado') ? 'border-green-300 bg-green-50' : nuevo.includes('anulado') ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50';
-    return `<div class="border-l-4 ${cls} rounded-r-xl p-3">
-      <div class="flex flex-wrap items-center justify-between gap-2"><p class="text-sm font-semibold text-gray-800">${escaparV(h.actor_tipo)} · ${escaparV(h.actor_cedula_o_usuario)}</p><p class="text-[11px] text-gray-600">${h.created_at ? new Date(h.created_at.replace(' ','T')).toLocaleString('es-CO') : ''}</p></div>
+  const historialHtml = (p.historial || [])
+    .map((h) => {
+      const nuevo = String(h.estado_nuevo || "").toLowerCase();
+      const cls = nuevo.includes("rechaz")
+        ? "border-red-300 bg-red-50"
+        : nuevo.includes("devuelto")
+          ? "border-orange-300 bg-orange-50"
+          : nuevo.includes("firm") || nuevo.includes("aprobado")
+            ? "border-green-300 bg-green-50"
+            : nuevo.includes("anulado")
+              ? "border-red-400 bg-red-50"
+              : "border-gray-200 bg-gray-50";
+      return `<div class="border-l-4 ${cls} rounded-r-xl p-3">
+      <div class="flex flex-wrap items-center justify-between gap-2"><p class="text-sm font-semibold text-gray-800">${escaparV(h.actor_tipo)} · ${escaparV(h.actor_cedula_o_usuario)}</p><p class="text-[11px] text-gray-600">${h.created_at ? new Date(h.created_at.replace(" ", "T")).toLocaleString("es-CO") : ""}</p></div>
       <p class="text-xs text-gray-600 mt-1"><strong>${escaparV(h.estado_anterior)}</strong> → <strong>${escaparV(h.estado_nuevo)}</strong></p>
-      ${h.detalle ? `<p class="text-sm text-gray-700 mt-2 whitespace-pre-line">${escaparV(h.detalle)}</p>` : ''}
+      ${h.detalle ? `<p class="text-sm text-gray-700 mt-2 whitespace-pre-line">${escaparV(h.detalle)}</p>` : ""}
     </div>`;
-  }).join('');
+    })
+    .join("");
 
   contenedorPermiso.innerHTML = `
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-wrap justify-between gap-3 items-start">
-        <div><p class="text-xs font-bold uppercase tracking-wider text-gray-600">Permiso</p><h2 class="text-xl font-bold text-gray-900 mt-1">${escaparV(p.consecutivo)}</h2><p class="text-sm text-gray-500 mt-1">${escaparV(p.tipo_permiso)}</p></div>
+        <div><h2 class="text-lg font-bold text-gray-900 mt-1">${escaparV(p.consecutivo)}</h2><p class="text-sm text-gray-500 mt-1">Tipo de permiso: ${escaparV(p.tipo_permiso)}</p></div>
         <span class="text-xs font-bold px-3 py-1.5 rounded-full ${claseEstado}">${textoEstado}</span>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
-        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase tracking-wider text-gray-600">Solicitante</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.nombre_empleado_snapshot)}</p></div>
-        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase tracking-wider text-gray-600">Cédula</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.cedula_empleado)}</p></div>
-        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase tracking-wider text-gray-600">Cargo</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.cargo_empleado_snapshot)}</p></div>
-        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase tracking-wider text-gray-600">Celular</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.celular_empleado_snapshot || '-')}</p></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-5">
+        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase  text-gray-600">Solicitante</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.nombre_empleado_snapshot)}</p></div>
+        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase  text-gray-600">Cédula</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.cedula_empleado)}</p></div>
+        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase  text-gray-600">Cargo</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.cargo_empleado_snapshot)}</p></div>
+        <div class="rounded-xl bg-gray-50 p-3"><p class="text-[11px] uppercase  text-gray-600">Celular</p><p class="text-sm font-semibold text-gray-900 mt-1">${escaparV(p.celular_empleado_snapshot || "-")}</p></div>
       </div>
     </div>
 
-    ${alertas.join('')}
+    ${alertas.join("")}
 
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
-      <p class="text-xs font-bold uppercase tracking-wider text-gray-600">Motivo</p>
+      <p class="text-xs font-bold uppercase  text-gray-600">Motivo</p>
       <p class="text-sm md:text-base text-gray-800 mt-2 whitespace-pre-line">${escaparV(p.motivo)}</p>
     </div>
 
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
-      <div class="flex items-center justify-between gap-3 mb-3"><div><p class="text-xs font-bold uppercase tracking-wider text-gray-600">Fechas, horas y total</p><p class="text-sm text-gray-500 mt-1">${fechaV(p.fecha_inicio)} ${p.hora_inicio?.substring(0,5) || ''} — ${p.fecha_fin ? fechaV(p.fecha_fin) : 'Pendiente'} ${p.hora_fin?.substring(0,5) || ''}</p></div><div class="text-right"><p class="text-[11px] uppercase tracking-wider text-gray-600">Total</p><p class="text-lg font-bold text-red-600">${horasV(p.total_horas)}</p></div></div>
-      <div class="divide-y divide-gray-100 border-t border-gray-100">${diasHtml || '<p class="text-sm text-gray-600 py-3">Sin desglose disponible.</p>'}</div>
-      ${devolucionesHtml}
+  <div class="grid grid-cols-2 gap-4 mb-3">
+
+    ${
+      p.total_dias != null
+        ? `
+    <div>
+      <p class="text-xs font-bold uppercase  text-gray-600">Total de días</p>
+      <p class="text-sm font-semibold text-red-600 mt-0.5">${diasV(p.total_dias)}</p>
+    </div>
+    `
+        : ""
+    }
+
+    <div class="text-right">
+      <p class="text-xs font-bold uppercase  text-gray-600">Total de horas</p>
+      <p class="text-sm font-semibold text-red-600 mt-0.5">${horasV(p.total_horas)}</p>
     </div>
 
-    <div class="space-y-3">
-      <div><p class="text-xs font-bold uppercase tracking-wider text-gray-600">Firmas</p><p class="text-sm text-gray-500 mt-1">Aquí puedes ver quién ya firmó y qué firma sigue pendiente.</p></div>
-      ${bloqueFirmante('Solicitante', p.nombre_empleado_snapshot, p.cedula_empleado, 'foto_solicitante', 'firma_solicitante')}
-      ${bloqueFirmante('Reemplazo', p.nombre_reemplazo, p.cedula_reemplazo, 'foto_reemplazo', 'firma_reemplazo')}
-      ${bloqueFirmante('Jefe', p.nombre_jefe, p.cedula_jefe, 'foto_jefe', 'firma_jefe')}
+  </div>
+  <div class="divide-y divide-gray-100 border-t border-gray-100">${diasHtml || '<p class="text-sm text-gray-600 py-3">Sin desglose disponible.</p>'}</div>
+  ${devolucionesHtml}
+</div>
+
+    <div class="space-y-1">
+      <p class="text-xs text-center font-bold uppercase  text-gray-600">Firmas</p>
+      ${bloqueFirmante("Solicitante", p.nombre_empleado_snapshot, p.cedula_empleado, "foto_solicitante", "firma_solicitante")}
+      ${bloqueFirmante("Reemplazo", p.nombre_reemplazo, p.cedula_reemplazo, "foto_reemplazo", "firma_reemplazo")}
+      ${bloqueFirmante("Jefe", p.nombre_jefe, p.cedula_jefe, "foto_jefe", "firma_jefe")}
     </div>
 
-    ${p.evidencia_archivo ? `<div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5"><p class="text-xs font-bold uppercase tracking-wider text-gray-600">Evidencia</p><a href="${imgUrl('evidencia_archivo')}" target="_blank" class="inline-block mt-2 text-sm font-semibold text-red-600 hover:underline">Ver archivo de evidencia</a></div>` : ''}
+    ${p.evidencia_archivo ? `<div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5"><p class="text-xs font-bold uppercase  text-gray-600">Evidencia</p><a href="${imgUrl("evidencia_archivo")}" target="_blank" class="inline-block mt-2 text-sm font-semibold text-red-600 hover:underline">Ver archivo de evidencia</a></div>` : ""}
 
-    ${acciones ? `<div class="flex flex-wrap gap-2 pt-1">${acciones}</div>` : ''}
+    ${acciones ? `<div class="flex flex-wrap gap-2 pt-1">${acciones}</div>` : ""}
 
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
-      <div class="flex items-center justify-between mb-4"><div><p class="text-xs font-bold uppercase tracking-wider text-gray-600">Historial del permiso</p><p class="text-sm text-gray-500 mt-1">Movimientos en orden cronológico.</p></div><span class="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">${(p.historial || []).length} movimientos</span></div>
+      <div class="flex items-center justify-between mb-4"><div><p class="text-xs font-bold uppercase  text-gray-600">Historial del permiso</p><p class="text-sm text-gray-500 mt-1">Movimientos en orden cronológico.</p></div><span class="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">${(p.historial || []).length} movimientos</span></div>
       <div class="space-y-2">${historialHtml || '<p class="text-sm text-gray-600">Sin movimientos aún.</p>'}</div>
     </div>
   `;
@@ -197,15 +267,22 @@ async function enviarPermiso() {
   formData.append("id", permisoActual.id);
   formData.append("version", permisoActual.version);
   formData.append("csrf_token", document.getElementById("csrfToken").value);
-  const res = await fetch("./api/permisos_enviar.php", {
-    method: "POST",
-    body: formData,
-  });
-  const data = await res.json();
-  if (data.ok) {
-    cargarPermiso();
-  } else {
-    alert(data.error || "Error al enviar.");
+  Loading.show("Enviando permiso...");
+  try {
+    const res = await fetch("./api/permisos_enviar.php", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    if (data.ok) {
+      await cargarPermiso();
+    } else {
+      alert(data.error || "Error al enviar.");
+    }
+  } catch (err) {
+    alert("Error de conexión con el servidor.");
+  } finally {
+    Loading.hide();
   }
 }
 
@@ -236,13 +313,24 @@ function abrirModalAccion(accion, rol) {
   if (accion === "firmar") canvasAccion.redimensionar();
 }
 
+const chkFirmaGuardadaAccion = document.getElementById("usarFirmaGuardadaAccion");
+if (chkFirmaGuardadaAccion) {
+  chkFirmaGuardadaAccion.addEventListener("change", () => {
+    document
+      .getElementById("cajaCanvasAccion")
+      .classList.toggle("hidden", chkFirmaGuardadaAccion.checked);
+    if (!chkFirmaGuardadaAccion.checked) canvasAccion.redimensionar();
+  });
+}
+
 document
   .getElementById("btnLimpiarFirmaAccion")
   .addEventListener("click", () => canvasAccion.limpiar());
 
 document
   .getElementById("btnConfirmarAccionPermiso")
-  .addEventListener("click", async () => {
+  .addEventListener("click", async (e) => {
+    const btn = e.currentTarget; // se toma antes de cualquier await
     const error = document.getElementById("errorAccion");
     error.classList.add("hidden");
 
@@ -283,15 +371,76 @@ document
       formData.append("motivo", motivo);
     }
 
-    const res = await fetch(url, { method: "POST", body: formData });
-    const data = await res.json();
-    if (data.ok) {
-      document.getElementById("modalAccionPermiso").classList.add("hidden");
-      cargarPermiso();
-    } else {
-      error.textContent = data.error || "Error al procesar.";
+    Loading.start(btn, "Procesando...");
+    try {
+      const res = await fetch(url, { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.ok) {
+        document.getElementById("modalAccionPermiso").classList.add("hidden");
+        await cargarPermiso();
+      } else {
+        error.textContent = data.error || "Error al procesar.";
+        error.classList.remove("hidden");
+      }
+    } catch (err) {
+      error.textContent = "Error de conexión con el servidor.";
       error.classList.remove("hidden");
+    } finally {
+      Loading.stop(btn);
     }
   });
 
 cargarPermiso();
+
+// =====================================================================
+// Visor de foto: al tocar una foto se abre un modal solo con la imagen.
+// Se cierra con la X, tocando fuera de la imagen o con Escape.
+// =====================================================================
+function abrirVisorImagen(src, alt) {
+  if (document.getElementById("visorImagenModal")) return;
+
+  const modal = document.createElement("div");
+  modal.id = "visorImagenModal";
+  modal.className =
+    "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.innerHTML = `
+    <div class="relative" style="max-width:min(92vw,480px)">
+      <button type="button" data-cerrar-visor aria-label="Cerrar"
+        class="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white text-gray-700 shadow flex items-center justify-center text-lg leading-none">&times;</button>
+      <img alt="" class="block rounded-xl bg-white object-contain" style="max-width:100%;max-height:80vh">
+    </div>`;
+  const img = modal.querySelector("img");
+  img.alt = alt || "Foto";
+  img.src = src;
+
+  function cerrar() {
+    document.removeEventListener("keydown", onKey);
+    modal.remove();
+  }
+  function onKey(e) {
+    if (e.key === "Escape") cerrar();
+  }
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal || e.target.closest("[data-cerrar-visor]")) cerrar();
+  });
+  document.addEventListener("keydown", onKey);
+  document.body.appendChild(modal);
+}
+
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-visor-img]");
+  if (el) abrirVisorImagen(el.dataset.visorImg, el.getAttribute("alt"));
+});
+document.addEventListener("keydown", (e) => {
+  if (
+    (e.key === "Enter" || e.key === " ") &&
+    e.target.matches &&
+    e.target.matches("[data-visor-img]")
+  ) {
+    e.preventDefault();
+    abrirVisorImagen(e.target.dataset.visorImg, e.target.getAttribute("alt"));
+  }
+});

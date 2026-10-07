@@ -15,6 +15,7 @@ if (!$permiso || $permiso['cedula_empleado'] !== $cedula || !in_array($permiso['
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <?php require __DIR__ . '/../includes/head.php'; ?>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar llegada - CHVB</title>
     <link rel="stylesheet" href="./assets/css/tailwind.css">

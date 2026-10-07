@@ -60,116 +60,6 @@ function textoAcumuladoMeses(int $meses): string
     return $partes ? implode(' y ', $partes) : '0 meses';
 }
 
-function limpiarXmlFuenteArialNarrow10(string $docx): void
-{
-    $zip = new ZipArchive();
-    if ($zip->open($docx) !== true) {
-        throw new RuntimeException('No fue posible abrir el Word generado para aplicar el formato final.');
-    }
-
-    $archivosXml = [];
-    for ($i = 0; $i < $zip->numFiles; $i++) {
-        $nombre = $zip->getNameIndex($i);
-        if (preg_match('#^word/.*\.xml$#i', $nombre)) {
-            $archivosXml[] = $nombre;
-        }
-    }
-
-    $wNs = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
-
-    foreach ($archivosXml as $nombre) {
-        $xml = $zip->getFromName($nombre);
-        if ($xml === false)
-            continue;
-
-        $dom = new DOMDocument();
-        $dom->preserveWhiteSpace = true;
-        $dom->formatOutput = false;
-        if (!@$dom->loadXML($xml))
-            continue;
-
-        $xpath = new DOMXPath($dom);
-        $xpath->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
-
-        foreach ($xpath->query('//w:r') as $run) {
-            $rPr = null;
-            foreach ($run->childNodes as $child) {
-                if ($child->nodeType === XML_ELEMENT_NODE && $child->localName === 'rPr') {
-                    $rPr = $child;
-                    break;
-                }
-            }
-            if (!$rPr) {
-                $rPr = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:rPr');
-                $run->insertBefore($rPr, $run->firstChild);
-            }
-
-            foreach (iterator_to_array($rPr->childNodes) as $child) {
-                if ($child->nodeType === XML_ELEMENT_NODE && in_array($child->localName, ['rFonts', 'sz', 'szCs'], true)) {
-                    $rPr->removeChild($child);
-                }
-            }
-
-            $fonts = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:rFonts');
-            $fonts->setAttributeNS($wNs, 'w:ascii', 'Arial Narrow');
-            $fonts->setAttributeNS($wNs, 'w:hAnsi', 'Arial Narrow');
-            $fonts->setAttributeNS($wNs, 'w:eastAsia', 'Arial Narrow');
-            $fonts->setAttributeNS($wNs, 'w:cs', 'Arial Narrow');
-            $rPr->appendChild($fonts);
-
-            $sz = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:sz');
-            $sz->setAttributeNS($wNs, 'w:val', '20');
-            $rPr->appendChild($sz);
-
-            $szCs = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:szCs');
-            $szCs->setAttributeNS($wNs, 'w:val', '20');
-            $rPr->appendChild($szCs);
-        }
-
-        // Fuerza también el estilo Normal/default para que cualquier texto que
-        // Word reconstruya o agregue posteriormente conserve Arial Narrow 10.
-        if ($nombre === 'word/styles.xml') {
-            $styles = $xpath->query('//w:docDefaults/w:rPrDefault/w:rPr');
-            if ($styles->length > 0) {
-                $rPr = $styles->item(0);
-            } else {
-                $docDefaults = $xpath->query('//w:docDefaults')->item(0);
-                if (!$docDefaults) {
-                    $docDefaults = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:docDefaults');
-                    $dom->documentElement->insertBefore($docDefaults, $dom->documentElement->firstChild);
-                }
-                $rPrDefault = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:rPrDefault');
-                $rPr = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:rPr');
-                $rPrDefault->appendChild($rPr);
-                $docDefaults->appendChild($rPrDefault);
-            }
-
-            foreach (iterator_to_array($rPr->childNodes) as $child) {
-                if ($child->nodeType === XML_ELEMENT_NODE && in_array($child->localName, ['rFonts', 'sz', 'szCs'], true)) {
-                    $rPr->removeChild($child);
-                }
-            }
-
-            $fonts = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:rFonts');
-            $fonts->setAttributeNS($wNs, 'w:ascii', 'Arial Narrow');
-            $fonts->setAttributeNS($wNs, 'w:hAnsi', 'Arial Narrow');
-            $fonts->setAttributeNS($wNs, 'w:eastAsia', 'Arial Narrow');
-            $fonts->setAttributeNS($wNs, 'w:cs', 'Arial Narrow');
-            $rPr->appendChild($fonts);
-            $sz = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:sz');
-            $sz->setAttributeNS($wNs, 'w:val', '20');
-            $rPr->appendChild($sz);
-            $szCs = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:szCs');
-            $szCs->setAttributeNS($wNs, 'w:val', '20');
-            $rPr->appendChild($szCs);
-        }
-
-        $zip->addFromString($nombre, $dom->saveXML());
-    }
-
-    $zip->close();
-}
-
 function eliminarLineasRenovacionNoNecesarias(string $docx, int $renovacionActual): void
 {
     $zip = new ZipArchive();
@@ -234,6 +124,7 @@ try {
     $empleado = EmpleadoModel::obtenerPorCedula($cedula);
     if (!$empleado)
         throw new InvalidArgumentException('El empleado no existe.');
+    EmpleadoModel::exigirActivo($empleado);
 
     $faltantes = [];
     if (trim((string) ($empleado['nombre'] ?? '')) === '')
@@ -244,6 +135,8 @@ try {
         $faltantes[] = 'Sexo';
     if (trim((string) ($empleado['cargo'] ?? '')) === '')
         $faltantes[] = 'Cargo';
+    if (trim((string) ($empleado['lugar_expedicion'] ?? '')) === '')
+        $faltantes[] = 'Lugar de expedición de la cédula';
     if (trim((string) ($empleado['tipo_de_personal'] ?? '')) === '')
         $faltantes[] = 'Tipo de personal';
     if (trim((string) ($empleado['fecha_inicio_contrato'] ?? '')) === '')
@@ -318,9 +211,9 @@ try {
         );
     }
 
-    $plantilla = __DIR__ . '/../../uploads/plantillas/GH-FT-0000-RENOVACION.docx';
+    $plantilla = __DIR__ . '/../../uploads/plantillas/AF-FT-02-AF-RENOVACION DE CONTRATO.docx';
     if (!is_file($plantilla)) {
-        throw new RuntimeException('No se encontró la plantilla GH-FT-0000-RENOVACION.docx en uploads/plantillas/.');
+        throw new RuntimeException('No se encontró la plantilla AF-FT-02-AF-RENOVACION DE CONTRATO.docx en uploads/plantillas/.');
     }
 
     $generados = __DIR__ . '/../../uploads/generados';
@@ -341,21 +234,24 @@ try {
     $actual = $renovaciones[$renovacionActual];
 
     $valores = [
-        'fecha_hoy' => FormatoModel::fechaLarga($hoy),
+        'fecha_hoy' => FormatoModel::fechaLarga($hoy, true),
         'tratamiento' => $tratamiento,
         'prefijo_bombero' => $esBombero ? 'BRO. ' : '',
         'nombre_mayus' => mb_strtoupper(trim($empleado['nombre']), 'UTF-8'),
         'cedula_formateada' => FormatoModel::formatearCedula($empleado['cedula']),
+        // Plantilla: "C.C. No. ${cedula_formateada} de ${lugar_expedicion}"
+        'lugar_expedicion' => FormatoModel::municipioExpedicion((string) $empleado['lugar_expedicion']),
+        'lugar_expedicion_completo' => trim((string) $empleado['lugar_expedicion']),
         'cargo' => $empleado['cargo'],
         'saludo' => $saludo,
         'primer_nombre' => FormatoModel::primerNombre($empleado['nombre']),
-        'fecha_inicio_contrato_larga' => FormatoModel::fechaLarga($empleado['fecha_inicio_contrato']),
-        'fecha_fin_contrato_larga' => FormatoModel::fechaLarga($empleado['fecha_fin_contrato']),
+        'fecha_inicio_contrato_larga' => FormatoModel::fechaLarga($empleado['fecha_inicio_contrato'], true),
+        'fecha_fin_contrato_larga' => FormatoModel::fechaLarga($empleado['fecha_fin_contrato'], true),
         'renovacion_actual' => (string) $renovacionActual,
         'renovacion_actual_inicio_corta' => FormatoModel::fechaCorta($actual['inicio']),
         'renovacion_actual_fin_corta' => FormatoModel::fechaCorta($actual['fin']),
-        'renovacion_actual_inicio_larga' => FormatoModel::fechaLarga($actual['inicio']),
-        'renovacion_actual_fin_larga' => FormatoModel::fechaLarga($actual['fin']),
+        'renovacion_actual_inicio_larga' => FormatoModel::fechaLarga($actual['inicio'], true),
+        'renovacion_actual_fin_larga' => FormatoModel::fechaLarga($actual['fin'], true),
         'duracion_texto' => FormatoModel::textoMeses($actual['meses']),
         'duracion_numero' => str_pad((string) $actual['meses'], 2, '0', STR_PAD_LEFT),
     ];
@@ -364,8 +260,8 @@ try {
         $valores['rnv' . $n . '_inicio'] = '';
         $valores['rnv' . $n . '_fin'] = '';
         if (isset($renovaciones[$n]) && $n < $renovacionActual) {
-            $valores['rnv' . $n . '_inicio'] = FormatoModel::fechaLarga($renovaciones[$n]['inicio']);
-            $valores['rnv' . $n . '_fin'] = FormatoModel::fechaLarga($renovaciones[$n]['fin']);
+            $valores['rnv' . $n . '_inicio'] = FormatoModel::fechaLarga($renovaciones[$n]['inicio'], true);
+            $valores['rnv' . $n . '_fin'] = FormatoModel::fechaLarga($renovaciones[$n]['fin'], true);
         }
     }
 
@@ -373,7 +269,6 @@ try {
     $processor->saveAs($salida);
 
     eliminarLineasRenovacionNoNecesarias($salida, $renovacionActual);
-    limpiarXmlFuenteArialNarrow10($salida);
 
     echo json_encode([
         'ok' => true,
@@ -382,6 +277,7 @@ try {
         'url' => './api/formato_archivo.php?f=' . rawurlencode($archivo) . '&accion=descargar'
     ], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    error_log('formatos_renovacion_generar: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'No se pudo generar la renovación.'], JSON_UNESCAPED_UNICODE);
 }

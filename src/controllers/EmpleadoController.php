@@ -1,6 +1,7 @@
 <?php
 // src/controllers/EmpleadoController.php
 require_once __DIR__ . '/../models/EmpleadoModel.php';
+require_once __DIR__ . '/../models/UsuarioEmpleadoModel.php';
 require_once __DIR__ . '/../helpers/FileManager.php';
 require_once __DIR__ . '/../models/BolsilloModel.php';
 require_once __DIR__ . '/../models/DocumentoModel.php';
@@ -8,6 +9,8 @@ require_once __DIR__ . '/../models/PermisoModel.php';
 require_once __DIR__ . '/../models/FirmaModel.php';
 require_once __DIR__ . '/../models/NotificacionModel.php';
 require_once __DIR__ . '/../helpers/ReconciliadorArchivos.php';
+require_once __DIR__ . '/../helpers/Municipios.php';
+require_once __DIR__ . '/../helpers/JornadaHelper.php';
 
 class EmpleadoController
 {
@@ -57,9 +60,72 @@ class EmpleadoController
     public static array $tiposDeContrato = ['Fijo', 'Indefinido', 'OPS', 'SENA', 'OPS SEMY', 'No aplica'];
     public static array $arlsValidas = ['Positiva', 'SURA', 'Colmena', 'AXA Colpatria', 'Seguros Bolívar'];
 
-    private static function validarCamposComunes(array $datos): array
+    /**
+     * Resuelve y valida tipo de jornada + horario + bombero integral a partir de lo enviado.
+     * Devuelve [errores, valoresNormalizados]; los valores quedan listos para guardar en BD.
+     * Reglas:
+     *  - Solo un Bombero puede ser "Bombero integral" y tener jornada "Turnos".
+     *  - "Horario reducido" exige hora de entrada y salida válidas (salida > entrada).
+     *  - Si la jornada no es "Horario reducido", las horas se guardan vacías.
+     *  - Si el formulario no envía tipo_jornada (versión vieja), se deduce de tipo_de_personal.
+     */
+    private static function normalizarJornada(array $datos): array
     {
         $errores = [];
+        $tipoPersonal = $datos['tipo_de_personal'] ?? '';
+        $esBombero = $tipoPersonal === 'Bombero';
+
+        $integral = isset($datos['es_bombero_integral']) ? 1 : 0;
+        if ($integral === 1 && !$esBombero) {
+            $errores[] = 'Solo una persona de tipo Bombero puede ser Bombero integral.';
+            $integral = 0;
+        }
+
+        $tipoJornada = trim((string) ($datos['tipo_jornada'] ?? ''));
+        if ($tipoJornada === '') {
+            $tipoJornada = $esBombero ? JornadaHelper::TURNOS : JornadaHelper::ADMINISTRATIVA;
+        }
+        $entrada = null;
+        $salida = null;
+
+        if (!isset(JornadaHelper::TIPOS[$tipoJornada])) {
+            $errores[] = 'Tipo de jornada inválido.';
+            $tipoJornada = JornadaHelper::ADMINISTRATIVA;
+        } elseif ($tipoJornada === JornadaHelper::TURNOS && !$esBombero) {
+            $errores[] = 'La jornada por turnos (operativo) solo aplica a personal de tipo Bombero.';
+        } elseif ($tipoJornada === JornadaHelper::RESTRINGIDA) {
+            $e = JornadaHelper::normalizarHora($datos['jornada_hora_entrada'] ?? '');
+            $sa = JornadaHelper::normalizarHora($datos['jornada_hora_salida'] ?? '');
+            if (!$e || !$sa) {
+                $errores[] = 'En horario reducido debes indicar la hora de entrada y la de salida.';
+            } elseif (JornadaHelper::horasEntre($e, $sa) <= 0) {
+                $errores[] = 'La hora de salida debe ser posterior a la de entrada.';
+            } else {
+                $entrada = $e . ':00';
+                $salida = $sa . ':00';
+            }
+        }
+
+        return [$errores, [
+            'es_bombero_integral' => $integral,
+            'tipo_jornada' => $tipoJornada,
+            'jornada_hora_entrada' => $entrada,
+            'jornada_hora_salida' => $salida,
+        ]];
+    }
+
+    private static function validarCamposComunes(array $datos, bool $exigirLugarExpedicion = false): array
+    {
+        $errores = [];
+
+        $lugar = trim($datos['lugar_expedicion'] ?? '');
+        if ($lugar === '') {
+            if ($exigirLugarExpedicion) {
+                $errores[] = 'El lugar de expedición de la cédula es obligatorio.';
+            }
+        } elseif (!Municipios::esValido($lugar)) {
+            $errores[] = 'Selecciona el lugar de expedición de la lista (ej: Yopal, Casanare).';
+        }
 
         $nombre = trim($datos['nombre'] ?? '');
         $cargo = $datos['cargo'] ?? '';
@@ -75,7 +141,9 @@ class EmpleadoController
         if (!in_array($cargo, self::$cargosValidos, true)) {
             $errores[] = 'Debes seleccionar un cargo válido.';
         }
-        if ($tipoContrato !== '' && !in_array($tipoContrato, self::$tiposDeContrato, true)) {
+        if ($tipoContrato === '') {
+            $errores[] = 'El tipo de contrato es obligatorio.';
+        } elseif (!in_array($tipoContrato, self::$tiposDeContrato, true)) {
             $errores[] = 'Tipo de contrato inválido.';
         }
 
@@ -144,6 +212,8 @@ class EmpleadoController
             $errores[] = 'El salario básico debe ser un número válido mayor o igual a 0.';
         }
 
+        [$erroresJornada] = self::normalizarJornada($datos);
+        $errores = array_merge($errores, $erroresJornada);
 
         return $errores;
     }
@@ -156,9 +226,19 @@ private static function nuloSiVacio($valor): ?string
 
 public static function crear(array $datos, ?array $archivoFoto = null): array
 {
-    // ... tu validación de cédula igual ...
     $cedula = preg_replace('/\./', '', trim($datos['cedula'] ?? ''));
-    // ... validaciones ...
+
+    // Mismas validaciones que al editar (antes crear no validaba nada en el servidor).
+    $errores = self::validarCamposComunes($datos, true);
+    if (!preg_match('/^[A-Za-z0-9]{5,10}$/', $cedula)) {
+        $errores[] = 'La cédula debe tener entre 5 y 10 caracteres.';
+    } elseif (EmpleadoModel::existeCedula($cedula)) {
+        $errores[] = 'Ya existe un empleado con esa cédula.';
+    }
+    if (!empty($errores)) {
+        return ['ok' => false, 'errores' => $errores];
+    }
+    [, $jornada] = self::normalizarJornada($datos);
 
     $nombreEmpleado = mb_convert_case(
         mb_strtolower(trim($datos['nombre']), 'UTF-8'),
@@ -167,6 +247,7 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
 
     EmpleadoModel::crear([
         'cedula' => $cedula,
+        'lugar_expedicion' => self::nuloSiVacio($datos['lugar_expedicion'] ?? null),
         'nombre' => $nombreEmpleado,
         'sexo' => self::nuloSiVacio($datos['sexo'] ?? null),
         'cargo' => $datos['cargo'],
@@ -175,7 +256,10 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
         'pension' => self::nuloSiVacio($datos['pension'] ?? null),
         'arl' => self::nuloSiVacio($datos['arl'] ?? null),
         'salario_basico' => self::nuloSiVacio($datos['salario_basico'] ?? null),
-        'es_bombero_integral' => isset($datos['es_bombero_integral']) ? 1 : 0,
+        'es_bombero_integral' => $jornada['es_bombero_integral'],
+        'tipo_jornada' => $jornada['tipo_jornada'],
+        'jornada_hora_entrada' => $jornada['jornada_hora_entrada'],
+        'jornada_hora_salida' => $jornada['jornada_hora_salida'],
         'tipo_de_contrato' => self::nuloSiVacio($datos['tipo_de_contrato'] ?? null),
         'fecha_inicio_contrato' => self::nuloSiVacio($datos['fecha_inicio_contrato'] ?? null),
         'fecha_fin_contrato' => self::nuloSiVacio($datos['fecha_fin_contrato'] ?? null),
@@ -192,7 +276,8 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
         } catch (Exception $e) {
             EmpleadoModel::eliminar($cedula);
             FileManager::borrarEstructuraEmpleado($cedula);
-            return ['ok' => false, 'errores' => ['Error creando estructura del empleado: ' . $e->getMessage()]];
+            error_log('EmpleadoController::crear estructura: ' . $e->getMessage());
+            return ['ok' => false, 'errores' => ['Error creando la estructura del empleado.']];
         }
 
         if ($archivoFoto && isset($archivoFoto['error']) && $archivoFoto['error'] !== UPLOAD_ERR_NO_FILE) {
@@ -224,6 +309,7 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
         $esAuxiliar = $rolActor === 'auxiliar_talento_humano';
 
         $errores = self::validarCamposComunes($datos);
+        [, $jornada] = self::normalizarJornada($datos);
 
         $cedulaNueva = preg_replace('/\./', '', trim($datos['cedula'] ?? ''));
         if (strlen($cedulaNueva) > 10) {
@@ -273,12 +359,14 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
                 }
                 // La BD queda con la cédula anterior y restauramos la carpeta física.
                 FileManager::renombrarEstructuraEmpleado($cedulaNueva, $cedulaActual);
-                return ['ok' => false, 'errores' => ['Error actualizando la base de datos: ' . $e->getMessage()]];
+                error_log('EmpleadoController::actualizar BD: ' . $e->getMessage());
+                return ['ok' => false, 'errores' => ['Error actualizando la base de datos.']];
             }
             $cedulaFinal = $cedulaNueva;
         }
 
         $datosNuevos = [
+            'lugar_expedicion' => self::nuloSiVacio($datos['lugar_expedicion'] ?? null),
             'nombre' => mb_convert_case(
                 mb_strtolower(trim($datos['nombre']), 'UTF-8'),
                 MB_CASE_TITLE,
@@ -291,7 +379,10 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
             'pension' => $datos['pension'] ?: null,
             'arl' => $datos['arl'] ?: null,
             'salario_basico' => $datos['salario_basico'] !== '' ? $datos['salario_basico'] : null,
-            'es_bombero_integral' => isset($datos['es_bombero_integral']) ? 1 : 0,
+            'es_bombero_integral' => $jornada['es_bombero_integral'],
+            'tipo_jornada' => $jornada['tipo_jornada'],
+            'jornada_hora_entrada' => $jornada['jornada_hora_entrada'],
+            'jornada_hora_salida' => $jornada['jornada_hora_salida'],
             'tipo_de_contrato' => $datos['tipo_de_contrato'] ?: null,
             'fecha_inicio_contrato' => $datos['fecha_inicio_contrato'] ?: null,
             'fecha_fin_contrato' => $datos['fecha_fin_contrato'] ?: null,
@@ -301,6 +392,12 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
             'fecha_nacimiento' => trim($datos['fecha_nacimiento'] ?? ''),
         ];
         EmpleadoModel::actualizar($cedulaFinal, $datosNuevos);
+
+        // Un empleado NO ACTIVO no puede entrar al portal: si tenía acceso (PIN), se desactiva.
+        // Al volver a activarlo el acceso NO se reactiva solo; Talento Humano lo reactiva desde Usuarios de Empleados.
+        if ($datosNuevos['estado'] === 'no activo') {
+            UsuarioEmpleadoModel::revocar($cedulaFinal);
+        }
 
         if ($esAuxiliar && $empleadoAnterior) {
             self::registrarNotificacionesCambios($cedulaFinal, $empleadoAnterior, $datosNuevos);
@@ -344,6 +441,10 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
             'correo' => ['etiqueta' => 'el correo', 'formato' => fn($v) => $v ?: 'sin correo'],
             'estado' => ['etiqueta' => 'el estado', 'formato' => fn($v) => $v],
             'es_bombero_integral' => ['etiqueta' => 'el campo bombero integral', 'formato' => fn($v) => $v == 1 ? 'Sí' : 'No'],
+            'lugar_expedicion' => ['etiqueta' => 'el lugar de expedición de la cédula', 'formato' => fn($v) => $v ?: 'sin definir'],
+            'tipo_jornada' => ['etiqueta' => 'el tipo de jornada', 'formato' => fn($v) => JornadaHelper::TIPOS[$v] ?? ($v ?: 'sin definir')],
+            'jornada_hora_entrada' => ['etiqueta' => 'la hora de entrada del horario reducido', 'formato' => fn($v) => $v ? substr($v, 0, 5) : 'sin definir'],
+            'jornada_hora_salida' => ['etiqueta' => 'la hora de salida del horario reducido', 'formato' => fn($v) => $v ? substr($v, 0, 5) : 'sin definir'],
             'fecha_nacimiento' => ['etiqueta' => 'la fecha de nacimiento', 'formato' => fn($v) => EmpleadoModel::formatearFechaLarga($v)],
             'sexo' => ['etiqueta' => 'el sexo', 'formato' => fn($v) => $v ?: 'sin definir'],
             'tipo_de_personal' => ['etiqueta' => 'el tipo de personal', 'formato' => fn($v) => $v ?: 'sin definir'],
@@ -403,5 +504,21 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
         FileManager::borrarEstructuraEmpleado($cedula);
 
         return ['ok' => true];
+    }
+
+
+        public static array $estadosValidos = ['activo', 'no activo'];
+
+    /** Toma $_GET y devuelve solo filtros válidos ('' = sin filtro). */
+    public static function filtrosDesdeRequest(array $get): array
+    {
+        $pick = static fn(string $k, array $validos): string =>
+            in_array($get[$k] ?? '', $validos, true) ? $get[$k] : '';
+
+        return [
+            'contrato' => $pick('contrato', self::$tiposDeContrato),
+            'cargo'    => $pick('cargo', self::$cargosValidos),
+            'estado'   => $pick('estado', self::$estadosValidos),
+        ];
     }
 }

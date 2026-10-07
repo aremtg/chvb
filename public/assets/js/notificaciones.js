@@ -199,13 +199,19 @@ async function eliminarNotificacion(id) {
     formData.append('id', id);
     formData.append('csrf_token', obtenerCsrfToken());
 
-    const res = await fetch('./api/notificaciones_eliminar.php', { method: 'POST', body: formData });
-    const data = await res.json();
+    const tarjeta = document.getElementById(`notif-${id}`);
+    Loading.section(tarjeta, true);
+    try {
+        const res = await fetch('./api/notificaciones_eliminar.php', { method: 'POST', body: formData });
+        const data = await res.json();
 
-    if (data.ok) {
-        document.getElementById(`notif-${id}`)?.remove();
-        actualizarEstadoVacio();
-        if (window.actualizarBadgeSidebar) window.actualizarBadgeSidebar();
+        if (data.ok) {
+            tarjeta?.remove();
+            actualizarEstadoVacio();
+            if (window.actualizarBadgeSidebar) window.actualizarBadgeSidebar();
+        }
+    } finally {
+        Loading.section(tarjeta, false);
     }
 }
 
@@ -214,12 +220,17 @@ async function eliminarTodasNotificaciones() {
 
     const formData = new FormData();
     formData.append('csrf_token', obtenerCsrfToken());
-    const res = await fetch('./api/notificaciones_eliminar_todas.php', { method: 'POST', body: formData });
-    const data = await res.json();
+    Loading.show('Eliminando notificaciones...');
+    try {
+        const res = await fetch('./api/notificaciones_eliminar_todas.php', { method: 'POST', body: formData });
+        const data = await res.json();
 
-    if (data.ok) {
-        document.getElementById('listaNotificaciones').innerHTML = '';
-        actualizarEstadoVacio();
-        if (window.actualizarBadgeSidebar) window.actualizarBadgeSidebar();
+        if (data.ok) {
+            document.getElementById('listaNotificaciones').innerHTML = '';
+            actualizarEstadoVacio();
+            if (window.actualizarBadgeSidebar) window.actualizarBadgeSidebar();
+        }
+    } finally {
+        Loading.hide();
     }
 }

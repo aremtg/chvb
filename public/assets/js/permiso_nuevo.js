@@ -15,8 +15,17 @@ const MESES_ES = [
   "diciembre",
 ];
 const DIAS_SEMANA_ES = ["D", "L", "M", "X", "J", "V", "S"];
-const HORARIO_CIVIL_INICIO = "07:00";
-const HORARIO_CIVIL_FIN = "17:24";
+// Jornada del empleado que viene del servidor (JornadaHelper.php vía permiso_nuevo.php).
+// Si no llega (no debería pasar), se usan los valores administrativos de siempre.
+const JORNADA_EMPLEADO = window.JORNADA_EMPLEADO || null;
+const HORARIO_CIVIL_INICIO =
+  JORNADA_EMPLEADO && !JORNADA_EMPLEADO.por_turnos && JORNADA_EMPLEADO.entrada
+    ? JORNADA_EMPLEADO.entrada
+    : "07:00";
+const HORARIO_CIVIL_FIN =
+  JORNADA_EMPLEADO && !JORNADA_EMPLEADO.por_turnos && JORNADA_EMPLEADO.salida
+    ? JORNADA_EMPLEADO.salida
+    : "17:24";
 
 let mesCalendarioActual = new Date().getMonth();
 let anioCalendarioActual = new Date().getFullYear();
@@ -219,6 +228,7 @@ function renderListaDiasConfig() {
                     <span class="text-sm font-medium text-gray-800">${formatearFechaEs(f)}${info.esFestivo ? ` <span class="text-xs text-green-700">(${info.festivoNombre})</span>` : ""}</span>
                     <span class="text-sm font-bold text-red-600">${info.calculando ? "..." : info.horasNetas.toFixed(2) + " h"}</span>
                 </div>
+                ${info.calculando ? "" : `<p class="text-[11px] mb-2 ${esDiaCompleto(info) ? "text-green-700" : "text-gray-500"}">${etiquetaConteoDia(info)}</p>`}
                 <label class="flex items-center gap-2 text-sm mb-2">
                     <input type="checkbox" ${info.diaCompleto ? "checked" : ""} onchange="toggleDiaCompleto('${f}', this.checked)" class="rounded">
                     Día completo (falto toda la jornada)
@@ -256,7 +266,9 @@ function actualizarHoraDia(fecha, campo, valor) {
   }
 }
 
-let tipoPersonalGlobal = null; // se obtiene del primer cálculo exitoso
+// 'Bombero' = jornada por turnos; 'Civil' = jornada con horas (administrativa o reducida).
+// Arranca con lo que ya sabe el servidor y se confirma en cada cálculo.
+let tipoPersonalGlobal = JORNADA_EMPLEADO ? JORNADA_EMPLEADO.tipo_calculo : null;
 
 async function recalcularDia(fecha) {
   const info = infoDias[fecha];
@@ -326,6 +338,44 @@ async function recalcularDia(fecha) {
   recalcularTotales();
 }
 
+// Horas que equivalen a "1 día" para este empleado: administrativa 8,4 h (07:00-12:00 + 14:00-17:24)
+// u horas de su horario reducido (ej: 5 h). Un día cuenta como "1 día" solo si alcanza esa jornada;
+// si no, cuenta únicamente como horas.
+const JORNADA_CIVIL_HORAS =
+  JORNADA_EMPLEADO && JORNADA_EMPLEADO.horas_dia
+    ? Number(JORNADA_EMPLEADO.horas_dia)
+    : 8.4;
+
+/**
+ * Cuenta días completos según las horas netas de cada día elegido.
+ * - Civil: día completo si horasNetas >= 8 h 24 min.
+ * - Bombero: opera por turnos (no tiene jornada fija administrativa), por eso solo cuenta
+ *   como día el que se marca "Día completo".
+ * Devuelve también las horas de los días que NO alcanzaron a ser día completo.
+ */
+function etiquetaConteoDia(info) {
+  if (esDiaCompleto(info)) return "Cuenta como 1 día";
+  if (tipoPersonalGlobal === "Bombero") return "Personal Bombero: cuenta como día solo con \"Día completo\"; si no, cuenta como horas";
+  return `Menos de ${String(JORNADA_CIVIL_HORAS).replace(".", ",")} h: cuenta solo como horas`;
+}
+
+function esDiaCompleto(info) {
+  const horas = info.horasNetas || 0;
+  if (tipoPersonalGlobal === "Bombero") return !!info.diaCompleto && horas > 0;
+  return horas >= JORNADA_CIVIL_HORAS - 0.001;
+}
+
+function calcularResumenDias(fechas) {
+  let dias = 0;
+  let horasSueltas = 0;
+  fechas.forEach((f) => {
+    const info = infoDias[f];
+    if (esDiaCompleto(info)) dias++;
+    else horasSueltas += info.horasNetas || 0;
+  });
+  return { dias, horasSueltas: Math.round(horasSueltas * 100) / 100 };
+}
+
 function recalcularTotales() {
   const fechas = fechasOrdenadas();
   const total = fechas.reduce(
@@ -334,6 +384,15 @@ function recalcularTotales() {
   );
   document.getElementById("totalHorasDisplay").textContent =
     total.toFixed(2) + " h";
+  const resumenDias = calcularResumenDias(fechas);
+  document.getElementById("totalDiasDisplay").textContent =
+    resumenDias.dias + (resumenDias.dias === 1 ? " día" : " días");
+  const filaSueltas = document.getElementById("filaHorasSueltas");
+  if (filaSueltas) {
+    filaSueltas.classList.toggle("hidden", resumenDias.horasSueltas <= 0);
+    document.getElementById("horasSueltasDisplay").textContent =
+      resumenDias.horasSueltas.toFixed(2) + " h";
+  }
 
   if (fechas.length > 0) {
     document.getElementById("fechaInicioHidden").value = fechas[0];
@@ -836,6 +895,12 @@ document.getElementById("formPermiso").addEventListener("submit", async (e) => {
     formData.append("firma_solicitante_base64", canvasFirma.obtenerDataURL());
   }
 
+  const btn = Loading.submitter(e);
+  const textoBtn = permisoEdicion ? "Guardando cambios..." : "Enviando permiso...";
+  Loading.start(btn, textoBtn);
+  Loading.show(textoBtn, "Subiendo foto y firma, no cierres la página");
+  let redirigiendo = false; // si redirige, el spinner se queda hasta que cargue la otra página
+
   try {
     if (permisoEdicion) {
       formData.append("id", permisoEdicion.id);
@@ -844,7 +909,7 @@ document.getElementById("formPermiso").addEventListener("submit", async (e) => {
       if (!capturaFoto.tieneFoto()) formData.delete("foto_solicitante_base64");
       const res = await fetch("./api/permisos_editar.php", { method: "POST", body: formData });
       const data = await res.json();
-      if (data.ok) { window.location.href = `./permiso_ver.php?id=${data.id}`; return; }
+      if (data.ok) { redirigiendo = true; window.location.href = `./permiso_ver.php?id=${data.id}`; return; }
       erroresForm.innerHTML = data.errores ? data.errores.join("<br>") : (data.error || "Error desconocido.");
       erroresForm.classList.remove("hidden"); window.scrollTo(0,0); return;
     }
@@ -855,6 +920,7 @@ document.getElementById("formPermiso").addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (data.ok) {
+      redirigiendo = true;
       window.location.href = `./permisos.php?id=${data.id}`;
     } else {
       erroresForm.innerHTML = data.errores
@@ -866,5 +932,10 @@ document.getElementById("formPermiso").addEventListener("submit", async (e) => {
   } catch (err) {
     erroresForm.textContent = "Error de conexión con el servidor.";
     erroresForm.classList.remove("hidden");
+  } finally {
+    if (!redirigiendo) {
+      Loading.stop(btn);
+      Loading.hide();
+    }
   }
 });

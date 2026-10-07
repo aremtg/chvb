@@ -50,11 +50,18 @@ function crearBuscadorEmpleado({
             lista.innerHTML = '<div class="text-sm text-gray-600 p-3">No se encontraron empleados con esa búsqueda.</div>';
             return;
         }
-        lista.innerHTML = empleados.map((emp, i) => `
+        // Un empleado NO ACTIVO se muestra pero no se puede elegir: no se le generan formatos
+        // hasta que se active en Empleados → Editar.
+        lista.innerHTML = empleados.map((emp, i) => emp.estado === 'no activo' ? `
+            <div class="w-full text-left p-3 mb-1 rounded-xl border border-gray-100 bg-gray-50" style="opacity:.75;cursor:not-allowed" aria-disabled="true">
+                <div class="font-medium text-gray-600">${esc(emp.nombre)}</div>
+                <div class="text-xs text-gray-500">CC. ${esc(emp.cedula)} · ${esc(emp.cargo_detalle || emp.cargo || 'Sin cargo')}</div>
+                <div class="text-xs text-red-600 font-semibold mt-1">No activo: actívalo en Empleados para generarle formatos.</div>
+            </div>` : `
             <button type="button" data-i="${i}"
                 class="w-full text-left p-3 mb-1 rounded-xl border border-gray-100 bg-white hover:bg-red-50 transition">
                 <div class="font-medium text-gray-800">${esc(emp.nombre)}</div>
-                <div class="text-xs text-gray-500">CC. ${esc(emp.cedula)} · ${esc(emp.cargo || 'Sin cargo')}${emp.estado === 'no activo' ? ' · No activo' : ''}</div>
+                <div class="text-xs text-gray-500">CC. ${esc(emp.cedula)} · ${esc(emp.cargo_detalle || emp.cargo || 'Sin cargo')}</div>
             </button>`).join('');
     }
 
@@ -79,6 +86,7 @@ function crearBuscadorEmpleado({
     }
 
     function elegir(emp) {
+        if (emp.estado === 'no activo') return;   // defensa: nunca se selecciona a un no activo
         cancelarPendiente();
         seleccionado = emp;
         input.value = emp.nombre;        // el texto ya no es una "búsqueda", es la persona elegida

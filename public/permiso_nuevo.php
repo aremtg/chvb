@@ -22,6 +22,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
 <html lang="es">
 
 <head>
+    <?php require __DIR__ . '/../includes/head.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $editarId ? 'Editar permiso' : 'Nuevo Permiso' ?> - CHVB</title>
@@ -36,7 +37,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
             <h1 class="text-lg font-bold text-gray-800"><?= $editarId ? 'Editar y reenviar permiso' : 'Nueva solicitud de permiso' ?></h1>
         </header>
 
-        <main class="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
+        <main class="p-2 md:p-4 max-w-3xl mx-auto">
 
             <?php if (!$datosCompletos): ?>
                 <div class="bg-white rounded-xl shadow p-6 text-center">
@@ -56,7 +57,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                     class="hidden bg-blue-50 border border-blue-200 text-blue-800 text-sm rounded-xl p-3"></div>
                 <div id="erroresForm" class="hidden bg-red-100 text-red-700 text-sm rounded-xl p-3"></div>
 
-                <form id="formPermiso" class="space-y-6">
+                <form id="formPermiso" class="space-y-2">
                     <?= csrfCampoHTML() ?>
                     <?php if ($editarId): ?><input type="hidden" id="permisoEditarId" value="<?= $editarId ?>"><input type="hidden" id="permisoEditarVersion" value="<?= (int)$permisoEditar['version'] ?>"><?php endif; ?>
 
@@ -64,7 +65,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                     <div class="bg-white rounded-xl shadow p-4 grid grid-cols-2 gap-3 text-sm">
                         <p><strong>Nombre:</strong> <?= htmlspecialchars($empleado['nombre']) ?></p>
                         <p><strong>Cédula:</strong> <?= htmlspecialchars($cedula) ?></p>
-                        <p><strong>Cargo:</strong> <?= htmlspecialchars($empleado['cargo']) ?></p>
+                        <p><strong>Cargo:</strong> <?= htmlspecialchars(JornadaHelper::cargoDetalle($empleado)) ?></p>
                         <p><strong>Celular:</strong> <?= htmlspecialchars($empleado['celular'] ?: '-') ?></p>
                     </div>
 
@@ -108,9 +109,21 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                         <input type="hidden" name="fecha_fin" id="fechaFinHidden">
                         <input type="hidden" name="dias_confirmados" id="diasConfirmadosHidden">
 
-                        <div class="bg-gray-50 rounded-xl p-3 flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Total de horas</span>
-                            <span id="totalHorasDisplay" class="text-lg font-bold text-red-600">0.00 h</span>
+                        <div class="bg-gray-50 rounded-xl p-3 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Total de días</span>
+                                <span id="totalDiasDisplay" class="text-lg font-bold text-red-600">0 días</span>
+                            </div>
+                            <div id="filaHorasSueltas" class="hidden">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500">Horas que no completan un día</span>
+                                    <span id="horasSueltasDisplay" class="text-sm font-semibold text-gray-700">0.00 h</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Total de horas</span>
+                                <span id="totalHorasDisplay" class="text-lg font-bold text-red-600">0.00 h</span>
+                            </div>
                         </div>
                     </div>
 
@@ -234,8 +247,9 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                                 </div>
                                 <div id="panelFirmaCanvas">
                                     <canvas id="canvasFirma"
+                                        data-alto="200"
                                         class="border border-gray-300 rounded-xl w-full bg-white touch-none"
-                                        height="150"></canvas>
+                                        style="height:200px"></canvas>
                                     <button type="button" id="btnLimpiarFirma"
                                         class="text-xs text-gray-500 hover:text-red-600 mt-1">Limpiar</button>
                                 </div>
@@ -265,10 +279,11 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
 
     <?php // Los scripts solo se cargan si el formulario existe; si no, buscan elementos que no están y dan errores en consola. ?>
     <?php if ($datosCompletos): ?>
+    <script>window.JORNADA_EMPLEADO = <?= json_encode(JornadaHelper::reglas($empleado) + ['tipo_calculo' => JornadaHelper::tipoParaCalculo($empleado) ?? 'Civil'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;</script>
     <script>window.PERMISO_EDITAR = <?= $editarId ? json_encode(['id'=>$editarId,'version'=>(int)$permisoEditar['version'],'permiso'=>$permisoEditar,'dias'=>PermisoModel::obtenerDias($editarId),'devoluciones'=>PermisoModel::obtenerDevoluciones($editarId)], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) : 'null' ?>;</script>
-    <script src="./assets/js/camera_capture.js"></script>
-    <script src="./assets/js/firma_canvas.js"></script>
-    <script src="./assets/js/permiso_nuevo.js"></script>
+    <script src="./assets/js/camera_capture.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/camera_capture.js') ?>"></script>
+    <script src="./assets/js/firma_canvas.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/firma_canvas.js') ?>"></script>
+    <script src="./assets/js/permiso_nuevo.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/permiso_nuevo.js') ?>"></script>
     <?php endif; ?>
 </body>
 

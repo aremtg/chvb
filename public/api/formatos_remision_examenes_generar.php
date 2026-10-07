@@ -44,7 +44,7 @@ try {
 
     $pdo = getPDO();
     $stmt = $pdo->prepare(
-        "SELECT cedula, nombre, cargo
+        "SELECT cedula, nombre, cargo, estado
          FROM empleados
          WHERE cedula = :cedula
          LIMIT 1"
@@ -54,6 +54,9 @@ try {
 
     if (!$empleado) {
         throw new InvalidArgumentException('No se encontró el empleado seleccionado.');
+    }
+    if (($empleado['estado'] ?? '') !== 'activo') {
+        throw new InvalidArgumentException('El empleado está NO ACTIVO. Para generarle formatos primero actívalo en Empleados → Editar.');
     }
 
     $plantilla = __DIR__ . '/../../uploads/plantillas/GH-FT-03 REMISION EXAMENES MEDICOS OCUPACIONALES.docx';
@@ -83,11 +86,12 @@ try {
         9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
     ];
     $hoy = new DateTimeImmutable('now', new DateTimeZone('America/Bogota'));
-    $fechaActual = (int)$hoy->format('d') . ' de ' .
+    // Día siempre con dos dígitos: 09 de octubre de 2026
+    $fechaHoy = $hoy->format('d') . ' de ' .
         $meses[(int)$hoy->format('m')] . ' de ' . $hoy->format('Y');
 
     $valores = [
-        'fecha_actual' => $fechaActual,
+        'fecha_hoy' => $fechaHoy,
         'nombre_completo' => (string)$empleado['nombre'],
         'cedula' => (string)$empleado['cedula'],
         'cargo' => (string)($empleado['cargo'] ?? ''),
@@ -109,9 +113,10 @@ try {
     ], JSON_UNESCAPED_UNICODE);
 
 } catch (Throwable $e) {
-    http_response_code(400);
+    error_log('formatos_remision_examenes_generar: ' . $e->getMessage());
+    http_response_code(500);
     echo json_encode([
         'ok' => false,
-        'error' => $e->getMessage()
+        'error' => 'No se pudo generar la remisión de exámenes.'
     ], JSON_UNESCAPED_UNICODE);
 }

@@ -83,6 +83,8 @@ document
 
     const formData = new FormData(e.target);
 
+    const btn = Loading.submitter(e);
+    Loading.start(btn, "Subiendo PDF...");
     try {
       const res = await fetch(
         "./api/empleado_subir_certificado.php",
@@ -93,10 +95,12 @@ document
       if (data.ok) {
         window.location.reload();
       } else {
+        Loading.stop(btn);
         errorSubida.textContent = data.error;
         errorSubida.classList.remove("hidden");
       }
     } catch (err) {
+      Loading.stop(btn);
       errorSubida.textContent = "Error de conexión con el servidor.";
       errorSubida.classList.remove("hidden");
     }
@@ -146,10 +150,11 @@ async function eliminarDocumentoEmpleado(documentoId) {
     const formData = new FormData();
     formData.append('documento_id', documentoId);
     formData.append('csrf_token', document.body.dataset.csrf || '');
+    Loading.show('Eliminando PDF...');
     try {
         const res = await fetch('./api/empleado_eliminar_documento.php', { method: 'POST', body: formData });
         const data = await res.json();
-        if (!data.ok) { alert(data.error || 'No se pudo eliminar el PDF.'); return; }
+        if (!data.ok) { Loading.hide(); alert(data.error || 'No se pudo eliminar el PDF.'); return; }
         window.location.reload();
-    } catch (e) { alert('Error de conexión con el servidor.'); }
+    } catch (e) { Loading.hide(); alert('Error de conexión con el servidor.'); }
 }

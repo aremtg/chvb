@@ -37,7 +37,7 @@ try {
     } else {
       $dias=json_decode($_POST['dias_confirmados'],true);
       if(!is_array($dias)||!$dias) throw new Exception('El desglose de días es inválido.');
-      $tipoPersonal=!empty($empleado['tipo_de_personal'])?$empleado['tipo_de_personal']:'Civil';
+      $tipoPersonal=JornadaHelper::tipoParaCalculo($empleado)??'Civil';
       $rec=PermisoController::recalcularConfirmado($dias,$tipoPersonal); $diasFinal=$rec['dias'];
       $campos += ['fecha_inicio'=>$diasFinal[0]['fecha'],'hora_inicio'=>$diasFinal[0]['hora_inicio'],'fecha_fin'=>$diasFinal[count($diasFinal)-1]['fecha'],'hora_fin'=>$diasFinal[count($diasFinal)-1]['hora_fin'],'total_horas'=>$rec['total_horas']];
     }
@@ -74,4 +74,8 @@ try {
     if($nuevoReemplazo) NotificacionModel::crearParaEmpleado($nuevoReemplazo, 'Tienes un permiso pendiente de firma como reemplazo: "' . $p['consecutivo'] . '"', '/chvb/public/permiso_ver.php?id=' . $id, 'permiso');
     NotificacionModel::crearParaEmpleado($jefe, 'Tienes un permiso pendiente de firma: "' . $p['consecutivo'] . '"', '/chvb/public/permiso_ver.php?id=' . $id, 'permiso');
     echo json_encode(['ok'=>true,'id'=>$id,'consecutivo'=>$p['consecutivo'],'estado'=>$campos['estado']]);
-} catch(Throwable $e){ http_response_code(500); echo json_encode(['ok'=>false,'error'=>$e->getMessage()]); }
+} catch (Throwable $e) {
+    error_log('permisos_editar: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'Error interno al editar el permiso.']);
+}

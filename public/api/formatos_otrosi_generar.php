@@ -178,6 +178,7 @@ try {
     if ($cedula === '') throw new InvalidArgumentException('Cédula no válida.');
     $empleado = EmpleadoModel::obtenerPorCedula($cedula);
     if (!$empleado) throw new InvalidArgumentException('No se encontró un empleado con esa cédula.');
+    EmpleadoModel::exigirActivo($empleado);
     $nombreOriginal = trim((string)($empleado['nombre'] ?? ''));
     $cedulaEmpleado = preg_replace('/\D+/', '', trim((string)($empleado['cedula'] ?? '')));
     if ($nombreOriginal === '') throw new InvalidArgumentException('El empleado no tiene nombre registrado.');
@@ -211,6 +212,7 @@ try {
     if (!is_file($salida) || filesize($salida) <= 0) throw new RuntimeException('El archivo Word no fue generado correctamente.');
     echo json_encode(['ok' => true, 'archivo' => $archivo, 'nombre' => $archivo, 'url' => './api/formato_archivo.php?f=' . rawurlencode($archivo) . '&accion=descargar', 'empleado' => ['nombre' => $nombre, 'cedula' => $cedulaFormateada, 'tipo_contrato' => $tipoContrato, 'fecha_inicio' => $fechaInicio], 'fecha' => ['dia' => $diaActual, 'mes' => $mesActual, 'anio' => $anioActual]], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    error_log('formatos_otrosi_generar: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'No se pudo generar el Otro Sí.'], JSON_UNESCAPED_UNICODE);
 }

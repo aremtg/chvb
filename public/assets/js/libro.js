@@ -281,6 +281,8 @@ document
       document.getElementById("inputNuevoNombre").value,
     );
     formData.append("csrf_token", csrfTokenLibro);
+    const btn = Loading.submitter(e);
+    Loading.start(btn, "Guardando...");
     try {
       const res = await fetch("./api/documentos_renombrar.php", {
         method: "POST",
@@ -298,18 +300,25 @@ document
     } catch (err) {
       errorRenombrar.textContent = "Error de conexión con el servidor.";
       errorRenombrar.classList.remove("hidden");
+    } finally {
+      Loading.stop(btn);
     }
   });
 
 async function refrescarBolsilloActual() {
-  const res = await fetch(
-    `./api/bolsillo_obtener.php?id=${bolsilloActual.id}`,
-  );
-  const data = await res.json();
-  if (data.ok) {
-    bolsilloActual = data.bolsillo;
-    renderDocumentos(bolsilloActual.documentos);
-    document.getElementById("modalBolsillo").classList.remove("hidden");
+  Loading.section("listaDocumentos", true);
+  try {
+    const res = await fetch(
+      `./api/bolsillo_obtener.php?id=${bolsilloActual.id}`,
+    );
+    const data = await res.json();
+    if (data.ok) {
+      bolsilloActual = data.bolsillo;
+      renderDocumentos(bolsilloActual.documentos);
+      document.getElementById("modalBolsillo").classList.remove("hidden");
+    }
+  } finally {
+    Loading.section("listaDocumentos", false);
   }
 }
 
@@ -325,6 +334,8 @@ if (formSubirPDFEl) {
     formData.append("bolsillo_id", bolsilloActual.id);
     formData.append("cedula", cedula);
 
+    const btn = Loading.submitter(e);
+    Loading.start(btn, "Subiendo PDF...");
     try {
       const res = await fetch("./api/documentos_subir.php", {
         method: "POST",
@@ -333,13 +344,15 @@ if (formSubirPDFEl) {
       const data = await res.json();
 
       if (data.ok) {
-        recargarBolsillo();
+        recargarBolsillo(); // recarga la página: el spinner queda hasta entonces
         e.target.reset();
       } else {
+        Loading.stop(btn);
         errorSubida.textContent = data.error;
         errorSubida.classList.remove("hidden");
       }
     } catch (err) {
+      Loading.stop(btn);
       errorSubida.textContent = "Error de conexión con el servidor.";
       errorSubida.classList.remove("hidden");
     }
@@ -356,16 +369,23 @@ async function eliminarDocumento(documentoId) {
   formData.append("cedula", cedula);
   formData.append("csrf_token", csrfTokenLibro);
 
-  const res = await fetch("./api/documentos_eliminar.php", {
-    method: "POST",
-    body: formData,
-  });
-  const data = await res.json();
+  Loading.show("Eliminando documento...");
+  try {
+    const res = await fetch("./api/documentos_eliminar.php", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
 
-  if (data.ok) {
-    recargarBolsillo();
-  } else {
-    alert(data.error || "Error al eliminar.");
+    if (data.ok) {
+      recargarBolsillo(); // recarga la página: el overlay queda hasta entonces
+    } else {
+      Loading.hide();
+      alert(data.error || "Error al eliminar.");
+    }
+  } catch (err) {
+    Loading.hide();
+    alert("Error de conexión con el servidor.");
   }
 }
 
@@ -377,14 +397,19 @@ async function moverDocumento(documentoId, direccion) {
   formData.append("direccion", direccion);
   formData.append("csrf_token", csrfTokenLibro);
 
-  const res = await fetch("./api/documentos_reordenar.php", {
-    method: "POST",
-    body: formData,
-  });
-  const data = await res.json();
+  Loading.section("listaDocumentos", true);
+  try {
+    const res = await fetch("./api/documentos_reordenar.php", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
 
-  if (data.ok) {
-    await refrescarBolsilloActual();
+    if (data.ok) {
+      await refrescarBolsilloActual();
+    }
+  } finally {
+    Loading.section("listaDocumentos", false);
   }
 }
 // --- Alarma ---
@@ -404,11 +429,20 @@ async function guardarAlarma() {
   }
   formData.append("csrf_token", csrfTokenLibro);
 
-  const res = await fetch("./api/bolsillos_alarma.php", {
-    method: "POST",
-    body: formData,
-  });
-  const data = await res.json();
+  let data;
+  Loading.show("Guardando alarma...");
+  try {
+    const res = await fetch("./api/bolsillos_alarma.php", {
+      method: "POST",
+      body: formData,
+    });
+    data = await res.json();
+  } catch (err) {
+    alert("Error de conexión con el servidor.");
+    return;
+  } finally {
+    Loading.hide();
+  }
 
   if (data.ok) {
     bolsilloActual.alarma_activa = 1;
@@ -429,11 +463,20 @@ async function quitarAlarma() {
   formData.append("accion", "desactivar");
   formData.append("csrf_token", csrfTokenLibro);
 
-  const res = await fetch("./api/bolsillos_alarma.php", {
-    method: "POST",
-    body: formData,
-  });
-  const data = await res.json();
+  let data;
+  Loading.show("Quitando alarma...");
+  try {
+    const res = await fetch("./api/bolsillos_alarma.php", {
+      method: "POST",
+      body: formData,
+    });
+    data = await res.json();
+  } catch (err) {
+    alert("Error de conexión con el servidor.");
+    return;
+  } finally {
+    Loading.hide();
+  }
 
   if (data.ok) {
     bolsilloActual.alarma_activa = 0;

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-09-2026 a las 16:52:05
+-- Tiempo de generación: 07-10-2026 a las 03:33:38
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -46,6 +46,105 @@ CREATE TABLE `bolsillos` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `cargos`
+--
+
+CREATE TABLE `cargos` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `nombre` varchar(100) NOT NULL,
+  `activo` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `cargos`
+--
+
+INSERT INTO `cargos` (`id`, `nombre`, `activo`) VALUES
+(1, 'Auxiliar en Gestion de Talento Humano', 1),
+(2, 'Director de talento humano', 1),
+(3, 'Auxiliar de Extintores', 1),
+(4, 'Enfermero/a', 1),
+(5, 'Practicante Sena', 1),
+(6, 'Practicante Fundetec', 1),
+(7, 'Practicante otra entidad', 1),
+(8, 'Servicios Generales', 1),
+(9, 'Maquinista', 1),
+(10, 'Guardia', 1),
+(11, 'Recepcionista', 1),
+(12, 'Administrativo', 1),
+(13, 'Auxiliar administrativo', 1),
+(14, 'Director Académico', 1),
+(15, 'Director de negocios', 1),
+(16, 'Tecnico en soporte sistemas', 1),
+(17, 'Tecnico archivista', 1),
+(18, 'Coordinador SST', 1),
+(19, 'Auxiliar SST', 1),
+(20, 'Jefe de prensa', 1),
+(21, 'Contador', 1),
+(22, 'Auxiliar de contaduría', 1),
+(23, 'Almacenista', 1),
+(24, 'Supervisor', 1),
+(25, 'Coordinador de banda', 1),
+(26, 'Conductor de ambulancia', 1),
+(27, 'Aspirante', 1),
+(28, 'Voluntario', 1),
+(29, 'Secretario recaudador', 1),
+(30, 'Auxiliar de enfermería', 1),
+(31, 'Docente de banda marcial', 1),
+(32, 'PAMEC', 1),
+(33, 'Revisor(a) fiscal', 1),
+(34, 'Comandante de estación', 1),
+(35, 'Director administrativo y financiero', 1),
+(36, 'Bombero integral', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `certificados_consecutivos`
+--
+
+CREATE TABLE `certificados_consecutivos` (
+  `id` tinyint(3) UNSIGNED NOT NULL,
+  `ultimo_numero` int(10) UNSIGNED NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `certificados_laborales`
+--
+
+CREATE TABLE `certificados_laborales` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `numero` int(10) UNSIGNED NOT NULL,
+  `consecutivo` varchar(10) NOT NULL,
+  `tipo` enum('actual','retirado') NOT NULL,
+  `cedula` varchar(10) NOT NULL,
+  `nombre_snapshot` varchar(150) NOT NULL,
+  `cargo_snapshot` varchar(100) NOT NULL,
+  `fecha_inicio` date NOT NULL,
+  `fecha_retiro` date DEFAULT NULL,
+  `archivo` varchar(255) NOT NULL,
+  `creado_por` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `certificados_laborales_funciones`
+--
+
+CREATE TABLE `certificados_laborales_funciones` (
+  `certificado_id` int(10) UNSIGNED NOT NULL,
+  `posicion` tinyint(3) UNSIGNED NOT NULL,
+  `funcion_id` int(10) UNSIGNED DEFAULT NULL,
+  `texto_snapshot` varchar(160) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `documentos`
 --
 
@@ -68,6 +167,7 @@ CREATE TABLE `documentos` (
 
 CREATE TABLE `empleados` (
   `cedula` varchar(10) NOT NULL COMMENT 'Max 10 caracteres, permite extranjera alfanumérica',
+  `lugar_expedicion` varchar(120) DEFAULT NULL COMMENT 'Municipio, Departamento (lista en public/assets/data/municipios.json)',
   `nombre` varchar(150) NOT NULL,
   `sexo` enum('F','M') DEFAULT NULL,
   `cargo` enum('Auxiliar en Talento Humano','Director de talento humano','Auxiliar de Extintores','Enfermero/a','Practicante Sena','Practicante Fundetec','Practicante otra entidad','Servicios Generales','Maquinista','Guardia','Recepcionista','Administrativo','Auxiliar administrativo','Director Académico','Director de negocios','Tecnico en soporte sistemas','Tecnico archivista','Coordinador SST','Auxiliar SST','Jefe de prensa','Contador','Auxiliar de contaduría','Almacenista','Supervisor','Coordinador de banda','Conductor de ambulancia','Aspirante','Voluntario','Secretario recaudador','Auxiliar de enfermería','Docente de banda marcial','PAMEC','Revisor(a) fiscal','Comandante de estación','Directora administrativa y financiera','Bombero integral') NOT NULL,
@@ -77,6 +177,9 @@ CREATE TABLE `empleados` (
   `arl` enum('Positiva','SURA','Colmena','AXA Colpatria','Seguros Bolívar') DEFAULT NULL,
   `salario_basico` decimal(12,2) DEFAULT NULL,
   `es_bombero_integral` tinyint(1) DEFAULT 0,
+  `tipo_jornada` enum('Turnos','Administrativa','Restringida') NOT NULL DEFAULT 'Administrativa' COMMENT 'Cómo se cuentan horas/días en permisos: Turnos (operativo), Administrativa (07:00-17:24) o Restringida (horario reducido)',
+  `jornada_hora_entrada` time DEFAULT NULL COMMENT 'Solo si tipo_jornada = Restringida',
+  `jornada_hora_salida` time DEFAULT NULL COMMENT 'Solo si tipo_jornada = Restringida',
   `tipo_de_contrato` enum('Fijo','Indefinido','OPS','SENA','OPS SEMY','No aplica') DEFAULT NULL,
   `fecha_inicio_contrato` date DEFAULT NULL,
   `fecha_fin_contrato` date DEFAULT NULL,
@@ -87,6 +190,71 @@ CREATE TABLE `empleados` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `foto` varchar(255) DEFAULT NULL COMMENT 'Ruta relativa dentro de uploads/'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `empleados`
+--
+
+INSERT INTO `empleados` (`cedula`, `lugar_expedicion`, `nombre`, `sexo`, `cargo`, `tipo_de_personal`, `eps`, `pension`, `arl`, `salario_basico`, `es_bombero_integral`, `tipo_jornada`, `jornada_hora_entrada`, `jornada_hora_salida`, `tipo_de_contrato`, `fecha_inicio_contrato`, `fecha_fin_contrato`, `estado`, `celular`, `correo`, `fecha_nacimiento`, `created_at`, `foto`) VALUES
+('1005719736', NULL, 'Carlos Augusto Triana Lozano', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'OPS', NULL, '2026-10-06', 'activo', NULL, NULL, NULL, '2026-09-29 23:30:02', NULL),
+('1006555204', 'Maní, Casanare', 'Juan', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-10-07 00:28:58', NULL),
+('1006555838', 'Yopal, Casanare', 'Lourdes Ester Guarin Garcia', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-05', '2025-11-04', 'activo', NULL, NULL, NULL, '2026-09-23 03:32:54', NULL),
+('1006556137', NULL, 'Javier David Moreno', 'M', 'Auxiliar de Extintores', 'Civil', 'Nueva EPS', NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-03-12', '2026-09-11', 'activo', '3224045766', NULL, NULL, '2026-09-23 22:46:04', NULL),
+('1006556671', NULL, 'Jhon Marco Rincon Castaño', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-01-08', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:41:28', NULL),
+('1006636306', 'Yopal, Casanare', 'Karen Lizeth Diaz Pineda', 'F', 'Auxiliar de Extintores', 'Bombero', 'Sanitas', 'Porvenir', NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-04-09', '2026-10-08', 'activo', NULL, NULL, NULL, '2026-09-23 23:07:53', NULL),
+('1007703611', NULL, 'Eduard Yecid Largo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-04-05', '2027-04-04', 'activo', NULL, NULL, '1995-11-15', '2026-09-29 21:01:48', NULL),
+('1019024577', NULL, 'Nohora Rocio Duran Torres', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:07:51', NULL),
+('1029643799', NULL, 'Samuel Santiago Fonseca Patarroyo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-07', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:09:04', NULL),
+('1029661794', NULL, 'Darwin Camilo Bedoya Gutierrez', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-07', NULL, 'activo', NULL, NULL, '2007-09-22', '2026-09-23 18:08:27', NULL),
+('1115911058', NULL, 'Edwar Santiago Alfonso Ducon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-01', NULL, 'activo', NULL, NULL, '2006-01-27', '2026-09-23 18:06:47', NULL),
+('1115913555', NULL, 'Wilder Andrey Chaparro Chaparro', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-01-01', NULL, 'activo', NULL, NULL, '1991-11-28', '2026-09-23 03:43:10', NULL),
+('1116043143', NULL, 'Lina Maria Aponte Fonseca', 'F', 'Auxiliar SST', 'Civil', 'Sanitas', NULL, 'Positiva', 1964430.00, 0, 'Administrativa', NULL, NULL, 'Fijo', '2024-05-15', '2024-08-14', 'activo', NULL, NULL, '1997-11-10', '2026-09-25 02:25:10', NULL),
+('1116552720', 'Aguazul, Casanare', 'Juan Fernando Dominguez Ibarguen', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-01-08', NULL, 'activo', NULL, NULL, '1997-02-10', '2026-09-23 03:38:48', NULL),
+('1116992974', 'Sabanalarga, Casanare', 'Angelica Alfonso Alfonso', 'F', 'Auxiliar administrativo', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2025-04-11', '2025-10-10', 'activo', NULL, NULL, NULL, '2026-10-06 16:43:12', NULL),
+('1118198423', NULL, 'Carlos Hugo Cubides Villalba', 'M', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-02-04', '2025-05-03', 'activo', NULL, NULL, NULL, '2026-10-03 03:22:07', NULL),
+('1118529611', NULL, 'Jimmy Alejandro Garcia Chinchilla', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-03-22', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 02:08:05', NULL),
+('1118530819', NULL, 'Omar David Linares Alvarez', 'M', 'Auxiliar de contaduría', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2025-10-01', '2026-04-30', 'activo', '3005484351', NULL, NULL, '2026-09-29 23:32:41', 'hv_1118530819/perfil/foto.jpg'),
+('1118534974', NULL, 'Soraida Sepulveda Gordillo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-04-15', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:25:05', NULL),
+('1118536550', NULL, 'Rodrigo Hernan Ramirez Morales', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-10-01', '2025-03-31', 'activo', NULL, NULL, NULL, '2026-10-05 21:13:59', NULL),
+('1118543385', NULL, 'Lewis Arfrey Ardila Achagua', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-01', '2025-11-30', 'activo', NULL, NULL, '1989-11-28', '2026-09-23 03:30:44', NULL),
+('1118544837', NULL, 'José Ferney Rodriguez Barrera', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2015-12-01', '2016-11-30', 'activo', NULL, NULL, NULL, '2026-09-23 02:05:57', NULL),
+('1118547243', NULL, 'Tito Enrique Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2019-01-15', NULL, 'activo', NULL, NULL, '1991-04-21', '2026-09-23 01:11:57', NULL),
+('1118547356', 'Yopal, Casanare', 'Adriana Marcela Galan Hernandez', 'F', 'Director administrativo y financiero', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-08-10', '2026-09-30', 'no activo', NULL, NULL, NULL, '2026-10-06 15:10:32', NULL),
+('1118550799', NULL, 'Deyna Yurany Torres Cuervo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-01-17', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:27:52', NULL),
+('1118555586', 'Yopal, Casanare', 'Angel Gabriel Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2021-09-24', NULL, 'activo', '3133691214', NULL, '1993-10-05', '2026-09-23 02:06:39', 'hv_1118555586/perfil/foto.png'),
+('111856453', 'Yopal, Casanare', 'Astrid Mariana Aquite Gómez', 'F', 'Auxiliar en Gestion de Talento Humano', 'Bombero', 'Nueva EPS', 'Colfondos', 'Positiva', 1964430.00, 1, 'Restringida', '08:00:00', '12:00:00', 'Fijo', '2024-02-15', '2024-08-15', 'activo', '3209308877', NULL, '1996-04-13', '2026-09-23 00:46:12', NULL),
+('1118564997', NULL, 'Kewin Alexis Adan Jeronimo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', NULL, NULL, 'no activo', NULL, NULL, NULL, '2026-09-23 03:18:30', NULL),
+('1118565906', NULL, 'Jeidi Carolina Acevedo Lopez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-11-12', '2026-05-11', 'activo', NULL, NULL, NULL, '2026-09-23 03:44:42', NULL),
+('1118565958', NULL, 'Yeritsa Tatiana Egue Chaparro', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-11-27', NULL, 'activo', NULL, NULL, NULL, '2026-09-30 15:04:28', NULL),
+('1118567328', NULL, 'Nelson Fabian Chaparro Rincon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2016-02-11', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:11:40', NULL),
+('1118572004', NULL, 'Luisa Fernanda Abril Bernal', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-09-05', NULL, 'activo', NULL, NULL, NULL, '2026-09-30 15:01:28', NULL),
+('1118573216', 'Yopal, Casanare', 'Camilo Andres Corredor Garcia', 'M', 'Maquinista', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-11-01', '2025-04-30', 'activo', NULL, NULL, '1999-01-17', '2026-09-23 03:22:10', NULL),
+('1118575006', 'Yopal, Casanare', 'Angela Brithey Maldonado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-16', '2025-11-15', 'activo', NULL, NULL, '1999-08-24', '2026-09-23 03:37:51', NULL),
+('1118775342', NULL, 'Daniel Fernando Gutierrez Riaño', 'M', 'Bombero integral', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', 0.00, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-01-17', '2025-01-17', 'activo', NULL, NULL, '1993-03-12', '2026-09-23 01:04:54', NULL),
+('11206377', 'Yopal, Casanare', 'Juan Fernando Guzman Guzman', 'M', 'Bombero integral', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2023-07-21', NULL, 'activo', NULL, NULL, '1995-12-08', '2026-09-23 01:34:23', NULL),
+('1121898640', NULL, 'Arlyn Johanna Sanchez Gutierrez', 'F', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 22:47:28', NULL),
+('1124989349', 'Aguazul, Casanare', 'Tatiana Andrea Guzman Galindo', 'F', 'Practicante Fundetec', 'Civil', 'Capresoca', 'NA', 'Positiva', NULL, 0, 'Administrativa', NULL, NULL, 'No aplica', '2026-05-04', NULL, 'activo', '3229496595', 'tgz57031@gmail.com', '2003-04-13', '2026-09-22 01:48:16', 'hv_1124989349/perfil/foto.jpg'),
+('1143954094', NULL, 'Jonnathan Alexander Daza Barrera', 'M', 'Secretario recaudador', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1993-02-02', '2026-09-25 02:29:26', NULL),
+('16672796', NULL, 'Juan Carlos Santacoloma Piedrahita', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-15', '2025-11-14', 'activo', NULL, NULL, NULL, '2026-09-23 03:35:08', NULL),
+('4284762', NULL, 'Jose Manuel Gutierrez Teatin', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '1999-08-20', NULL, 'activo', NULL, NULL, '1970-09-29', '2026-09-23 18:03:27', NULL),
+('47428604', NULL, 'Graciela Garcia Chinchilla', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2010-02-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:57:55', NULL),
+('47430097', NULL, 'Sthella Gutierrez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2007-12-04', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:01:10', NULL),
+('47431008', 'Yopal, Casanare', 'Romelia Medina Martinez', 'F', 'Servicios Generales', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, '2027-02-04', 'activo', NULL, NULL, NULL, '2026-10-06 15:32:04', NULL),
+('47441163', NULL, 'Sandra Milena Castaño Vargas', 'F', 'Administrativo', 'Civil', 'Sanitas', 'Porvenir', 'Positiva', 2071830.00, 0, 'Administrativa', NULL, NULL, 'Fijo', '2024-02-13', '2024-08-12', 'activo', NULL, NULL, '1983-06-13', '2026-09-23 00:56:25', NULL),
+('47441979', NULL, 'Angela Maria Moreno', 'F', 'Comandante de estación', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-29 21:33:52', 'hv_47441979/perfil/foto.jpg'),
+('52308103', NULL, 'Fanny Paola Mercado Delgado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2022-07-07', NULL, 'activo', NULL, NULL, '1975-10-14', '2026-09-23 18:10:43', NULL),
+('7180789', NULL, 'Hector Favian Auzaque Parra', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2008-03-10', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:45:50', NULL),
+('7254795', NULL, 'Yobanis Alberto Castrillon Cano', 'M', 'Maquinista', 'Bombero', NULL, 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-07-01', '2025-06-30', 'activo', NULL, NULL, NULL, '2026-09-29 20:58:48', NULL),
+('74770870', NULL, 'Ariosto Castelblanco Zorro', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2008-06-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:56:03', NULL),
+('74814305', 'Yopal, Casanare', 'Nelson Morales Cubides', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Indefinido', '2007-11-01', NULL, 'activo', NULL, NULL, '1979-11-14', '2026-09-23 18:04:03', NULL),
+('74859815', NULL, 'Waldo Ramirez Avila', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2005-01-11', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:04:43', NULL),
+('74861664', NULL, 'Guillermo Enrique Guarin Fonseca', 'M', 'Director Académico', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, NULL, 'activo', '3123878482', NULL, '1979-09-25', '2026-09-25 02:19:35', 'hv_74861664/perfil/foto.png'),
+('74861711', NULL, 'Wilmar Vargas Teatin', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:05:33', NULL),
+('80033385', NULL, 'Jorge Antonio Segura Poveda', 'M', 'Conductor de ambulancia', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-09-26', '2026-12-25', 'activo', '3212038841', NULL, '1982-05-13', '2026-09-25 02:02:05', 'hv_80033385/perfil/foto.png'),
+('9433076', NULL, 'Rafael Rojas Rico', 'M', 'Comandante de estación', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', 7046.33, 1, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', '3216547896', NULL, NULL, '2026-09-29 21:05:27', 'hv_9433076/perfil/foto.jpg'),
+('9434678', NULL, 'Jose Alejandro Fernandez Cardenas', 'M', 'Tecnico archivista', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2015-12-01', '2016-11-30', 'activo', NULL, NULL, NULL, '2026-10-05 20:04:25', NULL),
+('9656509', NULL, 'Jose Orlando Gonzalez Gonzales', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2013-02-26', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:59:42', NULL),
+('9658799', NULL, 'Javier Fernando Fuquen Calderon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2009-04-01', NULL, 'activo', NULL, NULL, '1971-12-05', '2026-09-23 17:57:02', NULL);
 
 -- --------------------------------------------------------
 
@@ -124,7 +292,82 @@ INSERT INTO `festivos_colombia` (`id`, `fecha`, `nombre`, `anio`) VALUES
 (16, '2026-11-02', 'Todos los Santos', 2026),
 (17, '2026-11-16', 'Independencia de Cartagena', 2026),
 (18, '2026-12-08', 'Inmaculada Concepción', 2026),
-(19, '2026-12-25', 'Navidad', 2026);
+(19, '2026-12-25', 'Navidad', 2026),
+(39, '2027-01-01', 'Año Nuevo', 2027),
+(40, '2027-01-11', 'Reyes Magos', 2027),
+(41, '2027-03-22', 'Día de San José', 2027),
+(42, '2027-03-25', 'Jueves Santo', 2027),
+(43, '2027-03-26', 'Viernes Santo', 2027),
+(44, '2027-05-01', 'Día del Trabajo', 2027),
+(45, '2027-05-10', 'Ascensión de Jesús', 2027),
+(46, '2027-05-31', 'Corpus Christi', 2027),
+(47, '2027-06-07', 'Sagrado Corazón', 2027),
+(48, '2027-07-05', 'San Pedro y San Pablo', 2027),
+(49, '2027-07-12', 'Día de Nuestra Señora de Chiquinquirá', 2027),
+(50, '2027-07-20', 'Día de la Independencia', 2027),
+(51, '2027-08-07', 'Batalla de Boyacá', 2027),
+(52, '2027-08-16', 'Asunción de la Virgen', 2027),
+(53, '2027-10-18', 'Día de la Raza', 2027),
+(54, '2027-11-01', 'Todos los Santos', 2027),
+(55, '2027-11-15', 'Independencia de Cartagena', 2027),
+(56, '2027-12-08', 'Inmaculada Concepción', 2027),
+(57, '2027-12-25', 'Navidad', 2027),
+(58, '2028-01-01', 'Año Nuevo', 2028),
+(59, '2028-01-10', 'Reyes Magos', 2028),
+(60, '2028-03-20', 'Día de San José', 2028),
+(61, '2028-04-13', 'Jueves Santo', 2028),
+(62, '2028-04-14', 'Viernes Santo', 2028),
+(63, '2028-05-01', 'Día del Trabajo', 2028),
+(64, '2028-05-29', 'Ascensión de Jesús', 2028),
+(65, '2028-06-19', 'Corpus Christi', 2028),
+(66, '2028-06-26', 'Sagrado Corazón', 2028),
+(67, '2028-07-03', 'San Pedro y San Pablo', 2028),
+(68, '2028-07-10', 'Día de Nuestra Señora de Chiquinquirá', 2028),
+(69, '2028-07-20', 'Día de la Independencia', 2028),
+(70, '2028-08-07', 'Batalla de Boyacá', 2028),
+(71, '2028-08-21', 'Asunción de la Virgen', 2028),
+(72, '2028-10-16', 'Día de la Raza', 2028),
+(73, '2028-11-06', 'Todos los Santos', 2028),
+(74, '2028-11-13', 'Independencia de Cartagena', 2028),
+(75, '2028-12-08', 'Inmaculada Concepción', 2028),
+(76, '2028-12-25', 'Navidad', 2028),
+(77, '2029-01-01', 'Año Nuevo', 2029),
+(78, '2029-01-08', 'Reyes Magos', 2029),
+(79, '2029-03-19', 'Día de San José', 2029),
+(80, '2029-03-29', 'Jueves Santo', 2029),
+(81, '2029-03-30', 'Viernes Santo', 2029),
+(82, '2029-05-01', 'Día del Trabajo', 2029),
+(83, '2029-05-14', 'Ascensión de Jesús', 2029),
+(84, '2029-06-04', 'Corpus Christi', 2029),
+(85, '2029-06-11', 'Sagrado Corazón', 2029),
+(86, '2029-07-02', 'San Pedro y San Pablo', 2029),
+(87, '2029-07-09', 'Día de Nuestra Señora de Chiquinquirá', 2029),
+(88, '2029-07-20', 'Día de la Independencia', 2029),
+(89, '2029-08-07', 'Batalla de Boyacá', 2029),
+(90, '2029-08-20', 'Asunción de la Virgen', 2029),
+(91, '2029-10-15', 'Día de la Raza', 2029),
+(92, '2029-11-05', 'Todos los Santos', 2029),
+(93, '2029-11-12', 'Independencia de Cartagena', 2029),
+(94, '2029-12-08', 'Inmaculada Concepción', 2029),
+(95, '2029-12-25', 'Navidad', 2029),
+(96, '2030-01-01', 'Año Nuevo', 2030),
+(97, '2030-01-07', 'Reyes Magos', 2030),
+(98, '2030-03-25', 'Día de San José', 2030),
+(99, '2030-04-18', 'Jueves Santo', 2030),
+(100, '2030-04-19', 'Viernes Santo', 2030),
+(101, '2030-05-01', 'Día del Trabajo', 2030),
+(102, '2030-06-03', 'Ascensión de Jesús', 2030),
+(103, '2030-06-24', 'Corpus Christi', 2030),
+(104, '2030-07-01', 'Sagrado Corazón', 2030),
+(106, '2030-07-15', 'Día de Nuestra Señora de Chiquinquirá', 2030),
+(107, '2030-07-20', 'Día de la Independencia', 2030),
+(108, '2030-08-07', 'Batalla de Boyacá', 2030),
+(109, '2030-08-19', 'Asunción de la Virgen', 2030),
+(110, '2030-10-14', 'Día de la Raza', 2030),
+(111, '2030-11-04', 'Todos los Santos', 2030),
+(112, '2030-11-11', 'Independencia de Cartagena', 2030),
+(113, '2030-12-08', 'Inmaculada Concepción', 2030),
+(114, '2030-12-25', 'Navidad', 2030);
 
 -- --------------------------------------------------------
 
@@ -137,6 +380,38 @@ CREATE TABLE `firmas_guardadas` (
   `cedula` varchar(10) NOT NULL,
   `ruta_imagen` varchar(255) NOT NULL COMMENT 'PNG del canvas o archivo subido, en uploads/hv_{cedula}/firma/',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `funciones_certificados`
+--
+
+CREATE TABLE `funciones_certificados` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `cargo_id` int(10) UNSIGNED NOT NULL,
+  `texto` varchar(160) NOT NULL,
+  `orden` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
+  `activo` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `funciones_contratos`
+--
+
+CREATE TABLE `funciones_contratos` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `cargo_id` int(10) UNSIGNED NOT NULL,
+  `texto` text NOT NULL,
+  `orden` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
+  `activo` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -308,8 +583,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `username`, `password_hash`, `rol`, `created_at`, `intentos_fallidos`, `bloqueado_hasta`) VALUES
-(1, 'Talento', '$2y$10$NGyVALKNFTFSp2RCTHsb8OkWNq5687eAzdD1fTtTEuSngyyk9lzQC', 'superadmin_talento_humano', '2026-09-17 19:26:28', 0, NULL),
-(2, 'Tatiana', '$2y$10$cQdMMnhoNeo3U58ygsXVCuLtBi2RKOF8D0kZWidtQHoeygqR6URNK', 'auxiliar_talento_humano', '2026-09-17 21:38:01', 0, NULL);
+(2, 'Tatiana', '$2y$10$cQdMMnhoNeo3U58ygsXVCuLtBi2RKOF8D0kZWidtQHoeygqR6URNK', 'auxiliar_talento_humano', '2026-09-17 21:38:01', 0, NULL),
+(3, 'Talento', '$2y$10$jTKCp2WcjVoE1cyGKmqqxekoeukZ6bKaJLyOdOzv67Tcw0a4C9Wmm', 'superadmin_talento_humano', '2026-09-29 21:24:40', 0, NULL),
+(4, 'Omar', '$2y$10$Ub.R51IzfyUY0Rs4ROKP0OQsn9VjxxsmJfRZsaBo8oMouHdi49pZ2', 'teniente', '2026-09-29 22:43:28', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -339,6 +615,35 @@ ALTER TABLE `bolsillos`
   ADD KEY `idx_cedula_seccion` (`cedula_empleado`,`seccion`);
 
 --
+-- Indices de la tabla `cargos`
+--
+ALTER TABLE `cargos`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_cargos_nombre` (`nombre`);
+
+--
+-- Indices de la tabla `certificados_consecutivos`
+--
+ALTER TABLE `certificados_consecutivos`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `certificados_laborales`
+--
+ALTER TABLE `certificados_laborales`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_cert_numero` (`numero`),
+  ADD UNIQUE KEY `uq_cert_archivo` (`archivo`),
+  ADD KEY `idx_cert_cedula` (`cedula`);
+
+--
+-- Indices de la tabla `certificados_laborales_funciones`
+--
+ALTER TABLE `certificados_laborales_funciones`
+  ADD PRIMARY KEY (`certificado_id`,`posicion`),
+  ADD KEY `fk_clf_func` (`funcion_id`);
+
+--
 -- Indices de la tabla `documentos`
 --
 ALTER TABLE `documentos`
@@ -365,6 +670,21 @@ ALTER TABLE `festivos_colombia`
 ALTER TABLE `firmas_guardadas`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unica_por_empleado` (`cedula`);
+
+--
+-- Indices de la tabla `funciones_certificados`
+--
+ALTER TABLE `funciones_certificados`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_fcert_cargo_texto` (`cargo_id`,`texto`),
+  ADD KEY `idx_fcert_cargo` (`cargo_id`,`activo`,`orden`);
+
+--
+-- Indices de la tabla `funciones_contratos`
+--
+ALTER TABLE `funciones_contratos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_fcont_cargo` (`cargo_id`,`activo`,`orden`);
 
 --
 -- Indices de la tabla `notificaciones`
@@ -444,6 +764,18 @@ ALTER TABLE `bolsillos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `cargos`
+--
+ALTER TABLE `cargos`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1621;
+
+--
+-- AUTO_INCREMENT de la tabla `certificados_laborales`
+--
+ALTER TABLE `certificados_laborales`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `documentos`
 --
 ALTER TABLE `documentos`
@@ -453,13 +785,25 @@ ALTER TABLE `documentos`
 -- AUTO_INCREMENT de la tabla `festivos_colombia`
 --
 ALTER TABLE `festivos_colombia`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
 
 --
 -- AUTO_INCREMENT de la tabla `firmas_guardadas`
 --
 ALTER TABLE `firmas_guardadas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `funciones_certificados`
+--
+ALTER TABLE `funciones_certificados`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `funciones_contratos`
+--
+ALTER TABLE `funciones_contratos`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
@@ -495,7 +839,7 @@ ALTER TABLE `permisos_historial`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios_empleados`
@@ -514,60 +858,23 @@ ALTER TABLE `bolsillos`
   ADD CONSTRAINT `bolsillos_ibfk_1` FOREIGN KEY (`cedula_empleado`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `documentos`
+-- Filtros para la tabla `certificados_laborales_funciones`
 --
-ALTER TABLE `documentos`
-  ADD CONSTRAINT `documentos_ibfk_1` FOREIGN KEY (`bolsillo_id`) REFERENCES `bolsillos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `certificados_laborales_funciones`
+  ADD CONSTRAINT `fk_clf_cert` FOREIGN KEY (`certificado_id`) REFERENCES `certificados_laborales` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_clf_func` FOREIGN KEY (`funcion_id`) REFERENCES `funciones_certificados` (`id`) ON DELETE SET NULL;
 
 --
--- Filtros para la tabla `firmas_guardadas`
+-- Filtros para la tabla `funciones_certificados`
 --
-ALTER TABLE `firmas_guardadas`
-  ADD CONSTRAINT `firmas_guardadas_ibfk_1` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `funciones_certificados`
+  ADD CONSTRAINT `fk_fcert_cargo` FOREIGN KEY (`cargo_id`) REFERENCES `cargos` (`id`) ON DELETE CASCADE;
 
 --
--- Filtros para la tabla `notificaciones`
+-- Filtros para la tabla `funciones_contratos`
 --
-ALTER TABLE `notificaciones`
-  ADD CONSTRAINT `notificaciones_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `permisos`
---
-ALTER TABLE `permisos`
-  ADD CONSTRAINT `permisos_ibfk_1` FOREIGN KEY (`cedula_empleado`) REFERENCES `empleados` (`cedula`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `permisos_ibfk_2` FOREIGN KEY (`cedula_reemplazo`) REFERENCES `empleados` (`cedula`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `permisos_ibfk_3` FOREIGN KEY (`cedula_jefe`) REFERENCES `empleados` (`cedula`) ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `permisos_devoluciones`
---
-ALTER TABLE `permisos_devoluciones`
-  ADD CONSTRAINT `permisos_devoluciones_ibfk_1` FOREIGN KEY (`permiso_id`) REFERENCES `permisos` (`id`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `permisos_dias`
---
-ALTER TABLE `permisos_dias`
-  ADD CONSTRAINT `permisos_dias_ibfk_1` FOREIGN KEY (`permiso_id`) REFERENCES `permisos` (`id`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `permisos_historial`
---
-ALTER TABLE `permisos_historial`
-  ADD CONSTRAINT `permisos_historial_ibfk_1` FOREIGN KEY (`permiso_id`) REFERENCES `permisos` (`id`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `presencia_empleados`
---
-ALTER TABLE `presencia_empleados`
-  ADD CONSTRAINT `presencia_empleados_ibfk_1` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `usuarios_empleados`
---
-ALTER TABLE `usuarios_empleados`
-  ADD CONSTRAINT `usuarios_empleados_ibfk_1` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `funciones_contratos`
+  ADD CONSTRAINT `fk_fcont_cargo` FOREIGN KEY (`cargo_id`) REFERENCES `cargos` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

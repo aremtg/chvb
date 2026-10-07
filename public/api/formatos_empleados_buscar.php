@@ -5,6 +5,7 @@ declare(strict_types=1);
 // ("juan dominguez" encuentra "Juan Fernando Dominguez Ibarguen").
 require_once __DIR__ . '/../../includes/formatos_guard.php';
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../src/helpers/JornadaHelper.php';
 
 header('Content-Type: application/json; charset=utf-8');
 requireFormatosAccess(true);
@@ -34,7 +35,7 @@ try {
     $params['exacta']  = $q;
     $params['prefijo'] = addcslashes($q, '\\%_') . '%';
 
-    $sql = 'SELECT cedula, nombre, sexo, cargo, tipo_de_personal, es_bombero_integral,
+    $sql = 'SELECT cedula, lugar_expedicion, nombre, sexo, cargo, tipo_de_personal, es_bombero_integral,
                    tipo_de_contrato, fecha_inicio_contrato, fecha_fin_contrato, estado
             FROM empleados
             WHERE ' . implode(' AND ', $where) . '
@@ -46,9 +47,11 @@ try {
 
     $empleados = array_map(static fn(array $e): array => [
         'cedula'                => (string)$e['cedula'],
+        'lugar_expedicion'      => $e['lugar_expedicion'],
         'nombre'                => (string)$e['nombre'],
         'sexo'                  => $e['sexo'],
         'cargo'                 => $e['cargo'],
+        'cargo_detalle'         => JornadaHelper::cargoDetalle($e),
         'tipo_de_personal'      => $e['tipo_de_personal'],
         'es_bombero_integral'   => (int)$e['es_bombero_integral'],
         'tipo_de_contrato'      => $e['tipo_de_contrato'],
