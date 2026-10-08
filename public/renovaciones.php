@@ -161,7 +161,7 @@ $etiquetaEstado = ['vencido' => 'Vencido', 'por_vencer' => 'Por vencer', 'vigent
                                                 <div class="text-xs text-gray-600 mt-1"><?= $h(RenovacionReglas::textoDias((int) $v['dias_restantes'])) ?></div>
                                             </td>
                                             <td class="px-4 sm:px-5 py-3.5 align-middle whitespace-nowrap hidden lg:table-cell">
-                                                <div class="text-sm text-gray-700"><?= $h(RenovacionReglas::textoMeses((int) $v['meses_acumulados'])) ?></div>
+                                                <div class="text-sm text-gray-700"><?= $h($v['acumulado_texto']) ?></div>
                                                 <?php if ($v['requiere_indefinido']): ?>
                                                     <div class="text-xs font-semibold text-red-600">Debe pasar a Indefinido</div>
                                                 <?php endif; ?>
@@ -180,6 +180,7 @@ $etiquetaEstado = ['vencido' => 'Vencido', 'por_vencer' => 'Por vencer', 'vigent
                         <p id="renSinResultados" class="hidden text-xs text-gray-600 text-center py-8">Ningún empleado coincide con el filtro.</p>
                         <div class="px-4 sm:px-5 py-3 border-t border-gray-100 text-xs text-gray-600">
                             Mostrando <span id="renContador"><?= count($vigencias) ?> de <?= count($vigencias) ?></span>
+                            <span class="block sm:inline sm:ml-3">Acumulado en meses de 30 días (año de 360 días).</span>
                         </div>
                     <?php endif; ?>
                 </section>

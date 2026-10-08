@@ -12,6 +12,10 @@ final class RenovacionReglas
     /** Tope de duración total de un contrato a término fijo (con renovaciones), en meses. */
     public const TOPE_MESES_FIJO = 48;
 
+    /** Base comercial laboral: mes de 30 días y año de 360 días. */
+    public const DIAS_MES = 30;
+    public const DIAS_ANIO = 360;
+
     /** Tipo de contrato al que se le aplican las reglas legales de renovación. */
     public const TIPO_CON_REGLAS_LEGALES = 'Fijo';
 
@@ -52,39 +56,85 @@ final class RenovacionReglas
     }
 
     /**
-     * Meses de un periodo contando ambos extremos (01/01 al 30/06 = 6 meses).
-     * Mismo cálculo que ya usa el generador de renovaciones: meses completos, redondeando hacia arriba.
+     * Días de un periodo en BASE COMERCIAL LABORAL (mes de 30 días, año de 360), contando ambos extremos.
+     * El último día de cada mes cuenta como día 30, así que un periodo que empieza el 1 y termina el 30 o el 31
+     * (o el 28/29 de febrero) completa el mes:
+     *   01/01/2026 a 30/12/2026 = 360 días = 1 año     01/01/2026 a 31/12/2026 = 360 días = 1 año
+     *   01/01/2026 a 01/01/2027 = 361 días = 1 año y 1 día
      */
-    public static function mesesEntre(string $inicio, string $fin): int
+    public static function dias360(string $inicio, string $fin): int
     {
         $a = self::fecha($inicio, 'La fecha de inicio');
-        $finMasUnDia = self::fecha($fin, 'La fecha de fin')->modify('+1 day');
-
-        $meses = ((int) $finMasUnDia->format('Y') - (int) $a->format('Y')) * 12
-            + ((int) $finMasUnDia->format('m') - (int) $a->format('m'));
-        if ($meses < 0) {
+        $b = self::fecha($fin, 'La fecha de fin');
+        if ($b < $a) {
             return 0;
         }
 
-        $candidato = $a->modify('+' . $meses . ' months');
-        if ($candidato < $finMasUnDia) {
-            $meses++;
+        $d1 = (int) $a->format('j');
+        $d2 = (int) $b->format('j');
+        if ($d1 === 31) {
+            $d1 = 30;
         }
-        return max(0, $meses);
+        if ($b->format('j') === $b->format('t')) {   // el último día del mes cuenta como 30
+            $d2 = 30;
+        }
+
+        $dias = ((int) $b->format('Y') - (int) $a->format('Y')) * self::DIAS_ANIO
+            + ((int) $b->format('n') - (int) $a->format('n')) * self::DIAS_MES
+            + ($d2 - $d1) + 1;
+
+        return max(0, $dias);
     }
 
-    public static function textoMeses(int $meses): string
+    /** Convierte días comerciales en años (360), meses (30) y días. */
+    public static function periodoDesdeDias(int $dias): array
     {
-        $anos = intdiv($meses, 12);
-        $resto = $meses % 12;
+        $dias = max(0, $dias);
+        $resto = $dias % self::DIAS_ANIO;
+        return [
+            'anios' => intdiv($dias, self::DIAS_ANIO),
+            'meses' => intdiv($resto, self::DIAS_MES),
+            'dias' => $resto % self::DIAS_MES,
+            'total_dias' => $dias,
+        ];
+    }
+
+    /** Duración de un periodo (ambos extremos incluidos) como ['anios', 'meses', 'dias', 'total_dias']. */
+    public static function periodo(string $inicio, string $fin): array
+    {
+        return self::periodoDesdeDias(self::dias360($inicio, $fin));
+    }
+
+    /**
+     * Meses del periodo redondeando hacia arriba. Solo se guarda en la columna duracion_meses
+     * como referencia; para mostrar o evaluar duraciones se usa periodo().
+     */
+    public static function mesesEntre(string $inicio, string $fin): int
+    {
+        return (int) ceil(self::dias360($inicio, $fin) / self::DIAS_MES);
+    }
+
+    /** "1 año y 1 día", "2 años, 3 meses y 5 días", "11 meses y 30 días". */
+    public static function textoPeriodo(array $p): string
+    {
         $partes = [];
-        if ($anos > 0) {
-            $partes[] = $anos . ' ' . ($anos === 1 ? 'año' : 'años');
+        if ($p['anios'] > 0) {
+            $partes[] = $p['anios'] . ($p['anios'] === 1 ? ' año' : ' años');
         }
-        if ($resto > 0) {
-            $partes[] = $resto . ' ' . ($resto === 1 ? 'mes' : 'meses');
+        if ($p['meses'] > 0) {
+            $partes[] = $p['meses'] . ($p['meses'] === 1 ? ' mes' : ' meses');
         }
-        return $partes ? implode(' y ', $partes) : '0 meses';
+        if ($p['dias'] > 0) {
+            $partes[] = $p['dias'] . ($p['dias'] === 1 ? ' día' : ' días');
+        }
+        if (!$partes) {
+            return '0 días';
+        }
+        if (count($partes) === 1) {
+            return $partes[0];
+        }
+        $ultimo = array_pop($partes);
+        return implode(', ', $partes) . ' y ' . $ultimo;
     }
 
     /** "Vence en 23 días", "Vence hoy" o "Venció hace 5 días", a partir de los días restantes (negativo = ya venció). */
@@ -150,53 +200,77 @@ final class RenovacionReglas
 
     /**
      * Evalúa la cadena completa (contrato inicial + renovaciones ordenadas por numero).
-     * Devuelve vigencia, acumulado y ADVERTENCIAS legales. Las advertencias NO bloquean el registro:
-     * el historial real puede tener casos que no cumplen la regla y aun así hay que poder anotarlos.
+     * Devuelve vigencia, tiempo acumulado (años, meses y días en base comercial 30/360) y ADVERTENCIAS
+     * legales. Las advertencias NO bloquean el registro: el historial real puede tener casos que no
+     * cumplen la regla y aun así hay que poder anotarlos.
+     *
+     * El acumulado suma los días de cada periodo; si hubo huecos entre periodos, el hueco no cuenta
+     * como tiempo trabajado.
      */
     public static function evaluarCadena(array $empleado, array $renovaciones): array
     {
         $inicio = trim((string) ($empleado['fecha_inicio_contrato'] ?? ''));
         $fin = trim((string) ($empleado['fecha_fin_contrato'] ?? ''));
+        $tieneInicial = $inicio !== '' && $fin !== '';
 
-        $mesesIniciales = ($inicio !== '' && $fin !== '') ? self::mesesEntre($inicio, $fin) : 0;
-        $mesesRenovaciones = 0;
-        foreach ($renovaciones as $r) {
-            $mesesRenovaciones += (int) $r['duracion_meses'];
+        $periodos = [];
+        if ($tieneInicial) {
+            $periodos[] = ['numero' => 0, 'inicio' => $inicio, 'fin' => $fin];
         }
-        $acumulado = $mesesIniciales + $mesesRenovaciones;
+        foreach (array_values($renovaciones) as $i => $r) {
+            $periodos[] = [
+                'numero' => (int) ($r['numero'] ?? ($i + 1)),
+                'inicio' => (string) $r['fecha_inicio'],
+                'fin' => (string) $r['fecha_fin'],
+            ];
+        }
 
-        $ultima = $renovaciones ? end($renovaciones) : null;
-        $vigenciaFin = $ultima ? (string) $ultima['fecha_fin'] : ($fin !== '' ? $fin : null);
-
-        $advertencias = [];
         $esFijo = ($empleado['tipo_de_contrato'] ?? '') === self::TIPO_CON_REGLAS_LEGALES;
+        $totalDias = 0;
+        $diasAnterior = null;
+        $advertencias = [];
 
-        if ($esFijo) {
-            $anterior = null;
-            foreach (array_values($renovaciones) as $i => $r) {
-                $n = (int) ($r['numero'] ?? ($i + 1));
-                $dur = (int) $r['duracion_meses'];
-                if ($n >= 4 && $dur < 12) {
+        foreach ($periodos as $p) {
+            $dias = self::dias360($p['inicio'], $p['fin']);
+            $totalDias += $dias;
+
+            if ($esFijo && $p['numero'] > 0) {
+                $n = $p['numero'];
+                if ($n >= 4 && $dias < self::DIAS_ANIO) {
                     $advertencias[] = "RNV{$n}: desde la 4ta renovación la duración debe ser de 1 año o más (Art. 46 CST, Ley 2466 de 2025).";
                 }
-                if ($anterior !== null && $dur < $anterior) {
+                if ($diasAnterior !== null && $dias < $diasAnterior) {
                     $advertencias[] = "RNV{$n}: dura menos que el periodo anterior; reducir el tiempo solo es legal con un Otrosí de mutuo acuerdo.";
                 }
-                $anterior = $dur;
-            }
-            if ($acumulado > self::TOPE_MESES_FIJO) {
-                $advertencias[] = 'Lleva ' . self::textoMeses($acumulado) . ', supera los 4 años: debe pasar a Contrato Indefinido (Ley 2466 de 2025).';
+                $diasAnterior = $dias;
             }
         }
 
+        $acumulado = self::periodoDesdeDias($totalDias);
+        $acumuladoTexto = self::textoPeriodo($acumulado);
+
+        $superaTope = false;
+        $restanteTexto = null;
+        if ($esFijo && $periodos) {
+            $topeDias = self::TOPE_MESES_FIJO * self::DIAS_MES;   // 4 años = 1.440 días
+            $superaTope = $totalDias > $topeDias;
+            if ($superaTope) {
+                $advertencias[] = 'Lleva ' . $acumuladoTexto . ', supera los 4 años: debe pasar a Contrato Indefinido (Ley 2466 de 2025).';
+            } elseif ($totalDias < $topeDias) {
+                $restanteTexto = self::textoPeriodo(self::periodoDesdeDias($topeDias - $totalDias));
+            }
+        }
+
+        $ultima = $renovaciones ? end($renovaciones) : null;
+
         return [
-            'meses_iniciales' => $mesesIniciales,
-            'meses_renovaciones' => $mesesRenovaciones,
-            'meses_acumulados' => $acumulado,
-            'meses_restantes_tope' => $esFijo ? max(0, self::TOPE_MESES_FIJO - $acumulado) : null,
-            'requiere_indefinido' => $esFijo && $acumulado > self::TOPE_MESES_FIJO,
+            'inicial_texto' => $tieneInicial ? self::textoPeriodo(self::periodo($inicio, $fin)) : '—',
+            'acumulado' => $acumulado,
+            'acumulado_texto' => $acumuladoTexto,
+            'restante_tope_texto' => $restanteTexto,        // null si no aplica o ya completó justo los 4 años
+            'requiere_indefinido' => $superaTope,
             'num_renovaciones' => count($renovaciones),
-            'vigencia_fin' => $vigenciaFin,
+            'vigencia_fin' => $ultima ? (string) $ultima['fecha_fin'] : ($fin !== '' ? $fin : null),
             'advertencias' => $advertencias,
         ];
     }
@@ -204,7 +278,7 @@ final class RenovacionReglas
     /**
      * Valida una renovación nueva o editada. $previas = renovaciones con numero menor al de esta.
      * Lanza InvalidArgumentException con mensaje para el usuario si hay un error que bloquea.
-     * Devuelve ['duracion_meses' => int, 'advertencias' => string[]].
+     * Devuelve ['duracion_meses' => int, 'duracion_texto' => string, 'advertencias' => string[]].
      */
     public static function validarRenovacion(array $empleado, array $previas, int $numero, string $inicio, string $fin): array
     {
@@ -233,7 +307,7 @@ final class RenovacionReglas
             $advertencias[] = 'RNV' . $numero . ' no empieza el día siguiente al fin del periodo anterior (' . $esperado->format('d/m/Y') . '): hay un hueco entre los dos periodos.';
         }
 
-        $duracion = self::mesesEntre($inicio, $fin);
+        $duracion = self::mesesEntre($inicio, $fin);   // se guarda en la columna duracion_meses (aproximada, solo referencia)
         $cadena = array_merge(array_values($previas), [[
             'numero' => $numero,
             'fecha_inicio' => $inicio,
@@ -244,6 +318,7 @@ final class RenovacionReglas
 
         return [
             'duracion_meses' => $duracion,
+            'duracion_texto' => self::textoPeriodo(self::periodo($inicio, $fin)),
             'advertencias' => array_merge($advertencias, $evaluacion['advertencias']),
         ];
     }

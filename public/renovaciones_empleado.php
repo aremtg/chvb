@@ -124,13 +124,15 @@ if ($ficha) {
                             </div>
                             <div>
                                 <span class="ren-dato-etiqueta">Acumulado</span>
-                                <strong><?= $h(RenovacionReglas::textoMeses((int) $eval['meses_acumulados'])) ?></strong>
-                                <?php if ($eval['meses_restantes_tope'] !== null): ?>
-                                    <div class="text-xs text-gray-600 mt-1">Le quedan <?= $h(RenovacionReglas::textoMeses((int) $eval['meses_restantes_tope'])) ?> para los 4 años</div>
+                                <strong><?= $h($eval['acumulado_texto']) ?></strong>
+                                <?php if ($eval['restante_tope_texto'] !== null): ?>
+                                    <div class="text-xs text-gray-600 mt-1">Le quedan <?= $h($eval['restante_tope_texto']) ?> para los 4 años</div>
                                 <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     </div>
+
+                    <p class="px-4 sm:px-5 pb-4 text-xs text-gray-600">Los tiempos se cuentan con mes comercial de 30 días (año de 360 días), incluyendo el día de inicio y el de fin: del 1 al 30 o al 31 completa el mes.</p>
 
                     <?php if ($problemas): ?>
                         <div class="px-4 sm:px-5 pb-4">
@@ -179,7 +181,7 @@ if ($ficha) {
                                     <tr class="bg-gray-50/60">
                                         <td class="px-4 sm:px-5 py-3.5 font-semibold text-gray-800">Contrato inicial</td>
                                         <td class="px-4 sm:px-5 py-3.5 whitespace-nowrap text-gray-700"><?= $h(RenovacionReglas::formatear($emp['fecha_inicio_contrato'])) ?> a <?= $h(RenovacionReglas::formatear($emp['fecha_fin_contrato'])) ?></td>
-                                        <td class="px-4 sm:px-5 py-3.5 text-gray-700"><?= $h(RenovacionReglas::textoMeses((int) $eval['meses_iniciales'])) ?></td>
+                                        <td class="px-4 sm:px-5 py-3.5 text-gray-700"><?= $h($eval['inicial_texto']) ?></td>
                                         <td class="px-4 sm:px-5 py-3.5 text-xs text-gray-600 hidden lg:table-cell">Hoja de vida</td>
                                         <?php if ($esAdmin): ?><td></td><?php endif; ?>
                                     </tr>
@@ -193,7 +195,7 @@ if ($ficha) {
                                                     <div class="text-xs text-gray-600 mt-1 break-words max-w-[220px]"><?= $h($r['observaciones']) ?></div>
                                                 <?php endif; ?>
                                             </td>
-                                            <td class="px-4 sm:px-5 py-3.5 text-gray-700 whitespace-nowrap"><?= $h(RenovacionReglas::textoMeses((int) $r['duracion_meses'])) ?></td>
+                                            <td class="px-4 sm:px-5 py-3.5 text-gray-700 whitespace-nowrap"><?= $h(RenovacionReglas::textoPeriodo(RenovacionReglas::periodo($r['fecha_inicio'], $r['fecha_fin']))) ?></td>
                                             <td class="px-4 sm:px-5 py-3.5 text-xs text-gray-600 hidden lg:table-cell">
                                                 <?= $h($r['creado_por_nombre'] ?: '—') ?><br><?= $h(date('d/m/Y', strtotime($r['created_at']))) ?>
                                             </td>

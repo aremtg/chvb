@@ -30,25 +30,37 @@
     return iso(d);
   }
 
-  // Mismo cálculo que RenovacionReglas::mesesEntre (ambos extremos incluidos, redondea hacia arriba).
-  function mesesEntre(inicio, fin) {
+  // Días del periodo en BASE COMERCIAL LABORAL (mes de 30 días, año de 360), contando ambos extremos.
+  // El último día de cada mes cuenta como 30: del 1 al 30 o al 31 completa el mes.
+  // Igual que RenovacionReglas::dias360 en PHP.
+  function dias360(inicio, fin) {
     const a = dateObj(inicio);
-    const finMasUno = dateObj(fin);
-    finMasUno.setDate(finMasUno.getDate() + 1);
-    let meses = (finMasUno.getFullYear() - a.getFullYear()) * 12 + (finMasUno.getMonth() - a.getMonth());
-    if (meses < 0) return 0;
-    const candidato = new Date(a.getFullYear(), a.getMonth() + meses, a.getDate());
-    if (candidato < finMasUno) meses++;
-    return Math.max(0, meses);
+    const b = dateObj(fin);
+    if (b < a) return 0;
+    let d1 = a.getDate();
+    let d2 = b.getDate();
+    if (d1 === 31) d1 = 30;
+    const ultimoDia = new Date(b.getFullYear(), b.getMonth() + 1, 0).getDate();
+    if (d2 === ultimoDia) d2 = 30;
+    return Math.max(0, (b.getFullYear() - a.getFullYear()) * 360 + (b.getMonth() - a.getMonth()) * 30 + (d2 - d1) + 1);
   }
 
-  function textoMeses(meses) {
-    const anos = Math.floor(meses / 12);
-    const resto = meses % 12;
+  // 360 días = 1 año, 30 días = 1 mes: 01/01/2026 a 30/12/2026 = 1 año; a 01/01/2027 = 1 año y 1 día.
+  function periodo(inicio, fin) {
+    const total = dias360(inicio, fin);
+    const resto = total % 360;
+    return { anios: Math.floor(total / 360), meses: Math.floor(resto / 30), dias: resto % 30 };
+  }
+
+  function textoPeriodo(p) {
     const partes = [];
-    if (anos) partes.push(`${anos} ${anos === 1 ? 'año' : 'años'}`);
-    if (resto) partes.push(`${resto} ${resto === 1 ? 'mes' : 'meses'}`);
-    return partes.length ? partes.join(' y ') : '0 meses';
+    if (p.anios) partes.push(`${p.anios} ${p.anios === 1 ? 'año' : 'años'}`);
+    if (p.meses) partes.push(`${p.meses} ${p.meses === 1 ? 'mes' : 'meses'}`);
+    if (p.dias) partes.push(`${p.dias} ${p.dias === 1 ? 'día' : 'días'}`);
+    if (!partes.length) return '0 días';
+    if (partes.length === 1) return partes[0];
+    const ultimo = partes.pop();
+    return `${partes.join(', ')} y ${ultimo}`;
   }
 
   function mostrar(el, texto) {
@@ -124,7 +136,7 @@
         durTxt.textContent = '—';
         return;
       }
-      durTxt.textContent = textoMeses(mesesEntre(inicio.value, fin.value));
+      durTxt.textContent = textoPeriodo(periodo(inicio.value, fin.value));
     }
 
     inicio.addEventListener('change', actualizarDuracion);
@@ -164,7 +176,7 @@
           fecha_fin: fin.value,
           observaciones: obs.value,
         });
-        guardarAviso(`RNV${data.numero} registrada (${textoMeses(data.duracion_meses)}).`, data.advertencias);
+        guardarAviso(`RNV${data.numero} registrada (${data.duracion_texto}).`, data.advertencias);
         location.reload();
       } catch (ex) {
         mostrar(err, ex.message);
@@ -228,7 +240,7 @@
           fecha_fin: edFin.value,
           observaciones: edObs.value,
         });
-        guardarAviso(`RNV${numeroEditando} actualizada (${textoMeses(data.duracion_meses)}).`, data.advertencias);
+        guardarAviso(`RNV${numeroEditando} actualizada (${data.duracion_texto}).`, data.advertencias);
         location.reload();
       } catch (ex) {
         mostrar(edErr, ex.message);

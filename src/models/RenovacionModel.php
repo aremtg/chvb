@@ -71,43 +71,44 @@ class RenovacionModel
     {
         $tipos = RenovacionReglas::tiposControlados();
         $ph = implode(',', array_fill(0, count($tipos), '?'));
+        $pdo = getPDO();
 
-        $sql = "SELECT e.cedula, e.nombre, e.cargo, e.tipo_de_contrato,
-                       e.fecha_inicio_contrato, e.fecha_fin_contrato,
-                       COALESCE(r.num_renovaciones, 0) AS num_renovaciones,
-                       COALESCE(r.meses_renovaciones, 0) AS meses_renovaciones,
-                       r.ultima_fin
-                FROM empleados e
-                LEFT JOIN (
-                    SELECT cedula,
-                           COUNT(*) AS num_renovaciones,
-                           SUM(duracion_meses) AS meses_renovaciones,
-                           MAX(fecha_fin) AS ultima_fin
-                    FROM renovaciones_contrato
-                    GROUP BY cedula
-                ) r ON r.cedula = e.cedula
-                WHERE e.estado = 'activo'
-                  AND e.tipo_de_contrato IN ($ph)
-                  AND (e.fecha_fin_contrato IS NOT NULL OR r.ultima_fin IS NOT NULL)";
-        $stmt = getPDO()->prepare($sql);
+        $stmt = $pdo->prepare(
+            "SELECT cedula, nombre, cargo, tipo_de_contrato, fecha_inicio_contrato, fecha_fin_contrato
+             FROM empleados
+             WHERE estado = 'activo' AND tipo_de_contrato IN ($ph)"
+        );
         $stmt->execute($tipos);
+        $empleados = $stmt->fetchAll();
+
+        // Renovaciones de esos mismos empleados, agrupadas por cédula y en orden.
+        $stmt = $pdo->prepare(
+            "SELECT r.*
+             FROM renovaciones_contrato r
+             JOIN empleados e ON e.cedula = r.cedula
+             WHERE e.estado = 'activo' AND e.tipo_de_contrato IN ($ph)
+             ORDER BY r.cedula ASC, r.numero ASC"
+        );
+        $stmt->execute($tipos);
+        $porCedula = [];
+        foreach ($stmt->fetchAll() as $r) {
+            $porCedula[$r['cedula']][] = $r;
+        }
 
         $hoy = RenovacionReglas::hoy();
         $filas = [];
-        foreach ($stmt->fetchAll() as $f) {
-            $vigenciaFin = $f['ultima_fin'] ?: $f['fecha_fin_contrato'];
+        foreach ($empleados as $f) {
+            $renovaciones = $porCedula[$f['cedula']] ?? [];
+            $eval = RenovacionReglas::evaluarCadena($f, $renovaciones);
+            if ($eval['vigencia_fin'] === null) {
+                continue;   // sin ninguna fecha de fin: aparece en "datos incompletos"
+            }
 
-            $mesesIniciales = (!empty($f['fecha_inicio_contrato']) && !empty($f['fecha_fin_contrato']))
-                ? RenovacionReglas::mesesEntre($f['fecha_inicio_contrato'], $f['fecha_fin_contrato'])
-                : 0;
-            $acumulado = $mesesIniciales + (int) $f['meses_renovaciones'];
-
-            $f['vigencia_fin'] = $vigenciaFin;
-            $f['meses_acumulados'] = $acumulado;
-            $f['requiere_indefinido'] = $f['tipo_de_contrato'] === RenovacionReglas::TIPO_CON_REGLAS_LEGALES
-                && $acumulado > RenovacionReglas::TOPE_MESES_FIJO;
-            $f = array_merge($f, RenovacionReglas::estadoVigencia($vigenciaFin, $hoy));
-            $filas[] = $f;
+            $f['num_renovaciones'] = $eval['num_renovaciones'];
+            $f['vigencia_fin'] = $eval['vigencia_fin'];
+            $f['acumulado_texto'] = $eval['acumulado_texto'];
+            $f['requiere_indefinido'] = $eval['requiere_indefinido'];
+            $filas[] = array_merge($f, RenovacionReglas::estadoVigencia($eval['vigencia_fin'], $hoy));
         }
 
         usort($filas, static fn(array $a, array $b): int => $a['dias_restantes'] <=> $b['dias_restantes']);
@@ -154,7 +155,7 @@ class RenovacionModel
 
     /**
      * Registra la siguiente renovación (RNV{n+1}) del empleado.
-     * @return array ['id' => int, 'numero' => int, 'duracion_meses' => int, 'advertencias' => string[]]
+     * @return array ['id' => int, 'numero' => int, 'duracion_meses' => int, 'duracion_texto' => string, 'advertencias' => string[]]
      */
     public static function crear(string $cedula, string $inicio, string $fin, ?string $observaciones, int $actorId, string $actorNombre): array
     {
@@ -191,12 +192,12 @@ class RenovacionModel
             self::registrarHistorial(
                 $cedula, $id, 'crear',
                 "RNV{$numero} registrada: " . RenovacionReglas::formatear($inicio) . ' a ' . RenovacionReglas::formatear($fin)
-                    . ' (' . RenovacionReglas::textoMeses($val['duracion_meses']) . ')',
+                    . ' (' . $val['duracion_texto'] . ')',
                 $actorId, $actorNombre
             );
 
             $pdo->commit();
-            return ['id' => $id, 'numero' => $numero, 'duracion_meses' => $val['duracion_meses'], 'advertencias' => $val['advertencias']];
+            return ['id' => $id, 'numero' => $numero, 'duracion_meses' => $val['duracion_meses'], 'duracion_texto' => $val['duracion_texto'], 'advertencias' => $val['advertencias']];
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
@@ -208,7 +209,7 @@ class RenovacionModel
     /**
      * Corrige las fechas u observaciones de una renovación. Solo se puede editar la ÚLTIMA
      * renovación del empleado, para no descuadrar las que vienen después.
-     * @return array ['duracion_meses' => int, 'advertencias' => string[]]
+     * @return array ['duracion_meses' => int, 'duracion_texto' => string, 'advertencias' => string[]]
      */
     public static function actualizar(int $id, string $inicio, string $fin, ?string $observaciones, int $actorId, string $actorNombre): array
     {
@@ -243,7 +244,7 @@ class RenovacionModel
             );
 
             $pdo->commit();
-            return ['duracion_meses' => $val['duracion_meses'], 'advertencias' => $val['advertencias']];
+            return ['duracion_meses' => $val['duracion_meses'], 'duracion_texto' => $val['duracion_texto'], 'advertencias' => $val['advertencias']];
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();

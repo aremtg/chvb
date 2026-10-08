@@ -541,9 +541,6 @@
   .inline-flex {
     display: inline-flex;
   }
-  .table {
-    display: table;
-  }
   .h-1\.5 {
     height: calc(var(--spacing) * 1.5);
   }
@@ -1809,6 +1806,12 @@
   @media (width >= 40rem) {
     .sm\:col-span-2 {
       grid-column: span 2 / span 2;
+    }
+    .sm\:ml-3 {
+      margin-left: calc(var(--spacing) * 3);
+    }
+    .sm\:inline {
+      display: inline;
     }
     .sm\:min-h-\[42px\] {
       min-height: 42px;
