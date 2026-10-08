@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 08-10-2026 a las 22:08:15
+-- Tiempo de generación: 09-10-2026 a las 01:45:32
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -179,37 +179,37 @@ CREATE TABLE `empleados` (
 INSERT INTO `empleados` (`cedula`, `lugar_expedicion`, `nombre`, `sexo`, `cargo`, `tipo_de_personal`, `eps`, `pension`, `arl`, `salario_basico`, `es_bombero_integral`, `tipo_jornada`, `jornada_hora_entrada`, `jornada_hora_salida`, `tipo_de_contrato`, `fecha_inicio_contrato`, `fecha_fin_contrato`, `estado`, `celular`, `correo`, `fecha_nacimiento`, `created_at`, `foto`) VALUES
 ('1005719736', 'Yopal, Casanare', 'Carlos Augusto Triana Lozano', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'OPS', NULL, '2026-10-06', 'activo', NULL, NULL, NULL, '2026-09-29 23:30:02', NULL),
 ('1006555204', 'Maní, Casanare', 'Usuario Prueba', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-10-07 00:28:58', NULL),
-('1006555838', 'Yopal, Casanare', 'Lourdes Ester Guarin Garcia', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-05', '2025-11-04', 'activo', NULL, NULL, NULL, '2026-09-23 03:32:54', NULL),
+('1006555838', 'Yopal, Casanare', 'Lourdes Ester Guarin Garcia', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-05', '2025-11-04', 'activo', NULL, NULL, '2003-02-10', '2026-09-23 03:32:54', NULL),
 ('1006556137', 'Yopal, Casanare', 'Javier David Moreno', 'M', 'Auxiliar de Extintores', 'Civil', 'Nueva EPS', NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-03-12', '2026-09-11', 'activo', '3224045766', NULL, NULL, '2026-09-23 22:46:04', NULL),
-('1006556671', 'Yopal, Casanare', 'Jhon Marco Rincon Castaño', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-01-08', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:41:28', NULL),
-('1006636306', 'Yopal, Casanare', 'Karen Lizeth Diaz Pineda', 'F', 'Auxiliar de Extintores', 'Bombero', 'Sanitas', 'Porvenir', NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-04-09', '2026-10-08', 'activo', NULL, NULL, NULL, '2026-09-23 23:07:53', NULL),
+('1006556671', 'Yopal, Casanare', 'Jhon Marco Rincon Castaño', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-01-08', NULL, 'activo', NULL, NULL, '2003-06-12', '2026-09-23 03:41:28', NULL),
+('1006636306', 'Yopal, Casanare', 'Karen Lizeth Diaz Pineda', 'F', 'Auxiliar de Extintores', 'Bombero', 'Sanitas', 'Porvenir', NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-04-09', '2026-10-08', 'activo', NULL, NULL, '2001-04-24', '2026-09-23 23:07:53', NULL),
 ('1007013786', 'Yopal, Casanare', 'Laura Sofia Cisneros Arango', 'F', 'Auxiliar administrativo', 'Civil', NULL, NULL, NULL, 1750905.00, 0, 'Administrativa', NULL, NULL, 'SENA', NULL, NULL, 'activo', '3144823073', NULL, '2002-09-21', '2026-10-07 19:56:37', NULL),
 ('1007703611', 'Yopal, Casanare', 'Eduard Yecid Largo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-04-05', '2027-04-04', 'activo', NULL, NULL, '1995-11-15', '2026-09-29 21:01:48', NULL),
-('1019024577', 'Yopal, Casanare', 'Nohora Rocio Duran Torres', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:07:51', NULL),
-('1029643799', 'Yopal, Casanare', 'Samuel Santiago Fonseca Patarroyo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-07', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:09:04', NULL),
+('1019024577', 'Yopal, Casanare', 'Nohora Rocio Duran Torres', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-01', NULL, 'activo', NULL, NULL, '1988-05-29', '2026-09-23 18:07:51', NULL),
+('1029643799', 'Yopal, Casanare', 'Samuel Santiago Fonseca Patarroyo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-07', NULL, 'activo', NULL, NULL, '2005-11-15', '2026-09-23 18:09:04', NULL),
 ('1029661794', 'Yopal, Casanare', 'Darwin Camilo Bedoya Gutierrez', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-07', NULL, 'activo', NULL, NULL, '2007-09-22', '2026-09-23 18:08:27', NULL),
 ('1115911058', 'Yopal, Casanare', 'Edwar Santiago Alfonso Ducon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-08-01', NULL, 'activo', NULL, NULL, '2006-01-27', '2026-09-23 18:06:47', NULL),
 ('1115913555', 'Yopal, Casanare', 'Wilder Andrey Chaparro Chaparro', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2026-01-01', NULL, 'activo', NULL, NULL, '1991-11-28', '2026-09-23 03:43:10', NULL),
 ('1116043143', 'Yopal, Casanare', 'Lina Maria Aponte Fonseca', 'F', 'Auxiliar SST', 'Civil', 'Sanitas', NULL, 'Positiva', 1964430.00, 0, 'Administrativa', NULL, NULL, 'Fijo', '2024-05-15', '2024-08-14', 'activo', NULL, NULL, '1997-11-10', '2026-09-25 02:25:10', NULL),
 ('1116552720', 'Yopal, Casanare', 'Juan Fernando Dominguez Ibarguen', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-01-08', NULL, 'activo', NULL, NULL, '1997-02-10', '2026-09-23 03:38:48', NULL),
-('1116992974', 'Sabanalarga, Casanare', 'Angelica Alfonso Alfonso', 'F', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2025-04-11', '2025-10-10', 'activo', NULL, NULL, NULL, '2026-10-06 16:43:12', NULL),
-('1118198423', 'Yopal, Casanare', 'Carlos Hugo Cubides Villalba', 'M', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-02-04', '2025-05-03', 'activo', NULL, NULL, NULL, '2026-10-03 03:22:07', NULL),
-('1118529611', 'Yopal, Casanare', 'Jimmy Alejandro Garcia Chinchilla', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-03-22', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 02:08:05', NULL),
+('1116992974', 'Sabanalarga, Casanare', 'Angelica Alfonso Alfonso', 'F', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2025-04-11', '2025-10-10', 'no activo', NULL, NULL, '1996-09-02', '2026-10-06 16:43:12', NULL),
+('1118198423', 'Yopal, Casanare', 'Carlos Hugo Cubides Villalba', 'M', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-02-04', '2025-05-03', 'activo', NULL, NULL, '1996-04-26', '2026-10-03 03:22:07', NULL),
+('1118529611', 'Yopal, Casanare', 'Jimmy Alejandro Garcia Chinchilla', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-03-22', NULL, 'activo', NULL, NULL, '1986-04-07', '2026-09-23 02:08:05', NULL),
 ('1118530819', 'Yopal, Casanare', 'Omar David Linares Alvarez', 'M', 'Auxiliar de contaduría', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2025-10-01', '2026-04-30', 'activo', '3005484351', NULL, NULL, '2026-09-29 23:32:41', 'hv_1118530819/perfil/foto.jpg'),
-('1118534974', 'Yopal, Casanare', 'Soraida Sepulveda Gordillo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-04-15', '2026-10-14', 'activo', NULL, NULL, NULL, '2026-09-23 03:25:05', NULL),
-('1118536550', 'Yopal, Casanare', 'Rodrigo Hernan Ramirez Morales', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-10-01', '2025-03-31', 'activo', NULL, NULL, NULL, '2026-10-05 21:13:59', NULL),
+('1118534974', 'Yopal, Casanare', 'Soraida Sepulveda Gordillo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-04-15', '2026-10-14', 'activo', NULL, NULL, '1987-04-15', '2026-09-23 03:25:05', NULL),
+('1118536550', 'Yopal, Casanare', 'Rodrigo Hernan Ramirez Morales', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-10-01', '2025-03-31', 'activo', NULL, NULL, '1987-11-03', '2026-10-05 21:13:59', NULL),
 ('1118543385', 'Yopal, Casanare', 'Lewis Arfrey Ardila Achagua', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-01', '2025-11-30', 'activo', NULL, NULL, '1989-11-28', '2026-09-23 03:30:44', NULL),
-('1118544837', 'Yopal, Casanare', 'José Ferney Rodriguez Barrera', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2015-12-01', '2016-11-30', 'activo', NULL, NULL, NULL, '2026-09-23 02:05:57', NULL),
+('1118544837', 'Yopal, Casanare', 'José Ferney Rodriguez Barrera', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2015-12-01', '2016-11-30', 'activo', NULL, NULL, '1990-07-25', '2026-09-23 02:05:57', NULL),
 ('1118547243', 'Yopal, Casanare', 'Tito Enrique Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2019-01-15', NULL, 'activo', NULL, NULL, '1991-04-21', '2026-09-23 01:11:57', NULL),
 ('1118547356', 'Yopal, Casanare', 'Adriana Marcela Galan Hernandez', 'F', 'Director administrativo y financiero', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-08-10', '2026-09-30', 'no activo', NULL, NULL, NULL, '2026-10-06 15:10:32', NULL),
-('1118550799', 'Yopal, Casanare', 'Deyna Yurany Torres Cuervo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-01-17', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:27:52', NULL),
+('1118550799', 'Yopal, Casanare', 'Deyna Yurany Torres Cuervo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-01-17', NULL, 'activo', NULL, NULL, '1992-05-01', '2026-09-23 03:27:52', NULL),
 ('1118555586', 'Yopal, Casanare', 'Angel Gabriel Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2021-09-24', NULL, 'activo', '3133691214', NULL, '1993-10-05', '2026-09-23 02:06:39', 'hv_1118555586/perfil/foto.png'),
 ('1118564532', 'Yopal, Casanare', 'Astrid Mariana Aquite Gómez', 'F', 'Auxiliar en Talento Humano', 'Bombero', 'Nueva EPS', 'Colfondos', 'Positiva', 1964430.00, 1, 'Restringida', '08:00:00', '12:00:00', 'Fijo', '2024-02-15', '2024-08-15', 'activo', '3209308877', NULL, '1996-04-13', '2026-09-23 00:46:12', NULL),
-('1118564997', 'Yopal, Casanare', 'Kewin Alexis Adan Jeronimo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', NULL, NULL, 'no activo', NULL, NULL, NULL, '2026-09-23 03:18:30', NULL),
-('1118565906', 'Yopal, Casanare', 'Jeidi Carolina Acevedo Lopez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-11-12', '2026-05-11', 'activo', NULL, NULL, NULL, '2026-09-23 03:44:42', NULL),
-('1118565958', 'Yopal, Casanare', 'Yeritsa Tatiana Egue Chaparro', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-11-27', NULL, 'activo', NULL, NULL, NULL, '2026-09-30 15:04:28', NULL),
-('1118567328', 'Yopal, Casanare', 'Nelson Fabian Chaparro Rincon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2016-02-11', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:11:40', NULL),
-('1118572004', 'Yopal, Casanare', 'Luisa Fernanda Abril Bernal', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-09-05', NULL, 'activo', NULL, NULL, NULL, '2026-09-30 15:01:28', NULL),
+('1118564997', 'Yopal, Casanare', 'Kewin Alexis Adan Jeronimo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', NULL, NULL, 'no activo', NULL, NULL, '1996-05-30', '2026-09-23 03:18:30', NULL),
+('1118565906', 'Yopal, Casanare', 'Jeidi Carolina Acevedo Lopez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-11-12', '2026-05-11', 'activo', NULL, NULL, '1996-08-26', '2026-09-23 03:44:42', NULL),
+('1118565958', 'Yopal, Casanare', 'Yeritsa Tatiana Egue Chaparro', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-11-27', NULL, 'activo', NULL, NULL, '1996-09-04', '2026-09-30 15:04:28', NULL),
+('1118567328', 'Yopal, Casanare', 'Nelson Fabian Chaparro Rincon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2016-02-11', NULL, 'activo', NULL, NULL, '1997-02-10', '2026-09-23 18:11:40', NULL),
+('1118572004', 'Yopal, Casanare', 'Luisa Fernanda Abril Bernal', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-09-05', NULL, 'activo', NULL, NULL, '1998-08-26', '2026-09-30 15:01:28', NULL),
 ('1118573216', 'Yopal, Casanare', 'Camilo Andres Corredor Garcia', 'M', 'Maquinista', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-11-01', '2025-04-30', 'activo', NULL, NULL, '1999-01-17', '2026-09-23 03:22:10', NULL),
 ('1118575006', 'Yopal, Casanare', 'Angela Brithey Maldonado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-16', '2025-11-15', 'activo', NULL, NULL, '1999-08-24', '2026-09-23 03:37:51', NULL),
 ('1118775342', 'Yopal, Casanare', 'Daniel Fernando Gutierrez Riaño', 'M', 'Bombero integral', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', 0.00, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-01-17', '2025-01-17', 'activo', NULL, NULL, '1993-03-12', '2026-09-23 01:04:54', NULL),
@@ -217,26 +217,26 @@ INSERT INTO `empleados` (`cedula`, `lugar_expedicion`, `nombre`, `sexo`, `cargo`
 ('1121898640', 'Villavicencio, Meta', 'Arlyn Johanna Sanchez Gutierrez', 'F', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 22:47:28', NULL),
 ('1124989349', 'Aguazul, Casanare', 'Tatiana Andrea Guzman Galindo', 'F', 'Practicante Fundetec', 'Civil', 'Capresoca', 'NA', 'Positiva', NULL, 0, 'Administrativa', NULL, NULL, 'No aplica', '2026-05-04', NULL, 'activo', '3229496595', 'tgz57031@gmail.com', '2003-04-13', '2026-09-22 01:48:16', 'hv_1124989349/perfil/foto.jpg'),
 ('1143954094', 'Yopal, Casanare', 'Jonnathan Alexander Daza Barrera', 'M', 'Secretario recaudador', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '1993-02-02', '2026-09-25 02:29:26', NULL),
-('16672796', 'Yopal, Casanare', 'Juan Carlos Santacoloma Piedrahita', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-15', '2025-11-14', 'activo', NULL, NULL, NULL, '2026-09-23 03:35:08', NULL),
-('33445352', 'Yopal, Casanare', 'Gladys Escobar De Hernandez', 'F', 'Revisor(a) fiscal', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-01-01', '2027-01-01', 'activo', NULL, NULL, NULL, '2026-10-07 19:41:51', NULL),
+('16672796', 'Yopal, Casanare', 'Juan Carlos Santacoloma Piedrahita', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-15', '2025-11-14', 'activo', NULL, NULL, '1962-08-27', '2026-09-23 03:35:08', NULL),
+('33445352', 'Yopal, Casanare', 'Gladys Escobar De Hernandez', 'F', 'Revisor(a) fiscal', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-01-01', '2027-01-01', 'activo', NULL, NULL, '1951-07-13', '2026-10-07 19:41:51', NULL),
 ('4284762', 'Yopal, Casanare', 'Jose Manuel Gutierrez Teatin', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '1999-08-20', NULL, 'activo', NULL, NULL, '1970-09-29', '2026-09-23 18:03:27', NULL),
-('47428604', 'Nunchía, Casanare', 'Graciela Garcia Chinchilla', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2010-02-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:57:55', NULL),
-('47430097', 'Yopal, Casanare', 'Sthella Gutierrez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2007-12-04', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:01:10', NULL),
-('47431008', 'Yopal, Casanare', 'Romelia Medina Martinez', 'F', 'Servicios Generales', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, '2027-02-04', 'activo', NULL, NULL, NULL, '2026-10-06 15:32:04', NULL),
+('47428604', 'Nunchía, Casanare', 'Graciela Garcia Chinchilla', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2010-02-01', NULL, 'activo', NULL, NULL, '1968-07-26', '2026-09-23 17:57:55', NULL),
+('47430097', 'Yopal, Casanare', 'Sthella Gutierrez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2007-12-04', NULL, 'activo', NULL, NULL, '1972-05-12', '2026-09-23 18:01:10', NULL),
+('47431008', 'Yopal, Casanare', 'Romelia Medina Martinez', 'F', 'Servicios Generales', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2019-02-18', '2020-02-18', 'activo', NULL, NULL, '1973-03-03', '2026-10-06 15:32:04', NULL),
 ('47441163', 'Yopal, Casanare', 'Sandra Milena Castaño Vargas', 'F', 'Administrativo', 'Civil', 'Sanitas', 'Porvenir', 'Positiva', 2071830.00, 0, 'Administrativa', NULL, NULL, 'Fijo', '2024-02-13', '2024-08-12', 'activo', NULL, NULL, '1983-06-13', '2026-09-23 00:56:25', NULL),
-('47441979', 'Yopal, Casanare', 'Angela Maria Moreno', 'F', 'Subcomandante', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-29 21:33:52', 'hv_47441979/perfil/foto.jpg'),
+('47441979', 'Yopal, Casanare', 'Angela Maria Moreno', 'F', 'Subcomandante', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, '1983-06-09', '2026-09-29 21:33:52', 'hv_47441979/perfil/foto.jpg'),
 ('52308103', 'Yopal, Casanare', 'Fanny Paola Mercado Delgado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2022-07-07', NULL, 'activo', NULL, NULL, '1975-10-14', '2026-09-23 18:10:43', NULL),
-('7180789', 'Yopal, Casanare', 'Hector Favian Auzaque Parra', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2008-03-10', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 03:45:50', NULL),
-('7254795', 'Yopal, Casanare', 'Yobanis Alberto Castrillon Cano', 'M', 'Maquinista', 'Bombero', NULL, 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-07-01', '2025-06-30', 'activo', NULL, NULL, NULL, '2026-09-29 20:58:48', NULL),
+('7180789', 'Yopal, Casanare', 'Hector Favian Auzaque Parra', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2008-03-10', NULL, 'activo', NULL, NULL, '1982-02-11', '2026-09-23 03:45:50', NULL),
+('7254795', 'Yopal, Casanare', 'Yobanis Alberto Castrillon Cano', 'M', 'Maquinista', 'Bombero', NULL, 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-07-01', '2025-06-30', 'activo', NULL, NULL, '1980-10-12', '2026-09-29 20:58:48', NULL),
 ('74770870', 'Yopal, Casanare', 'Ariosto Castelblanco Zorro', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2008-06-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:56:03', NULL),
 ('74814305', 'Yopal, Casanare', 'Nelson Morales Cubides', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Indefinido', '2007-11-01', NULL, 'activo', NULL, NULL, '1979-11-14', '2026-09-23 18:04:03', NULL),
-('74859815', 'Yopal, Casanare', 'Waldo Ramirez Avila', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2005-01-11', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:04:43', NULL),
+('74859815', 'Yopal, Casanare', 'Waldo Ramirez Avila', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2005-01-11', NULL, 'activo', NULL, NULL, '1977-08-15', '2026-09-23 18:04:43', NULL),
 ('74861664', 'Yopal, Casanare', 'Guillermo Enrique Guarin Fonseca', 'M', 'Director Académico', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, NULL, 'activo', '3123878482', NULL, '1979-09-25', '2026-09-25 02:19:35', 'hv_74861664/perfil/foto.png'),
-('74861711', 'Yopal, Casanare', 'Wilmar Vargas Teatin', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 18:05:33', NULL),
+('74861711', 'Yopal, Casanare', 'Wilmar Vargas Teatin', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, '1979-01-27', '2026-09-23 18:05:33', NULL),
 ('80033385', 'Yopal, Casanare', 'Jorge Antonio Segura Poveda', 'M', 'Conductor de ambulancia', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-09-26', '2026-12-25', 'activo', '3212038841', NULL, '1982-05-13', '2026-09-25 02:02:05', 'hv_80033385/perfil/foto.png'),
-('9433076', 'Yopal, Casanare', 'Rafael Rojas Rico', 'M', 'Comandante de estación', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', 7046.33, 1, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', '3216547896', NULL, NULL, '2026-09-29 21:05:27', 'hv_9433076/perfil/foto.jpg'),
-('9434678', 'Yopal, Casanare', 'Jose Alejandro Fernandez Cardenas', 'M', 'Tecnico archivista', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2015-12-01', '2016-11-30', 'activo', NULL, NULL, NULL, '2026-10-05 20:04:25', NULL),
-('9656509', 'Yopal, Casanare', 'Jose Orlando Gonzalez Gonzales', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2013-02-26', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:59:42', NULL),
+('9433076', 'Yopal, Casanare', 'Rafael Rojas Rico', 'M', 'Comandante de estación', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', 7046.33, 1, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', '3216547896', NULL, '1984-06-21', '2026-09-29 21:05:27', 'hv_9433076/perfil/foto.jpg'),
+('9434678', 'Yopal, Casanare', 'Jose Alejandro Fernandez Cardenas', 'M', 'Tecnico archivista', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2015-12-01', '2016-11-30', 'activo', NULL, NULL, '1985-11-14', '2026-10-05 20:04:25', NULL),
+('9656509', 'Yopal, Casanare', 'Jose Orlando Gonzalez Gonzales', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2013-02-26', NULL, 'activo', NULL, NULL, '1967-12-13', '2026-09-23 17:59:42', NULL),
 ('9658799', 'Yopal, Casanare', 'Javier Fernando Fuquen Calderon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2009-04-01', NULL, 'activo', NULL, NULL, '1971-12-05', '2026-09-23 17:57:02', NULL);
 
 -- --------------------------------------------------------
@@ -583,6 +583,29 @@ CREATE TABLE `renovaciones_auditoria` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `renovaciones_avisos`
+--
+
+CREATE TABLE `renovaciones_avisos` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `cedula` varchar(10) NOT NULL,
+  `vigencia_fin` date NOT NULL COMMENT 'Fecha de vencimiento a la que corresponde el aviso',
+  `tipo` enum('por_vencer','vencido') NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `renovaciones_avisos`
+--
+
+INSERT INTO `renovaciones_avisos` (`id`, `cedula`, `vigencia_fin`, `tipo`, `created_at`) VALUES
+(1, '1006556137', '2026-09-11', 'vencido', '2026-10-08 22:16:14'),
+(2, '1005719736', '2026-10-06', 'vencido', '2026-10-08 22:16:14'),
+(3, '1118534974', '2026-10-14', 'por_vencer', '2026-10-08 22:16:14');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `renovaciones_contrato`
 --
 
@@ -593,6 +616,8 @@ CREATE TABLE `renovaciones_contrato` (
   `fecha_inicio` date NOT NULL,
   `fecha_fin` date NOT NULL,
   `duracion_meses` smallint(5) UNSIGNED NOT NULL COMMENT 'Calculada al guardar (meses completos, redondeando hacia arriba)',
+  `segun_historico` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = registrada tal cual el soporte histórico',
+  `incluye_tiempo_previo` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = incluir en el acumulado el tiempo entre este periodo y el anterior',
   `observaciones` varchar(500) DEFAULT NULL,
   `creado_por` int(11) DEFAULT NULL COMMENT 'usuarios.id al momento de crear (sin FK a propósito)',
   `creado_por_nombre` varchar(50) DEFAULT NULL,
@@ -604,8 +629,16 @@ CREATE TABLE `renovaciones_contrato` (
 -- Volcado de datos para la tabla `renovaciones_contrato`
 --
 
-INSERT INTO `renovaciones_contrato` (`id`, `cedula`, `numero`, `fecha_inicio`, `fecha_fin`, `duracion_meses`, `observaciones`, `creado_por`, `creado_por_nombre`, `created_at`, `updated_at`) VALUES
-(1, '1006636306', 1, '2026-10-09', '2027-04-08', 6, NULL, 3, 'Talento', '2026-10-08 00:49:52', '2026-10-08 00:49:52');
+INSERT INTO `renovaciones_contrato` (`id`, `cedula`, `numero`, `fecha_inicio`, `fecha_fin`, `duracion_meses`, `segun_historico`, `incluye_tiempo_previo`, `observaciones`, `creado_por`, `creado_por_nombre`, `created_at`, `updated_at`) VALUES
+(1, '1006636306', 1, '2026-10-09', '2027-04-08', 6, 0, 0, NULL, 3, 'Talento', '2026-10-08 00:49:52', '2026-10-08 00:49:52'),
+(3, '47431008', 1, '2020-02-18', '2021-02-18', 13, 1, 0, NULL, 3, 'Talento', '2026-10-08 21:37:34', '2026-10-08 21:44:49'),
+(4, '47431008', 2, '2021-02-18', '2022-02-18', 13, 1, 0, NULL, 3, 'Talento', '2026-10-08 21:45:20', '2026-10-08 21:45:20'),
+(5, '47431008', 3, '2022-02-18', '2023-02-18', 13, 1, 0, NULL, 3, 'Talento', '2026-10-08 21:45:48', '2026-10-08 21:45:48'),
+(6, '47431008', 4, '2023-02-18', '2024-02-18', 13, 1, 0, NULL, 3, 'Talento', '2026-10-08 22:07:43', '2026-10-08 22:07:43'),
+(7, '47431008', 5, '2024-02-18', '2025-02-17', 12, 1, 0, NULL, 3, 'Talento', '2026-10-08 22:07:57', '2026-10-08 22:08:10'),
+(8, '47431008', 6, '2025-02-18', '2026-02-17', 12, 0, 0, NULL, 3, 'Talento', '2026-10-08 22:08:21', '2026-10-08 22:08:21'),
+(10, '47431008', 7, '2026-02-18', '2027-02-17', 12, 0, 0, NULL, 3, 'Talento', '2026-10-08 22:10:52', '2026-10-08 22:10:52'),
+(12, '1118534974', 1, '2026-10-15', '2027-10-14', 12, 0, 0, NULL, 3, 'Talento', '2026-10-08 22:25:45', '2026-10-08 22:25:45');
 
 -- --------------------------------------------------------
 
@@ -629,7 +662,35 @@ CREATE TABLE `renovaciones_historial` (
 --
 
 INSERT INTO `renovaciones_historial` (`id`, `cedula`, `renovacion_id`, `accion`, `detalle`, `actor_id`, `actor_nombre`, `created_at`) VALUES
-(1, '1006636306', 1, 'crear', 'RNV1 registrada: 09/10/2026 a 08/04/2027 (6 meses)', 3, 'Talento', '2026-10-08 00:49:52');
+(1, '1006636306', 1, 'crear', 'RNV1 registrada: 09/10/2026 a 08/04/2027 (6 meses)', 3, 'Talento', '2026-10-08 00:49:52'),
+(2, '47431008', 2, 'crear', 'RNV1 registrada: 18/02/2020 a 18/02/2021 (1 año y 1 día) (fechas según soporte histórico)', 2, 'Tatiana', '2026-10-08 21:31:31'),
+(3, '47431008', 2, 'eliminar', 'RNV1 eliminada: 18/02/2020 a 18/02/2021', 3, 'Talento', '2026-10-08 21:36:58'),
+(4, '47431008', 3, 'crear', 'RNV1 registrada: 18/02/2020 a 18/02/2021 (1 año y 1 día) (según histórico)', 3, 'Talento', '2026-10-08 21:37:34'),
+(5, '47431008', 3, 'editar', 'RNV1 editada: antes 18/02/2020 a 18/02/2021, ahora 17/02/2020 a 18/02/2021 (según histórico)', 3, 'Talento', '2026-10-08 21:44:24'),
+(6, '47431008', 3, 'editar', 'RNV1 editada: antes 17/02/2020 a 18/02/2021, ahora 18/02/2020 a 18/02/2021 (según histórico)', 3, 'Talento', '2026-10-08 21:44:49'),
+(7, '47431008', 4, 'crear', 'RNV2 registrada: 18/02/2021 a 18/02/2022 (1 año y 1 día) (según histórico)', 3, 'Talento', '2026-10-08 21:45:20'),
+(8, '47431008', 5, 'crear', 'RNV3 registrada: 18/02/2022 a 18/02/2023 (1 año y 1 día) (según histórico)', 3, 'Talento', '2026-10-08 21:45:48'),
+(9, '47431008', 6, 'crear', 'RNV4 registrada: 18/02/2023 a 18/02/2024 (1 año y 1 día) (según histórico)', 3, 'Talento', '2026-10-08 22:07:43'),
+(10, '47431008', 7, 'crear', 'RNV5 registrada: 18/02/2024 a 18/02/2025 (1 año y 1 día) (según histórico)', 3, 'Talento', '2026-10-08 22:07:57'),
+(11, '47431008', 7, 'editar', 'RNV5 editada: antes 18/02/2024 a 18/02/2025, ahora 18/02/2024 a 17/02/2025 (según histórico)', 3, 'Talento', '2026-10-08 22:08:10'),
+(12, '47431008', 8, 'crear', 'RNV6 registrada: 18/02/2025 a 17/02/2026 (1 año)', 3, 'Talento', '2026-10-08 22:08:21'),
+(13, '47431008', 9, 'crear', 'RNV7 registrada: 18/02/2026 a 17/02/2027 (1 año)', 3, 'Talento', '2026-10-08 22:08:32'),
+(14, '47431008', 9, 'eliminar', 'RNV7 eliminada: 18/02/2026 a 17/02/2027', 3, 'Talento', '2026-10-08 22:08:41'),
+(15, '47431008', 10, 'crear', 'RNV7 registrada: 18/02/2026 a 17/02/2027 (1 año)', 3, 'Talento', '2026-10-08 22:10:52'),
+(16, '1006636306', 11, 'crear', 'RNV2 registrada: 09/04/2027 a 17/10/2029 (2 años, 6 meses y 9 días)', 3, 'Talento', '2026-10-08 22:24:22'),
+(17, '1006636306', 11, 'eliminar', 'RNV2 eliminada: 09/04/2027 a 17/10/2029', 3, 'Talento', '2026-10-08 22:25:16'),
+(18, '1118534974', 12, 'crear', 'RNV1 registrada: 15/10/2026 a 14/10/2027 (1 año)', 3, 'Talento', '2026-10-08 22:25:45'),
+(19, '1118544837', 13, 'crear', 'RNV1 registrada: 01/12/2025 a 30/11/2026 (1 año)', 3, 'Talento', '2026-10-08 22:29:26'),
+(20, '1118544837', 14, 'crear', 'RNV2 registrada: 01/12/2026 a 30/11/2027 (1 año)', 3, 'Talento', '2026-10-08 22:29:42'),
+(21, '1118544837', 14, 'eliminar', 'RNV2 eliminada: 01/12/2026 a 30/11/2027', 3, 'Talento', '2026-10-08 22:29:45'),
+(22, '1118544837', 13, 'eliminar', 'RNV1 eliminada: 01/12/2025 a 30/11/2026', 3, 'Talento', '2026-10-08 22:29:47'),
+(23, '1118544837', 15, 'crear', 'RNV1 registrada: 01/12/2025 a 01/12/2027 (2 años y 1 día)', 3, 'Talento', '2026-10-08 22:30:33'),
+(24, '1118544837', 15, 'editar', 'RNV1 editada: antes 01/12/2025 a 01/12/2027, ahora 01/12/2025 a 01/12/2026', 3, 'Talento', '2026-10-08 22:31:18'),
+(25, '1118544837', 15, 'editar', 'RNV1 editada: antes 01/12/2025 a 01/12/2026, ahora 01/12/2025 a 30/12/2026', 3, 'Talento', '2026-10-08 22:31:42'),
+(26, '1118544837', 15, 'editar', 'RNV1 editada: antes 01/12/2025 a 30/12/2026, ahora 01/12/2025 a 30/11/2026', 3, 'Talento', '2026-10-08 22:31:51'),
+(27, '1118544837', 15, 'editar', 'RNV1 editada: antes 01/12/2025 a 30/11/2026, ahora 01/12/2025 a 30/11/2026. Según histórico: activado', 3, 'Talento', '2026-10-08 22:32:13'),
+(28, '1118544837', 15, 'editar', 'RNV1 editada: antes 01/12/2025 a 30/11/2026, ahora 01/12/2025 a 30/11/2026 (según histórico)', 3, 'Talento', '2026-10-08 22:32:36'),
+(29, '1118544837', 15, 'eliminar', 'RNV1 eliminada: 01/12/2025 a 30/11/2026', 3, 'Talento', '2026-10-08 22:32:55');
 
 -- --------------------------------------------------------
 
@@ -805,6 +866,13 @@ ALTER TABLE `renovaciones_auditoria`
   ADD KEY `idx_aud_fecha` (`created_at`);
 
 --
+-- Indices de la tabla `renovaciones_avisos`
+--
+ALTER TABLE `renovaciones_avisos`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_renaviso` (`cedula`,`vigencia_fin`,`tipo`);
+
+--
 -- Indices de la tabla `renovaciones_contrato`
 --
 ALTER TABLE `renovaciones_contrato`
@@ -922,16 +990,22 @@ ALTER TABLE `renovaciones_auditoria`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `renovaciones_avisos`
+--
+ALTER TABLE `renovaciones_avisos`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+
+--
 -- AUTO_INCREMENT de la tabla `renovaciones_contrato`
 --
 ALTER TABLE `renovaciones_contrato`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `renovaciones_historial`
 --
 ALTER TABLE `renovaciones_historial`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
@@ -972,6 +1046,12 @@ ALTER TABLE `funciones_certificados`
 --
 ALTER TABLE `renovaciones`
   ADD CONSTRAINT `fk_renovaciones_empleado` FOREIGN KEY (`cedula_empleado`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `renovaciones_avisos`
+--
+ALTER TABLE `renovaciones_avisos`
+  ADD CONSTRAINT `fk_renaviso_empleado` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `renovaciones_contrato`

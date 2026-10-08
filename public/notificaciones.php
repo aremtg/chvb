@@ -44,7 +44,7 @@ $notificaciones = NotificacionModel::listar();
                     class="p-6 text-sm text-gray-600 <?= !empty($notificaciones) ? 'hidden' : '' ?>">No hay
                     notificaciones.</p>
                 <ul class="divide-y divide-gray-100" id="listaNotificaciones"
-                    data-ultimo-id="<?= !empty($notificaciones) ? (int) $notificaciones[0]['id'] : 0 ?>">
+                    data-ultimo-id="<?= !empty($notificaciones) ? (int) max(array_column($notificaciones, 'id')) : 0 ?>">
                     <?php foreach ($notificaciones as $n): ?>
                         <li id="notif-<?= $n['id'] ?>" data-leida="<?= $n['leida'] ?>" class="p-4 flex justify-between items-start gap-3 border-l-4 transition-colors
                         <?= $n['leida'] ? 'border-transparent bg-white' : 'border-blue-500 bg-blue-50' ?>">
@@ -59,7 +59,7 @@ $notificaciones = NotificacionModel::listar();
                                             <a href="<?= htmlspecialchars($n['enlace']) ?>"
                                                 onclick="marcarLeidaPorEnlace(<?= $n['id'] ?>)"
                                                 class="text-red-600 hover:underline">
-                                                <?= (str_contains($n['enlace'], 'permiso_ver.php') || str_contains($n['enlace'], 'permisos_th.php')) ? 'Ver permiso' : (str_contains($n['enlace'], 'documentos_ver.php') ? 'Ver PDF' : (str_contains($n['enlace'], 'libro.php') ? 'Ver bolsillo' : 'Ver empleado')) ?>
+                                                <?= (str_contains($n['enlace'], 'permiso_ver.php') || str_contains($n['enlace'], 'permisos_th.php')) ? 'Ver permiso' : (str_contains($n['enlace'], 'documentos_ver.php') ? 'Ver PDF' : (str_contains($n['enlace'], 'libro.php') ? 'Ver bolsillo' : (str_contains($n['enlace'], 'renovaciones_empleado.php') ? 'Ver renovaciones' : 'Ver empleado'))) ?>
                                             </a>
                                         <?php endif; ?>
                                     </p>

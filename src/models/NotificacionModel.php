@@ -30,7 +30,7 @@ class NotificacionModel
         self::purgarExpiradas();
         self::normalizarNotificacionesCompartidasTalentoHumano();
         $pdo = getPDO();
-        $stmt = $pdo->prepare("SELECT * FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND usuario_id = :usuario_id ORDER BY created_at DESC");
+        $stmt = $pdo->prepare("SELECT * FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND usuario_id = :usuario_id ORDER BY created_at DESC, id DESC");
         $stmt->execute(['usuario_id' => (int)($_SESSION['superadmin_id'] ?? 0)]);
         return $stmt->fetchAll();
     }

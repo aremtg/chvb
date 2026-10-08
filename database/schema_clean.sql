@@ -1,15 +1,16 @@
--- CHVB - Esquema limpio de producción (sin datos)
+-- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Generado a partir del esquema actual, eliminando datos INSERT y contadores AUTO_INCREMENT heredados.
+-- Tiempo de generación: 09-10-2026 a las 01:43:46
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -53,51 +54,6 @@ CREATE TABLE `cargos` (
   `nombre` varchar(100) NOT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
---
-
---
--- Volcado de datos para la tabla `cargos`
---
-
-INSERT INTO `cargos` (`nombre`) VALUES
-  ('Auxiliar en Talento Humano'),
-  ('Director de talento humano'),
-  ('Auxiliar de Extintores'),
-  ('Enfermero/a'),
-  ('Practicante Sena'),
-  ('Practicante Fundetec'),
-  ('Practicante otra entidad'),
-  ('Servicios Generales'),
-  ('Maquinista'),
-  ('Guardia'),
-  ('Recepcionista'),
-  ('Administrativo'),
-  ('Auxiliar administrativo'),
-  ('Director Académico'),
-  ('Director de negocios'),
-  ('Tecnico en soporte sistemas'),
-  ('Tecnico archivista'),
-  ('Coordinador SST'),
-  ('Auxiliar SST'),
-  ('Jefe de prensa'),
-  ('Contador'),
-  ('Auxiliar de contaduría'),
-  ('Almacenista'),
-  ('Supervisor'),
-  ('Coordinador de banda'),
-  ('Conductor de ambulancia'),
-  ('Aspirante'),
-  ('Voluntario'),
-  ('Secretario recaudador'),
-  ('Auxiliar de enfermería'),
-  ('Docente de banda marcial'),
-  ('PAMEC'),
-  ('Revisor(a) fiscal'),
-  ('Comandante de estación'),
-  ('Directora administrativa y financiera'),
-  ('Bombero integral');
 
 -- --------------------------------------------------------
 
@@ -159,9 +115,6 @@ CREATE TABLE `empleados` (
   `foto` varchar(255) DEFAULT NULL COMMENT 'Ruta relativa dentro de uploads/'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
---
-
 -- --------------------------------------------------------
 
 --
@@ -174,9 +127,6 @@ CREATE TABLE `festivos_colombia` (
   `nombre` varchar(150) NOT NULL,
   `anio` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
---
 
 -- --------------------------------------------------------
 
@@ -363,6 +313,104 @@ CREATE TABLE `permisos_historial` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `renovaciones`
+--
+
+CREATE TABLE `renovaciones` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `cedula_empleado` varchar(10) NOT NULL,
+  `numero` tinyint(3) UNSIGNED NOT NULL COMMENT '1 = RNV1, 2 = RNV2, ... (sin tope fijo)',
+  `fecha_inicio` date NOT NULL,
+  `fecha_fin` date NOT NULL,
+  `duracion_meses` smallint(5) UNSIGNED NOT NULL COMMENT 'Duración REAL registrada; coherente con las fechas',
+  `es_historica` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = renovación anterior al sistema, registrada después',
+  `duracion_menor_confirmada` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = era menor que la anterior y el usuario confirmó la advertencia',
+  `observaciones` text DEFAULT NULL,
+  `creado_por_id` int(11) DEFAULT NULL,
+  `creado_por_nombre` varchar(50) NOT NULL,
+  `creado_por_rol` varchar(40) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `modificado_por_id` int(11) DEFAULT NULL,
+  `modificado_por_nombre` varchar(50) DEFAULT NULL,
+  `modificado_por_rol` varchar(40) DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL
+) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `renovaciones_auditoria`
+--
+
+CREATE TABLE `renovaciones_auditoria` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `usuario_id` int(11) DEFAULT NULL,
+  `usuario_nombre` varchar(50) NOT NULL,
+  `usuario_rol` varchar(40) NOT NULL,
+  `accion` varchar(50) NOT NULL,
+  `cedula_empleado` varchar(10) DEFAULT NULL,
+  `renovacion_id` int(10) UNSIGNED DEFAULT NULL,
+  `detalle` longtext DEFAULT NULL COMMENT 'JSON: antes/después, resumen, etc.',
+  `ip` varchar(45) DEFAULT NULL,
+  `created_at` datetime NOT NULL
+) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `renovaciones_avisos`
+--
+
+CREATE TABLE `renovaciones_avisos` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `cedula` varchar(10) NOT NULL,
+  `vigencia_fin` date NOT NULL COMMENT 'Fecha de vencimiento a la que corresponde el aviso',
+  `tipo` enum('por_vencer','vencido') NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `renovaciones_contrato`
+--
+
+CREATE TABLE `renovaciones_contrato` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `cedula` varchar(10) NOT NULL,
+  `numero` tinyint(3) UNSIGNED NOT NULL COMMENT '1 = RNV1, 2 = RNV2, ...',
+  `fecha_inicio` date NOT NULL,
+  `fecha_fin` date NOT NULL,
+  `duracion_meses` smallint(5) UNSIGNED NOT NULL COMMENT 'Calculada al guardar (meses completos, redondeando hacia arriba)',
+  `segun_historico` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = registrada tal cual el soporte histórico',
+  `incluye_tiempo_previo` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = incluir en el acumulado el tiempo entre este periodo y el anterior',
+  `observaciones` varchar(500) DEFAULT NULL,
+  `creado_por` int(11) DEFAULT NULL COMMENT 'usuarios.id al momento de crear (sin FK a propósito)',
+  `creado_por_nombre` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `renovaciones_historial`
+--
+
+CREATE TABLE `renovaciones_historial` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `cedula` varchar(10) NOT NULL,
+  `renovacion_id` int(10) UNSIGNED DEFAULT NULL,
+  `accion` enum('crear','editar','eliminar') NOT NULL,
+  `detalle` varchar(500) NOT NULL,
+  `actor_id` int(11) DEFAULT NULL,
+  `actor_nombre` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `usuarios`
 --
 
@@ -375,9 +423,6 @@ CREATE TABLE `usuarios` (
   `intentos_fallidos` int(11) DEFAULT 0,
   `bloqueado_hasta` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
---
 
 -- --------------------------------------------------------
 
@@ -511,6 +556,45 @@ ALTER TABLE `permisos_historial`
   ADD KEY `idx_permiso` (`permiso_id`);
 
 --
+-- Indices de la tabla `renovaciones`
+--
+ALTER TABLE `renovaciones`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_renovacion_empleado_numero` (`cedula_empleado`,`numero`);
+
+--
+-- Indices de la tabla `renovaciones_auditoria`
+--
+ALTER TABLE `renovaciones_auditoria`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_aud_cedula_fecha` (`cedula_empleado`,`created_at`),
+  ADD KEY `idx_aud_usuario` (`usuario_id`),
+  ADD KEY `idx_aud_accion` (`accion`),
+  ADD KEY `idx_aud_fecha` (`created_at`);
+
+--
+-- Indices de la tabla `renovaciones_avisos`
+--
+ALTER TABLE `renovaciones_avisos`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_renaviso` (`cedula`,`vigencia_fin`,`tipo`);
+
+--
+-- Indices de la tabla `renovaciones_contrato`
+--
+ALTER TABLE `renovaciones_contrato`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_renov_cedula_numero` (`cedula`,`numero`),
+  ADD KEY `idx_renov_fecha_fin` (`fecha_fin`);
+
+--
+-- Indices de la tabla `renovaciones_historial`
+--
+ALTER TABLE `renovaciones_historial`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_renhist_cedula` (`cedula`,`created_at`);
+
+--
 -- Indices de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
@@ -601,6 +685,36 @@ ALTER TABLE `permisos_historial`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `renovaciones`
+--
+ALTER TABLE `renovaciones`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `renovaciones_auditoria`
+--
+ALTER TABLE `renovaciones_auditoria`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `renovaciones_avisos`
+--
+ALTER TABLE `renovaciones_avisos`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `renovaciones_contrato`
+--
+ALTER TABLE `renovaciones_contrato`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `renovaciones_historial`
+--
+ALTER TABLE `renovaciones_historial`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
@@ -626,7 +740,7 @@ ALTER TABLE `bolsillos`
 -- Filtros para la tabla `empleados`
 --
 ALTER TABLE `empleados`
-  ADD CONSTRAINT `fk_empleados_cargo` FOREIGN KEY (`cargo`) REFERENCES `cargos` (`nombre`) ON UPDATE CASCADE ON DELETE RESTRICT;
+  ADD CONSTRAINT `fk_empleados_cargo` FOREIGN KEY (`cargo`) REFERENCES `cargos` (`nombre`) ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `funciones_certificados`
@@ -635,10 +749,28 @@ ALTER TABLE `funciones_certificados`
   ADD CONSTRAINT `fk_fcert_cargo` FOREIGN KEY (`cargo_id`) REFERENCES `cargos` (`id`) ON DELETE CASCADE;
 
 --
--- Filtros para la tabla `funciones_contratos`
+-- Filtros para la tabla `renovaciones`
 --
-ALTER TABLE `funciones_contratos`
-  ADD CONSTRAINT `fk_fcont_cargo` FOREIGN KEY (`cargo_id`) REFERENCES `cargos` (`id`) ON DELETE CASCADE;
+ALTER TABLE `renovaciones`
+  ADD CONSTRAINT `fk_renovaciones_empleado` FOREIGN KEY (`cedula_empleado`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `renovaciones_avisos`
+--
+ALTER TABLE `renovaciones_avisos`
+  ADD CONSTRAINT `fk_renaviso_empleado` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `renovaciones_contrato`
+--
+ALTER TABLE `renovaciones_contrato`
+  ADD CONSTRAINT `fk_renov_empleado` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `renovaciones_historial`
+--
+ALTER TABLE `renovaciones_historial`
+  ADD CONSTRAINT `fk_renhist_empleado` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
