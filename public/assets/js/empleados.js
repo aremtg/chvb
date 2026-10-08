@@ -504,16 +504,11 @@ function actualizarVisibilidadFechasContrato(
   const inputFin = document.getElementById(inputFinId);
   if (!select || !contenedor || !campoFin || !inputFin) return;
 
+  // Las listas vienen de EmpleadoController, inyectadas por empleados.php.
+  const tipos = window.CHVB_CONTRATOS || { todos: [], conFin: [] };
   const contrato = select.value;
-  const conFin = ["Fijo", "OPS", "SENA", "OPS SEMY"].includes(contrato);
-  const conInicio = [
-    "Fijo",
-    "Indefinido",
-    "OPS",
-    "SENA",
-    "OPS SEMY",
-    "No aplica",
-  ].includes(contrato);
+  const conFin = tipos.conFin.includes(contrato);
+  const conInicio = tipos.todos.includes(contrato);
 
   contenedor.classList.toggle("hidden", !conInicio);
   campoFin.classList.toggle("hidden", !conFin);

@@ -1,19 +1,10 @@
 <?php
-require_once __DIR__ . '/../../includes/session.php';
+require_once __DIR__ . '/../../includes/formatos_guard.php';
 require_once __DIR__ . '/../../src/models/FormatoModel.php';
 require_once __DIR__ . '/../../src/models/EmpleadoModel.php';
 
-
-
 header('Content-Type: application/json; charset=utf-8');
-requireSuperAdmin();
-
-$rolesFormatos = ['superadmin_talento_humano', 'auxiliar_talento_humano'];
-if (!in_array($_SESSION['superadmin_rol'] ?? '', $rolesFormatos, true)) {
-    http_response_code(403);
-    echo json_encode(['ok' => false, 'error' => 'No tienes permiso para usar Formatos.'], JSON_UNESCAPED_UNICODE);
-    exit;
-}
+requireFormatosAccess(true);
 
 validarCSRF();
 
@@ -276,6 +267,11 @@ try {
         'nombre' => $archivo,
         'url' => './api/formato_archivo.php?f=' . rawurlencode($archivo) . '&accion=descargar'
     ], JSON_UNESCAPED_UNICODE);
+} catch (InvalidArgumentException $e) {
+    // Errores de validación (datos faltantes, reglas de duración, tope de 4 años, etc.):
+    // sus mensajes están pensados para el usuario, así que se le muestran tal cual.
+    http_response_code(400);
+    echo json_encode(['ok' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
     error_log('formatos_renovacion_generar: ' . $e->getMessage());
     http_response_code(500);

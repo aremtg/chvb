@@ -1,0 +1,20 @@
+/* public/assets/css/renovaciones.css - estilos del módulo Control de Renovaciones */
+.ren-card{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:14px 16px;background:#fff;border:1px solid #f3f4f6;border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.04);text-align:left;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.ren-card:hover{border-color:#fecaca;box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.ren-card:focus-visible{outline:2px solid #fca5a5;outline-offset:2px}
+.ren-card.activa{border-color:#dc2626;box-shadow:0 0 0 1px #dc2626}
+.ren-card-num{font-size:24px;line-height:1.1;font-weight:700;color:#1f2937}
+.ren-card-txt{font-size:12px;color:#4b5563}
+.ren-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid}
+.ren-badge i{display:inline-block;width:6px;height:6px;border-radius:999px}
+.ren-vencido{background:#fef2f2;color:#dc2626;border-color:#fecaca}.ren-vencido i{background:#dc2626}
+.ren-por_vencer{background:#fef3c7;color:#92400e;border-color:#fde68a}.ren-por_vencer i{background:#d97706}
+.ren-vigente{background:#ecfdf5;color:#047857;border-color:#a7f3d0}.ren-vigente i{background:#059669}
+@media(min-width:1024px){.ren-solo-movil{display:none}}
+.ren-alerta{border:1px solid #fecaca;background:#fef2f2;color:#b91c1c}
+.ren-aviso{border:1px solid #fde68a;background:#fffbeb;color:#92400e}
+.ren-box{border:1px solid #f3f4f6;background:#f9fafb}
+.ren-dato-etiqueta{display:block;font-size:12px;color:#4b5563}
+.ren-modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.4)}
+.ren-modal.abierto{display:flex}
+.ren-flash-ok{border:1px solid #a7f3d0;background:#ecfdf5;color:#047857}

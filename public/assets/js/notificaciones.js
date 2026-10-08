@@ -67,6 +67,7 @@ function etiquetaEnlaceNotificacion(enlace) {
     if (enlace.includes('permiso_ver.php') || enlace.includes('permisos_th.php')) return 'Ver permiso';
     if (enlace.includes('documentos_ver.php')) return 'Ver PDF';
     if (enlace.includes('libro.php')) return 'Ver bolsillo';
+    if (enlace.includes('renovaciones_empleado.php')) return 'Ver renovaciones';
     return 'Ver empleado';
 }
 

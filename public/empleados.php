@@ -626,6 +626,13 @@ if ($filtrosActivos) {
 
     <script src="./assets/js/municipio_select.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/municipio_select.js') ?>"></script>
     <script src="./assets/js/visor_imagen.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/visor_imagen.js') ?>"></script>
+    <script>
+        // Tipos de contrato y cuáles llevan fecha de fin: vienen de EmpleadoController (única fuente).
+        window.CHVB_CONTRATOS = <?= json_encode([
+            'todos'  => EmpleadoController::$tiposDeContrato,
+            'conFin' => EmpleadoController::$contratosConFin,
+        ], JSON_UNESCAPED_UNICODE) ?>;
+    </script>
     <script src="./assets/js/empleados.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/empleados.js') ?>"></script>
 </body>
 

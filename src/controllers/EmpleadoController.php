@@ -58,6 +58,8 @@ class EmpleadoController
     public static array $epsValidas = ['Sanitas', 'Nueva EPS', 'Capresoca', 'Salud Total'];
     public static array $pensionesValidas = ['Colfondos', 'Porvenir', 'Colpensiones', 'Protección', 'NA'];
     public static array $tiposDeContrato = ['Fijo', 'Indefinido', 'OPS', 'SENA', 'OPS SEMY', 'No aplica'];
+    /** Tipos de contrato que tienen fecha de fin (los demás solo tienen fecha de inicio). Única fuente: la usan la validación y, vía empleados.php, el JS. */
+    public static array $contratosConFin = ['Fijo', 'OPS', 'SENA', 'OPS SEMY'];
     public static array $arlsValidas = ['Positiva', 'SURA', 'Colmena', 'AXA Colpatria', 'Seguros Bolívar'];
 
     /**
@@ -149,7 +151,7 @@ class EmpleadoController
 
         $fechaInicio = trim($datos['fecha_inicio_contrato'] ?? '');
         $fechaFin = trim($datos['fecha_fin_contrato'] ?? '');
-        $contratosConFin = ['Fijo', 'OPS', 'SENA', 'OPS SEMY'];
+        $contratosConFin = self::$contratosConFin;
         if ($fechaInicio !== '') {
             $d = DateTime::createFromFormat('Y-m-d', $fechaInicio);
             if (!$d || $d->format('Y-m-d') !== $fechaInicio) {
