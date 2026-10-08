@@ -12,8 +12,7 @@ try {
     $r = CertificadoModel::generar(
         (string)($_POST['tipo'] ?? 'actual'),
         trim((string)($_POST['cedula'] ?? '')),
-        (array)($_POST['funcion_ids'] ?? []),
-        isset($_SESSION['superadmin_id']) ? (int)$_SESSION['superadmin_id'] : null
+        (array)($_POST['funcion_ids'] ?? [])
     );
     echo json_encode([
         'ok' => true,

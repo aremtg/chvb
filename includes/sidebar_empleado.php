@@ -101,8 +101,4 @@ $totalPorFirmarInicial = (int)$contadoresPermisos['por_firmar'];
         if (document.visibilityState === 'visible') window.actualizarBadgeSidebarEmpleado();
     }, 8000);
 
-    if (window.location.pathname.includes('/public/') && document.getElementById('sidebarMovilEmpleado')) {
-        setInterval(() => fetch('/chvb/public/api/presencia_ping.php'), 20000);
-        fetch('/chvb/public/api/presencia_ping.php');
-    }
 </script>

@@ -2,7 +2,12 @@
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../src/models/EmpleadoModel.php';
 require_once __DIR__ . '/../src/controllers/EmpleadoController.php';
+require_once __DIR__ . '/../src/models/CargoModel.php';
+require_once __DIR__ . '/../includes/cargos_guard.php';
 requireSuperAdmin();
+
+$cargosLista = CargoModel::nombres();   // catálogo editable desde el modal «Cargos»
+$puedeGestionarCargos = puedeGestionarCargos();
 
 
 $busqueda = trim($_GET['q'] ?? '');
@@ -86,7 +91,7 @@ if ($filtrosActivos) {
 
                 <select name="cargo" class="border border-gray-300 rounded px-3 py-2 bg-white text-sm max-w-[220px]">
                     <option value="">Todos los cargos</option>
-                    <?php foreach (EmpleadoController::$cargosValidos as $c): ?>
+                    <?php foreach ($cargosLista as $c): ?>
                         <option value="<?= htmlspecialchars($c) ?>" <?= $filtros['cargo'] === $c ? 'selected' : '' ?>>
                             <?= htmlspecialchars($c) ?></option>
                     <?php endforeach; ?>
@@ -104,7 +109,16 @@ if ($filtrosActivos) {
                     class="text-sm text-gray-600 hover:text-gray-800 underline py-2 <?= $hayFiltros ? '' : 'hidden' ?>">Limpiar</a>
             </form>
 
-            <div class="flex flex-wrap items-center justify-end gap-2 mb-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <div>
+                    <?php if ($puedeGestionarCargos): ?>
+                        <button type="button" onclick="abrirModalCargos()" title="Gestionar cargos" aria-label="Gestionar cargos"
+                            class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-medium px-4 py-2 rounded-xl transition whitespace-nowrap">
+                            <?= icon('briefcase', 'w-4 h-4') ?> Cargos
+                        </button>
+                    <?php endif; ?>
+                </div>
+                <div class="flex flex-wrap items-center justify-end gap-2">
                 <a id="btnExportar" href="./api/empleados_exportar.php?<?= htmlspecialchars(http_build_query($paramsBase)) ?>"
                     class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-xl transition whitespace-nowrap">
                     <?= icon('download', 'w-4 h-4') ?> Exportar a Excel
@@ -115,6 +129,7 @@ if ($filtrosActivos) {
                         <?= icon('plus', 'w-4 h-4') ?> Nuevo Empleado
                     </button>
                 <?php endif; ?>
+                </div>
             </div>
 
             <div id="tablaEmpleados" class="bg-white rounded-lg shadow overflow-x-auto">
@@ -323,7 +338,7 @@ if ($filtrosActivos) {
                         <select name="cargo" id="crearCargo" required
                             class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white">
                             <option value="">Selecciona un cargo</option>
-                            <?php foreach (EmpleadoController::$cargosValidos as $c): ?>
+                            <?php foreach ($cargosLista as $c): ?>
                                 <option value="<?= htmlspecialchars($c) ?>"><?= htmlspecialchars($c) ?></option>
                             <?php endforeach; ?>
                         </select>
@@ -527,7 +542,7 @@ if ($filtrosActivos) {
                     <?php $prefijo = 'edit'; $requerido = false; require __DIR__ . '/../includes/empleado_lugar_expedicion.php'; ?>
                     <div class="sm:col-span-2"><label class="block text-xs text-gray-500 mb-1">Cargo <span
                                 class="text-red-600">*</span></label><select name="cargo" id="editCargo" required
-                            class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"><?php foreach (EmpleadoController::$cargosValidos as $c): ?>
+                            class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white"><?php foreach ($cargosLista as $c): ?>
                                 <option value="<?= htmlspecialchars($c) ?>"><?= htmlspecialchars($c) ?></option>
                             <?php endforeach; ?>
                         </select></div>
@@ -624,6 +639,7 @@ if ($filtrosActivos) {
         </div>
     </div>
 
+    <?php if ($puedeGestionarCargos) { require __DIR__ . '/../includes/cargos_modal.php'; } ?>
     <script src="./assets/js/municipio_select.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/municipio_select.js') ?>"></script>
     <script src="./assets/js/visor_imagen.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/visor_imagen.js') ?>"></script>
     <script>

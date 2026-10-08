@@ -61,14 +61,21 @@ class CertificadoModel
         return FuncionModel::listar('certificado', $cargoId, true);
     }
 
-    public static function recientes(int $limite = 30): array
+    /** Certificados generados, leídos de la carpeta (más recientes primero). No hay registro en BD. */
+    public static function recientes(string $directorio, int $limite = 30): array
     {
-        $st = getPDO()->prepare(
-            'SELECT consecutivo, tipo, nombre_snapshot, archivo, created_at
-             FROM certificados_laborales ORDER BY id DESC LIMIT ' . (int)$limite
-        );
-        $st->execute();
-        return $st->fetchAll();
+        if (!is_dir($directorio)) {
+            return [];
+        }
+        $archivos = glob(rtrim($directorio, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'GH-FT-10-*-CERTIFICADO LABORAL *.docx') ?: [];
+        $res = [];
+        foreach ($archivos as $ruta) {
+            if (is_file($ruta)) {
+                $res[] = ['archivo' => basename($ruta), 'fecha' => filemtime($ruta) ?: time()];
+            }
+        }
+        usort($res, static fn(array $a, array $b): int => $b['fecha'] <=> $a['fecha']);
+        return array_slice($res, 0, $limite);
     }
 
     /** 1 función: tal cual. 2 funciones: "A y B" (o "A e B" si B empieza por "i"/"hi"). */
@@ -98,13 +105,14 @@ class CertificadoModel
     }
 
     /**
-     * Genera el Word y lo registra. Consecutivo + archivo + registro van en UNA transacción:
+     * Genera el Word. Consecutivo + archivo van en UNA transacción:
      * si algo falla, el número no se consume (sin huecos en el consecutivo).
+     * El certificado NO se registra en la BD: solo queda el archivo en uploads/generados.
      *
      * @param int[] $funcionIds 1 o 2 ids de funciones_certificados
      * @return array{archivo:string,consecutivo:string}
      */
-    public static function generar(string $tipo, string $cedula, array $funcionIds, ?int $creadoPor): array
+    public static function generar(string $tipo, string $cedula, array $funcionIds): array
     {
         if (!isset(self::PLANTILLAS[$tipo])) {
             throw new InvalidArgumentException('Tipo de certificado no disponible todavía.');
@@ -184,24 +192,6 @@ class CertificadoModel
                 'fecha_expedicion' => self::fechaExpedicionTexto($hoy),
             ]);
             $proc->saveAs($ruta);
-
-            // --- registro ---
-            $pdo->prepare(
-                'INSERT INTO certificados_laborales
-                 (numero, consecutivo, tipo, cedula, nombre_snapshot, cargo_snapshot, fecha_inicio, archivo, creado_por)
-                 VALUES (?,?,?,?,?,?,?,?,?)'
-            )->execute([
-                $numero, $consecutivo, $tipo, (string)$emp['cedula'], (string)$emp['nombre'],
-                (string)$emp['cargo'], (string)$emp['fecha_inicio_contrato'], $archivo, $creadoPor,
-            ]);
-            $certId = (int)$pdo->lastInsertId();
-
-            $insF = $pdo->prepare(
-                'INSERT INTO certificados_laborales_funciones (certificado_id, posicion, funcion_id, texto_snapshot) VALUES (?,?,?,?)'
-            );
-            foreach ($ids as $i => $fid) {
-                $insF->execute([$certId, $i + 1, $fid, $textos[$i]]);
-            }
 
             $pdo->commit();
         } catch (Throwable $e) {

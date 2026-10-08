@@ -46,10 +46,6 @@ body.pm-body { background: var(--pm-page); color: var(--pm-ink); }
 .pm-s-anulado   { --st-dot: #6b7280; --st-bg: #e5e7eb; --st-fg: #374151; }
 
 /* ---------- Utilidades mínimas ---------- */
-.pm-sr {
-  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
-  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
-}
 .pm-ico { width: 1.125rem; height: 1.125rem; flex-shrink: 0; }
 .pm-ico--sm { width: .95rem; height: .95rem; }
 
@@ -298,16 +294,11 @@ a.pm-card:hover .pm-card__cta .pm-ico:last-child { transform: translateX(3px); }
 
 .pm-cell--emp { display: flex; align-items: center; gap: .75rem; }
 .pm-avatar {
-  position: relative; display: grid; place-items: center; flex-shrink: 0;
+  display: grid; place-items: center; flex-shrink: 0;
   width: 2.5rem; height: 2.5rem; border-radius: 999px;
   background: #f3f4f6; color: var(--pm-ink-2); border: 1px solid var(--pm-line);
   font-size: .8125rem; font-weight: 700; letter-spacing: .02em;
 }
-.pm-presence {
-  position: absolute; right: -2px; bottom: -2px; width: .8125rem; height: .8125rem;
-  border-radius: 999px; background: #cbd5e1; border: 2px solid #fff;
-}
-.pm-presence.is-on { background: #16a34a; }
 .pm-emp { min-width: 0; }
 .pm-emp__name { font-weight: 600; color: var(--pm-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pm-emp__sub { font-size: .75rem; color: var(--pm-ink-3); }

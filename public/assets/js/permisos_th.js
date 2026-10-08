@@ -55,7 +55,6 @@ const listaEl = document.getElementById('listaPermisosTH');
 const PUEDE_ANULAR = listaEl.dataset.puedeAnular === '1';
 
 let permisosEnMemoria = {};
-let cedulasEnLinea = new Set();
 
 function fechaHoraLocal() {
     const d = new Date();
@@ -84,7 +83,7 @@ function actualizarResumen() {
 }
 
 // ---------------------------------------------------------------- filas
-function htmlFila(p, enLinea, est) {
+function htmlFila(p, est) {
     const acciones = `
         <a href="./permiso_ver.php?id=${encodeURIComponent(p.id)}" class="pm-btn pm-btn--outline-brand pm-btn--sm">Ver detalle</a>
         ${p.estado === 'firmado' && PUEDE_ANULAR
@@ -93,10 +92,10 @@ function htmlFila(p, enLinea, est) {
 
     return `
         <div class="pm-cell pm-cell--emp">
-            <span class="pm-avatar" aria-hidden="true">${escTH(iniciales(p.nombre_empleado_snapshot))}<i class="pm-presence ${enLinea ? 'is-on' : ''}" data-presencia></i></span>
+            <span class="pm-avatar" aria-hidden="true">${escTH(iniciales(p.nombre_empleado_snapshot))}</span>
             <div class="pm-emp">
                 <p class="pm-emp__name" title="${escTH(p.nombre_empleado_snapshot)}">${escTH(p.nombre_empleado_snapshot)}</p>
-                <p class="pm-emp__sub">Cédula ${escTH(p.cedula_empleado)}<span class="pm-sr" data-presencia-texto> · ${enLinea ? 'En línea' : 'Desconectado'}</span></p>
+                <p class="pm-emp__sub">Cédula ${escTH(p.cedula_empleado)}</p>
             </div>
         </div>
         <div class="pm-cell">
@@ -129,16 +128,14 @@ function htmlFila(p, enLinea, est) {
 function pintarPermiso(p, alFinal = false) {
     permisosEnMemoria[p.id] = p;
     const est = etiquetaEstadoTH(p.estado);
-    const enLinea = cedulasEnLinea.has(p.cedula_empleado);
     const vacio = document.getElementById('pmVacioTH');
     if (vacio) vacio.remove();
 
     let el = document.getElementById(`permisoTH-${p.id}`);
-    const html = htmlFila(p, enLinea, est);
+    const html = htmlFila(p, est);
     if (el) {
         el.className = `pm-row pm-s-${est[1]}`;
         el.innerHTML = html;
-        el.dataset.cedula = p.cedula_empleado;
         // Reinicia la animación de "recién actualizado"
         void el.offsetWidth;
         el.classList.add('pm-flash');
@@ -147,7 +144,6 @@ function pintarPermiso(p, alFinal = false) {
         el = document.createElement('div');
         el.id = `permisoTH-${p.id}`;
         el.className = `pm-row pm-s-${est[1]}`;
-        el.dataset.cedula = p.cedula_empleado;
         el.innerHTML = html;
         if (alFinal) listaEl.append(el); else listaEl.prepend(el);
     }
@@ -286,28 +282,7 @@ listaEl.addEventListener('click', (e) => {
     if (btn.dataset.accion === 'reintentar') cargarInicial();
 });
 
-// ---------------------------------------------------------------- presencia y polling
-function refrescarPresencia() {
-    listaEl.querySelectorAll('.pm-row[data-cedula]').forEach((fila) => {
-        const enLinea = cedulasEnLinea.has(fila.dataset.cedula);
-        const punto = fila.querySelector('[data-presencia]');
-        const texto = fila.querySelector('[data-presencia-texto]');
-        if (punto) punto.classList.toggle('is-on', enLinea);
-        if (texto) texto.textContent = ` · ${enLinea ? 'En línea' : 'Desconectado'}`;
-    });
-}
-
-async function actualizarPresencia() {
-    try {
-        const res = await fetch('./api/presencia_estado.php');
-        const data = await res.json();
-        if (data.ok) {
-            cedulasEnLinea = new Set(data.en_linea);
-            refrescarPresencia();
-        }
-    } catch (e) { /* silencioso */ }
-}
-
+// ---------------------------------------------------------------- polling
 async function polling() {
     // Si llegamos desde una notificación con ?id=123, la vista debe permanecer
     // enfocada exclusivamente en ese permiso y no volver a poblar la lista completa.
@@ -323,9 +298,8 @@ async function polling() {
 }
 
 cargarInicial();
-actualizarPresencia();
 setInterval(() => {
-    if (document.visibilityState === 'visible') { polling(); actualizarPresencia(); }
+    if (document.visibilityState === 'visible') polling();
 }, 6000);
 
 // ---------------------------------------------------------------- anular

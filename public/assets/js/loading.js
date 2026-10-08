@@ -26,7 +26,7 @@
   // Endpoints que se consultan en segundo plano: NO deben mostrar loader.
   // También puedes silenciar una llamada puntual:  fetch(url, { silent: true })
   // ----------------------------------------------------------------------
-  const SILENT = /(presencia_ping|presencia_estado|notificaciones_contar|notificaciones_listar|notificaciones_marcar|permisos_notificaciones_contar|permisos_th_actualizados)/;
+  const SILENT = /(notificaciones_contar|notificaciones_listar|notificaciones_marcar|permisos_notificaciones_contar|permisos_th_actualizados)/;
 
   const NAV_SAFETY_MS = 10000; // por si un <a> es una descarga y la página no se descarga
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

@@ -57,6 +57,48 @@ CREATE TABLE `cargos` (
 --
 --
 
+--
+-- Volcado de datos para la tabla `cargos`
+--
+
+INSERT INTO `cargos` (`nombre`) VALUES
+  ('Auxiliar en Talento Humano'),
+  ('Director de talento humano'),
+  ('Auxiliar de Extintores'),
+  ('Enfermero/a'),
+  ('Practicante Sena'),
+  ('Practicante Fundetec'),
+  ('Practicante otra entidad'),
+  ('Servicios Generales'),
+  ('Maquinista'),
+  ('Guardia'),
+  ('Recepcionista'),
+  ('Administrativo'),
+  ('Auxiliar administrativo'),
+  ('Director Académico'),
+  ('Director de negocios'),
+  ('Tecnico en soporte sistemas'),
+  ('Tecnico archivista'),
+  ('Coordinador SST'),
+  ('Auxiliar SST'),
+  ('Jefe de prensa'),
+  ('Contador'),
+  ('Auxiliar de contaduría'),
+  ('Almacenista'),
+  ('Supervisor'),
+  ('Coordinador de banda'),
+  ('Conductor de ambulancia'),
+  ('Aspirante'),
+  ('Voluntario'),
+  ('Secretario recaudador'),
+  ('Auxiliar de enfermería'),
+  ('Docente de banda marcial'),
+  ('PAMEC'),
+  ('Revisor(a) fiscal'),
+  ('Comandante de estación'),
+  ('Directora administrativa y financiera'),
+  ('Bombero integral');
+
 -- --------------------------------------------------------
 
 --
@@ -66,40 +108,6 @@ CREATE TABLE `cargos` (
 CREATE TABLE `certificados_consecutivos` (
   `id` tinyint(3) UNSIGNED NOT NULL,
   `ultimo_numero` int(10) UNSIGNED NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `certificados_laborales`
---
-
-CREATE TABLE `certificados_laborales` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `numero` int(10) UNSIGNED NOT NULL,
-  `consecutivo` varchar(10) NOT NULL,
-  `tipo` enum('actual','retirado') NOT NULL,
-  `cedula` varchar(10) NOT NULL,
-  `nombre_snapshot` varchar(150) NOT NULL,
-  `cargo_snapshot` varchar(100) NOT NULL,
-  `fecha_inicio` date NOT NULL,
-  `fecha_retiro` date DEFAULT NULL,
-  `archivo` varchar(255) NOT NULL,
-  `creado_por` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `certificados_laborales_funciones`
---
-
-CREATE TABLE `certificados_laborales_funciones` (
-  `certificado_id` int(10) UNSIGNED NOT NULL,
-  `posicion` tinyint(3) UNSIGNED NOT NULL,
-  `funcion_id` int(10) UNSIGNED DEFAULT NULL,
-  `texto_snapshot` varchar(160) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -130,7 +138,7 @@ CREATE TABLE `empleados` (
   `lugar_expedicion` varchar(120) DEFAULT NULL COMMENT 'Municipio, Departamento (lista en public/assets/data/municipios.json)',
   `nombre` varchar(150) NOT NULL,
   `sexo` enum('F','M') DEFAULT NULL,
-  `cargo` enum('Auxiliar en Talento Humano','Director de talento humano','Auxiliar de Extintores','Enfermero/a','Practicante Sena','Practicante Fundetec','Practicante otra entidad','Servicios Generales','Maquinista','Guardia','Recepcionista','Administrativo','Auxiliar administrativo','Director Académico','Director de negocios','Tecnico en soporte sistemas','Tecnico archivista','Coordinador SST','Auxiliar SST','Jefe de prensa','Contador','Auxiliar de contaduría','Almacenista','Supervisor','Coordinador de banda','Conductor de ambulancia','Aspirante','Voluntario','Secretario recaudador','Auxiliar de enfermería','Docente de banda marcial','PAMEC','Revisor(a) fiscal','Comandante de estación','Directora administrativa y financiera','Bombero integral') NOT NULL,
+  `cargo` varchar(100) NOT NULL,
   `tipo_de_personal` enum('Bombero','Civil') DEFAULT NULL,
   `eps` enum('Sanitas','Nueva EPS','Capresoca','Salud Total') DEFAULT NULL,
   `pension` enum('Colfondos','Porvenir','Colpensiones','Protección','NA') DEFAULT NULL,
@@ -355,17 +363,6 @@ CREATE TABLE `permisos_historial` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `presencia_empleados`
---
-
-CREATE TABLE `presencia_empleados` (
-  `cedula` varchar(10) NOT NULL,
-  `ultima_actividad` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `usuarios`
 --
 
@@ -423,22 +420,6 @@ ALTER TABLE `certificados_consecutivos`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `certificados_laborales`
---
-ALTER TABLE `certificados_laborales`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uq_cert_numero` (`numero`),
-  ADD UNIQUE KEY `uq_cert_archivo` (`archivo`),
-  ADD KEY `idx_cert_cedula` (`cedula`);
-
---
--- Indices de la tabla `certificados_laborales_funciones`
---
-ALTER TABLE `certificados_laborales_funciones`
-  ADD PRIMARY KEY (`certificado_id`,`posicion`),
-  ADD KEY `fk_clf_func` (`funcion_id`);
-
---
 -- Indices de la tabla `documentos`
 --
 ALTER TABLE `documentos`
@@ -449,7 +430,8 @@ ALTER TABLE `documentos`
 -- Indices de la tabla `empleados`
 --
 ALTER TABLE `empleados`
-  ADD PRIMARY KEY (`cedula`);
+  ADD PRIMARY KEY (`cedula`),
+  ADD KEY `idx_empleados_cargo` (`cargo`);
 
 --
 -- Indices de la tabla `festivos_colombia`
@@ -529,12 +511,6 @@ ALTER TABLE `permisos_historial`
   ADD KEY `idx_permiso` (`permiso_id`);
 
 --
--- Indices de la tabla `presencia_empleados`
---
-ALTER TABLE `presencia_empleados`
-  ADD PRIMARY KEY (`cedula`);
-
---
 -- Indices de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
@@ -562,12 +538,6 @@ ALTER TABLE `bolsillos`
 -- AUTO_INCREMENT de la tabla `cargos`
 --
 ALTER TABLE `cargos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `certificados_laborales`
---
-ALTER TABLE `certificados_laborales`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
@@ -653,11 +623,10 @@ ALTER TABLE `bolsillos`
   ADD CONSTRAINT `bolsillos_ibfk_1` FOREIGN KEY (`cedula_empleado`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `certificados_laborales_funciones`
+-- Filtros para la tabla `empleados`
 --
-ALTER TABLE `certificados_laborales_funciones`
-  ADD CONSTRAINT `fk_clf_cert` FOREIGN KEY (`certificado_id`) REFERENCES `certificados_laborales` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_clf_func` FOREIGN KEY (`funcion_id`) REFERENCES `funciones_certificados` (`id`) ON DELETE SET NULL;
+ALTER TABLE `empleados`
+  ADD CONSTRAINT `fk_empleados_cargo` FOREIGN KEY (`cargo`) REFERENCES `cargos` (`nombre`) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 --
 -- Filtros para la tabla `funciones_certificados`

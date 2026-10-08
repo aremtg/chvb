@@ -4,8 +4,7 @@ require_once __DIR__ . '/../includes/formatos_ui.php';
 require_once __DIR__ . '/../src/models/CertificadoModel.php';
 requireFormatosAccess();
 
-$generados = CertificadoModel::recientes(30);
-$dirGenerados = __DIR__ . '/../uploads/generados/';
+$generados = CertificadoModel::recientes(__DIR__ . '/../uploads/generados');
 $csrf = csrfToken();
 ?>
 <!DOCTYPE html>
@@ -96,15 +95,12 @@ $csrf = csrfToken();
     <div class="p-4 sm:p-5 lg:p-6">
         <?php if ($generados): ?>
             <div class="space-y-2">
-                <?php foreach ($generados as $g):
-                    $existe = is_file($dirGenerados . $g['archivo']); ?>
+                <?php foreach ($generados as $g): ?>
                     <div class="flex flex-wrap items-center gap-2.5 border border-gray-100 rounded-xl p-3 hover:bg-gray-50/70 transition">
                         <div class="min-w-0 flex-[1_1_240px]">
                             <p class="text-sm font-medium text-gray-700 break-words"><?= htmlspecialchars($g['archivo']) ?></p>
-                            <p class="text-xs text-gray-600"><?= date('d/m/Y H:i', strtotime($g['created_at'])) ?>
-                                <?= $existe ? '' : ' · <span class="text-red-600">archivo eliminado</span>' ?></p>
+                            <p class="text-xs text-gray-600"><?= date('d/m/Y H:i', (int)$g['fecha']) ?></p>
                         </div>
-                        <?php if ($existe): ?>
                         <div class="flex flex-wrap gap-2 justify-end">
                             <a href="./api/formato_archivo.php?f=<?= rawurlencode($g['archivo']) ?>&accion=ver" target="_blank"
                                class="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 rounded-lg transition">
@@ -117,7 +113,6 @@ $csrf = csrfToken();
                                 class="inline-flex items-center gap-2 px-3 py-2 text-sm text-red-600 border border-red-200 hover:bg-red-50 rounded-lg transition">
                                 <?= icon('trash-2', 'w-4 h-4') ?> Eliminar</button>
                         </div>
-                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             </div>

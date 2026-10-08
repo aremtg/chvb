@@ -11,48 +11,12 @@ require_once __DIR__ . '/../models/NotificacionModel.php';
 require_once __DIR__ . '/../helpers/ReconciliadorArchivos.php';
 require_once __DIR__ . '/../helpers/Municipios.php';
 require_once __DIR__ . '/../helpers/JornadaHelper.php';
+require_once __DIR__ . '/../models/CargoModel.php';
 
 class EmpleadoController
 {
 
-    public static array $cargosValidos = [
-        'Auxiliar en Talento Humano',
-        'Director de talento humano',
-        'Auxiliar de Extintores',
-        'Enfermero/a',
-        'Practicante Sena',
-        'Practicante Fundetec',
-        'Practicante otra entidad',
-        'Servicios Generales',
-        'Maquinista',
-        'Guardia',
-        'Recepcionista',
-        'Administrativo',
-        'Auxiliar administrativo',
-        'Director Académico',
-        'Director de negocios',
-        'Directora administrativa y financiera',
-        'Tecnico en soporte sistemas',
-        'Tecnico archivista',
-        'Coordinador SST',
-        'Auxiliar SST',
-        'Jefe de prensa',
-        'Contador',
-        'Auxiliar de contaduría',
-        'Almacenista',
-        'Supervisor',
-        'Coordinador de banda',
-        'Conductor de ambulancia',
-        'Aspirante',
-        'Voluntario',
-        'Secretario recaudador',
-        'Auxiliar de enfermería',
-        'Docente de banda marcial',
-        'PAMEC',
-        'Revisor(a) fiscal',
-        'Comandante de estación',
-        'Bombero integral'
-    ];
+    // Los cargos válidos salen de la tabla `cargos` (CargoModel::nombres()); se gestionan desde el modal «Cargos».
 
     public static array $tiposDePersonal = ['Bombero', 'Civil'];
     public static array $epsValidas = ['Sanitas', 'Nueva EPS', 'Capresoca', 'Salud Total'];
@@ -140,7 +104,7 @@ class EmpleadoController
         if ($nombre === '' || strlen($nombre) > 150) {
             $errores[] = 'El nombre es obligatorio y debe tener máximo 150 caracteres.';
         }
-        if (!in_array($cargo, self::$cargosValidos, true)) {
+        if (!in_array($cargo, CargoModel::nombres(), true)) {
             $errores[] = 'Debes seleccionar un cargo válido.';
         }
         if ($tipoContrato === '') {
@@ -519,7 +483,7 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
 
         return [
             'contrato' => $pick('contrato', self::$tiposDeContrato),
-            'cargo'    => $pick('cargo', self::$cargosValidos),
+            'cargo'    => $pick('cargo', CargoModel::nombres()),
             'estado'   => $pick('estado', self::$estadosValidos),
         ];
     }

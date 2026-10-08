@@ -21,27 +21,9 @@ class FuncionModel
         return self::TIPOS[$tipo];
     }
 
-    /**
-     * Copia a `cargos` los valores del ENUM empleados.cargo que aún no existan.
-     * Así, si agregas un cargo nuevo al ENUM, aparece solo en el modal.
-     */
-    public static function sincronizarCargos(): void
-    {
-        $pdo = getPDO();
-        $fila = $pdo->query("SHOW COLUMNS FROM empleados LIKE 'cargo'")->fetch();
-        if (!$fila || !preg_match_all("/'((?:[^']|'')*)'/", (string)$fila['Type'], $m)) {
-            return;
-        }
-        $ins = $pdo->prepare('INSERT IGNORE INTO cargos (nombre) VALUES (?)');
-        foreach ($m[1] as $nombre) {
-            $ins->execute([str_replace("''", "'", $nombre)]);
-        }
-    }
-
     public static function cargos(): array
     {
-        self::sincronizarCargos();
-        return getPDO()->query('SELECT id, nombre FROM cargos WHERE activo = 1 ORDER BY nombre')->fetchAll();
+        return getPDO()->query('SELECT id, nombre FROM cargos ORDER BY nombre')->fetchAll();
     }
 
     /** Id del cargo por nombre exacto (como viene en empleados.cargo). */
@@ -51,11 +33,6 @@ class FuncionModel
         $st = $pdo->prepare('SELECT id FROM cargos WHERE nombre = ? LIMIT 1');
         $st->execute([$nombre]);
         $id = $st->fetchColumn();
-        if ($id === false) {
-            self::sincronizarCargos();
-            $st->execute([$nombre]);
-            $id = $st->fetchColumn();
-        }
         return $id === false ? null : (int)$id;
     }
 
