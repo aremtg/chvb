@@ -63,6 +63,14 @@
     return `${partes.join(', ')} y ${ultimo}`;
   }
 
+  // ¿Entre el fin del periodo anterior y este inicio queda al menos un día entre los dos periodos?
+  function hayTiempoPrevio(finAnterior, inicio) {
+    if (!finAnterior || !inicio) return false;
+    const siguiente = dateObj(finAnterior);
+    siguiente.setDate(siguiente.getDate() + 1);
+    return dateObj(inicio) > siguiente;
+  }
+
   function mostrar(el, texto) {
     if (!el) return;
     el.textContent = texto || '';
@@ -130,6 +138,17 @@
     const err = $('renError');
     const durTxt = $('renDuracionTxt');
     const btn = $('renGuardar');
+    const chkHistorico = $('renHistorico');
+    const chkPrevio = $('renPrevio');
+    const previoWrap = $('renPrevioWrap');
+    const finAnterior = form.dataset.finAnterior || '';
+
+    // Esta casilla solo aparece cuando hay tiempo entre el periodo anterior y este.
+    function actualizarPrevio() {
+      const hay = hayTiempoPrevio(finAnterior, inicio.value);
+      previoWrap.classList.toggle('hidden', !hay);
+      if (!hay) chkPrevio.checked = false;
+    }
 
     function actualizarDuracion() {
       if (!inicio.value || !fin.value || fin.value < inicio.value) {
@@ -139,6 +158,7 @@
       durTxt.textContent = textoPeriodo(periodo(inicio.value, fin.value));
     }
 
+    inicio.addEventListener('change', actualizarPrevio);
     inicio.addEventListener('change', actualizarDuracion);
     fin.addEventListener('change', actualizarDuracion);
 
@@ -175,6 +195,8 @@
           fecha_inicio: inicio.value,
           fecha_fin: fin.value,
           observaciones: obs.value,
+          segun_historico: chkHistorico.checked ? '1' : '0',
+          incluye_tiempo_previo: chkPrevio.checked ? '1' : '0',
         });
         guardarAviso(`RNV${data.numero} registrada (${data.duracion_texto}).`, data.advertencias);
         location.reload();
@@ -185,6 +207,7 @@
     });
 
     actualizarDuracion();
+    actualizarPrevio();
   }
 
   // ---------------------------------------------------------------- editar (solo superadmin)
@@ -195,8 +218,19 @@
     const edObs = $('renEdObs');
     const edErr = $('renEdError');
     const edGuardar = $('renEdGuardar');
+    const edHistorico = $('renEdHistorico');
+    const edPrevio = $('renEdPrevio');
+    const edPrevioWrap = $('renEdPrevioWrap');
     let idEditando = 0;
     let numeroEditando = 0;
+    let finPrevioEditando = '';
+
+    function actualizarPrevioEdicion() {
+      const hay = hayTiempoPrevio(finPrevioEditando, edInicio.value);
+      edPrevioWrap.classList.toggle('hidden', !hay);
+      if (!hay) edPrevio.checked = false;
+    }
+    edInicio.addEventListener('change', actualizarPrevioEdicion);
 
     function cerrar() {
       modal.classList.remove('abierto');
@@ -210,6 +244,10 @@
         edInicio.value = b.dataset.inicio || '';
         edFin.value = b.dataset.fin || '';
         edObs.value = b.dataset.obs || '';
+        edHistorico.checked = b.dataset.historico === '1';
+        finPrevioEditando = b.dataset.finPrevio || '';
+        edPrevio.checked = b.dataset.previo === '1';
+        actualizarPrevioEdicion();
         mostrar(edErr, '');
         $('renModalTitulo').textContent = `Editar RNV${numeroEditando}`;
         modal.classList.add('abierto');
@@ -239,6 +277,8 @@
           fecha_inicio: edInicio.value,
           fecha_fin: edFin.value,
           observaciones: edObs.value,
+          segun_historico: edHistorico.checked ? '1' : '0',
+          incluye_tiempo_previo: edPrevio.checked ? '1' : '0',
         });
         guardarAviso(`RNV${numeroEditando} actualizada (${data.duracion_texto}).`, data.advertencias);
         location.reload();

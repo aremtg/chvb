@@ -32,7 +32,9 @@ try {
         trim((string) ($_POST['fecha_fin'] ?? '')),
         isset($_POST['observaciones']) ? (string) $_POST['observaciones'] : null,
         $actorId,
-        $actorNombre
+        $actorNombre,
+        ($_POST['segun_historico'] ?? '') === '1',
+        ($_POST['incluye_tiempo_previo'] ?? '') === '1'
     );
 
     // Aviso a los superadmins cuando lo registra un auxiliar. Si falla, la renovación ya quedó guardada.
@@ -44,7 +46,8 @@ try {
         NotificacionModel::crearParaSuperAdminsDesdeAuxiliar(
             $cedula,
             'renovacion',
-            "\"{$actorNombre}\" registró la RNV{$r['numero']} de \"{$nombre}\": {$inicio} a {$fin}",
+            "\"{$actorNombre}\" registró la RNV{$r['numero']} de \"{$nombre}\": {$inicio} a {$fin}"
+                . (($_POST['segun_historico'] ?? '') === '1' ? ' (según histórico)' : ''),
             '/chvb/public/renovaciones_empleado.php?cedula=' . urlencode($cedula)
         );
     } catch (Throwable $e) {
@@ -52,6 +55,14 @@ try {
     }
 
     echo json_encode(['ok' => true] + $r, JSON_UNESCAPED_UNICODE);
+} catch (PDOException $e) {
+    error_log('renovaciones_crear: ' . $e->getMessage());
+    http_response_code(500);
+    // 42S22 = columna inexistente: falta ejecutar la migración de las casillas de historial.
+    $msg = $e->getCode() === '42S22'
+        ? 'Falta ejecutar en phpMyAdmin la migración database/migrations/2026_10_08_renovaciones_nombres_neutros.sql (o, si es una instalación nueva, 2026_10_08_renovaciones_historico.sql).'
+        : 'No se pudo registrar la renovación. Intenta de nuevo.';
+    echo json_encode(['ok' => false, 'error' => $msg], JSON_UNESCAPED_UNICODE);
 } catch (InvalidArgumentException $e) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);

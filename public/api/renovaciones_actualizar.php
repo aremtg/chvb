@@ -27,10 +27,19 @@ try {
         trim((string) ($_POST['fecha_fin'] ?? '')),
         isset($_POST['observaciones']) ? (string) $_POST['observaciones'] : null,
         (int) ($_SESSION['superadmin_id'] ?? 0),
-        (string) ($_SESSION['superadmin_username'] ?? '')
+        (string) ($_SESSION['superadmin_username'] ?? ''),
+        ($_POST['segun_historico'] ?? '') === '1',
+        ($_POST['incluye_tiempo_previo'] ?? '') === '1'
     );
 
     echo json_encode(['ok' => true] + $r, JSON_UNESCAPED_UNICODE);
+} catch (PDOException $e) {
+    error_log('renovaciones_actualizar: ' . $e->getMessage());
+    http_response_code(500);
+    $msg = $e->getCode() === '42S22'
+        ? 'Falta ejecutar en phpMyAdmin la migración database/migrations/2026_10_08_renovaciones_nombres_neutros.sql (o, si es una instalación nueva, 2026_10_08_renovaciones_historico.sql).'
+        : 'No se pudo actualizar la renovación. Intenta de nuevo.';
+    echo json_encode(['ok' => false, 'error' => $msg], JSON_UNESCAPED_UNICODE);
 } catch (InvalidArgumentException $e) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);

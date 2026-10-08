@@ -44,8 +44,10 @@ if ($ficha) {
     $vig = $ficha['vigencia'];
     $ultima = $renovaciones ? end($renovaciones) : null;
     $siguienteNumero = $ultima ? ((int) $ultima['numero'] + 1) : 1;
-    $inicioSugerido = ($eval && $eval['vigencia_fin'])
-        ? RenovacionReglas::fecha($eval['vigencia_fin'])->modify('+1 day')->format('Y-m-d')
+    // Fin del último periodo registrado (el contrato inicial si aún no hay renovaciones).
+    $finPeriodoAnterior = $ultima ? (string) $ultima['fecha_fin'] : (string) ($emp['fecha_fin_contrato'] ?? '');
+    $inicioSugerido = ($eval && $finPeriodoAnterior !== '')
+        ? RenovacionReglas::fecha($finPeriodoAnterior)->modify('+1 day')->format('Y-m-d')
         : '';
 }
 ?>
@@ -80,7 +82,7 @@ if ($ficha) {
             </div>
         </header>
 
-        <main class="p-3 sm:p-5 lg:p-6 max-w-5xl space-y-5">
+        <main class="p-6 max-w-6xl mx-auto space-y-6">
 
             <?php if ($falloTablas): ?>
                 <div class="ren-alerta rounded-xl p-4 text-sm">
@@ -96,7 +98,7 @@ if ($ficha) {
                 </div>
             <?php else: ?>
 
-                <div id="renApp" data-csrf="<?= $h($csrf) ?>" data-cedula="<?= $h($emp['cedula']) ?>"></div>
+                <div id="renApp" class="absolute top-0 right-0 w-0 h-0" data-csrf="<?= $h($csrf) ?>" data-cedula="<?= $h($emp['cedula']) ?>"></div>
                 <div id="renFlash" class="hidden rounded-xl p-4 text-sm"></div>
 
                 <?php if (($emp['estado'] ?? '') !== 'activo'): ?>
@@ -125,14 +127,18 @@ if ($ficha) {
                             <div>
                                 <span class="ren-dato-etiqueta">Acumulado</span>
                                 <strong><?= $h($eval['acumulado_texto']) ?></strong>
+
+                                <?php if ($eval['tope_texto'] !== null): ?>
+                                    <div class="text-xs text-gray-600 mt-1">Para el tope de 4 años cuenta <?= $h($eval['tope_texto']) ?> (desde el 25/06/2025)</div>
+                                <?php endif; ?>
                                 <?php if ($eval['restante_tope_texto'] !== null): ?>
-                                    <div class="text-xs text-gray-600 mt-1">Le quedan <?= $h($eval['restante_tope_texto']) ?> para los 4 años</div>
+                                    <div class="text-xs text-gray-600 mt-1">Le quedan <?= $h($eval['restante_tope_texto']) ?> para llegar a los 4 años</div>
                                 <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     </div>
 
-                    <p class="px-4 sm:px-5 pb-4 text-xs text-gray-600">Los tiempos se cuentan con mes comercial de 30 días (año de 360 días), incluyendo el día de inicio y el de fin: del 1 al 30 o al 31 completa el mes.</p>
+                    <p class="px-4 sm:px-5 pb-4 text-xs text-gray-600">Los tiempos se cuentan con mes comercial de 30 días (año de 360 días). El tope de 4 años del contrato a término fijo cuenta desde el 25/06/2025 en los contratos que ya estaban en curso (Ley 2466 de 2025); el tiempo anterior sigue sumando en el acumulado pero no para el de los 4 años.</p>
 
                     <?php if ($problemas): ?>
                         <div class="px-4 sm:px-5 pb-4">
@@ -185,10 +191,15 @@ if ($ficha) {
                                         <td class="px-4 sm:px-5 py-3.5 text-xs text-gray-600 hidden lg:table-cell">Hoja de vida</td>
                                         <?php if ($esAdmin): ?><td></td><?php endif; ?>
                                     </tr>
-                                    <?php foreach ($renovaciones as $r): ?>
+                                    <?php foreach ($renovaciones as $idx => $r): ?>
                                         <?php $esUltima = $ultima && (int) $r['id'] === (int) $ultima['id']; ?>
                                         <tr class="bg-white hover:bg-gray-50/70 transition">
-                                            <td class="px-4 sm:px-5 py-3.5 font-semibold text-gray-800">RNV<?= (int) $r['numero'] ?></td>
+                                            <td class="px-4 sm:px-5 py-3.5 font-semibold text-gray-800">
+                                                RNV<?= (int) $r['numero'] ?>
+                                                <?php if (!empty($r['segun_historico']) || !empty($r['incluye_tiempo_previo'])): ?>
+                                                    <div class="mt-1"><span class="ren-badge ren-vigente" title="Fechas registradas tal cual constan en el soporte histórico"><i></i>Según histórico</span></div>
+                                                <?php endif; ?>
+                                            </td>
                                             <td class="px-4 sm:px-5 py-3.5 text-gray-700">
                                                 <span class="whitespace-nowrap"><?= $h(RenovacionReglas::formatear($r['fecha_inicio'])) ?> a <?= $h(RenovacionReglas::formatear($r['fecha_fin'])) ?></span>
                                                 <?php if ($r['observaciones']): ?>
@@ -205,7 +216,10 @@ if ($ficha) {
                                                         <button type="button" class="renBtnEditar inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold transition"
                                                             data-id="<?= (int) $r['id'] ?>" data-numero="<?= (int) $r['numero'] ?>"
                                                             data-inicio="<?= $h($r['fecha_inicio']) ?>" data-fin="<?= $h($r['fecha_fin']) ?>"
-                                                            data-obs="<?= $h($r['observaciones']) ?>">
+                                                            data-obs="<?= $h($r['observaciones']) ?>"
+                                                            data-historico="<?= !empty($r['segun_historico']) ? '1' : '0' ?>"
+                                                            data-previo="<?= !empty($r['incluye_tiempo_previo']) ? '1' : '0' ?>"
+                                                            data-fin-previo="<?= $h($idx > 0 ? $renovaciones[$idx - 1]['fecha_fin'] : $emp['fecha_fin_contrato']) ?>">
                                                             <?= icon('pencil', 'w-3.5 h-3.5') ?> Editar
                                                         </button>
                                                         <button type="button" class="renBtnEliminar inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-white border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold transition"
@@ -231,7 +245,7 @@ if ($ficha) {
                             <h2 class="font-bold text-gray-800">Registrar RNV<?= $siguienteNumero ?></h2>
                             <p class="text-xs text-gray-600">Anota una renovación que ya se firmó. Esto no genera ningún Word.</p>
                         </div>
-                        <form id="renForm" class="p-4 sm:p-5 space-y-4" autocomplete="off">
+                        <form id="renForm" class="p-4 sm:p-5 space-y-4" autocomplete="off" data-fin-anterior="<?= $h($finPeriodoAnterior) ?>">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label for="renInicio" class="block text-xs text-gray-600 mb-1">Fecha de inicio <span class="text-red-600">*</span></label>
@@ -258,6 +272,24 @@ if ($ficha) {
                                 <label for="renObs" class="block text-xs text-gray-600 mb-1">Observaciones (opcional)</label>
                                 <textarea id="renObs" rows="2" maxlength="500"
                                     class="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300"></textarea>
+                            </div>
+                            <div class="ren-box rounded-xl p-3 space-y-3">
+                                <label class="flex items-start gap-2.5 text-sm text-gray-700 cursor-pointer">
+                                    <input id="renHistorico" type="checkbox" class="mt-1 ren-check">
+                                    <span>
+                                        <strong>Registrar tal cual el soporte histórico</strong>
+                                        <span class="block text-xs text-gray-600">Guarda las fechas exactamente como constan en el soporte, sin ajustes. Queda anotado en la bitácora quién lo marcó.</span>
+                                    </span>
+                                </label>
+                                <div id="renPrevioWrap" class="hidden">
+                                    <label class="flex items-start gap-2.5 text-sm text-gray-700 cursor-pointer">
+                                        <input id="renPrevio" type="checkbox" class="mt-1 ren-check">
+                                        <span>
+                                            <strong>Incluir en el acumulado el tiempo entre este periodo y el anterior</strong>
+                                            <span class="block text-xs text-gray-600">Si lo marcas, ese tiempo se cuenta dentro del acumulado.</span>
+                                        </span>
+                                    </label>
+                                </div>
                             </div>
                             <div id="renError" class="hidden ren-alerta rounded-xl p-3 text-sm"></div>
                             <div class="flex sm:justify-end">
@@ -317,6 +349,18 @@ if ($ficha) {
                 <div>
                     <label for="renEdObs" class="block text-xs text-gray-600 mb-1">Observaciones</label>
                     <textarea id="renEdObs" rows="2" maxlength="500" class="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300"></textarea>
+                </div>
+                <div class="ren-box rounded-xl p-3 space-y-3">
+                    <label class="flex items-start gap-2.5 text-sm text-gray-700 cursor-pointer">
+                        <input id="renEdHistorico" type="checkbox" class="mt-1 ren-check">
+                        <span><strong>Registrar tal cual el soporte histórico</strong></span>
+                    </label>
+                    <div id="renEdPrevioWrap" class="hidden">
+                        <label class="flex items-start gap-2.5 text-sm text-gray-700 cursor-pointer">
+                            <input id="renEdPrevio" type="checkbox" class="mt-1 ren-check">
+                            <span><strong>Incluir en el acumulado el tiempo entre este periodo y el anterior</strong></span>
+                        </label>
+                    </div>
                 </div>
                 <div id="renEdError" class="hidden ren-alerta rounded-xl p-3 text-sm"></div>
                 <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">

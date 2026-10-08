@@ -310,6 +310,9 @@
   .-right-3 {
     right: calc(var(--spacing) * -3);
   }
+  .right-0 {
+    right: 0px;
+  }
   .left-0 {
     left: 0px;
   }
@@ -541,6 +544,9 @@
   .inline-flex {
     display: inline-flex;
   }
+  .h-0 {
+    height: 0px;
+  }
   .h-1\.5 {
     height: calc(var(--spacing) * 1.5);
   }
@@ -633,6 +639,9 @@
   }
   .min-h-screen {
     min-height: 100vh;
+  }
+  .w-0 {
+    width: 0px;
   }
   .w-1\.5 {
     width: calc(var(--spacing) * 1.5);

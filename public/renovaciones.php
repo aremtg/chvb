@@ -14,6 +14,15 @@ $incompletos = [];
 $falloTablas = false;
 $falloGeneral = false;
 
+// Al abrir el panel se ponen al día los avisos de vencimiento (cada aviso se envía una sola vez).
+// Si falla (p. ej. falta la migración de avisos), el panel se muestra igual.
+try {
+    require_once __DIR__ . '/../src/helpers/RenovacionAvisos.php';
+    RenovacionAvisos::generarPendientes();
+} catch (Throwable $e) {
+    error_log('renovaciones avisos: ' . $e->getMessage());
+}
+
 try {
     $vigencias = RenovacionModel::listarVigencias();
     $incompletos = RenovacionModel::listarIncompletos();
@@ -59,7 +68,7 @@ $etiquetaEstado = ['vencido' => 'Vencido', 'por_vencer' => 'Por vencer', 'vigent
             <p class="text-xs text-gray-600">Vencimiento de contratos con fecha de fin. La alerta empieza <?= (int) RenovacionReglas::DIAS_AVISO ?> días antes.</p>
         </header>
 
-        <main class="p-4 sm:p-6 max-w-6xl space-y-5">
+        <main class="p-6 max-w-6xl mx-auto space-y-6">
 
             <?php if ($falloTablas): ?>
                 <div class="ren-alerta rounded-xl p-4 text-sm">

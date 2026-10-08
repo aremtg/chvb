@@ -12,6 +12,14 @@ final class RenovacionReglas
     /** Tope de duración total de un contrato a término fijo (con renovaciones), en meses. */
     public const TOPE_MESES_FIJO = 48;
 
+    /**
+     * Desde cuándo cuenta el tope de 4 años (Ley 2466 de 2025, Art. 46 CST). Para los contratos que ya
+     * estaban en curso cuando entró en vigencia la ley, el conteo empieza en esta fecha y no en la firma
+     * original (concepto del Ministerio del Trabajo). Para contratos posteriores, cuenta todo desde el inicio.
+     * El tiempo anterior NO se borra: sigue sumando en el "acumulado" (antigüedad), solo no cuenta para el tope.
+     */
+    public const FECHA_INICIO_TOPE = '2025-06-25';
+
     /** Base comercial laboral: mes de 30 días y año de 360 días. */
     public const DIAS_MES = 30;
     public const DIAS_ANIO = 360;
@@ -198,14 +206,28 @@ final class RenovacionReglas
         return $faltan ? ['Faltan en la hoja de vida: ' . implode(', ', $faltan) . '.'] : [];
     }
 
+    /** Días (base 30/360) de un tramo que cuentan para el tope de 4 años: solo desde FECHA_INICIO_TOPE. */
+    private static function diasParaTope(DateTimeImmutable $desde, DateTimeImmutable $hasta): int
+    {
+        $corte = self::fecha(self::FECHA_INICIO_TOPE);
+        if ($hasta < $corte) {
+            return 0;
+        }
+        $inicio = $desde > $corte ? $desde : $corte;
+        return self::dias360($inicio->format('Y-m-d'), $hasta->format('Y-m-d'));
+    }
+
     /**
      * Evalúa la cadena completa (contrato inicial + renovaciones ordenadas por numero).
-     * Devuelve vigencia, tiempo acumulado (años, meses y días en base comercial 30/360) y ADVERTENCIAS
-     * legales. Las advertencias NO bloquean el registro: el historial real puede tener casos que no
-     * cumplen la regla y aun así hay que poder anotarlos.
+     * Devuelve vigencia, tiempo acumulado (años, meses y días en base comercial 30/360) y ADVERTENCIAS.
+     * Las advertencias NO bloquean el registro: el historial real puede tener casos que no cumplen
+     * la regla y aun así hay que poder anotarlos.
      *
-     * El acumulado suma los días de cada periodo; si hubo huecos entre periodos, el hueco no cuenta
-     * como tiempo trabajado.
+     * Cómo se acumula:
+     *  - Los días que dos periodos comparten se cuentan UNA sola vez.
+     *  - El tiempo entre dos periodos NO cuenta, salvo que la renovación que le sigue tenga marcado
+     *    incluye_tiempo_previo.
+     *  Las fechas se muestran tal cual constan: aquí no se generan textos sobre las fechas.
      */
     public static function evaluarCadena(array $empleado, array $renovaciones): array
     {
@@ -215,34 +237,61 @@ final class RenovacionReglas
 
         $periodos = [];
         if ($tieneInicial) {
-            $periodos[] = ['numero' => 0, 'inicio' => $inicio, 'fin' => $fin];
+            $periodos[] = ['numero' => 0, 'inicio' => $inicio, 'fin' => $fin, 'incluye_previo' => false];
         }
         foreach (array_values($renovaciones) as $i => $r) {
             $periodos[] = [
                 'numero' => (int) ($r['numero'] ?? ($i + 1)),
                 'inicio' => (string) $r['fecha_inicio'],
                 'fin' => (string) $r['fecha_fin'],
+                'incluye_previo' => !empty($r['incluye_tiempo_previo']),
             ];
         }
 
         $esFijo = ($empleado['tipo_de_contrato'] ?? '') === self::TIPO_CON_REGLAS_LEGALES;
         $totalDias = 0;
-        $diasAnterior = null;
+        $diasTope = 0;             // los que cuentan para el tope de 4 años (desde FECHA_INICIO_TOPE)
+        $finCubierto = null;       // hasta qué fecha llega lo ya contado
+        $mesesAnterior = null;
         $advertencias = [];
 
         foreach ($periodos as $p) {
-            $dias = self::dias360($p['inicio'], $p['fin']);
-            $totalDias += $dias;
+            $ini = self::fecha($p['inicio']);
+            $f = self::fecha($p['fin']);
+            $n = $p['numero'];
 
-            if ($esFijo && $p['numero'] > 0) {
-                $n = $p['numero'];
+            if ($finCubierto === null) {
+                $totalDias += self::dias360($p['inicio'], $p['fin']);
+                $diasTope += self::diasParaTope($ini, $f);
+                $finCubierto = $f;
+            } else {
+                $diaSiguiente = $finCubierto->modify('+1 day');
+
+                if ($ini > $diaSiguiente && $p['incluye_previo']) {
+                    // Tiempo entre el periodo anterior y este: solo cuenta si quien registró lo marcó.
+                    $totalDias += self::dias360($diaSiguiente->format('Y-m-d'), $ini->modify('-1 day')->format('Y-m-d'));
+                    $diasTope += self::diasParaTope($diaSiguiente, $ini->modify('-1 day'));
+                }
+
+                if ($f > $finCubierto) {
+                    $efectivoIni = $ini > $finCubierto ? $ini : $diaSiguiente;
+                    $totalDias += self::dias360($efectivoIni->format('Y-m-d'), $f->format('Y-m-d'));
+                    $diasTope += self::diasParaTope($efectivoIni, $f);
+                    $finCubierto = $f;
+                }
+            }
+
+            // Reglas legales: se miden con la duración propia de cada periodo, tal como consta.
+            if ($esFijo && $n > 0) {
+                $dias = self::dias360($p['inicio'], $p['fin']);
+                $meses = intdiv($dias, self::DIAS_MES);   // se compara en meses completos: 360 vs 361 días no es "menos"
                 if ($n >= 4 && $dias < self::DIAS_ANIO) {
                     $advertencias[] = "RNV{$n}: desde la 4ta renovación la duración debe ser de 1 año o más (Art. 46 CST, Ley 2466 de 2025).";
                 }
-                if ($diasAnterior !== null && $dias < $diasAnterior) {
+                if ($mesesAnterior !== null && $meses < $mesesAnterior) {
                     $advertencias[] = "RNV{$n}: dura menos que el periodo anterior; reducir el tiempo solo es legal con un Otrosí de mutuo acuerdo.";
                 }
-                $diasAnterior = $dias;
+                $mesesAnterior = $meses;
             }
         }
 
@@ -251,37 +300,52 @@ final class RenovacionReglas
 
         $superaTope = false;
         $restanteTexto = null;
+        $topeTexto = null;
         if ($esFijo && $periodos) {
             $topeDias = self::TOPE_MESES_FIJO * self::DIAS_MES;   // 4 años = 1.440 días
-            $superaTope = $totalDias > $topeDias;
+            $topeTexto = self::textoPeriodo(self::periodoDesdeDias($diasTope));
+            $superaTope = $diasTope > $topeDias;
             if ($superaTope) {
-                $advertencias[] = 'Lleva ' . $acumuladoTexto . ', supera los 4 años: debe pasar a Contrato Indefinido (Ley 2466 de 2025).';
-            } elseif ($totalDias < $topeDias) {
-                $restanteTexto = self::textoPeriodo(self::periodoDesdeDias($topeDias - $totalDias));
+                $advertencias[] = 'Supera los 4 años del tope (cuenta ' . $topeTexto . ', desde el '
+                    . self::fecha(self::FECHA_INICIO_TOPE)->format('d/m/Y') . ' en contratos que ya estaban en curso): debe pasar a Contrato Indefinido (Ley 2466 de 2025).';
+            } elseif ($diasTope < $topeDias) {
+                $restanteTexto = self::textoPeriodo(self::periodoDesdeDias($topeDias - $diasTope));
             }
         }
-
-        $ultima = $renovaciones ? end($renovaciones) : null;
 
         return [
             'inicial_texto' => $tieneInicial ? self::textoPeriodo(self::periodo($inicio, $fin)) : '—',
             'acumulado' => $acumulado,
-            'acumulado_texto' => $acumuladoTexto,
+            'acumulado_texto' => $acumuladoTexto,          // antigüedad total en el contrato
+            'tope_texto' => $topeTexto,                    // lo que cuenta para el tope de 4 años (null si no aplica)
             'restante_tope_texto' => $restanteTexto,        // null si no aplica o ya completó justo los 4 años
             'requiere_indefinido' => $superaTope,
             'num_renovaciones' => count($renovaciones),
-            'vigencia_fin' => $ultima ? (string) $ultima['fecha_fin'] : ($fin !== '' ? $fin : null),
+            // La vigencia llega hasta la fecha de fin más lejana de toda la cadena.
+            'vigencia_fin' => $finCubierto ? $finCubierto->format('Y-m-d') : ($fin !== '' ? $fin : null),
             'advertencias' => $advertencias,
         ];
     }
 
     /**
      * Valida una renovación nueva o editada. $previas = renovaciones con numero menor al de esta.
+     *
+     * $historico    = "registrar tal cual el soporte histórico": acepta las fechas como constan, incluso si
+     *                 empiezan el mismo día (o antes) de que termine el periodo anterior, sin avisos.
+     * $incluyeTiempoPrevio  = si entre el periodo anterior y este queda tiempo, incluirlo en el acumulado.
+     *
      * Lanza InvalidArgumentException con mensaje para el usuario si hay un error que bloquea.
-     * Devuelve ['duracion_meses' => int, 'duracion_texto' => string, 'advertencias' => string[]].
+     * Devuelve ['duracion_meses' => int, 'duracion_texto' => string, 'incluye_tiempo_previo' => bool, 'advertencias' => string[]].
      */
-    public static function validarRenovacion(array $empleado, array $previas, int $numero, string $inicio, string $fin): array
-    {
+    public static function validarRenovacion(
+        array $empleado,
+        array $previas,
+        int $numero,
+        string $inicio,
+        string $fin,
+        bool $historico = false,
+        bool $incluyeTiempoPrevio = false
+    ): array {
         $problemas = self::problemasContratoInicial($empleado);
         if ($problemas) {
             throw new InvalidArgumentException($problemas[0]);
@@ -293,19 +357,25 @@ final class RenovacionReglas
             throw new InvalidArgumentException('La fecha de fin no puede ser anterior a la de inicio.');
         }
 
-        $finPrevio = $previas ? (string) end($previas)['fecha_fin'] : (string) $empleado['fecha_fin_contrato'];
-        $finPrevioDt = self::fecha($finPrevio, 'La fecha de fin del periodo anterior');
-        if ($ini <= $finPrevioDt) {
+        $previo = $previas ? end($previas) : null;
+        $iniPrevio = self::fecha($previo ? (string) $previo['fecha_inicio'] : (string) $empleado['fecha_inicio_contrato'], 'La fecha de inicio del periodo anterior');
+        $finPrevio = self::fecha($previo ? (string) $previo['fecha_fin'] : (string) $empleado['fecha_fin_contrato'], 'La fecha de fin del periodo anterior');
+
+        // Aunque se marque "histórico", un periodo no puede empezar antes (ni el mismo día) que el anterior.
+        if ($ini <= $iniPrevio) {
             throw new InvalidArgumentException(
-                'La renovación debe empezar después de que termina el periodo anterior (' . $finPrevioDt->format('d/m/Y') . ').'
+                'La renovación debe empezar después de que empezó el periodo anterior (' . $iniPrevio->format('d/m/Y') . ').'
+            );
+        }
+        if (!$historico && $ini <= $finPrevio) {
+            throw new InvalidArgumentException(
+                'La renovación debe empezar después de que termina el periodo anterior (' . $finPrevio->format('d/m/Y')
+                . '). Si así consta en el soporte, marca «Registrar tal cual el soporte histórico».'
             );
         }
 
-        $advertencias = [];
-        $esperado = $finPrevioDt->modify('+1 day');
-        if ($ini != $esperado) {
-            $advertencias[] = 'RNV' . $numero . ' no empieza el día siguiente al fin del periodo anterior (' . $esperado->format('d/m/Y') . '): hay un hueco entre los dos periodos.';
-        }
+        $hayTiempoPrevio = $ini > $finPrevio->modify('+1 day');
+        $incluyeTiempoPrevio = $incluyeTiempoPrevio && $hayTiempoPrevio;   // la casilla solo tiene efecto si hay tiempo entre los dos periodos
 
         $duracion = self::mesesEntre($inicio, $fin);   // se guarda en la columna duracion_meses (aproximada, solo referencia)
         $cadena = array_merge(array_values($previas), [[
@@ -313,13 +383,23 @@ final class RenovacionReglas
             'fecha_inicio' => $inicio,
             'fecha_fin' => $fin,
             'duracion_meses' => $duracion,
+            'incluye_tiempo_previo' => $incluyeTiempoPrevio ? 1 : 0,
         ]]);
         $evaluacion = self::evaluarCadena($empleado, $cadena);
+
+        // Recordatorio puntual contra errores de digitación: solo se muestra al guardar, no queda registrado.
+        // Con "tal cual el soporte histórico" marcado no se dice nada: las fechas se aceptan como constan.
+        $avisos = $evaluacion['advertencias'];
+        if ($hayTiempoPrevio && !$historico) {
+            array_unshift($avisos, 'Verifica la fecha de inicio de RNV' . $numero . ': lo habitual es el día siguiente al fin del periodo anterior ('
+                . $finPrevio->modify('+1 day')->format('d/m/Y') . ').');
+        }
 
         return [
             'duracion_meses' => $duracion,
             'duracion_texto' => self::textoPeriodo(self::periodo($inicio, $fin)),
-            'advertencias' => array_merge($advertencias, $evaluacion['advertencias']),
+            'incluye_tiempo_previo' => $incluyeTiempoPrevio,
+            'advertencias' => $avisos,
         ];
     }
 }

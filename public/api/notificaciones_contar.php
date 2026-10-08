@@ -10,4 +10,16 @@ if (!in_array(($_SESSION['superadmin_rol'] ?? ''), ['superadmin_talento_humano',
     exit;
 }
 
+// Avisos de vencimiento de contratos (módulo Control de Renovaciones): se generan la primera vez en el día
+// que se consulta desde esta sesión. Si falla (p. ej. falta la migración), no afecta el contador.
+if (($_SESSION['ren_avisos_dia'] ?? '') !== date('Y-m-d')) {
+    $_SESSION['ren_avisos_dia'] = date('Y-m-d');
+    try {
+        require_once __DIR__ . '/../../src/helpers/RenovacionAvisos.php';
+        RenovacionAvisos::generarPendientes();
+    } catch (Throwable $e) {
+        error_log('renovaciones avisos: ' . $e->getMessage());
+    }
+}
+
 echo json_encode(['ok' => true, 'total' => NotificacionModel::contarNoLeidas()]);

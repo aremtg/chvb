@@ -157,7 +157,7 @@ class RenovacionModel
      * Registra la siguiente renovación (RNV{n+1}) del empleado.
      * @return array ['id' => int, 'numero' => int, 'duracion_meses' => int, 'duracion_texto' => string, 'advertencias' => string[]]
      */
-    public static function crear(string $cedula, string $inicio, string $fin, ?string $observaciones, int $actorId, string $actorNombre): array
+    public static function crear(string $cedula, string $inicio, string $fin, ?string $observaciones, int $actorId, string $actorNombre, bool $historico = false, bool $incluyeTiempoPrevio = false): array
     {
         $pdo = getPDO();
         $pdo->beginTransaction();
@@ -176,15 +176,16 @@ class RenovacionModel
                 throw new InvalidArgumentException('Se alcanzó el máximo de renovaciones registrables.');
             }
 
-            $val = RenovacionReglas::validarRenovacion($empleado, $existentes, $numero, $inicio, $fin);
+            $val = RenovacionReglas::validarRenovacion($empleado, $existentes, $numero, $inicio, $fin, $historico, $incluyeTiempoPrevio);
 
             $ins = $pdo->prepare(
                 "INSERT INTO renovaciones_contrato
-                    (cedula, numero, fecha_inicio, fecha_fin, duracion_meses, observaciones, creado_por, creado_por_nombre)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+                    (cedula, numero, fecha_inicio, fecha_fin, duracion_meses, segun_historico, incluye_tiempo_previo,
+                     observaciones, creado_por, creado_por_nombre)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
             );
             $ins->execute([
-                $cedula, $numero, $inicio, $fin, $val['duracion_meses'],
+                $cedula, $numero, $inicio, $fin, $val['duracion_meses'], $historico ? 1 : 0, $val['incluye_tiempo_previo'] ? 1 : 0,
                 self::limpiarObservaciones($observaciones), $actorId ?: null, self::recortar($actorNombre, 50),
             ]);
             $id = (int) $pdo->lastInsertId();
@@ -192,7 +193,7 @@ class RenovacionModel
             self::registrarHistorial(
                 $cedula, $id, 'crear',
                 "RNV{$numero} registrada: " . RenovacionReglas::formatear($inicio) . ' a ' . RenovacionReglas::formatear($fin)
-                    . ' (' . $val['duracion_texto'] . ')',
+                    . ' (' . $val['duracion_texto'] . ')' . self::textoMarcas($historico, $val['incluye_tiempo_previo']),
                 $actorId, $actorNombre
             );
 
@@ -211,7 +212,7 @@ class RenovacionModel
      * renovación del empleado, para no descuadrar las que vienen después.
      * @return array ['duracion_meses' => int, 'duracion_texto' => string, 'advertencias' => string[]]
      */
-    public static function actualizar(int $id, string $inicio, string $fin, ?string $observaciones, int $actorId, string $actorNombre): array
+    public static function actualizar(int $id, string $inicio, string $fin, ?string $observaciones, int $actorId, string $actorNombre, bool $historico = false, bool $incluyeTiempoPrevio = false): array
     {
         $pdo = getPDO();
         $pdo->beginTransaction();
@@ -227,19 +228,26 @@ class RenovacionModel
             $previas = array_slice($todas, 0, -1);
             $numero = (int) $actual['numero'];
 
-            $val = RenovacionReglas::validarRenovacion($empleado, $previas, $numero, $inicio, $fin);
+            $val = RenovacionReglas::validarRenovacion($empleado, $previas, $numero, $inicio, $fin, $historico, $incluyeTiempoPrevio);
 
             $upd = $pdo->prepare(
                 "UPDATE renovaciones_contrato
-                 SET fecha_inicio = ?, fecha_fin = ?, duracion_meses = ?, observaciones = ?
+                 SET fecha_inicio = ?, fecha_fin = ?, duracion_meses = ?, segun_historico = ?, incluye_tiempo_previo = ?, observaciones = ?
                  WHERE id = ?"
             );
-            $upd->execute([$inicio, $fin, $val['duracion_meses'], self::limpiarObservaciones($observaciones), $id]);
+            $upd->execute([
+                $inicio, $fin, $val['duracion_meses'], $historico ? 1 : 0, $val['incluye_tiempo_previo'] ? 1 : 0,
+                self::limpiarObservaciones($observaciones), $id,
+            ]);
+
+            $marcasAntes = self::textoMarcas(!empty($actual['segun_historico']), !empty($actual['incluye_tiempo_previo']));
+            $marcasAhora = self::textoMarcas($historico, $val['incluye_tiempo_previo']);
 
             self::registrarHistorial(
                 $cedula, $id, 'editar',
                 "RNV{$numero} editada: antes " . RenovacionReglas::formatear($actual['fecha_inicio']) . ' a ' . RenovacionReglas::formatear($actual['fecha_fin'])
-                    . ', ahora ' . RenovacionReglas::formatear($inicio) . ' a ' . RenovacionReglas::formatear($fin),
+                    . ', ahora ' . RenovacionReglas::formatear($inicio) . ' a ' . RenovacionReglas::formatear($fin)
+                    . ($marcasAntes !== $marcasAhora ? '. Según histórico: ' . ($marcasAhora !== '' ? 'activado' : 'desactivado') : $marcasAhora),
                 $actorId, $actorNombre
             );
 
@@ -322,6 +330,12 @@ class RenovacionModel
             "INSERT INTO renovaciones_historial (cedula, renovacion_id, accion, detalle, actor_id, actor_nombre)
              VALUES (?, ?, ?, ?, ?, ?)"
         )->execute([$cedula, $renovacionId, $accion, self::recortar($detalle, 500), $actorId ?: null, self::recortar($actorNombre, 50)]);
+    }
+
+    /** Texto neutro para la bitácora cuando se usó el modo "tal cual el soporte histórico". */
+    private static function textoMarcas(bool $historico, bool $incluyeTiempoPrevio): string
+    {
+        return ($historico || $incluyeTiempoPrevio) ? ' (según histórico)' : '';
     }
 
     private static function limpiarObservaciones(?string $texto): ?string
