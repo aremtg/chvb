@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 6.0.0-dev+20260915.9e4dc5b5f4
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 09-10-2026 a las 01:45:32
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Host: localhost:3306
+-- Generation Time: Oct 09, 2026 at 04:53 PM
+-- Server version: 8.4.3
+-- PHP Version: 8.3.33
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,45 +18,43 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `chvb`
+-- Database: `chvb`
 --
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `bolsillos`
+-- Table structure for table `bolsillos`
 --
-
 CREATE TABLE `bolsillos` (
-  `id` int(11) NOT NULL,
-  `cedula_empleado` varchar(10) NOT NULL,
-  `seccion` enum('hoja_de_vida','documentos_contractuales') NOT NULL,
-  `nombre` varchar(100) NOT NULL COMMENT 'slug interno, ej: certificados',
-  `nombre_completo` varchar(150) NOT NULL COMMENT 'nombre visible, ej: Certificados',
-  `orden` int(11) NOT NULL DEFAULT 0,
-  `alarma_tipo` enum('1m','2m','6m','1a','custom') DEFAULT NULL,
+  `id` int NOT NULL,
+  `cedula_empleado` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `seccion` enum('hoja_de_vida','documentos_contractuales') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'slug interno, ej: certificados',
+  `nombre_completo` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'nombre visible, ej: Certificados',
+  `orden` int NOT NULL DEFAULT '0',
+  `alarma_tipo` enum('1m','2m','6m','1a','custom') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `alarma_fecha` date DEFAULT NULL,
-  `alarma_activa` tinyint(1) DEFAULT 0,
-  `alarma_valor` int(11) DEFAULT NULL COMMENT 'Cantidad numérica para alarma personalizada',
-  `alarma_unidad` enum('dias','meses','anios') DEFAULT NULL COMMENT 'Unidad para alarma personalizada',
+  `alarma_activa` tinyint(1) DEFAULT '0',
+  `alarma_valor` int DEFAULT NULL COMMENT 'Cantidad numérica para alarma personalizada',
+  `alarma_unidad` enum('dias','meses','anios') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Unidad para alarma personalizada',
   `alarma_fecha_inicio` date DEFAULT NULL COMMENT 'Fecha desde la cual se cuenta el plazo',
-  `alarma_dias_aviso` int(11) DEFAULT 35 COMMENT 'Días de anticipación para la alerta amarilla'
+  `alarma_dias_aviso` int DEFAULT '35' COMMENT 'Días de anticipación para la alerta amarilla'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `cargos`
+-- Table structure for table `cargos`
 --
-
 CREATE TABLE `cargos` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `activo` tinyint(1) NOT NULL DEFAULT 1
+  `id` int UNSIGNED NOT NULL,
+  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `activo` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `cargos`
+-- Dumping data for table `cargos`
 --
 
 INSERT INTO `cargos` (`id`, `nombre`, `activo`) VALUES
@@ -102,33 +100,31 @@ INSERT INTO `cargos` (`id`, `nombre`, `activo`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `certificados_consecutivos`
+-- Table structure for table `certificados_consecutivos`
 --
-
 CREATE TABLE `certificados_consecutivos` (
-  `id` tinyint(3) UNSIGNED NOT NULL,
-  `ultimo_numero` int(10) UNSIGNED NOT NULL DEFAULT 0
+  `id` tinyint UNSIGNED NOT NULL,
+  `ultimo_numero` int UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `documentos`
+-- Table structure for table `documentos`
 --
-
 CREATE TABLE `documentos` (
-  `id` int(11) NOT NULL,
-  `bolsillo_id` int(11) NOT NULL,
-  `nombre_archivo` varchar(255) NOT NULL,
-  `ruta` varchar(500) NOT NULL COMMENT 'ruta relativa dentro de uploads/',
-  `orden` int(11) NOT NULL DEFAULT 1,
-  `fecha_subida` timestamp NOT NULL DEFAULT current_timestamp(),
-  `subido_por_cedula` varchar(10) DEFAULT NULL,
-  `subido_por_tipo` enum('empleado','panel') NOT NULL DEFAULT 'panel'
+  `id` int NOT NULL,
+  `bolsillo_id` int NOT NULL,
+  `nombre_archivo` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ruta` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'ruta relativa dentro de uploads/',
+  `orden` int NOT NULL DEFAULT '1',
+  `fecha_subida` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `subido_por_cedula` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `subido_por_tipo` enum('empleado','panel') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'panel'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `documentos`
+-- Dumping data for table `documentos`
 --
 
 INSERT INTO `documentos` (`id`, `bolsillo_id`, `nombre_archivo`, `ruta`, `orden`, `fecha_subida`, `subido_por_cedula`, `subido_por_tipo`) VALUES
@@ -138,46 +134,51 @@ INSERT INTO `documentos` (`id`, `bolsillo_id`, `nombre_archivo`, `ruta`, `orden`
 (4, 1025, 'ANGELA_BRITHEY_MALDONADO_1791298114.pdf', 'hv_1118575006/hoja_de_vida/cedula_hv_1118575006/ANGELA_BRITHEY_MALDONADO_1791298114.pdf', 1, '2026-10-07 19:00:25', NULL, 'panel'),
 (5, 1697, 'CONTRATO_JORGE_SEGURA_1791204830.pdf', 'hv_80033385/documentos_contractuales/contratosFirmados_hv_80033385/CONTRATO_JORGE_SEGURA_1791204830.pdf', 1, '2026-10-07 19:00:27', NULL, 'panel'),
 (6, 776, 'Certificado_1790728449.pdf', 'hv_1118555586/hoja_de_vida/hv_formal_hv_1118555586/Certificado_1790728449.pdf', 1, '2026-10-08 00:10:12', NULL, 'panel'),
-(7, 1692, 'certificado_positiva_1790899379.pdf', 'hv_80033385/documentos_contractuales/certificadoARL_hv_80033385/certificado_positiva_1790899379.pdf', 1, '2026-10-08 00:10:12', NULL, 'panel');
+(7, 1692, 'certificado_positiva_1790899379.pdf', 'hv_80033385/documentos_contractuales/certificadoARL_hv_80033385/certificado_positiva_1790899379.pdf', 1, '2026-10-08 00:10:12', NULL, 'panel'),
+(8, 219, 'YESID_LARGO_1791298230.pdf', 'hv_1007703611/hoja_de_vida/cedula_hv_1007703611/YESID_LARGO_1791298230.pdf', 1, '2026-10-09 12:09:50', NULL, 'panel'),
+(9, 808, 'ANGEL_GABRIEL_CAMARGO_PEZCA_1791298074.pdf', 'hv_1118555586/hoja_de_vida/cedula_hv_1118555586/ANGEL_GABRIEL_CAMARGO_PEZCA_1791298074.pdf', 1, '2026-10-09 12:09:52', NULL, 'panel'),
+(10, 1025, 'CAMILO_CORREDOR_1791297425.pdf', 'hv_1118573216/hoja_de_vida/cedula_hv_1118573216/CAMILO_CORREDOR_1791297425.pdf', 2, '2026-10-09 12:09:52', NULL, 'panel'),
+(11, 1056, 'ANGELA_BRITHEY_MALDONADO_1791298114.pdf', 'hv_1118575006/hoja_de_vida/cedula_hv_1118575006/ANGELA_BRITHEY_MALDONADO_1791298114.pdf', 1, '2026-10-09 12:09:52', NULL, 'panel'),
+(12, 1759, 'CONTRATO_JORGE_SEGURA_1791204830.pdf', 'hv_80033385/documentos_contractuales/contratosFirmados_hv_80033385/CONTRATO_JORGE_SEGURA_1791204830.pdf', 1, '2026-10-09 12:09:55', NULL, 'panel');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `empleados`
+-- Table structure for table `empleados`
 --
-
 CREATE TABLE `empleados` (
-  `cedula` varchar(10) NOT NULL COMMENT 'Max 10 caracteres, permite extranjera alfanumérica',
-  `lugar_expedicion` varchar(120) DEFAULT NULL COMMENT 'Municipio, Departamento (lista en public/assets/data/municipios.json)',
-  `nombre` varchar(150) NOT NULL,
-  `sexo` enum('F','M') DEFAULT NULL,
-  `cargo` varchar(100) NOT NULL,
-  `tipo_de_personal` enum('Bombero','Civil') DEFAULT NULL,
-  `eps` enum('Sanitas','Nueva EPS','Capresoca','Salud Total') DEFAULT NULL,
-  `pension` enum('Colfondos','Porvenir','Colpensiones','Protección','NA') DEFAULT NULL,
-  `arl` enum('Positiva','SURA','Colmena','AXA Colpatria','Seguros Bolívar') DEFAULT NULL,
+  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Max 10 caracteres, permite extranjera alfanumérica',
+  `lugar_expedicion` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Municipio, Departamento (lista en public/assets/data/municipios.json)',
+  `nombre` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sexo` enum('F','M') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cargo` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo_de_personal` enum('Bombero','Civil') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `eps` enum('Sanitas','Nueva EPS','Capresoca','Salud Total') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pension` enum('Colfondos','Porvenir','Colpensiones','Protección','NA') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `arl` enum('Positiva','SURA','Colmena','AXA Colpatria','Seguros Bolívar') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `salario_basico` decimal(12,2) DEFAULT NULL,
-  `es_bombero_integral` tinyint(1) DEFAULT 0,
-  `tipo_jornada` enum('Turnos','Administrativa','Restringida') NOT NULL DEFAULT 'Administrativa' COMMENT 'Cómo se cuentan horas/días en permisos: Turnos (operativo), Administrativa (07:00-17:24) o Restringida (horario reducido)',
+  `es_bombero_integral` tinyint(1) DEFAULT '0',
+  `tipo_jornada` enum('Turnos','Administrativa','Restringida') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Administrativa' COMMENT 'Cómo se cuentan horas/días en permisos: Turnos (operativo), Administrativa (07:00-17:24) o Restringida (horario reducido)',
   `jornada_hora_entrada` time DEFAULT NULL COMMENT 'Solo si tipo_jornada = Restringida',
   `jornada_hora_salida` time DEFAULT NULL COMMENT 'Solo si tipo_jornada = Restringida',
-  `tipo_de_contrato` enum('Fijo','Indefinido','OPS','SENA','OPS SEMY','No aplica') DEFAULT NULL,
+  `tipo_de_contrato` enum('Fijo','Indefinido','OPS','SENA','OPS SEMY','No aplica') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fecha_inicio_contrato` date DEFAULT NULL,
   `fecha_fin_contrato` date DEFAULT NULL,
-  `estado` enum('activo','no activo') DEFAULT 'activo',
-  `celular` varchar(15) DEFAULT NULL COMMENT 'Numero de celular, validar 10 digitos',
-  `correo` varchar(150) DEFAULT NULL,
+  `estado` enum('activo','no activo') COLLATE utf8mb4_unicode_ci DEFAULT 'activo',
+  `celular` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Numero de celular, validar 10 digitos',
+  `correo` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fecha_nacimiento` date DEFAULT NULL COMMENT 'Para notificacion de cumpleaños',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `foto` varchar(255) DEFAULT NULL COMMENT 'Ruta relativa dentro de uploads/'
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `foto` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Ruta relativa dentro de uploads/'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `empleados`
+-- Dumping data for table `empleados`
 --
 
 INSERT INTO `empleados` (`cedula`, `lugar_expedicion`, `nombre`, `sexo`, `cargo`, `tipo_de_personal`, `eps`, `pension`, `arl`, `salario_basico`, `es_bombero_integral`, `tipo_jornada`, `jornada_hora_entrada`, `jornada_hora_salida`, `tipo_de_contrato`, `fecha_inicio_contrato`, `fecha_fin_contrato`, `estado`, `celular`, `correo`, `fecha_nacimiento`, `created_at`, `foto`) VALUES
 ('1005719736', 'Yopal, Casanare', 'Carlos Augusto Triana Lozano', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'OPS', NULL, '2026-10-06', 'activo', NULL, NULL, NULL, '2026-09-29 23:30:02', NULL),
+('1006554686', 'Yopal, Casanare', 'Camila Jula Gonzalez', 'F', 'Jefe de prensa', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '2002-10-18', '2026-10-09 12:20:45', NULL),
 ('1006555204', 'Maní, Casanare', 'Usuario Prueba', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-10-07 00:28:58', NULL),
 ('1006555838', 'Yopal, Casanare', 'Lourdes Ester Guarin Garcia', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-05', '2025-11-04', 'activo', NULL, NULL, '2003-02-10', '2026-09-23 03:32:54', NULL),
 ('1006556137', 'Yopal, Casanare', 'Javier David Moreno', 'M', 'Auxiliar de Extintores', 'Civil', 'Nueva EPS', NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-03-12', '2026-09-11', 'activo', '3224045766', NULL, NULL, '2026-09-23 22:46:04', NULL),
@@ -195,15 +196,15 @@ INSERT INTO `empleados` (`cedula`, `lugar_expedicion`, `nombre`, `sexo`, `cargo`
 ('1116992974', 'Sabanalarga, Casanare', 'Angelica Alfonso Alfonso', 'F', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2025-04-11', '2025-10-10', 'no activo', NULL, NULL, '1996-09-02', '2026-10-06 16:43:12', NULL),
 ('1118198423', 'Yopal, Casanare', 'Carlos Hugo Cubides Villalba', 'M', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-02-04', '2025-05-03', 'activo', NULL, NULL, '1996-04-26', '2026-10-03 03:22:07', NULL),
 ('1118529611', 'Yopal, Casanare', 'Jimmy Alejandro Garcia Chinchilla', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-03-22', NULL, 'activo', NULL, NULL, '1986-04-07', '2026-09-23 02:08:05', NULL),
-('1118530819', 'Yopal, Casanare', 'Omar David Linares Alvarez', 'M', 'Auxiliar de contaduría', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2025-10-01', '2026-04-30', 'activo', '3005484351', NULL, NULL, '2026-09-29 23:32:41', 'hv_1118530819/perfil/foto.jpg'),
+('1118530819', 'Yopal, Casanare', 'Omar David Linares Alvarez', 'M', 'Auxiliar de contaduría', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2025-10-01', '2026-04-30', 'activo', '3005484351', NULL, NULL, '2026-09-29 23:32:41', NULL),
 ('1118534974', 'Yopal, Casanare', 'Soraida Sepulveda Gordillo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-04-15', '2026-10-14', 'activo', NULL, NULL, '1987-04-15', '2026-09-23 03:25:05', NULL),
 ('1118536550', 'Yopal, Casanare', 'Rodrigo Hernan Ramirez Morales', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-10-01', '2025-03-31', 'activo', NULL, NULL, '1987-11-03', '2026-10-05 21:13:59', NULL),
 ('1118543385', 'Yopal, Casanare', 'Lewis Arfrey Ardila Achagua', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-01', '2025-11-30', 'activo', NULL, NULL, '1989-11-28', '2026-09-23 03:30:44', NULL),
 ('1118544837', 'Yopal, Casanare', 'José Ferney Rodriguez Barrera', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2015-12-01', '2016-11-30', 'activo', NULL, NULL, '1990-07-25', '2026-09-23 02:05:57', NULL),
-('1118547243', 'Yopal, Casanare', 'Tito Enrique Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2019-01-15', NULL, 'activo', NULL, NULL, '1991-04-21', '2026-09-23 01:11:57', NULL),
+('1118547243', 'Yopal, Casanare', 'Tito Enrique Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2019-01-15', NULL, 'activo', NULL, NULL, '1991-04-21', '2026-09-23 01:11:57', 'hv_1118547243/perfil/foto.jpg'),
 ('1118547356', 'Yopal, Casanare', 'Adriana Marcela Galan Hernandez', 'F', 'Director administrativo y financiero', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-08-10', '2026-09-30', 'no activo', NULL, NULL, NULL, '2026-10-06 15:10:32', NULL),
 ('1118550799', 'Yopal, Casanare', 'Deyna Yurany Torres Cuervo', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-01-17', NULL, 'activo', NULL, NULL, '1992-05-01', '2026-09-23 03:27:52', NULL),
-('1118555586', 'Yopal, Casanare', 'Angel Gabriel Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2021-09-24', NULL, 'activo', '3133691214', NULL, '1993-10-05', '2026-09-23 02:06:39', 'hv_1118555586/perfil/foto.png'),
+('1118555586', 'Yopal, Casanare', 'Angel Gabriel Camargo Pezca', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2021-09-24', NULL, 'activo', '3133691214', NULL, '1993-10-05', '2026-09-23 02:06:39', 'hv_1118555586/perfil/foto.jpg'),
 ('1118564532', 'Yopal, Casanare', 'Astrid Mariana Aquite Gómez', 'F', 'Auxiliar en Talento Humano', 'Bombero', 'Nueva EPS', 'Colfondos', 'Positiva', 1964430.00, 1, 'Restringida', '08:00:00', '12:00:00', 'Fijo', '2024-02-15', '2024-08-15', 'activo', '3209308877', NULL, '1996-04-13', '2026-09-23 00:46:12', NULL),
 ('1118564997', 'Yopal, Casanare', 'Kewin Alexis Adan Jeronimo', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', NULL, NULL, 'no activo', NULL, NULL, '1996-05-30', '2026-09-23 03:18:30', NULL),
 ('1118565906', 'Yopal, Casanare', 'Jeidi Carolina Acevedo Lopez', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-11-12', '2026-05-11', 'activo', NULL, NULL, '1996-08-26', '2026-09-23 03:44:42', NULL),
@@ -211,7 +212,7 @@ INSERT INTO `empleados` (`cedula`, `lugar_expedicion`, `nombre`, `sexo`, `cargo`
 ('1118567328', 'Yopal, Casanare', 'Nelson Fabian Chaparro Rincon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2016-02-11', NULL, 'activo', NULL, NULL, '1997-02-10', '2026-09-23 18:11:40', NULL),
 ('1118572004', 'Yopal, Casanare', 'Luisa Fernanda Abril Bernal', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-09-05', NULL, 'activo', NULL, NULL, '1998-08-26', '2026-09-30 15:01:28', NULL),
 ('1118573216', 'Yopal, Casanare', 'Camilo Andres Corredor Garcia', 'M', 'Maquinista', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-11-01', '2025-04-30', 'activo', NULL, NULL, '1999-01-17', '2026-09-23 03:22:10', NULL),
-('1118575006', 'Yopal, Casanare', 'Angela Brithey Maldonado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-16', '2025-11-15', 'activo', NULL, NULL, '1999-08-24', '2026-09-23 03:37:51', NULL),
+('1118575006', 'Yopal, Casanare', 'Angela Brithey Maldonado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-16', '2025-11-15', 'activo', NULL, NULL, '1999-08-24', '2026-09-23 03:37:51', 'hv_1118575006/perfil/foto.jpg'),
 ('1118775342', 'Yopal, Casanare', 'Daniel Fernando Gutierrez Riaño', 'M', 'Bombero integral', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', 0.00, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-01-17', '2025-01-17', 'activo', NULL, NULL, '1993-03-12', '2026-09-23 01:04:54', NULL),
 ('11206377', 'Yopal, Casanare', 'Juan Fernando Guzman Guzman', 'M', 'Bombero integral', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2023-07-21', NULL, 'activo', NULL, NULL, '1995-12-08', '2026-09-23 01:34:23', NULL),
 ('1121898640', 'Villavicencio, Meta', 'Arlyn Johanna Sanchez Gutierrez', 'F', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 22:47:28', NULL),
@@ -231,9 +232,9 @@ INSERT INTO `empleados` (`cedula`, `lugar_expedicion`, `nombre`, `sexo`, `cargo`
 ('74770870', 'Yopal, Casanare', 'Ariosto Castelblanco Zorro', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2008-06-01', NULL, 'activo', NULL, NULL, NULL, '2026-09-23 17:56:03', NULL),
 ('74814305', 'Yopal, Casanare', 'Nelson Morales Cubides', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Indefinido', '2007-11-01', NULL, 'activo', NULL, NULL, '1979-11-14', '2026-09-23 18:04:03', NULL),
 ('74859815', 'Yopal, Casanare', 'Waldo Ramirez Avila', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2005-01-11', NULL, 'activo', NULL, NULL, '1977-08-15', '2026-09-23 18:04:43', NULL),
-('74861664', 'Yopal, Casanare', 'Guillermo Enrique Guarin Fonseca', 'M', 'Director Académico', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, NULL, 'activo', '3123878482', NULL, '1979-09-25', '2026-09-25 02:19:35', 'hv_74861664/perfil/foto.png'),
+('74861664', 'Yopal, Casanare', 'Guillermo Enrique Guarin Fonseca', 'M', 'Director Académico', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, NULL, 'activo', '3123878482', NULL, '1979-09-25', '2026-09-25 02:19:35', NULL),
 ('74861711', 'Yopal, Casanare', 'Wilmar Vargas Teatin', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', NULL, NULL, '1979-01-27', '2026-09-23 18:05:33', NULL),
-('80033385', 'Yopal, Casanare', 'Jorge Antonio Segura Poveda', 'M', 'Conductor de ambulancia', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-09-26', '2026-12-25', 'activo', '3212038841', NULL, '1982-05-13', '2026-09-25 02:02:05', 'hv_80033385/perfil/foto.png'),
+('80033385', 'Yopal, Casanare', 'Jorge Antonio Segura Poveda', 'M', 'Conductor de ambulancia', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2026-09-26', '2026-12-25', 'activo', '3212038841', NULL, '1982-05-13', '2026-09-25 02:02:05', NULL),
 ('9433076', 'Yopal, Casanare', 'Rafael Rojas Rico', 'M', 'Comandante de estación', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', 7046.33, 1, 'Turnos', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', '3216547896', NULL, '1984-06-21', '2026-09-29 21:05:27', 'hv_9433076/perfil/foto.jpg'),
 ('9434678', 'Yopal, Casanare', 'Jose Alejandro Fernandez Cardenas', 'M', 'Tecnico archivista', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2015-12-01', '2016-11-30', 'activo', NULL, NULL, '1985-11-14', '2026-10-05 20:04:25', NULL),
 ('9656509', 'Yopal, Casanare', 'Jose Orlando Gonzalez Gonzales', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Indefinido', '2013-02-26', NULL, 'activo', NULL, NULL, '1967-12-13', '2026-09-23 17:59:42', NULL),
@@ -242,18 +243,17 @@ INSERT INTO `empleados` (`cedula`, `lugar_expedicion`, `nombre`, `sexo`, `cargo`
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `festivos_colombia`
+-- Table structure for table `festivos_colombia`
 --
-
 CREATE TABLE `festivos_colombia` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `fecha` date NOT NULL,
-  `nombre` varchar(150) NOT NULL,
-  `anio` int(11) NOT NULL
+  `nombre` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `anio` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `festivos_colombia`
+-- Dumping data for table `festivos_colombia`
 --
 
 INSERT INTO `festivos_colombia` (`id`, `fecha`, `nombre`, `anio`) VALUES
@@ -349,34 +349,32 @@ INSERT INTO `festivos_colombia` (`id`, `fecha`, `nombre`, `anio`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `firmas_guardadas`
+-- Table structure for table `firmas_guardadas`
 --
-
 CREATE TABLE `firmas_guardadas` (
-  `id` int(11) NOT NULL,
-  `cedula` varchar(10) NOT NULL,
-  `ruta_imagen` varchar(255) NOT NULL COMMENT 'PNG del canvas o archivo subido, en uploads/hv_{cedula}/firma/',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` int NOT NULL,
+  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ruta_imagen` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'PNG del canvas o archivo subido, en uploads/hv_{cedula}/firma/',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `funciones_certificados`
+-- Table structure for table `funciones_certificados`
 --
-
 CREATE TABLE `funciones_certificados` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `cargo_id` int(10) UNSIGNED NOT NULL,
-  `texto` varchar(160) NOT NULL,
-  `orden` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
-  `activo` tinyint(1) NOT NULL DEFAULT 1,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int UNSIGNED NOT NULL,
+  `cargo_id` int UNSIGNED NOT NULL,
+  `texto` varchar(160) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `orden` tinyint UNSIGNED NOT NULL DEFAULT '0',
+  `activo` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `funciones_certificados`
+-- Dumping data for table `funciones_certificados`
 --
 
 INSERT INTO `funciones_certificados` (`id`, `cargo_id`, `texto`, `orden`, `activo`, `created_at`, `updated_at`) VALUES
@@ -385,112 +383,107 @@ INSERT INTO `funciones_certificados` (`id`, `cargo_id`, `texto`, `orden`, `activ
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `funciones_contratos`
+-- Table structure for table `funciones_contratos`
 --
-
 CREATE TABLE `funciones_contratos` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `cargo_id` int(10) UNSIGNED NOT NULL,
-  `texto` text NOT NULL,
-  `orden` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
-  `activo` tinyint(1) NOT NULL DEFAULT 1,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int UNSIGNED NOT NULL,
+  `cargo_id` int UNSIGNED NOT NULL,
+  `texto` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `orden` tinyint UNSIGNED NOT NULL DEFAULT '0',
+  `activo` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `notificaciones`
+-- Table structure for table `notificaciones`
 --
-
 CREATE TABLE `notificaciones` (
-  `id` int(11) NOT NULL,
-  `usuario_id` int(11) DEFAULT NULL,
-  `destinatario_tipo` enum('talento_humano','empleado') NOT NULL DEFAULT 'talento_humano',
-  `usuario_nombre` varchar(50) NOT NULL,
-  `cedula_empleado` varchar(10) NOT NULL,
-  `campo` varchar(50) NOT NULL,
-  `mensaje` varchar(500) NOT NULL,
-  `enlace` varchar(255) DEFAULT NULL COMMENT 'Ruta relativa a la que redirige la notificación',
-  `leida` tinyint(1) NOT NULL DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` int NOT NULL,
+  `usuario_id` int DEFAULT NULL,
+  `destinatario_tipo` enum('talento_humano','empleado') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'talento_humano',
+  `usuario_nombre` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cedula_empleado` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `campo` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mensaje` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `enlace` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Ruta relativa a la que redirige la notificación',
+  `leida` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `permisos`
+-- Table structure for table `permisos`
 --
-
 CREATE TABLE `permisos` (
-  `id` int(11) NOT NULL,
-  `consecutivo` varchar(20) NOT NULL,
-  `cedula_empleado` varchar(10) NOT NULL,
-  `nombre_empleado_snapshot` varchar(150) NOT NULL,
-  `cargo_empleado_snapshot` varchar(150) NOT NULL,
-  `celular_empleado_snapshot` varchar(15) DEFAULT NULL,
-  `tipo_permiso` enum('Permiso','Vacaciones','Licencia','Mision institucional') NOT NULL,
-  `motivo` text NOT NULL,
+  `id` int NOT NULL,
+  `consecutivo` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cedula_empleado` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre_empleado_snapshot` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cargo_empleado_snapshot` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `celular_empleado_snapshot` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_permiso` enum('Permiso','Vacaciones','Licencia','Mision institucional') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `motivo` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `fecha_inicio` date NOT NULL,
   `hora_inicio` time NOT NULL,
   `fecha_fin` date DEFAULT NULL,
   `hora_fin` time DEFAULT NULL,
   `total_horas` decimal(6,2) DEFAULT NULL,
-  `incluye_festivo` tinyint(1) DEFAULT 0,
-  `festivo_confirmado` tinyint(1) DEFAULT 0,
-  `remunerado` tinyint(1) NOT NULL DEFAULT 0,
-  `es_compensatorio` tinyint(1) NOT NULL DEFAULT 0,
+  `incluye_festivo` tinyint(1) DEFAULT '0',
+  `festivo_confirmado` tinyint(1) DEFAULT '0',
+  `remunerado` tinyint(1) NOT NULL DEFAULT '0',
+  `es_compensatorio` tinyint(1) NOT NULL DEFAULT '0',
   `fecha_horas_extra` date DEFAULT NULL,
-  `es_devolucion` tinyint(1) NOT NULL DEFAULT 0,
-  `es_salida_pendiente_regreso` tinyint(1) NOT NULL DEFAULT 0,
+  `es_devolucion` tinyint(1) NOT NULL DEFAULT '0',
+  `es_salida_pendiente_regreso` tinyint(1) NOT NULL DEFAULT '0',
   `devolucion_fecha` date DEFAULT NULL,
   `devolucion_hora_inicio` time DEFAULT NULL,
   `devolucion_hora_fin` time DEFAULT NULL,
   `devolucion_total_horas` decimal(6,2) DEFAULT NULL,
-  `tiene_reemplazo` tinyint(1) NOT NULL DEFAULT 0,
-  `cedula_reemplazo` varchar(10) DEFAULT NULL,
-  `cedula_jefe` varchar(10) NOT NULL,
-  `foto_solicitante` varchar(255) NOT NULL,
-  `firma_solicitante` varchar(255) NOT NULL,
-  `foto_reemplazo` varchar(255) DEFAULT NULL,
-  `firma_reemplazo` varchar(255) DEFAULT NULL,
-  `foto_jefe` varchar(255) DEFAULT NULL,
-  `firma_jefe` varchar(255) DEFAULT NULL,
-  `foto_jefe_prefirmado` varchar(255) DEFAULT NULL,
-  `firma_jefe_prefirmado` varchar(255) DEFAULT NULL,
-  `evidencia_archivo` varchar(255) DEFAULT NULL,
-  `estado` enum('en_proceso','por_firmar_reemplazo','por_firmar_jefe','por_firmar_jefe_final','firmado','devuelto','devuelto_regreso','rechazado','aprobado_pendiente_regreso','anulado') NOT NULL DEFAULT 'en_proceso',
-  `motivo_devolucion` text DEFAULT NULL,
-  `motivo_rechazo` text DEFAULT NULL,
-  `motivo_anulacion` text DEFAULT NULL,
-  `anulado_por` varchar(50) DEFAULT NULL,
+  `tiene_reemplazo` tinyint(1) NOT NULL DEFAULT '0',
+  `cedula_reemplazo` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cedula_jefe` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `foto_solicitante` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `firma_solicitante` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `foto_reemplazo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `firma_reemplazo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `foto_jefe` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `firma_jefe` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `foto_jefe_prefirmado` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `firma_jefe_prefirmado` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `evidencia_archivo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `estado` enum('en_proceso','por_firmar_reemplazo','por_firmar_jefe','por_firmar_jefe_final','firmado','devuelto','devuelto_regreso','rechazado','aprobado_pendiente_regreso','anulado') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'en_proceso',
+  `motivo_devolucion` text COLLATE utf8mb4_unicode_ci,
+  `motivo_rechazo` text COLLATE utf8mb4_unicode_ci,
+  `motivo_anulacion` text COLLATE utf8mb4_unicode_ci,
+  `anulado_por` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fecha_anulacion` timestamp NULL DEFAULT NULL,
-  `version` int(11) NOT NULL DEFAULT 1,
-  `fecha_solicitud` timestamp NOT NULL DEFAULT current_timestamp(),
-  `fecha_actualizacion` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `version` int NOT NULL DEFAULT '1',
+  `fecha_solicitud` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `permisos_consecutivos`
+-- Table structure for table `permisos_consecutivos`
 --
-
 CREATE TABLE `permisos_consecutivos` (
-  `anio` int(11) NOT NULL,
-  `ultimo_numero` int(11) NOT NULL DEFAULT 0
+  `anio` int NOT NULL,
+  `ultimo_numero` int NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `permisos_devoluciones`
+-- Table structure for table `permisos_devoluciones`
 --
-
 CREATE TABLE `permisos_devoluciones` (
-  `id` int(11) NOT NULL,
-  `permiso_id` int(11) NOT NULL,
+  `id` int NOT NULL,
+  `permiso_id` int NOT NULL,
   `fecha` date NOT NULL,
   `hora_inicio` time NOT NULL,
   `hora_fin` time NOT NULL,
@@ -500,102 +493,97 @@ CREATE TABLE `permisos_devoluciones` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `permisos_dias`
+-- Table structure for table `permisos_dias`
 --
-
 CREATE TABLE `permisos_dias` (
-  `id` int(11) NOT NULL,
-  `permiso_id` int(11) NOT NULL,
+  `id` int NOT NULL,
+  `permiso_id` int NOT NULL,
   `fecha` date NOT NULL,
   `hora_inicio` time NOT NULL,
   `hora_fin` time NOT NULL,
-  `es_festivo` tinyint(1) NOT NULL DEFAULT 0,
-  `festivo_nombre` varchar(150) DEFAULT NULL,
-  `incluido` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'si es_festivo=1, el empleado decide; si es_festivo=0, siempre 1',
+  `es_festivo` tinyint(1) NOT NULL DEFAULT '0',
+  `festivo_nombre` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `incluido` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'si es_festivo=1, el empleado decide; si es_festivo=0, siempre 1',
   `horas_brutas` decimal(6,2) NOT NULL,
-  `horas_descuento_almuerzo` decimal(6,2) NOT NULL DEFAULT 0.00,
+  `horas_descuento_almuerzo` decimal(6,2) NOT NULL DEFAULT '0.00',
   `horas_netas` decimal(6,2) NOT NULL COMMENT '0 si incluido=0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `permisos_historial`
+-- Table structure for table `permisos_historial`
 --
-
 CREATE TABLE `permisos_historial` (
-  `id` int(11) NOT NULL,
-  `permiso_id` int(11) NOT NULL,
-  `version_anterior` int(11) NOT NULL,
-  `estado_anterior` varchar(30) NOT NULL,
-  `estado_nuevo` varchar(30) NOT NULL,
-  `actor_tipo` enum('empleado','reemplazo','jefe','talento_humano') NOT NULL,
-  `actor_cedula_o_usuario` varchar(50) NOT NULL,
-  `detalle` varchar(500) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` int NOT NULL,
+  `permiso_id` int NOT NULL,
+  `version_anterior` int NOT NULL,
+  `estado_anterior` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `estado_nuevo` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `actor_tipo` enum('empleado','reemplazo','jefe','talento_humano') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `actor_cedula_o_usuario` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `detalle` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `renovaciones`
+-- Table structure for table `renovaciones`
 --
-
 CREATE TABLE `renovaciones` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `cedula_empleado` varchar(10) NOT NULL,
-  `numero` tinyint(3) UNSIGNED NOT NULL COMMENT '1 = RNV1, 2 = RNV2, ... (sin tope fijo)',
+  `id` int UNSIGNED NOT NULL,
+  `cedula_empleado` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `numero` tinyint UNSIGNED NOT NULL COMMENT '1 = RNV1, 2 = RNV2, ... (sin tope fijo)',
   `fecha_inicio` date NOT NULL,
   `fecha_fin` date NOT NULL,
-  `duracion_meses` smallint(5) UNSIGNED NOT NULL COMMENT 'Duración REAL registrada; coherente con las fechas',
-  `es_historica` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = renovación anterior al sistema, registrada después',
-  `duracion_menor_confirmada` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = era menor que la anterior y el usuario confirmó la advertencia',
-  `observaciones` text DEFAULT NULL,
-  `creado_por_id` int(11) DEFAULT NULL,
-  `creado_por_nombre` varchar(50) NOT NULL,
-  `creado_por_rol` varchar(40) NOT NULL,
+  `duracion_meses` smallint UNSIGNED NOT NULL COMMENT 'Duración REAL registrada; coherente con las fechas',
+  `es_historica` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1 = renovación anterior al sistema, registrada después',
+  `duracion_menor_confirmada` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1 = era menor que la anterior y el usuario confirmó la advertencia',
+  `observaciones` text COLLATE utf8mb4_unicode_ci,
+  `creado_por_id` int DEFAULT NULL,
+  `creado_por_nombre` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `creado_por_rol` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime NOT NULL,
-  `modificado_por_id` int(11) DEFAULT NULL,
-  `modificado_por_nombre` varchar(50) DEFAULT NULL,
-  `modificado_por_rol` varchar(40) DEFAULT NULL,
+  `modificado_por_id` int DEFAULT NULL,
+  `modificado_por_nombre` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `modificado_por_rol` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `renovaciones_auditoria`
+-- Table structure for table `renovaciones_auditoria`
 --
-
 CREATE TABLE `renovaciones_auditoria` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `usuario_id` int(11) DEFAULT NULL,
-  `usuario_nombre` varchar(50) NOT NULL,
-  `usuario_rol` varchar(40) NOT NULL,
-  `accion` varchar(50) NOT NULL,
-  `cedula_empleado` varchar(10) DEFAULT NULL,
-  `renovacion_id` int(10) UNSIGNED DEFAULT NULL,
-  `detalle` longtext DEFAULT NULL COMMENT 'JSON: antes/después, resumen, etc.',
-  `ip` varchar(45) DEFAULT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `usuario_id` int DEFAULT NULL,
+  `usuario_nombre` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `usuario_rol` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `accion` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cedula_empleado` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `renovacion_id` int UNSIGNED DEFAULT NULL,
+  `detalle` longtext COLLATE utf8mb4_unicode_ci COMMENT 'JSON: antes/después, resumen, etc.',
+  `ip` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime NOT NULL
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `renovaciones_avisos`
+-- Table structure for table `renovaciones_avisos`
 --
-
 CREATE TABLE `renovaciones_avisos` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `cedula` varchar(10) NOT NULL,
+  `id` int UNSIGNED NOT NULL,
+  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
   `vigencia_fin` date NOT NULL COMMENT 'Fecha de vencimiento a la que corresponde el aviso',
-  `tipo` enum('por_vencer','vencido') NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `tipo` enum('por_vencer','vencido') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `renovaciones_avisos`
+-- Dumping data for table `renovaciones_avisos`
 --
 
 INSERT INTO `renovaciones_avisos` (`id`, `cedula`, `vigencia_fin`, `tipo`, `created_at`) VALUES
@@ -606,27 +594,26 @@ INSERT INTO `renovaciones_avisos` (`id`, `cedula`, `vigencia_fin`, `tipo`, `crea
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `renovaciones_contrato`
+-- Table structure for table `renovaciones_contrato`
 --
-
 CREATE TABLE `renovaciones_contrato` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `cedula` varchar(10) NOT NULL,
-  `numero` tinyint(3) UNSIGNED NOT NULL COMMENT '1 = RNV1, 2 = RNV2, ...',
+  `id` int UNSIGNED NOT NULL,
+  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `numero` tinyint UNSIGNED NOT NULL COMMENT '1 = RNV1, 2 = RNV2, ...',
   `fecha_inicio` date NOT NULL,
   `fecha_fin` date NOT NULL,
-  `duracion_meses` smallint(5) UNSIGNED NOT NULL COMMENT 'Calculada al guardar (meses completos, redondeando hacia arriba)',
-  `segun_historico` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = registrada tal cual el soporte histórico',
-  `incluye_tiempo_previo` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = incluir en el acumulado el tiempo entre este periodo y el anterior',
-  `observaciones` varchar(500) DEFAULT NULL,
-  `creado_por` int(11) DEFAULT NULL COMMENT 'usuarios.id al momento de crear (sin FK a propósito)',
-  `creado_por_nombre` varchar(50) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `duracion_meses` smallint UNSIGNED NOT NULL COMMENT 'Calculada al guardar (meses completos, redondeando hacia arriba)',
+  `segun_historico` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1 = registrada tal cual el soporte histórico',
+  `incluye_tiempo_previo` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1 = incluir en el acumulado el tiempo entre este periodo y el anterior',
+  `observaciones` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `creado_por` int DEFAULT NULL COMMENT 'usuarios.id al momento de crear (sin FK a propósito)',
+  `creado_por_nombre` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `renovaciones_contrato`
+-- Dumping data for table `renovaciones_contrato`
 --
 
 INSERT INTO `renovaciones_contrato` (`id`, `cedula`, `numero`, `fecha_inicio`, `fecha_fin`, `duracion_meses`, `segun_historico`, `incluye_tiempo_previo`, `observaciones`, `creado_por`, `creado_por_nombre`, `created_at`, `updated_at`) VALUES
@@ -643,22 +630,21 @@ INSERT INTO `renovaciones_contrato` (`id`, `cedula`, `numero`, `fecha_inicio`, `
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `renovaciones_historial`
+-- Table structure for table `renovaciones_historial`
 --
-
 CREATE TABLE `renovaciones_historial` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `cedula` varchar(10) NOT NULL,
-  `renovacion_id` int(10) UNSIGNED DEFAULT NULL,
-  `accion` enum('crear','editar','eliminar') NOT NULL,
-  `detalle` varchar(500) NOT NULL,
-  `actor_id` int(11) DEFAULT NULL,
-  `actor_nombre` varchar(50) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` int UNSIGNED NOT NULL,
+  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `renovacion_id` int UNSIGNED DEFAULT NULL,
+  `accion` enum('crear','editar','eliminar') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `detalle` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `actor_id` int DEFAULT NULL,
+  `actor_nombre` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `renovaciones_historial`
+-- Dumping data for table `renovaciones_historial`
 --
 
 INSERT INTO `renovaciones_historial` (`id`, `cedula`, `renovacion_id`, `accion`, `detalle`, `actor_id`, `actor_nombre`, `created_at`) VALUES
@@ -695,21 +681,20 @@ INSERT INTO `renovaciones_historial` (`id`, `cedula`, `renovacion_id`, `accion`,
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuarios`
+-- Table structure for table `usuarios`
 --
-
 CREATE TABLE `usuarios` (
-  `id` int(11) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `password_hash` varchar(255) NOT NULL,
-  `rol` enum('superadmin_talento_humano','auxiliar_talento_humano','teniente') NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `intentos_fallidos` int(11) DEFAULT 0,
+  `id` int NOT NULL,
+  `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rol` enum('superadmin_talento_humano','auxiliar_talento_humano','teniente') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `intentos_fallidos` int DEFAULT '0',
   `bloqueado_hasta` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `usuarios`
+-- Dumping data for table `usuarios`
 --
 
 INSERT INTO `usuarios` (`id`, `username`, `password_hash`, `rol`, `created_at`, `intentos_fallidos`, `bloqueado_hasta`) VALUES
@@ -720,59 +705,58 @@ INSERT INTO `usuarios` (`id`, `username`, `password_hash`, `rol`, `created_at`, 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuarios_empleados`
+-- Table structure for table `usuarios_empleados`
 --
-
 CREATE TABLE `usuarios_empleados` (
-  `id` int(11) NOT NULL,
-  `cedula` varchar(10) NOT NULL,
-  `password_hash` varchar(255) NOT NULL COMMENT 'hash del PIN de 4 digitos',
-  `activo` tinyint(1) DEFAULT 1,
-  `intentos_fallidos` int(11) DEFAULT 0,
+  `id` int NOT NULL,
+  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'hash del PIN de 4 digitos',
+  `activo` tinyint(1) DEFAULT '1',
+  `intentos_fallidos` int DEFAULT '0',
   `bloqueado_hasta` datetime DEFAULT NULL,
-  `pin_encriptado` varchar(255) DEFAULT NULL COMMENT 'PIN cifrado reversible, solo visible para superadmin/auxiliar'
+  `pin_encriptado` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'PIN cifrado reversible, solo visible para superadmin/auxiliar'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Índices para tablas volcadas
+-- Indexes for dumped tables
 --
 
 --
--- Indices de la tabla `bolsillos`
+-- Indexes for table `bolsillos`
 --
 ALTER TABLE `bolsillos`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_cedula_seccion` (`cedula_empleado`,`seccion`);
 
 --
--- Indices de la tabla `cargos`
+-- Indexes for table `cargos`
 --
 ALTER TABLE `cargos`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uq_cargos_nombre` (`nombre`);
 
 --
--- Indices de la tabla `certificados_consecutivos`
+-- Indexes for table `certificados_consecutivos`
 --
 ALTER TABLE `certificados_consecutivos`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `documentos`
+-- Indexes for table `documentos`
 --
 ALTER TABLE `documentos`
   ADD PRIMARY KEY (`id`),
   ADD KEY `bolsillo_id` (`bolsillo_id`);
 
 --
--- Indices de la tabla `empleados`
+-- Indexes for table `empleados`
 --
 ALTER TABLE `empleados`
   ADD PRIMARY KEY (`cedula`),
   ADD KEY `idx_empleados_cargo` (`cargo`);
 
 --
--- Indices de la tabla `festivos_colombia`
+-- Indexes for table `festivos_colombia`
 --
 ALTER TABLE `festivos_colombia`
   ADD PRIMARY KEY (`id`),
@@ -780,14 +764,14 @@ ALTER TABLE `festivos_colombia`
   ADD KEY `idx_anio` (`anio`);
 
 --
--- Indices de la tabla `firmas_guardadas`
+-- Indexes for table `firmas_guardadas`
 --
 ALTER TABLE `firmas_guardadas`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unica_por_empleado` (`cedula`);
 
 --
--- Indices de la tabla `funciones_certificados`
+-- Indexes for table `funciones_certificados`
 --
 ALTER TABLE `funciones_certificados`
   ADD PRIMARY KEY (`id`),
@@ -795,21 +779,21 @@ ALTER TABLE `funciones_certificados`
   ADD KEY `idx_fcert_cargo` (`cargo_id`,`activo`,`orden`);
 
 --
--- Indices de la tabla `funciones_contratos`
+-- Indexes for table `funciones_contratos`
 --
 ALTER TABLE `funciones_contratos`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_fcont_cargo` (`cargo_id`,`activo`,`orden`);
 
 --
--- Indices de la tabla `notificaciones`
+-- Indexes for table `notificaciones`
 --
 ALTER TABLE `notificaciones`
   ADD PRIMARY KEY (`id`),
   ADD KEY `usuario_id` (`usuario_id`);
 
 --
--- Indices de la tabla `permisos`
+-- Indexes for table `permisos`
 --
 ALTER TABLE `permisos`
   ADD PRIMARY KEY (`id`),
@@ -821,20 +805,20 @@ ALTER TABLE `permisos`
   ADD KEY `idx_fecha_inicio` (`fecha_inicio`);
 
 --
--- Indices de la tabla `permisos_consecutivos`
+-- Indexes for table `permisos_consecutivos`
 --
 ALTER TABLE `permisos_consecutivos`
   ADD PRIMARY KEY (`anio`);
 
 --
--- Indices de la tabla `permisos_devoluciones`
+-- Indexes for table `permisos_devoluciones`
 --
 ALTER TABLE `permisos_devoluciones`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_permiso` (`permiso_id`);
 
 --
--- Indices de la tabla `permisos_dias`
+-- Indexes for table `permisos_dias`
 --
 ALTER TABLE `permisos_dias`
   ADD PRIMARY KEY (`id`),
@@ -842,21 +826,21 @@ ALTER TABLE `permisos_dias`
   ADD KEY `idx_fecha` (`fecha`);
 
 --
--- Indices de la tabla `permisos_historial`
+-- Indexes for table `permisos_historial`
 --
 ALTER TABLE `permisos_historial`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_permiso` (`permiso_id`);
 
 --
--- Indices de la tabla `renovaciones`
+-- Indexes for table `renovaciones`
 --
 ALTER TABLE `renovaciones`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uq_renovacion_empleado_numero` (`cedula_empleado`,`numero`);
 
 --
--- Indices de la tabla `renovaciones_auditoria`
+-- Indexes for table `renovaciones_auditoria`
 --
 ALTER TABLE `renovaciones_auditoria`
   ADD PRIMARY KEY (`id`),
@@ -866,14 +850,14 @@ ALTER TABLE `renovaciones_auditoria`
   ADD KEY `idx_aud_fecha` (`created_at`);
 
 --
--- Indices de la tabla `renovaciones_avisos`
+-- Indexes for table `renovaciones_avisos`
 --
 ALTER TABLE `renovaciones_avisos`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uq_renaviso` (`cedula`,`vigencia_fin`,`tipo`);
 
 --
--- Indices de la tabla `renovaciones_contrato`
+-- Indexes for table `renovaciones_contrato`
 --
 ALTER TABLE `renovaciones_contrato`
   ADD PRIMARY KEY (`id`),
@@ -881,186 +865,186 @@ ALTER TABLE `renovaciones_contrato`
   ADD KEY `idx_renov_fecha_fin` (`fecha_fin`);
 
 --
--- Indices de la tabla `renovaciones_historial`
+-- Indexes for table `renovaciones_historial`
 --
 ALTER TABLE `renovaciones_historial`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_renhist_cedula` (`cedula`,`created_at`);
 
 --
--- Indices de la tabla `usuarios`
+-- Indexes for table `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`username`);
 
 --
--- Indices de la tabla `usuarios_empleados`
+-- Indexes for table `usuarios_empleados`
 --
 ALTER TABLE `usuarios_empleados`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `cedula` (`cedula`);
 
 --
--- AUTO_INCREMENT de las tablas volcadas
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT de la tabla `bolsillos`
+-- AUTO_INCREMENT for table `bolsillos`
 --
 ALTER TABLE `bolsillos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `cargos`
+-- AUTO_INCREMENT for table `cargos`
 --
 ALTER TABLE `cargos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1839;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1839;
 
 --
--- AUTO_INCREMENT de la tabla `documentos`
+-- AUTO_INCREMENT for table `documentos`
 --
 ALTER TABLE `documentos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- AUTO_INCREMENT de la tabla `festivos_colombia`
+-- AUTO_INCREMENT for table `festivos_colombia`
 --
 ALTER TABLE `festivos_colombia`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
 
 --
--- AUTO_INCREMENT de la tabla `firmas_guardadas`
+-- AUTO_INCREMENT for table `firmas_guardadas`
 --
 ALTER TABLE `firmas_guardadas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `funciones_certificados`
+-- AUTO_INCREMENT for table `funciones_certificados`
 --
 ALTER TABLE `funciones_certificados`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT de la tabla `funciones_contratos`
+-- AUTO_INCREMENT for table `funciones_contratos`
 --
 ALTER TABLE `funciones_contratos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `notificaciones`
+-- AUTO_INCREMENT for table `notificaciones`
 --
 ALTER TABLE `notificaciones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `permisos`
+-- AUTO_INCREMENT for table `permisos`
 --
 ALTER TABLE `permisos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `permisos_devoluciones`
+-- AUTO_INCREMENT for table `permisos_devoluciones`
 --
 ALTER TABLE `permisos_devoluciones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `permisos_dias`
+-- AUTO_INCREMENT for table `permisos_dias`
 --
 ALTER TABLE `permisos_dias`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `permisos_historial`
+-- AUTO_INCREMENT for table `permisos_historial`
 --
 ALTER TABLE `permisos_historial`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `renovaciones`
+-- AUTO_INCREMENT for table `renovaciones`
 --
 ALTER TABLE `renovaciones`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `renovaciones_auditoria`
+-- AUTO_INCREMENT for table `renovaciones_auditoria`
 --
 ALTER TABLE `renovaciones_auditoria`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `renovaciones_avisos`
+-- AUTO_INCREMENT for table `renovaciones_avisos`
 --
 ALTER TABLE `renovaciones_avisos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
 
 --
--- AUTO_INCREMENT de la tabla `renovaciones_contrato`
+-- AUTO_INCREMENT for table `renovaciones_contrato`
 --
 ALTER TABLE `renovaciones_contrato`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
--- AUTO_INCREMENT de la tabla `renovaciones_historial`
+-- AUTO_INCREMENT for table `renovaciones_historial`
 --
 ALTER TABLE `renovaciones_historial`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
--- AUTO_INCREMENT de la tabla `usuarios`
+-- AUTO_INCREMENT for table `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT de la tabla `usuarios_empleados`
+-- AUTO_INCREMENT for table `usuarios_empleados`
 --
 ALTER TABLE `usuarios_empleados`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- Restricciones para tablas volcadas
+-- Constraints for dumped tables
 --
 
 --
--- Filtros para la tabla `bolsillos`
+-- Constraints for table `bolsillos`
 --
 ALTER TABLE `bolsillos`
   ADD CONSTRAINT `bolsillos_ibfk_1` FOREIGN KEY (`cedula_empleado`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `empleados`
+-- Constraints for table `empleados`
 --
 ALTER TABLE `empleados`
   ADD CONSTRAINT `fk_empleados_cargo` FOREIGN KEY (`cargo`) REFERENCES `cargos` (`nombre`) ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `funciones_certificados`
+-- Constraints for table `funciones_certificados`
 --
 ALTER TABLE `funciones_certificados`
   ADD CONSTRAINT `fk_fcert_cargo` FOREIGN KEY (`cargo_id`) REFERENCES `cargos` (`id`) ON DELETE CASCADE;
 
 --
--- Filtros para la tabla `renovaciones`
+-- Constraints for table `renovaciones`
 --
 ALTER TABLE `renovaciones`
   ADD CONSTRAINT `fk_renovaciones_empleado` FOREIGN KEY (`cedula_empleado`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `renovaciones_avisos`
+-- Constraints for table `renovaciones_avisos`
 --
 ALTER TABLE `renovaciones_avisos`
   ADD CONSTRAINT `fk_renaviso_empleado` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `renovaciones_contrato`
+-- Constraints for table `renovaciones_contrato`
 --
 ALTER TABLE `renovaciones_contrato`
   ADD CONSTRAINT `fk_renov_empleado` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `renovaciones_historial`
+-- Constraints for table `renovaciones_historial`
 --
 ALTER TABLE `renovaciones_historial`
   ADD CONSTRAINT `fk_renhist_empleado` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
