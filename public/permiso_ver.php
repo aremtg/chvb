@@ -4,7 +4,7 @@ require_once __DIR__. '/../src/models/PermisoModel.php';
 require_once __DIR__. '/../src/models/FirmaModel.php';
 require_once __DIR__. '/../src/models/NotificacionModel.php';
 $esEmpleado = !empty($_SESSION['empleado_cedula']);
-$esTH = !empty($_SESSION['superadmin_id']) && in_array(($_SESSION['superadmin_rol'] ?? ''), ['superadmin_talento_humano','auxiliar_talento_humano','teniente'], true);
+$esTH = !empty($_SESSION['superadmin_id']) && in_array(($_SESSION['superadmin_rol'] ?? ''), [...ROLES_TALENTO_HUMANO, 'teniente'], true);
 if (!$esEmpleado && !$esTH) { header('Location: ./login.php'); exit; }
 
 $cedula = $_SESSION['empleado_cedula'] ?? '';

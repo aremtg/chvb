@@ -1,17 +1,11 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/../../includes/session.php';
+require_once __DIR__ . '/../../includes/formatos_guard.php';
 require_once __DIR__ . '/../../src/models/EmpleadoModel.php';
 
 header('Content-Type: application/json; charset=utf-8');
-requireSuperAdmin();
-
-$rolesFormatos = ['superadmin_talento_humano', 'auxiliar_talento_humano'];
-if (!in_array($_SESSION['superadmin_rol'] ?? '', $rolesFormatos, true)) {
-    http_response_code(403);
-    echo json_encode(['ok' => false, 'error' => 'No tienes permiso para usar Formatos.'], JSON_UNESCAPED_UNICODE);
-    exit;
-}
+requireFormatosAccess(true);
 
 try {
     $q = trim((string)($_GET['q'] ?? ''));

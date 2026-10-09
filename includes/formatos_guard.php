@@ -3,7 +3,7 @@
 // Único lugar donde se define quién puede usar el módulo de Formatos.
 require_once __DIR__ . '/session.php';
 
-const ROLES_FORMATOS = ['superadmin_talento_humano', 'auxiliar_talento_humano'];
+const ROLES_FORMATOS = ROLES_TALENTO_HUMANO;   // definidos en includes/roles.php
 
 /**
  * Exige sesión de superadmin + rol de Talento Humano.
@@ -25,7 +25,7 @@ function requireFormatosAccess(bool $json = false): void
     }
 }
 
-const ROL_ADMIN_FORMATOS = 'superadmin_talento_humano';
+const ROL_ADMIN_FORMATOS = ROL_SUPERADMIN_TH;
 
 /** true si el usuario en sesión puede crear/editar/eliminar funciones (solo super admin). */
 function esAdminFormatos(): bool

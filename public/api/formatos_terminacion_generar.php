@@ -2,18 +2,13 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../includes/session.php';
+require_once __DIR__ . '/../../includes/formatos_guard.php';
 require_once __DIR__ . '/../../src/models/FormatoModel.php';
 require_once __DIR__ . '/../../src/models/EmpleadoModel.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-requireSuperAdmin();
-
-if (!in_array($_SESSION['superadmin_rol'] ?? '', ['superadmin_talento_humano', 'auxiliar_talento_humano'], true)) {
-    http_response_code(403);
-    echo json_encode(['ok' => false, 'error' => 'No tienes permiso para usar Formatos.'], JSON_UNESCAPED_UNICODE);
-    exit;
-}
+requireFormatosAccess(true);
 
 validarCSRF();
 
@@ -545,6 +540,9 @@ try {
     ], JSON_UNESCAPED_UNICODE);
 } catch (JsonException $e) {
     af02JsonError('Los datos de renovaciones no tienen un formato JSON válido.');
+} catch (InvalidArgumentException $e) {
+    // Errores de validación: sus mensajes están pensados para el usuario.
+    af02JsonError($e->getMessage(), 400);
 } catch (Throwable $e) {
     error_log('AF-FT-02-AF-NOTIFICACION TERMINACION CONTRATO: ' . $e->getMessage());
     af02JsonError('No se pudo generar la terminación de contrato.', 500);

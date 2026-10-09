@@ -544,6 +544,9 @@
   .inline-flex {
     display: inline-flex;
   }
+  .table {
+    display: table;
+  }
   .h-0 {
     height: 0px;
   }
@@ -739,6 +742,9 @@
   .max-w-md {
     max-width: var(--container-md);
   }
+  .max-w-none {
+    max-width: none;
+  }
   .max-w-sm {
     max-width: var(--container-sm);
   }
@@ -821,6 +827,9 @@
   }
   .grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   .grid-cols-7 {
     grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -1919,6 +1928,9 @@
     .md\:grid-cols-3 {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+    .md\:grid-cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
     .md\:grid-cols-\[72px_1fr_1fr_1fr\] {
       grid-template-columns: 72px 1fr 1fr 1fr;
     }
@@ -1933,6 +1945,9 @@
     }
     .md\:p-6 {
       padding: calc(var(--spacing) * 6);
+    }
+    .md\:px-6 {
+      padding-inline: calc(var(--spacing) * 6);
     }
     .md\:px-8 {
       padding-inline: calc(var(--spacing) * 8);
@@ -1974,6 +1989,11 @@
     }
     .lg\:pl-5 {
       padding-left: calc(var(--spacing) * 5);
+    }
+  }
+  @media (width >= 80rem) {
+    .xl\:grid-cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 }

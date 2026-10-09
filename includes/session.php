@@ -1,6 +1,7 @@
 <?php
 // includes/session.php
-date_default_timezone_set('America/Bogota'); 
+require_once __DIR__ . '/reloj.php';   // hora única de la app (fija la zona horaria de PHP)
+require_once __DIR__ . '/roles.php';   // roles de Talento Humano (única fuente)
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');

@@ -28,7 +28,7 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
             <h1 class="text-lg font-bold text-gray-800">Usuarios de Empleados</h1>
         </header>
 
-        <main class="p-6 max-w-5xl">
+        <main class="p-6">
 
             <!-- BUSCADOR -->
             <form method="GET" class="mb-5">
@@ -36,7 +36,7 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
                     <div class="flex flex-col sm:flex-row gap-2">
                         <div class="relative flex-1">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600">
-                                            <?= icon('search', 'w-4 h-4') ?>
+                                <?= icon('search', 'w-4 h-4') ?>
                             </span>
 
                             <input type="text" name="q" value="<?= htmlspecialchars($busqueda) ?>"
@@ -46,7 +46,7 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
 
                         <button type="submit"
                             class="h-10 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold flex items-center justify-center gap-2 transition whitespace-nowrap">
-                                        <?= icon('search', 'w-4 h-4') ?>
+                            <?= icon('search', 'w-4 h-4') ?>
                             Buscar
                         </button>
                     </div>
@@ -54,13 +54,13 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
             </form>
 
 
-                        <?php if (empty($empleados)): ?>
+            <?php if (empty($empleados)): ?>
 
                 <!-- SIN RESULTADOS -->
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
                     <div
                         class="mx-auto w-10 h-10 rounded-xl bg-gray-50 text-gray-600 flex items-center justify-center mb-3">
-                                    <?= icon('search', 'w-5 h-5') ?>
+                        <?= icon('search', 'w-5 h-5') ?>
                     </div>
 
                     <p class="text-sm font-semibold text-gray-700">
@@ -72,11 +72,11 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
                     </p>
                 </div>
 
-                        <?php else: ?>
+            <?php else: ?>
                 <!-- LISTA DE EMPLEADOS -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <?php foreach ($empleados as $emp): ?>
-                                    <?php $acceso = UsuarioEmpleadoModel::obtenerPorCedula($emp['cedula']); ?>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <?php foreach ($empleados as $emp): ?>
+                        <?php $acceso = UsuarioEmpleadoModel::obtenerPorCedula($emp['cedula']); ?>
 
                         <div
                             class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col gap-4 hover:border-gray-200 transition">
@@ -88,8 +88,7 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
                                 <?php if (!empty($emp['foto'])): ?>
                                     <img src="./api/foto_ver.php?cedula=<?= urlencode($emp['cedula']) ?>"
                                         data-visor-img="./api/foto_ver.php?cedula=<?= urlencode($emp['cedula']) ?>"
-                                        alt="Foto de <?= htmlspecialchars($emp['nombre']) ?>"
-                                        role="button" tabindex="0"
+                                        alt="Foto de <?= htmlspecialchars($emp['nombre']) ?>" role="button" tabindex="0"
                                         loading="lazy"
                                         class="w-12 h-12 rounded-full object-cover object-center border border-gray-200 flex-shrink-0 cursor-zoom-in">
                                 <?php else: ?>
@@ -101,7 +100,7 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
 
                                 <div class="min-w-0 flex-1">
                                     <p class="text-sm font-semibold text-gray-800 truncate">
-                                                    <?= htmlspecialchars($emp['nombre']) ?>
+                                        <?= htmlspecialchars($emp['nombre']) ?>
                                     </p>
 
                                     <p class="text-[11px] text-gray-600 truncate mt-0.5">
@@ -110,30 +109,30 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
 
                                     <!-- ESTADO DEL ACCESO -->
                                     <div class="mt-1.5">
-                                                    <?php if ($acceso): ?>
+                                        <?php if ($acceso): ?>
 
-                                                        <?php if ($acceso['activo']): ?>
+                                            <?php if ($acceso['activo']): ?>
                                                 <span
                                                     class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full bg-green-50 text-green-700 border border-green-100">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                                                     Acceso activo
                                                 </span>
-                                                        <?php else: ?>
+                                            <?php else: ?>
                                                 <span
                                                     class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full bg-gray-50 text-gray-500 border border-gray-100">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
                                                     Acceso revocado
                                                 </span>
-                                                        <?php endif; ?>
+                                            <?php endif; ?>
 
-                                                    <?php else: ?>
+                                        <?php else: ?>
 
                                             <span
                                                 class="inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-1 rounded-full bg-gray-50 text-gray-600 border border-gray-100">
                                                 Sin acceso creado
                                             </span>
 
-                                                    <?php endif; ?>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -144,31 +143,31 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
 
                                 <div class="flex flex-wrap items-center gap-2">
 
-                                                <?php if ($acceso): ?>
+                                    <?php if ($acceso): ?>
                                         <!-- VER PIN -->
                                         <button onclick="verPin('<?= $emp['cedula'] ?>')" id="btnOjo-<?= $emp['cedula'] ?>"
                                             class="w-9 h-9 flex-shrink-0 rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 flex items-center justify-center transition"
                                             title="Ver PIN actual">
                                             <span data-eye="open">
-                                                            <?= icon('eye', 'w-4 h-4') ?>
+                                                <?= icon('eye', 'w-4 h-4') ?>
                                             </span>
 
                                             <span data-eye="closed" class="hidden">
-                                                            <?= icon('eye-off', 'w-4 h-4') ?>
+                                                <?= icon('eye-off', 'w-4 h-4') ?>
                                             </span>
                                         </button>
-                                                <?php endif; ?>
+                                    <?php endif; ?>
 
 
                                     <!-- CREAR / RESETEAR PIN -->
                                     <button
                                         onclick="abrirModalPin('<?= $emp['cedula'] ?>', '<?= htmlspecialchars($emp['nombre'], ENT_QUOTES) ?>')"
                                         class="flex-1 min-w-[120px] h-9 px-3 rounded-lg bg-green-500 hover:bg-green-700 text-white text-xs font-semibold flex items-center justify-center transition whitespace-nowrap">
-                                                    <?= $acceso ? 'Resetear PIN' : 'Crear acceso' ?>
+                                        <?= $acceso ? 'Resetear PIN' : 'Crear acceso' ?>
                                     </button>
 
 
-                                                <?php if ($acceso && $acceso['activo']): ?>
+                                    <?php if ($acceso && $acceso['activo']): ?>
 
                                         <!-- REVOCAR -->
                                         <button onclick="revocarAcceso('<?= $emp['cedula'] ?>')"
@@ -176,7 +175,7 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
                                             Revocar
                                         </button>
 
-                                                <?php elseif ($acceso && !$acceso['activo']): ?>
+                                    <?php elseif ($acceso && !$acceso['activo']): ?>
 
                                         <!-- REACTIVAR -->
                                         <button onclick="reactivarAcceso('<?= $emp['cedula'] ?>')"
@@ -184,7 +183,7 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
                                             Reactivar
                                         </button>
 
-                                                <?php endif; ?>
+                                    <?php endif; ?>
 
                                 </div>
 
@@ -196,9 +195,9 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
                             </div>
 
                         </div>
-                                <?php endforeach; ?>
+                    <?php endforeach; ?>
                 </div>
-                        <?php endif; ?>
+            <?php endif; ?>
 
         </main>
     </div>
@@ -219,7 +218,7 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
                 <div class="flex items-center gap-3">
 
                     <div class="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
-                            <?= icon('lock', 'w-5 h-5') ?>
+                        <?= icon('lock', 'w-5 h-5') ?>
                     </div>
 
                     <div class="min-w-0">
@@ -238,7 +237,7 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
             <!-- FORMULARIO -->
             <form id="formPin" class="p-5 space-y-4">
 
-                    <?= csrfCampoHTML() ?>
+                <?= csrfCampoHTML() ?>
 
                 <input type="hidden" name="cedula" id="cedulaPinModal">
 
@@ -287,7 +286,7 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
 
     </div>
 
-    <script src="./assets/js/visor_imagen.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/visor_imagen.js') ?>"></script>
+    <script src="./assets/js/visor_imagen.js?v=<?= (int) @filemtime(__DIR__ . '/assets/js/visor_imagen.js') ?>"></script>
     <script src="./assets/js/usuarios_empleados.js"></script>
 </body>
 

@@ -9,7 +9,7 @@ validarCSRF();
 
 if (!in_array(
     ($_SESSION['superadmin_rol'] ?? ''),
-    ['superadmin_talento_humano', 'auxiliar_talento_humano'],
+    ROLES_TALENTO_HUMANO,
     true
 )) {
     http_response_code(403);

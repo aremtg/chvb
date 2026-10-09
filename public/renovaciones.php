@@ -56,7 +56,8 @@ $etiquetaEstado = ['vencido' => 'Vencido', 'por_vencer' => 'Por vencer', 'vigent
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Control de Renovaciones</title>
     <link rel="stylesheet" href="./assets/css/tailwind.css">
-    <link rel="stylesheet" href="./assets/css/renovaciones.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/renovaciones.css') ?>">
+    <link rel="stylesheet"
+        href="./assets/css/renovaciones.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/renovaciones.css') ?>">
 </head>
 
 <body class="bg-gray-100 min-h-screen">
@@ -65,15 +66,17 @@ $etiquetaEstado = ['vencido' => 'Vencido', 'por_vencer' => 'Por vencer', 'vigent
     <div class="md:ml-64 pt-14 md:pt-0">
         <header class="bg-white shadow px-6 py-4">
             <h1 class="text-lg font-bold text-gray-800">Control de Renovaciones</h1>
-            <p class="text-xs text-gray-600">Vencimiento de contratos con fecha de fin. La alerta empieza <?= (int) RenovacionReglas::DIAS_AVISO ?> días antes.</p>
+            <p class="text-xs text-gray-600">Vencimiento de contratos con fecha de fin. La alerta empieza
+                <?= (int) RenovacionReglas::DIAS_AVISO ?> días antes.</p>
         </header>
 
-        <main class="p-6 max-w-6xl mx-auto space-y-6">
+        <main class="p-6 space-y-6">
 
             <?php if ($falloTablas): ?>
                 <div class="ren-alerta rounded-xl p-4 text-sm">
                     <strong>Falta crear las tablas del módulo.</strong>
-                    <div class="mt-1">Ejecuta <code>database/migrations/2026_10_08_control_renovaciones.sql</code> en phpMyAdmin (con la base <code>chvb</code> seleccionada) y recarga esta página.</div>
+                    <div class="mt-1">Ejecuta <code>database/migrations/2026_10_08_control_renovaciones.sql</code> en
+                        phpMyAdmin (con la base <code>chvb</code> seleccionada) y recarga esta página.</div>
                 </div>
             <?php elseif ($falloGeneral): ?>
                 <div class="ren-alerta rounded-xl p-4 text-sm">
@@ -104,7 +107,8 @@ $etiquetaEstado = ['vencido' => 'Vencido', 'por_vencer' => 'Por vencer', 'vigent
 
                 <?php if ($requierenIndefinido > 0): ?>
                     <div class="ren-alerta rounded-xl p-4 text-sm font-semibold">
-                        <?= $requierenIndefinido ?> <?= $requierenIndefinido === 1 ? 'persona supera' : 'personas superan' ?> los 4 años acumulados y debería(n) pasar a Contrato Indefinido (Ley 2466 de 2025).
+                        <?= $requierenIndefinido ?>         <?= $requierenIndefinido === 1 ? 'persona supera' : 'personas superan' ?>
+                        los 4 años acumulados y debería(n) pasar a Contrato Indefinido (Ley 2466 de 2025).
                     </div>
                 <?php endif; ?>
 
@@ -113,7 +117,8 @@ $etiquetaEstado = ['vencido' => 'Vencido', 'por_vencer' => 'Por vencer', 'vigent
                     <div class="p-4 sm:p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3">
                         <div class="flex-1">
                             <h2 class="font-bold text-gray-800">Vencimientos</h2>
-                            <p class="text-xs text-gray-600">Empleados activos con contrato Fijo, OPS, SENA u OPS SEMY. Primero los que vencen antes.</p>
+                            <p class="text-xs text-gray-600">Empleados activos con contrato Fijo, OPS, SENA u OPS SEMY.
+                                Primero los que vencen antes.</p>
                         </div>
                         <input id="renBuscar" type="text" autocomplete="off" placeholder="Buscar nombre o cédula..."
                             class="w-full sm:w-64 h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
@@ -128,46 +133,66 @@ $etiquetaEstado = ['vencido' => 'Vencido', 'por_vencer' => 'Por vencer', 'vigent
 
                     <?php if (!$vigencias): ?>
                         <div class="p-6 sm:p-8 text-center">
-                            <div class="mx-auto w-10 h-10 rounded-xl bg-gray-50 text-gray-600 flex items-center justify-center mb-3">
+                            <div
+                                class="mx-auto w-10 h-10 rounded-xl bg-gray-50 text-gray-600 flex items-center justify-center mb-3">
                                 <?= icon('clipboard-list', 'w-5 h-5') ?>
                             </div>
                             <p class="text-sm font-semibold text-gray-700">No hay contratos para controlar</p>
-                            <p class="text-xs text-gray-600 mt-1">Ningún empleado activo tiene contrato con fecha de fin registrada.</p>
+                            <p class="text-xs text-gray-600 mt-1">Ningún empleado activo tiene contrato con fecha de fin
+                                registrada.</p>
                         </div>
                     <?php else: ?>
-                        <div class="overflow-x-auto">
-                            <table class="w-full min-w-[520px] text-sm text-left">
+                        <div class="w-full overflow-x-auto">
+                            <table class="w-full min-w-0 text-sm text-left">
                                 <thead class="border-b border-gray-100 bg-gray-50/60">
                                     <tr>
-                                        <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">Empleado</th>
-                                        <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide hidden lg:table-cell">Contrato</th>
-                                        <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">Vigente hasta</th>
-                                        <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">Estado</th>
-                                        <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide hidden lg:table-cell">Acumulado</th>
-                                        <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide text-right">Acción</th>
+                                        <th
+                                            class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                                            Empleado</th>
+                                        <th
+                                            class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide hidden lg:table-cell">
+                                            Contrato</th>
+                                        <th
+                                            class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                                            Vigente hasta</th>
+                                        <th
+                                            class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                                            Estado</th>
+                                        <th
+                                            class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide hidden lg:table-cell">
+                                            Acumulado</th>
+                                        <th
+                                            class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide text-right">
+                                            Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody id="renCuerpo" class="divide-y divide-gray-100">
                                     <?php foreach ($vigencias as $v): ?>
                                         <?php $n = (int) $v['num_renovaciones']; ?>
-                                        <tr class="bg-white hover:bg-gray-50/70 transition"
-                                            data-estado="<?= $h($v['estado']) ?>"
+                                        <tr class="bg-white hover:bg-gray-50/70 transition" data-estado="<?= $h($v['estado']) ?>"
                                             data-q="<?= $h(mb_strtolower($v['nombre'] . ' ' . $v['cedula'], 'UTF-8')) ?>">
                                             <td class="px-4 sm:px-5 py-3.5 align-middle">
-                                                <div class="max-w-[150px] sm:max-w-none truncate text-sm font-semibold text-gray-800" title="<?= $h($v['nombre']) ?>"><?= $h($v['nombre']) ?></div>
-                                                <div class="text-xs text-gray-600"><?= $h($v['cedula']) ?><span class="ren-solo-movil"> · <?= $h($v['tipo_de_contrato']) ?></span></div>
+                                                <div class="max-w-[150px] sm:max-w-none truncate text-sm font-semibold text-gray-800"
+                                                    title="<?= $h($v['nombre']) ?>"><?= $h($v['nombre']) ?></div>
+                                                <div class="text-xs text-gray-600"><?= $h($v['cedula']) ?><span
+                                                        class="ren-solo-movil"> · <?= $h($v['tipo_de_contrato']) ?></span></div>
                                             </td>
                                             <td class="px-4 sm:px-5 py-3.5 align-middle hidden lg:table-cell">
                                                 <div class="text-sm text-gray-700"><?= $h($v['tipo_de_contrato']) ?></div>
-                                                <div class="max-w-[220px] truncate text-xs text-gray-600" title="<?= $h($v['cargo']) ?>"><?= $h($v['cargo']) ?></div>
+                                                <div class="max-w-[220px] truncate text-xs text-gray-600"
+                                                    title="<?= $h($v['cargo']) ?>"><?= $h($v['cargo']) ?></div>
                                             </td>
                                             <td class="px-4 sm:px-5 py-3.5 align-middle whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-800"><?= $h(RenovacionReglas::formatear($v['vigencia_fin'])) ?></div>
-                                                <div class="text-xs text-gray-600"><?= $n > 0 ? 'RNV' . $n : 'Contrato inicial' ?></div>
+                                                <div class="text-sm font-medium text-gray-800">
+                                                    <?= $h(RenovacionReglas::formatear($v['vigencia_fin'])) ?></div>
+                                                <div class="text-xs text-gray-600"><?= $n > 0 ? 'RNV' . $n : 'Contrato inicial' ?>
+                                                </div>
                                             </td>
                                             <td class="px-4 sm:px-5 py-3.5 align-middle whitespace-nowrap">
-                                                <span class="ren-badge ren-<?= $h($v['estado']) ?>"><i></i><?= $h($etiquetaEstado[$v['estado']]) ?></span>
-                                                <div class="text-xs text-gray-600 mt-1"><?= $h(RenovacionReglas::textoDias((int) $v['dias_restantes'])) ?></div>
+                                                <span
+                                                    class="ren-badge ren-<?= $h($v['estado']) ?>"><i></i><?= $h($etiquetaEstado[$v['estado']]) ?></span>
+                                                <div class="text-xs text-gray-600 mt-1">
+                                                    <?= $h(RenovacionReglas::textoDias((int) $v['dias_restantes'])) ?></div>
                                             </td>
                                             <td class="px-4 sm:px-5 py-3.5 align-middle whitespace-nowrap hidden lg:table-cell">
                                                 <div class="text-sm text-gray-700"><?= $h($v['acumulado_texto']) ?></div>
@@ -186,7 +211,8 @@ $etiquetaEstado = ['vencido' => 'Vencido', 'por_vencer' => 'Por vencer', 'vigent
                                 </tbody>
                             </table>
                         </div>
-                        <p id="renSinResultados" class="hidden text-xs text-gray-600 text-center py-8">Ningún empleado coincide con el filtro.</p>
+                        <p id="renSinResultados" class="hidden text-xs text-gray-600 text-center py-8">Ningún empleado coincide
+                            con el filtro.</p>
                         <div class="px-4 sm:px-5 py-3 border-t border-gray-100 text-xs text-gray-600">
                             Mostrando <span id="renContador"><?= count($vigencias) ?> de <?= count($vigencias) ?></span>
                             <span class="block sm:inline sm:ml-3">Acumulado en meses de 30 días (año de 360 días).</span>
@@ -195,33 +221,46 @@ $etiquetaEstado = ['vencido' => 'Vencido', 'por_vencer' => 'Por vencer', 'vigent
                 </section>
 
                 <!-- DATOS INCOMPLETOS -->
-                <section id="datosIncompletos" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <section id="datosIncompletos"
+                    class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-4 sm:p-5 border-b border-gray-100">
                         <h2 class="font-bold text-gray-800">Contratos con datos incompletos</h2>
-                        <p class="text-xs text-gray-600">No se les puede calcular el vencimiento hasta completar las fechas en su hoja de vida (Hojas de Vida → Editar).</p>
+                        <p class="text-xs text-gray-600">No se les puede calcular el vencimiento hasta completar las fechas
+                            en su hoja de vida (Hojas de Vida → Editar).</p>
                     </div>
 
                     <?php if (!$incompletos): ?>
-                        <p class="text-xs text-gray-600 text-center py-8">Todos los empleados activos con contrato a término tienen sus fechas completas.</p>
+                        <p class="text-xs text-gray-600 text-center py-8">Todos los empleados activos con contrato a término
+                            tienen sus fechas completas.</p>
                     <?php else: ?>
                         <div class="overflow-x-auto">
                             <table class="w-full min-w-[520px] text-sm text-left">
                                 <thead class="border-b border-gray-100 bg-gray-50/60">
                                     <tr>
-                                        <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">Empleado</th>
-                                        <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">Contrato</th>
-                                        <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">Falta</th>
-                                        <th class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide text-right">Acción</th>
+                                        <th
+                                            class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                                            Empleado</th>
+                                        <th
+                                            class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                                            Contrato</th>
+                                        <th
+                                            class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                                            Falta</th>
+                                        <th
+                                            class="px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-gray-600 uppercase tracking-wide text-right">
+                                            Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
                                     <?php foreach ($incompletos as $i): ?>
                                         <tr class="bg-white hover:bg-gray-50/70 transition">
                                             <td class="px-4 sm:px-5 py-3.5 align-middle">
-                                                <div class="max-w-[150px] sm:max-w-none truncate text-sm font-semibold text-gray-800" title="<?= $h($i['nombre']) ?>"><?= $h($i['nombre']) ?></div>
+                                                <div class="max-w-[150px] sm:max-w-none truncate text-sm font-semibold text-gray-800"
+                                                    title="<?= $h($i['nombre']) ?>"><?= $h($i['nombre']) ?></div>
                                                 <div class="text-xs text-gray-600"><?= $h($i['cedula']) ?></div>
                                             </td>
-                                            <td class="px-4 sm:px-5 py-3.5 align-middle text-sm text-gray-700 whitespace-nowrap"><?= $h($i['tipo_de_contrato']) ?></td>
+                                            <td class="px-4 sm:px-5 py-3.5 align-middle text-sm text-gray-700 whitespace-nowrap">
+                                                <?= $h($i['tipo_de_contrato']) ?></td>
                                             <td class="px-4 sm:px-5 py-3.5 align-middle">
                                                 <?php foreach ($i['faltan'] as $f): ?>
                                                     <span class="ren-badge ren-por_vencer"><i></i><?= $h($f) ?></span>

@@ -2,16 +2,11 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../includes/session.php';
+require_once __DIR__ . '/../../includes/formatos_guard.php';
 require_once __DIR__ . '/../../src/models/FormatoModel.php';
 require_once __DIR__ . '/../../src/models/EmpleadoModel.php';
 header('Content-Type: application/json; charset=utf-8');
-requireSuperAdmin();
-$rolesFormatos = ['superadmin_talento_humano', 'auxiliar_talento_humano'];
-if (!in_array($_SESSION['superadmin_rol'] ?? '', $rolesFormatos, true)) {
-    http_response_code(403);
-    echo json_encode(['ok' => false, 'error' => 'No tienes permiso para usar Formatos.'], JSON_UNESCAPED_UNICODE);
-    exit;
-}
+requireFormatosAccess(true);
 validarCSRF();
 
 function mesActualEspanol(int $numero): string {
@@ -197,7 +192,7 @@ try {
     $generados = __DIR__ . '/../../uploads/generados';
     if (!is_dir($generados) && !mkdir($generados, 0775, true) && !is_dir($generados)) throw new RuntimeException('No fue posible crear uploads/generados/.');
     if (!class_exists('PhpOffice\\PhpWord\\TemplateProcessor')) throw new RuntimeException('PHPWord no está disponible. Ejecuta composer install en el proyecto.');
-    $hoy = new DateTimeImmutable('now', new DateTimeZone('America/Bogota'));
+    $hoy = Reloj::ahora();
     $diaActual = $hoy->format('j');
     $mesActual = mesActualEspanol((int)$hoy->format('n'));
     $anioActual = $hoy->format('Y');
@@ -211,6 +206,10 @@ try {
     aplicarFormatoEspecialDocx($salida, $nombre, $cedulaFormateada, $diaActual, $mesActual, $anioActual);
     if (!is_file($salida) || filesize($salida) <= 0) throw new RuntimeException('El archivo Word no fue generado correctamente.');
     echo json_encode(['ok' => true, 'archivo' => $archivo, 'nombre' => $archivo, 'url' => './api/formato_archivo.php?f=' . rawurlencode($archivo) . '&accion=descargar', 'empleado' => ['nombre' => $nombre, 'cedula' => $cedulaFormateada, 'tipo_contrato' => $tipoContrato, 'fecha_inicio' => $fechaInicio], 'fecha' => ['dia' => $diaActual, 'mes' => $mesActual, 'anio' => $anioActual]], JSON_UNESCAPED_UNICODE);
+} catch (InvalidArgumentException $e) {
+    // Errores de validación: sus mensajes están pensados para el usuario.
+    http_response_code(400);
+    echo json_encode(['ok' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
     error_log('formatos_otrosi_generar: ' . $e->getMessage());
     http_response_code(500);

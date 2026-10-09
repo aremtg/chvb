@@ -6,8 +6,8 @@
 //   - Teniente: no gestiona cargos.
 require_once __DIR__ . '/session.php';
 
-const ROLES_CARGOS = ['superadmin_talento_humano', 'auxiliar_talento_humano'];
-const ROL_ELIMINA_CARGOS = 'superadmin_talento_humano';
+const ROLES_CARGOS = ROLES_TALENTO_HUMANO;   // definidos en includes/roles.php
+const ROL_ELIMINA_CARGOS = ROL_SUPERADMIN_TH;
 
 function puedeGestionarCargos(): bool
 {

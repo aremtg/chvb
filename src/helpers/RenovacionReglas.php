@@ -2,6 +2,7 @@
 // src/helpers/RenovacionReglas.php
 // Reglas y cálculos del módulo "Control de Renovaciones". Solo lógica: NO toca la BD
 // (la BD la maneja RenovacionModel). Es el único lugar donde viven estas reglas en el módulo.
+require_once __DIR__ . '/../../includes/reloj.php';
 require_once __DIR__ . '/../controllers/EmpleadoController.php';
 
 final class RenovacionReglas
@@ -38,12 +39,12 @@ final class RenovacionReglas
 
     private static function zona(): DateTimeZone
     {
-        return new DateTimeZone('America/Bogota');
+        return Reloj::zona();
     }
 
     public static function hoy(): DateTimeImmutable
     {
-        return new DateTimeImmutable('today', self::zona());
+        return Reloj::hoy();
     }
 
     /** Convierte 'Y-m-d' en fecha. Lanza InvalidArgumentException si no es una fecha real. */

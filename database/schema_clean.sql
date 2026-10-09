@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 09-10-2026 a las 01:43:46
+-- Tiempo de generación: 09-10-2026 a las 23:52:16
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -313,51 +313,6 @@ CREATE TABLE `permisos_historial` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `renovaciones`
---
-
-CREATE TABLE `renovaciones` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `cedula_empleado` varchar(10) NOT NULL,
-  `numero` tinyint(3) UNSIGNED NOT NULL COMMENT '1 = RNV1, 2 = RNV2, ... (sin tope fijo)',
-  `fecha_inicio` date NOT NULL,
-  `fecha_fin` date NOT NULL,
-  `duracion_meses` smallint(5) UNSIGNED NOT NULL COMMENT 'Duración REAL registrada; coherente con las fechas',
-  `es_historica` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = renovación anterior al sistema, registrada después',
-  `duracion_menor_confirmada` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = era menor que la anterior y el usuario confirmó la advertencia',
-  `observaciones` text DEFAULT NULL,
-  `creado_por_id` int(11) DEFAULT NULL,
-  `creado_por_nombre` varchar(50) NOT NULL,
-  `creado_por_rol` varchar(40) NOT NULL,
-  `created_at` datetime NOT NULL,
-  `modificado_por_id` int(11) DEFAULT NULL,
-  `modificado_por_nombre` varchar(50) DEFAULT NULL,
-  `modificado_por_rol` varchar(40) DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL
-) ;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `renovaciones_auditoria`
---
-
-CREATE TABLE `renovaciones_auditoria` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `usuario_id` int(11) DEFAULT NULL,
-  `usuario_nombre` varchar(50) NOT NULL,
-  `usuario_rol` varchar(40) NOT NULL,
-  `accion` varchar(50) NOT NULL,
-  `cedula_empleado` varchar(10) DEFAULT NULL,
-  `renovacion_id` int(10) UNSIGNED DEFAULT NULL,
-  `detalle` longtext DEFAULT NULL COMMENT 'JSON: antes/después, resumen, etc.',
-  `ip` varchar(45) DEFAULT NULL,
-  `created_at` datetime NOT NULL
-) ;
-
--- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `renovaciones_avisos`
 --
 
@@ -423,6 +378,15 @@ CREATE TABLE `usuarios` (
   `intentos_fallidos` int(11) DEFAULT 0,
   `bloqueado_hasta` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`id`, `username`, `password_hash`, `rol`, `created_at`, `intentos_fallidos`, `bloqueado_hasta`) VALUES
+(2, 'Tatiana', '$2y$10$cQdMMnhoNeo3U58ygsXVCuLtBi2RKOF8D0kZWidtQHoeygqR6URNK', 'auxiliar_talento_humano', '2026-09-17 21:38:01', 0, NULL),
+(3, 'Talento', '$2y$10$jTKCp2WcjVoE1cyGKmqqxekoeukZ6bKaJLyOdOzv67Tcw0a4C9Wmm', 'superadmin_talento_humano', '2026-09-29 21:24:40', 0, NULL),
+(4, 'Omar', '$2y$10$Ub.R51IzfyUY0Rs4ROKP0OQsn9VjxxsmJfRZsaBo8oMouHdi49pZ2', 'teniente', '2026-09-29 22:43:28', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -556,23 +520,6 @@ ALTER TABLE `permisos_historial`
   ADD KEY `idx_permiso` (`permiso_id`);
 
 --
--- Indices de la tabla `renovaciones`
---
-ALTER TABLE `renovaciones`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uq_renovacion_empleado_numero` (`cedula_empleado`,`numero`);
-
---
--- Indices de la tabla `renovaciones_auditoria`
---
-ALTER TABLE `renovaciones_auditoria`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_aud_cedula_fecha` (`cedula_empleado`,`created_at`),
-  ADD KEY `idx_aud_usuario` (`usuario_id`),
-  ADD KEY `idx_aud_accion` (`accion`),
-  ADD KEY `idx_aud_fecha` (`created_at`);
-
---
 -- Indices de la tabla `renovaciones_avisos`
 --
 ALTER TABLE `renovaciones_avisos`
@@ -685,18 +632,6 @@ ALTER TABLE `permisos_historial`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `renovaciones`
---
-ALTER TABLE `renovaciones`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `renovaciones_auditoria`
---
-ALTER TABLE `renovaciones_auditoria`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT de la tabla `renovaciones_avisos`
 --
 ALTER TABLE `renovaciones_avisos`
@@ -718,7 +653,7 @@ ALTER TABLE `renovaciones_historial`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios_empleados`
@@ -747,12 +682,6 @@ ALTER TABLE `empleados`
 --
 ALTER TABLE `funciones_certificados`
   ADD CONSTRAINT `fk_fcert_cargo` FOREIGN KEY (`cargo_id`) REFERENCES `cargos` (`id`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `renovaciones`
---
-ALTER TABLE `renovaciones`
-  ADD CONSTRAINT `fk_renovaciones_empleado` FOREIGN KEY (`cedula_empleado`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `renovaciones_avisos`

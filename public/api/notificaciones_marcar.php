@@ -6,7 +6,7 @@ header('Content-Type: application/json');
 requireSuperAdmin();
 validarCSRF();
 
-if (!in_array(($_SESSION['superadmin_rol'] ?? ''), ['superadmin_talento_humano','auxiliar_talento_humano'], true)) {
+if (!in_array(($_SESSION['superadmin_rol'] ?? ''), ROLES_TALENTO_HUMANO, true)) {
     http_response_code(403);
     echo json_encode(['ok' => false, 'error' => 'No autorizado.']);
     exit;

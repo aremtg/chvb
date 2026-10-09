@@ -17,7 +17,7 @@ if (PHP_SAPI !== 'cli') {
     exit('Este script solo se puede ejecutar desde la terminal.');
 }
 
-date_default_timezone_set('America/Bogota');
+require_once __DIR__ . '/../includes/reloj.php';   // hora única de la app
 require_once __DIR__ . '/../src/helpers/RenovacionAvisos.php';
 
 try {

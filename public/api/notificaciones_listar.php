@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../src/models/NotificacionModel.php';
 header('Content-Type: application/json');
 requireSuperAdmin();
 
-if (!in_array(($_SESSION['superadmin_rol'] ?? ''), ['superadmin_talento_humano','auxiliar_talento_humano'], true)) {
+if (!in_array(($_SESSION['superadmin_rol'] ?? ''), ROLES_TALENTO_HUMANO, true)) {
     http_response_code(403);
     echo json_encode(['ok' => false, 'error' => 'No autorizado.']);
     exit;

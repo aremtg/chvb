@@ -159,7 +159,7 @@ class CertificadoModel
             throw new RuntimeException('No fue posible crear la carpeta de archivos generados.');
         }
 
-        $hoy = new DateTimeImmutable('now', new DateTimeZone('America/Bogota'));
+        $hoy = Reloj::ahora();
         $pdo = getPDO();
         $ruta = null;
 

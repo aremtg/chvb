@@ -2,12 +2,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../includes/session.php';
-requireSuperAdmin();
-
-if (!in_array($_SESSION['superadmin_rol'] ?? '', ['superadmin_talento_humano', 'auxiliar_talento_humano'], true)) {
-    http_response_code(403);
-    exit('No autorizado.');
-}
+require_once __DIR__ . '/../../includes/formatos_guard.php';
+requireFormatosAccess();
 
 $archivo = basename((string)($_GET['f'] ?? ''));
 if ($archivo === '') {

@@ -4,8 +4,8 @@
 // Mismo patrón que includes/formatos_guard.php.
 require_once __DIR__ . '/session.php';
 
-const ROLES_RENOVACIONES = ['superadmin_talento_humano', 'auxiliar_talento_humano'];
-const ROL_ADMIN_RENOVACIONES = 'superadmin_talento_humano';
+const ROLES_RENOVACIONES = ROLES_TALENTO_HUMANO;   // definidos en includes/roles.php
+const ROL_ADMIN_RENOVACIONES = ROL_SUPERADMIN_TH;
 
 /**
  * Exige sesión del panel + rol de Talento Humano (superadmin o auxiliar).

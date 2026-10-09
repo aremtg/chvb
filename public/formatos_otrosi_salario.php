@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-date_default_timezone_set('America/Bogota');
 require_once __DIR__ . '/../includes/formatos_guard.php';
 require_once __DIR__ . '/../includes/formatos_ui.php';
 require_once __DIR__ . '/../src/models/FormatoModel.php';
@@ -9,7 +8,7 @@ requireFormatosAccess();
 
 $generados = FormatoModel::listarOtrosiSalarioGenerados(__DIR__ . '/../uploads/generados');
 $csrf = csrfToken();
-$hoy = new DateTimeImmutable('today', new DateTimeZone('America/Bogota'));
+$hoy = Reloj::hoy();
 $hoyIso = $hoy->format('Y-m-d');
 ?>
 <!DOCTYPE html>
