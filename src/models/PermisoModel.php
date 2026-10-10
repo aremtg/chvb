@@ -402,6 +402,9 @@ class PermisoModel {
         $params = [];
         $i = 1;
 
+        if (!empty($filtros['permiso_id'])) {
+            $sql .= " AND p.id = :b{$i}"; $params["b{$i}"] = (int)$filtros['permiso_id']; $i++;
+        }
         if (!empty($filtros['fecha_desde'])) {
             $sql .= " AND DATE(p.fecha_solicitud) >= :b{$i}"; $params["b{$i}"] = $filtros['fecha_desde']; $i++;
         }
@@ -435,6 +438,41 @@ class PermisoModel {
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         return self::agregarResumenDias($stmt->fetchAll());
+    }
+
+    /**
+     * Completa los permisos con lo que necesita el PDF: desglose de días
+     * (permisos_dias) y nombre/cargo del reemplazo. Hace 2 consultas en total,
+     * no una por permiso. Solo lee; no escribe nada en la BD.
+     */
+    public static function enriquecerParaPdf(array $permisos): array {
+        if (!$permisos) return $permisos;
+        $pdo = getPDO();
+
+        $ids = array_values(array_unique(array_map('intval', array_column($permisos, 'id'))));
+        $params = []; $marcas = [];
+        foreach ($ids as $i => $id) { $marcas[] = ":d{$i}"; $params["d{$i}"] = $id; }
+        $stmt = $pdo->prepare("SELECT * FROM permisos_dias WHERE permiso_id IN (" . implode(',', $marcas) . ") ORDER BY fecha ASC");
+        $stmt->execute($params);
+        $dias = [];
+        foreach ($stmt->fetchAll() as $d) $dias[(int)$d['permiso_id']][] = $d;
+
+        $cedulas = array_values(array_unique(array_filter(array_column($permisos, 'cedula_reemplazo'))));
+        $reemplazos = [];
+        if ($cedulas) {
+            $params = []; $marcas = [];
+            foreach ($cedulas as $i => $c) { $marcas[] = ":c{$i}"; $params["c{$i}"] = $c; }
+            $stmt = $pdo->prepare("SELECT cedula, nombre, cargo FROM empleados WHERE cedula IN (" . implode(',', $marcas) . ")");
+            $stmt->execute($params);
+            foreach ($stmt->fetchAll() as $e) $reemplazos[$e['cedula']] = $e;
+        }
+
+        foreach ($permisos as &$p) {
+            $p['dias'] = $dias[(int)$p['id']] ?? [];
+            $p['nombre_reemplazo'] = $reemplazos[$p['cedula_reemplazo'] ?? '']['nombre'] ?? '';
+        }
+        unset($p);
+        return $permisos;
     }
 
     /** Solo permisos actualizados después de $desde, para el polling parcial de TH. */

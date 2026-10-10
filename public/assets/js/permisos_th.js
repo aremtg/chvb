@@ -80,12 +80,75 @@ function actualizarResumen() {
     document.getElementById('pmContador').innerHTML = lista.length
         ? `Mostrando <strong>${lista.length}</strong> ${lista.length === 1 ? 'permiso' : 'permisos'}`
         : '';
+    actualizarBarraPdf(lista.length);
 }
+
+// ---------------------------------------------------------------- PDF
+// Botón general: exporta lo que muestran los filtros (o todos si no hay filtros).
+// La opción "2 por hoja" solo aparece cuando hay más de 1 permiso.
+function actualizarBarraPdf(cantidad) {
+    const btn = document.getElementById('pmPdfTodos');
+    const wrap = document.getElementById('pmPdfDosWrap');
+    if (!btn) return;
+    btn.disabled = cantidad === 0;
+    document.getElementById('pmPdfTodosTxt').textContent = cantidad === 0
+        ? 'Descargar PDF'
+        : (permisoTHId > 0 || cantidad === 1
+            ? 'Descargar PDF'
+            : (hayFiltrosTH() ? `Descargar PDF (${cantidad} filtrados)` : `Descargar PDF (todos: ${cantidad})`));
+    wrap.hidden = cantidad < 2;
+    wrap.style.display = cantidad < 2 ? 'none' : 'inline-flex';
+}
+
+async function descargarPdf({ id = 0, boton = null } = {}) {
+    const fd = new FormData();
+    fd.append('csrf_token', document.getElementById('csrfToken').value);
+    const idFinal = id || permisoTHId; // en la vista de un solo permiso nunca se exporta todo
+    if (idFinal > 0) {
+        fd.append('id', String(idFinal));
+    } else {
+        // Los mismos filtros que la pantalla; sin filtros = todos los permisos.
+        construirParams().forEach((valor, clave) => fd.append(clave, valor));
+        const dos = document.getElementById('pmPdfDos');
+        fd.append('dos_por_hoja', dos && dos.checked && Object.keys(permisosEnMemoria).length > 1 ? '1' : '0');
+    }
+    Loading.show('Generando PDF...', 'Se descargará en tu dispositivo');
+    if (boton) boton.disabled = true;
+    try {
+        const res = await fetch('./api/permisos_pdf.php', { method: 'POST', body: fd });
+        const tipo = res.headers.get('Content-Type') || '';
+        if (!res.ok || !tipo.includes('application/pdf')) {
+            let msg = 'No se pudo generar el PDF.';
+            try { msg = (await res.json()).error || msg; } catch (e) { /* respuesta no JSON */ }
+            alert(msg);
+            return;
+        }
+        const blob = await res.blob();
+        const m = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') || '');
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = m ? m[1] : 'permisos.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (e) {
+        alert('Error de conexión con el servidor.');
+    } finally {
+        Loading.hide();
+        if (boton) boton.disabled = false;
+        actualizarBarraPdf(Object.keys(permisosEnMemoria).length);
+    }
+}
+
+document.getElementById('pmPdfTodos').addEventListener('click', (e) => descargarPdf({ boton: e.currentTarget }));
 
 // ---------------------------------------------------------------- filas
 function htmlFila(p, est) {
     const acciones = `
         <a href="./permiso_ver.php?id=${encodeURIComponent(p.id)}" class="pm-btn pm-btn--outline-brand pm-btn--sm">Ver detalle</a>
+        <button type="button" class="pm-btn pm-btn--ghost pm-btn--sm" data-pdf data-id="${escTH(p.id)}" title="Descargar este permiso en PDF">PDF</button>
         ${p.estado === 'firmado' && PUEDE_ANULAR
             ? `<button type="button" class="pm-btn pm-btn--text-danger pm-btn--sm" data-anular data-id="${escTH(p.id)}" data-version="${escTH(p.version)}">Anular</button>`
             : ''}`;
@@ -271,6 +334,11 @@ btnToggleFiltros.addEventListener('click', () => {
 
 // Acciones dentro de la lista (anular, limpiar, reintentar) con un solo listener
 listaEl.addEventListener('click', (e) => {
+    const btnPdf = e.target.closest('[data-pdf]');
+    if (btnPdf) {
+        descargarPdf({ id: Number(btnPdf.dataset.id), boton: btnPdf });
+        return;
+    }
     const btnAnular = e.target.closest('[data-anular]');
     if (btnAnular) {
         anularPermiso(Number(btnAnular.dataset.id), Number(btnAnular.dataset.version));

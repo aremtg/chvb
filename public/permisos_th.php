@@ -125,7 +125,19 @@ $enfocadoEnUno = !empty($_GET['id']);
             </div>
         </section>
 
-        <div class="pm-count" aria-live="polite" id="pmContador"></div>
+        <!-- Exportar a PDF (admin, auxiliar y teniente). Se descarga en el dispositivo; no se guarda en la BD. -->
+        <div class="pm-pdfbar" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem .75rem;margin:.25rem 0 .5rem">
+            <div class="pm-count" aria-live="polite" id="pmContador" style="margin:0"></div>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .9rem">
+                <label id="pmPdfDosWrap" hidden style="display:none;align-items:center;gap:.4rem;font-size:.85rem;cursor:pointer">
+                    <input type="checkbox" id="pmPdfDos" checked>
+                    2 permisos por hoja oficio
+                </label>
+                <button type="button" id="pmPdfTodos" class="pm-btn pm-btn--outline-brand pm-btn--sm" disabled>
+                    <?= icon('download', 'pm-ico pm-ico--sm') ?> <span id="pmPdfTodosTxt">Descargar PDF</span>
+                </button>
+            </div>
+        </div>
 
         <!-- Cabecera de columnas (solo en pantallas anchas) -->
         <div class="pm-thead" aria-hidden="true">

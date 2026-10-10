@@ -44,7 +44,11 @@ if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula
                 </a>
                 <h1 class="text- font-bold tracking-tight text-gray-900 mt-1"><?= htmlspecialchars($permiso['consecutivo'])?></h1>
             </div>
-            
+            <?php if ($esTH): ?>
+            <button type="button" id="btnPdfPermiso" class="inline-flex items-center gap-2 border border-gray-300 hover:bg-gray-50 text-sm font-semibold text-gray-700 px-4 py-2 rounded-xl transition">
+                <?= icon('download', 'w-4 h-4') ?> Descargar PDF
+            </button>
+            <?php endif; ?>
         </div>
     </header>
 
@@ -107,5 +111,38 @@ if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula
 <script src="./assets/js/camera_capture.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/camera_capture.js') ?>"></script>
 <script src="./assets/js/firma_canvas.js"></script>
 <script src="./assets/js/permiso_ver.js"></script>
+<?php if ($esTH): ?>
+<script>
+// Descarga este permiso en PDF (media hoja oficio). Se baja al dispositivo; no se guarda en la BD.
+document.getElementById('btnPdfPermiso').addEventListener('click', async (ev) => {
+    const btn = ev.currentTarget;
+    const fd = new FormData();
+    fd.append('csrf_token', document.getElementById('csrfToken').value);
+    fd.append('id', '<?= (int)$id ?>');
+    btn.disabled = true;
+    Loading.show('Generando PDF...', 'Se descargará en tu dispositivo');
+    try {
+        const res = await fetch('./api/permisos_pdf.php', { method: 'POST', body: fd });
+        if (!res.ok || !(res.headers.get('Content-Type') || '').includes('application/pdf')) {
+            let msg = 'No se pudo generar el PDF.';
+            try { msg = (await res.json()).error || msg; } catch (e) {}
+            alert(msg);
+            return;
+        }
+        const m = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') || '');
+        const url = URL.createObjectURL(await res.blob());
+        const a = document.createElement('a');
+        a.href = url; a.download = m ? m[1] : 'permiso.pdf';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (e) {
+        alert('Error de conexión con el servidor.');
+    } finally {
+        Loading.hide();
+        btn.disabled = false;
+    }
+});
+</script>
+<?php endif; ?>
 </body>
 </html>

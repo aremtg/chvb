@@ -10,6 +10,7 @@
     "require": {
         "vlucas/phpdotenv": "^5.7",
         "phpoffice/phpword": "^1.1",
-        "phpoffice/phpspreadsheet": "^5.10"
+        "phpoffice/phpspreadsheet": "^5.10",
+        "dompdf/dompdf": "^3.1"
     }
 }
