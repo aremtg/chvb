@@ -32,6 +32,12 @@ function horasV(h) {
   if (hh > 0) return `${hh} h`;
   return `${mm} min`;
 }
+function siNoV(v) {
+  const si = v == 1 || v === true || v === "1";
+  return si
+    ? '<span class="text-xs font-bold px-2.5 py-1 rounded-full bg-green-100 text-green-700">Sí</span>'
+    : '<span class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">No</span>';
+}
 function diasV(n) {
   const d = parseInt(n, 10) || 0;
   return `${d} ${d === 1 ? "día" : "días"}`;
@@ -143,6 +149,31 @@ function render() {
     </div>`
     : "";
 
+
+  const condicionesHtml = `
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
+      <p class="text-xs font-bold uppercase text-gray-600 mb-3">Condiciones del permiso</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div class="rounded-xl bg-gray-50 p-3 flex items-center justify-between gap-2"><span class="text-sm text-gray-700">Remunerado</span>${siNoV(p.remunerado)}</div>
+        <div class="rounded-xl bg-gray-50 p-3 flex items-center justify-between gap-2"><span class="text-sm text-gray-700">Compensatorio</span>${siNoV(p.es_compensatorio)}</div>
+        <div class="rounded-xl bg-gray-50 p-3 flex items-center justify-between gap-2"><span class="text-sm text-gray-700">Devolución de tiempo</span>${siNoV(p.es_devolucion)}</div>
+      </div>
+      ${p.es_compensatorio == 1 && p.fecha_horas_extra ? `<p class="text-xs text-gray-600 mt-3">Horas extra realizadas el <strong>${fechaV(p.fecha_horas_extra)}</strong></p>` : ""}
+    </div>
+`;
+
+  // Formato con el que se creó el permiso (trazabilidad) y nota importante, igual que en el PDF.
+  const formatoHtml = p.formato_version ? `
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
+      <p class="text-xs font-bold uppercase text-gray-600 mb-2">Formato</p>
+      <p class="text-xs text-gray-700">${escaparV(p.formato_codigo || "GH-FT-10")} · Versión-${escaparV(String(p.formato_version))} · Fecha-${fechaV(p.formato_fecha)}</p>
+      <div class="text-[11px] leading-snug text-gray-500 mt-3 pt-3 border-t border-gray-200 space-y-1">
+        <p><strong>Nota importante:</strong> Las vacaciones deben solicitarse con 2 meses de anticipación y los permisos personales con 2 días de anticipación, según instructivo GH-FT-10.</p>
+        <p>La compensación debe realizarse dentro del mismo mes del permiso.</p>
+        <p>No se considerará accidente de trabajo si ocurre durante permisos que no sean misión institucional ordenada por el empleador.</p>
+      </div>
+    </div>` : "";
+
   const alertas = [];
   if (p.motivo_devolucion)
     alertas.push(
@@ -219,6 +250,10 @@ function render() {
       <p class="text-xs font-bold uppercase  text-gray-600">Motivo</p>
       <p class="text-sm md:text-base text-gray-800 mt-2 whitespace-pre-line">${escaparV(p.motivo)}</p>
     </div>
+
+    ${condicionesHtml}
+
+    ${formatoHtml}
 
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
   <div class="grid grid-cols-2 gap-4 mb-3">

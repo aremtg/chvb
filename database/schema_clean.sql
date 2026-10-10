@@ -1,9 +1,9 @@
-a-- phpMyAdmin SQL Dump
+-- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-10-2026 a las 00:40:28
+-- Tiempo de generación: 10-10-2026 a las 16:12:33
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -118,19 +118,6 @@ CREATE TABLE `empleados` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `festivos_colombia`
---
-
-CREATE TABLE `festivos_colombia` (
-  `id` int(11) NOT NULL,
-  `fecha` date NOT NULL,
-  `nombre` varchar(150) NOT NULL,
-  `anio` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `firmas_guardadas`
 --
 
@@ -201,6 +188,9 @@ CREATE TABLE `notificaciones` (
 CREATE TABLE `permisos` (
   `id` int(11) NOT NULL,
   `consecutivo` varchar(20) NOT NULL,
+  `formato_codigo` varchar(20) DEFAULT NULL,
+  `formato_version` int(10) UNSIGNED DEFAULT NULL,
+  `formato_fecha` date DEFAULT NULL,
   `cedula_empleado` varchar(10) NOT NULL,
   `nombre_empleado_snapshot` varchar(150) NOT NULL,
   `cargo_empleado_snapshot` varchar(150) NOT NULL,
@@ -291,6 +281,21 @@ CREATE TABLE `permisos_dias` (
   `horas_descuento_almuerzo` decimal(6,2) NOT NULL DEFAULT 0.00,
   `horas_netas` decimal(6,2) NOT NULL COMMENT '0 si incluido=0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `permisos_formato`
+--
+
+CREATE TABLE `permisos_formato` (
+  `id` tinyint(3) UNSIGNED NOT NULL DEFAULT 1,
+  `codigo` varchar(20) NOT NULL DEFAULT 'GH-FT-10',
+  `version` int(10) UNSIGNED NOT NULL DEFAULT 1,
+  `fecha` date NOT NULL,
+  `actualizado_por` varchar(100) DEFAULT NULL,
+  `actualizado_en` datetime DEFAULT NULL
+) ;
 
 -- --------------------------------------------------------
 
@@ -443,14 +448,6 @@ ALTER TABLE `empleados`
   ADD KEY `idx_empleados_cargo` (`cargo`);
 
 --
--- Indices de la tabla `festivos_colombia`
---
-ALTER TABLE `festivos_colombia`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `fecha` (`fecha`),
-  ADD KEY `idx_anio` (`anio`);
-
---
 -- Indices de la tabla `firmas_guardadas`
 --
 ALTER TABLE `firmas_guardadas`
@@ -511,6 +508,12 @@ ALTER TABLE `permisos_dias`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_permiso` (`permiso_id`),
   ADD KEY `idx_fecha` (`fecha`);
+
+--
+-- Indices de la tabla `permisos_formato`
+--
+ALTER TABLE `permisos_formato`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `permisos_historial`
@@ -575,12 +578,6 @@ ALTER TABLE `cargos`
 -- AUTO_INCREMENT de la tabla `documentos`
 --
 ALTER TABLE `documentos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `festivos_colombia`
---
-ALTER TABLE `festivos_colombia`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

@@ -32,11 +32,8 @@ class PermisoController
      */
     /**
      * Genera el desglose día por día del permiso solicitado. Cada día:
-     * - Si es festivo: se marca es_festivo=true y 'requiere_confirmacion'=true.
-     *   El frontend debe preguntar "¿Seguro que vas a contar ese festivo?" y,
-     *   según la respuesta, marcar 'incluido' true/false antes de guardar.
-     *   Si incluido=false, ese día no aporta horas (horas_netas=0).
-     * - Si NO es festivo: siempre incluido=true, no requiere confirmación.
+     * - Cada día cuenta según la jornada del empleado. No hay festivos automáticos:
+     *   la persona elige los días que solicita.
      * - Personal Civil: descuenta hasta 2h de almuerzo (12:00-14:00) por el solape
      *   real de ese día con esa franja.
      * - Personal Bombero: sin descuento de almuerzo en ningún día.
@@ -60,17 +57,6 @@ class PermisoController
         if (empty($tipoPersonal)) {
             $tipoPersonal = 'Civil';
             $avisoTipoPersonal = true;
-        }
-
-        require_once __DIR__ . '/../models/FestivoModel.php';
-        FestivoModel::asegurarAnioPoblado((int) $inicio->format('Y'));
-        if ((int) $fin->format('Y') !== (int) $inicio->format('Y')) {
-            FestivoModel::asegurarAnioPoblado((int) $fin->format('Y'));
-        }
-        $festivosEnRango = FestivoModel::obtenerEnRango($inicio->format('Y-m-d'), $fin->format('Y-m-d'));
-        $mapaFestivos = [];
-        foreach ($festivosEnRango as $f) {
-            $mapaFestivos[$f['fecha']] = $f['nombre'];
         }
 
         $dias = [];
@@ -99,20 +85,19 @@ class PermisoController
                 }
             }
 
-            $esFestivo = isset($mapaFestivos[$fechaStr]);
-            $horasNetasSiIncluido = max(0, round($horasBrutas - $descuento, 2));
+            $horasNetas = max(0, round($horasBrutas - $descuento, 2));
 
             $dias[] = [
                 'fecha' => $fechaStr,
                 'hora_inicio' => $horaInicioReal->format('H:i:s'),
                 'hora_fin' => $horaFinReal->format('H:i:s'),
-                'es_festivo' => $esFestivo,
-                'festivo_nombre' => $mapaFestivos[$fechaStr] ?? null,
-                'requiere_confirmacion' => $esFestivo,
-                'incluido' => true, // por defecto true; si es festivo, el frontend pedirá confirmar y puede cambiarlo a false
+                'es_festivo' => false,
+                'festivo_nombre' => null,
+                'requiere_confirmacion' => false,
+                'incluido' => true,
                 'horas_brutas' => $horasBrutas,
                 'horas_descuento_almuerzo' => $descuento,
-                'horas_netas' => $horasNetasSiIncluido,
+                'horas_netas' => $horasNetas,
             ];
 
             $cursor->modify('+1 day');
@@ -125,7 +110,7 @@ class PermisoController
             'tipo_personal_usado' => $tipoPersonal,
             'aviso_tipo_personal' => $avisoTipoPersonal,
             'dias' => $dias,
-            'incluye_festivo' => count($mapaFestivos) > 0,
+            'incluye_festivo' => false,
             'total_horas' => $totalHoras,
         ];
     }
@@ -144,17 +129,18 @@ class PermisoController
         $diasFinal = [];
 
         foreach ($diasConfirmados as $dia) {
-            $incluido = !empty($dia['incluido']);
-            $horasNetas = $incluido ? (float) $dia['horas_netas'] : 0.0;
+            // Todos los días cuentan: ya no existe exclusión por festivo.
+            $incluido = true;
+            $horasNetas = (float) $dia['horas_netas'];
             $totalHoras += $horasNetas;
 
             $diasFinal[] = [
                 'fecha' => $dia['fecha'],
                 'hora_inicio' => $dia['hora_inicio'],
                 'hora_fin' => $dia['hora_fin'],
-                'es_festivo' => !empty($dia['es_festivo']),
-                'festivo_nombre' => $dia['festivo_nombre'] ?? null,
-                'incluido' => $incluido,
+                'es_festivo' => false,
+                'festivo_nombre' => null,
+                'incluido' => true,
                 'horas_brutas' => (float) $dia['horas_brutas'],
                 'horas_descuento_almuerzo' => (float) $dia['horas_descuento_almuerzo'],
                 'horas_netas' => $horasNetas,

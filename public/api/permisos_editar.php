@@ -26,6 +26,9 @@ try {
     if($tiene && (!$reemplazo||$reemplazo===$cedula)) $errores[]='Debes seleccionar un reemplazo válido.';
     if($especial && (empty($_POST['fecha_inicio'])||empty($_POST['hora_inicio']))) $errores[]='Indica fecha y hora de salida.';
     if(!$especial && empty($_POST['dias_confirmados'])) $errores[]='Debes indicar los días y horarios del permiso.';
+    $esCompE=(($_POST['es_compensatorio']??'0')==='1'); $esDevE=(($_POST['es_devolucion']??'0')==='1');
+    if($esCompE && $esDevE) $errores[]='No puedes marcar compensatorio y devolución al mismo tiempo.';
+    if($esCompE && empty($_POST['fecha_horas_extra'])) $errores[]='Debes indicar la fecha en que hiciste las horas extra.';
     if($errores){ echo json_encode(['ok'=>false,'errores'=>$errores]); exit; }
 
     $campos=['tipo_permiso'=>$tipo,'motivo'=>$motivo,'tiene_reemplazo'=>$tiene,'cedula_reemplazo'=>$reemplazo,'cedula_jefe'=>$jefe,'es_salida_pendiente_regreso'=>$especial,
@@ -41,10 +44,10 @@ try {
       $rec=PermisoController::recalcularConfirmado($dias,$tipoPersonal); $diasFinal=$rec['dias'];
       $campos += ['fecha_inicio'=>$diasFinal[0]['fecha'],'hora_inicio'=>$diasFinal[0]['hora_inicio'],'fecha_fin'=>$diasFinal[count($diasFinal)-1]['fecha'],'hora_fin'=>$diasFinal[count($diasFinal)-1]['hora_fin'],'total_horas'=>$rec['total_horas']];
     }
-    $campos['remunerado']=isset($_POST['remunerado'])?1:0;
-    $campos['es_compensatorio']=isset($_POST['es_compensatorio'])?1:0;
+    $campos['remunerado']=(($_POST['remunerado']??'0')==='1')?1:0;
+    $campos['es_compensatorio']=(($_POST['es_compensatorio']??'0')==='1')?1:0;
     $campos['fecha_horas_extra']=$campos['es_compensatorio']?($_POST['fecha_horas_extra']??null):null;
-    $campos['es_devolucion']=isset($_POST['es_devolucion'])?1:0;
+    $campos['es_devolucion']=(($_POST['es_devolucion']??'0')==='1')?1:0;
     if($campos['es_devolucion']){
       $devs=json_decode($_POST['devoluciones_json']??'[]',true)?:[]; $total=0;
       foreach($devs as $d){ $r=PermisoController::calcularHorasDevolucion($d['fecha']??'',$d['hora_inicio']??'',$d['hora_fin']??''); if(!$r['ok']) throw new Exception($r['error']); $d['total_horas']=$r['total_horas']; $total += $r['total_horas']; $devsFinal[]=$d; }

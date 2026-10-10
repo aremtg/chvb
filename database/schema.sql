@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-10-2026 a las 00:41:37
+-- Tiempo de generación: 10-10-2026 a las 16:13:55
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -219,7 +219,7 @@ INSERT INTO `empleados` (`cedula`, `lugar_expedicion`, `nombre`, `sexo`, `cargo`
 ('1118567328', 'Yopal, Casanare', 'Nelson Fabian Chaparro Rincon', 'M', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2016-02-11', NULL, 'activo', NULL, NULL, '1997-02-10', '2026-09-23 18:11:40', NULL),
 ('1118572004', 'Yopal, Casanare', 'Luisa Fernanda Abril Bernal', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-09-05', NULL, 'activo', NULL, NULL, '1998-08-26', '2026-09-30 15:01:28', NULL),
 ('1118573216', 'Yopal, Casanare', 'Camilo Andres Corredor Garcia', 'M', 'Maquinista', 'Bombero', NULL, NULL, NULL, NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2024-11-01', '2025-04-30', 'activo', NULL, NULL, '1999-01-17', '2026-09-23 03:22:10', NULL),
-('1118575006', 'Yopal, Casanare', 'Angela Brithey Maldonado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-16', '2025-11-15', 'activo', NULL, NULL, '1999-08-24', '2026-09-23 03:37:51', NULL),
+('1118575006', 'Yopal, Casanare', 'Angela Brithey Maldonado', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-16', '2025-11-15', 'activo', NULL, NULL, '1999-08-24', '2026-09-23 03:37:51', 'hv_1118575006/perfil/foto.jpg'),
 ('1118775342', 'Yopal, Casanare', 'Daniel Fernando Gutierrez Riaño', 'M', 'Bombero integral', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', 0.00, 0, 'Turnos', NULL, NULL, 'Fijo', '2024-01-17', '2025-01-17', 'activo', NULL, NULL, '1993-03-12', '2026-09-23 01:04:54', NULL),
 ('11206377', 'Yopal, Casanare', 'Juan Fernando Guzman Guzman', 'M', 'Bombero integral', 'Bombero', 'Sanitas', 'Colpensiones', 'Positiva', NULL, 1, 'Turnos', NULL, NULL, 'Fijo', '2023-07-21', NULL, 'activo', NULL, NULL, '1995-12-08', '2026-09-23 01:34:23', NULL),
 ('1121898640', 'Villavicencio, Meta', 'Arlyn Johanna Sanchez Gutierrez', 'F', 'Auxiliar administrativo', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', NULL, NULL, 'activo', NULL, NULL, NULL, '2026-09-23 22:47:28', NULL),
@@ -250,107 +250,6 @@ INSERT INTO `empleados` (`cedula`, `lugar_expedicion`, `nombre`, `sexo`, `cargo`
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `festivos_colombia`
---
-
-CREATE TABLE `festivos_colombia` (
-  `id` int(11) NOT NULL,
-  `fecha` date NOT NULL,
-  `nombre` varchar(150) NOT NULL,
-  `anio` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `festivos_colombia`
---
-
-INSERT INTO `festivos_colombia` (`id`, `fecha`, `nombre`, `anio`) VALUES
-(1, '2026-01-01', 'Año Nuevo', 2026),
-(2, '2026-01-12', 'Reyes Magos', 2026),
-(3, '2026-03-23', 'Día de San José', 2026),
-(4, '2026-04-02', 'Jueves Santo', 2026),
-(5, '2026-04-03', 'Viernes Santo', 2026),
-(6, '2026-05-01', 'Día del Trabajo', 2026),
-(7, '2026-05-18', 'Ascensión de Jesús', 2026),
-(8, '2026-06-08', 'Corpus Christi', 2026),
-(9, '2026-06-15', 'Sagrado Corazón', 2026),
-(10, '2026-06-29', 'San Pedro y San Pablo', 2026),
-(11, '2026-07-13', 'Día de Nuestra Señora de Chiquinquirá', 2026),
-(12, '2026-07-20', 'Día de la Independencia', 2026),
-(13, '2026-08-07', 'Batalla de Boyacá', 2026),
-(14, '2026-08-17', 'Asunción de la Virgen', 2026),
-(15, '2026-10-12', 'Día de la Raza', 2026),
-(16, '2026-11-02', 'Todos los Santos', 2026),
-(17, '2026-11-16', 'Independencia de Cartagena', 2026),
-(18, '2026-12-08', 'Inmaculada Concepción', 2026),
-(19, '2026-12-25', 'Navidad', 2026),
-(51, '2027-08-07', 'Batalla de Boyacá', 2027),
-(52, '2027-08-16', 'Asunción de la Virgen', 2027),
-(53, '2027-10-18', 'Día de la Raza', 2027),
-(54, '2027-11-01', 'Todos los Santos', 2027),
-(55, '2027-11-15', 'Independencia de Cartagena', 2027),
-(56, '2027-12-08', 'Inmaculada Concepción', 2027),
-(57, '2027-12-25', 'Navidad', 2027),
-(58, '2028-01-01', 'Año Nuevo', 2028),
-(59, '2028-01-10', 'Reyes Magos', 2028),
-(60, '2028-03-20', 'Día de San José', 2028),
-(61, '2028-04-13', 'Jueves Santo', 2028),
-(62, '2028-04-14', 'Viernes Santo', 2028),
-(63, '2028-05-01', 'Día del Trabajo', 2028),
-(64, '2028-05-29', 'Ascensión de Jesús', 2028),
-(65, '2028-06-19', 'Corpus Christi', 2028),
-(66, '2028-06-26', 'Sagrado Corazón', 2028),
-(67, '2028-07-03', 'San Pedro y San Pablo', 2028),
-(68, '2028-07-10', 'Día de Nuestra Señora de Chiquinquirá', 2028),
-(69, '2028-07-20', 'Día de la Independencia', 2028),
-(70, '2028-08-07', 'Batalla de Boyacá', 2028),
-(71, '2028-08-21', 'Asunción de la Virgen', 2028),
-(72, '2028-10-16', 'Día de la Raza', 2028),
-(73, '2028-11-06', 'Todos los Santos', 2028),
-(74, '2028-11-13', 'Independencia de Cartagena', 2028),
-(75, '2028-12-08', 'Inmaculada Concepción', 2028),
-(76, '2028-12-25', 'Navidad', 2028),
-(77, '2029-01-01', 'Año Nuevo', 2029),
-(78, '2029-01-08', 'Reyes Magos', 2029),
-(79, '2029-03-19', 'Día de San José', 2029),
-(80, '2029-03-29', 'Jueves Santo', 2029),
-(81, '2029-03-30', 'Viernes Santo', 2029),
-(82, '2029-05-01', 'Día del Trabajo', 2029),
-(83, '2029-05-14', 'Ascensión de Jesús', 2029),
-(84, '2029-06-04', 'Corpus Christi', 2029),
-(85, '2029-06-11', 'Sagrado Corazón', 2029),
-(86, '2029-07-02', 'San Pedro y San Pablo', 2029),
-(87, '2029-07-09', 'Día de Nuestra Señora de Chiquinquirá', 2029),
-(88, '2029-07-20', 'Día de la Independencia', 2029),
-(89, '2029-08-07', 'Batalla de Boyacá', 2029),
-(90, '2029-08-20', 'Asunción de la Virgen', 2029),
-(91, '2029-10-15', 'Día de la Raza', 2029),
-(92, '2029-11-05', 'Todos los Santos', 2029),
-(93, '2029-11-12', 'Independencia de Cartagena', 2029),
-(94, '2029-12-08', 'Inmaculada Concepción', 2029),
-(95, '2029-12-25', 'Navidad', 2029),
-(96, '2030-01-01', 'Año Nuevo', 2030),
-(97, '2030-01-07', 'Reyes Magos', 2030),
-(98, '2030-03-25', 'Día de San José', 2030),
-(99, '2030-04-18', 'Jueves Santo', 2030),
-(100, '2030-04-19', 'Viernes Santo', 2030),
-(101, '2030-05-01', 'Día del Trabajo', 2030),
-(102, '2030-06-03', 'Ascensión de Jesús', 2030),
-(103, '2030-06-24', 'Corpus Christi', 2030),
-(104, '2030-07-01', 'Sagrado Corazón', 2030),
-(106, '2030-07-15', 'Día de Nuestra Señora de Chiquinquirá', 2030),
-(107, '2030-07-20', 'Día de la Independencia', 2030),
-(108, '2030-08-07', 'Batalla de Boyacá', 2030),
-(109, '2030-08-19', 'Asunción de la Virgen', 2030),
-(110, '2030-10-14', 'Día de la Raza', 2030),
-(111, '2030-11-04', 'Todos los Santos', 2030),
-(112, '2030-11-11', 'Independencia de Cartagena', 2030),
-(113, '2030-12-08', 'Inmaculada Concepción', 2030),
-(114, '2030-12-25', 'Navidad', 2030);
-
--- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `firmas_guardadas`
 --
 
@@ -376,6 +275,13 @@ CREATE TABLE `funciones_certificados` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `funciones_certificados`
+--
+
+INSERT INTO `funciones_certificados` (`id`, `cargo_id`, `texto`, `orden`, `activo`, `created_at`, `updated_at`) VALUES
+(1, 36, 'respuesta en incendios, rescates y atención de emergencias, y todas aquellas funciones de acuerdo a su cargo', 0, 1, '2026-10-07 21:12:38', '2026-10-07 21:13:07');
 
 -- --------------------------------------------------------
 
@@ -421,6 +327,9 @@ CREATE TABLE `notificaciones` (
 CREATE TABLE `permisos` (
   `id` int(11) NOT NULL,
   `consecutivo` varchar(20) NOT NULL,
+  `formato_codigo` varchar(20) DEFAULT NULL,
+  `formato_version` int(10) UNSIGNED DEFAULT NULL,
+  `formato_fecha` date DEFAULT NULL,
   `cedula_empleado` varchar(10) NOT NULL,
   `nombre_empleado_snapshot` varchar(150) NOT NULL,
   `cargo_empleado_snapshot` varchar(150) NOT NULL,
@@ -466,6 +375,14 @@ CREATE TABLE `permisos` (
   `fecha_actualizacion` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Volcado de datos para la tabla `permisos`
+--
+
+INSERT INTO `permisos` (`id`, `consecutivo`, `formato_codigo`, `formato_version`, `formato_fecha`, `cedula_empleado`, `nombre_empleado_snapshot`, `cargo_empleado_snapshot`, `celular_empleado_snapshot`, `tipo_permiso`, `motivo`, `fecha_inicio`, `hora_inicio`, `fecha_fin`, `hora_fin`, `total_horas`, `incluye_festivo`, `festivo_confirmado`, `remunerado`, `es_compensatorio`, `fecha_horas_extra`, `es_devolucion`, `es_salida_pendiente_regreso`, `devolucion_fecha`, `devolucion_hora_inicio`, `devolucion_hora_fin`, `devolucion_total_horas`, `tiene_reemplazo`, `cedula_reemplazo`, `cedula_jefe`, `foto_solicitante`, `firma_solicitante`, `foto_reemplazo`, `firma_reemplazo`, `foto_jefe`, `firma_jefe`, `foto_jefe_prefirmado`, `firma_jefe_prefirmado`, `evidencia_archivo`, `estado`, `motivo_devolucion`, `motivo_rechazo`, `motivo_anulacion`, `anulado_por`, `fecha_anulacion`, `version`, `fecha_solicitud`, `fecha_actualizacion`) VALUES
+(1, 'GH-FT-10-2026-0001', 'GH-FT-10', 1, '2026-10-10', '1124989349', 'Tatiana Andrea Guzman Galindo', 'Practicante Fundetec', '3229496595', 'Permiso', 'Mi primer permiso', '2026-10-21', '07:00:00', '2026-10-26', '17:24:00', 33.60, 0, 1, 1, 0, NULL, 0, 0, NULL, NULL, NULL, NULL, 0, NULL, '74861664', 'hv_1124989349/permisos/fotos/foto_1791586699.jpg', 'hv_1124989349/firma/firma_1791586699.png', NULL, NULL, 'hv_74861664/permisos/fotos/foto_1791591060.jpg', 'hv_74861664/firma/firma_1791591060.png', NULL, NULL, NULL, 'anulado', NULL, NULL, 'nonon', 'Tatiana', '2026-10-10 00:12:35', 4, '2026-10-09 22:58:19', '2026-10-10 14:06:21'),
+(2, 'GH-FT-10-2026-0002', 'GH-FT-10', 1, '2026-10-10', '1124989349', 'Tatiana Andrea Guzman Galindo', 'Practicante Fundetec', '3229496595', 'Vacaciones', 'Puvv', '2026-10-21', '07:00:00', '2026-11-05', '17:24:00', 100.80, 1, 1, 1, 0, NULL, 0, 0, NULL, NULL, NULL, NULL, 0, NULL, '74861664', 'hv_1124989349/permisos/fotos/foto_1791597945.jpg', 'hv_1124989349/firma/firma_1791586699.png', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'por_firmar_jefe', NULL, NULL, NULL, NULL, NULL, 2, '2026-10-10 02:05:45', '2026-10-10 14:06:21');
+
 -- --------------------------------------------------------
 
 --
@@ -476,6 +393,13 @@ CREATE TABLE `permisos_consecutivos` (
   `anio` int(11) NOT NULL,
   `ultimo_numero` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `permisos_consecutivos`
+--
+
+INSERT INTO `permisos_consecutivos` (`anio`, `ultimo_numero`) VALUES
+(2026, 2);
 
 -- --------------------------------------------------------
 
@@ -512,6 +436,50 @@ CREATE TABLE `permisos_dias` (
   `horas_netas` decimal(6,2) NOT NULL COMMENT '0 si incluido=0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Volcado de datos para la tabla `permisos_dias`
+--
+
+INSERT INTO `permisos_dias` (`id`, `permiso_id`, `fecha`, `hora_inicio`, `hora_fin`, `es_festivo`, `festivo_nombre`, `incluido`, `horas_brutas`, `horas_descuento_almuerzo`, `horas_netas`) VALUES
+(1, 1, '2026-10-21', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(2, 1, '2026-10-22', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(3, 1, '2026-10-23', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(4, 1, '2026-10-26', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(5, 2, '2026-10-21', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(6, 2, '2026-10-22', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(7, 2, '2026-10-23', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(8, 2, '2026-10-26', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(9, 2, '2026-10-27', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(10, 2, '2026-10-28', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(11, 2, '2026-10-29', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(12, 2, '2026-10-30', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(13, 2, '2026-11-02', '07:00:00', '17:24:00', 1, 'Todos los Santos', 1, 10.40, 2.00, 8.40),
+(14, 2, '2026-11-03', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(15, 2, '2026-11-04', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
+(16, 2, '2026-11-05', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `permisos_formato`
+--
+
+CREATE TABLE `permisos_formato` (
+  `id` tinyint(3) UNSIGNED NOT NULL DEFAULT 1,
+  `codigo` varchar(20) NOT NULL DEFAULT 'GH-FT-10',
+  `version` int(10) UNSIGNED NOT NULL DEFAULT 1,
+  `fecha` date NOT NULL,
+  `actualizado_por` varchar(100) DEFAULT NULL,
+  `actualizado_en` datetime DEFAULT NULL
+) ;
+
+--
+-- Volcado de datos para la tabla `permisos_formato`
+--
+
+INSERT INTO `permisos_formato` (`id`, `codigo`, `version`, `fecha`, `actualizado_por`, `actualizado_en`) VALUES
+(1, 'GH-FT-10', 1, '2026-10-10', NULL, NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -529,6 +497,16 @@ CREATE TABLE `permisos_historial` (
   `detalle` varchar(500) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `permisos_historial`
+--
+
+INSERT INTO `permisos_historial` (`id`, `permiso_id`, `version_anterior`, `estado_anterior`, `estado_nuevo`, `actor_tipo`, `actor_cedula_o_usuario`, `detalle`, `created_at`) VALUES
+(1, 1, 1, 'en_proceso', 'por_firmar_jefe', 'empleado', '1124989349', 'Permiso creado y enviado', '2026-10-09 22:58:19'),
+(2, 1, 2, 'por_firmar_jefe', 'firmado', 'jefe', '74861664', 'Jefe firmó, permiso finalizado', '2026-10-10 00:11:00'),
+(3, 1, 3, 'firmado', 'anulado', 'talento_humano', 'Tatiana', 'nonon', '2026-10-10 00:12:35'),
+(4, 2, 1, 'en_proceso', 'por_firmar_jefe', 'empleado', '1124989349', 'Permiso creado y enviado', '2026-10-10 02:05:45');
 
 -- --------------------------------------------------------
 
@@ -726,14 +704,6 @@ ALTER TABLE `empleados`
   ADD KEY `idx_empleados_cargo` (`cargo`);
 
 --
--- Indices de la tabla `festivos_colombia`
---
-ALTER TABLE `festivos_colombia`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `fecha` (`fecha`),
-  ADD KEY `idx_anio` (`anio`);
-
---
 -- Indices de la tabla `firmas_guardadas`
 --
 ALTER TABLE `firmas_guardadas`
@@ -794,6 +764,12 @@ ALTER TABLE `permisos_dias`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_permiso` (`permiso_id`),
   ADD KEY `idx_fecha` (`fecha`);
+
+--
+-- Indices de la tabla `permisos_formato`
+--
+ALTER TABLE `permisos_formato`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `permisos_historial`
@@ -861,12 +837,6 @@ ALTER TABLE `documentos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
--- AUTO_INCREMENT de la tabla `festivos_colombia`
---
-ALTER TABLE `festivos_colombia`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
-
---
 -- AUTO_INCREMENT de la tabla `firmas_guardadas`
 --
 ALTER TABLE `firmas_guardadas`
@@ -876,7 +846,7 @@ ALTER TABLE `firmas_guardadas`
 -- AUTO_INCREMENT de la tabla `funciones_certificados`
 --
 ALTER TABLE `funciones_certificados`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `funciones_contratos`
@@ -894,7 +864,7 @@ ALTER TABLE `notificaciones`
 -- AUTO_INCREMENT de la tabla `permisos`
 --
 ALTER TABLE `permisos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `permisos_devoluciones`
@@ -906,19 +876,19 @@ ALTER TABLE `permisos_devoluciones`
 -- AUTO_INCREMENT de la tabla `permisos_dias`
 --
 ALTER TABLE `permisos_dias`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de la tabla `permisos_historial`
 --
 ALTER TABLE `permisos_historial`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `renovaciones_avisos`
 --
 ALTER TABLE `renovaciones_avisos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=138;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=158;
 
 --
 -- AUTO_INCREMENT de la tabla `renovaciones_contrato`

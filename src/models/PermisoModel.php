@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/FormatoPermisoModel.php';
 // src/models/PermisoModel.php
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../helpers/JornadaHelper.php';
@@ -13,6 +14,8 @@ class PermisoModel {
     public static function generarConsecutivo(): string {
         $pdo = getPDO();
         $anio = (int) date('Y');
+        // Código del formato (GH-FT-10 por defecto). Solo afecta a permisos nuevos.
+        $codigo = FormatoPermisoModel::obtener()['codigo'];
 
         $pdo->beginTransaction();
         try {
@@ -37,7 +40,7 @@ class PermisoModel {
             throw $e;
         }
 
-        return sprintf('GH-FT-10-%d-%04d', $anio, $siguiente);
+        return sprintf('%s-%d-%04d', $codigo, $anio, $siguiente);
     }
 
     public static function crear(array $datos, array $dias): int {
@@ -51,15 +54,19 @@ class PermisoModel {
                         remunerado, es_compensatorio, fecha_horas_extra, es_devolucion,
                         devolucion_fecha, devolucion_hora_inicio, devolucion_hora_fin, devolucion_total_horas,
                         tiene_reemplazo, cedula_reemplazo, cedula_jefe,
-                        foto_solicitante, firma_solicitante, evidencia_archivo, estado
+                        foto_solicitante, firma_solicitante, evidencia_archivo, estado,
+                        formato_codigo, formato_version, formato_fecha
                     ) VALUES (
                         :b1, :b2, :b3, :b4, :b5, :b6, :b7, :b8, :b9,
                         :b10, :b11, :b12, :b13, :b14,
                         :b15, :b16, :b17, :b18,
                         :b19, :b20, :b21, :b22,
                         :b23, :b24, :b25,
-                        :b26, :b27, :b28, :b29
+                        :b26, :b27, :b28, :b29,
+                        :b30, :b31, :b32
                     )";
+            // Trazabilidad: el formato vigente AL CREAR queda grabado en el permiso.
+            $formatoVigente = FormatoPermisoModel::obtener();
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 'b1' => $datos['consecutivo'], 'b2' => $datos['cedula_empleado'],
@@ -76,6 +83,7 @@ class PermisoModel {
                 'b25' => $datos['cedula_jefe'], 'b26' => $datos['foto_solicitante'],
                 'b27' => $datos['firma_solicitante'], 'b28' => $datos['evidencia_archivo'],
                 'b29' => 'en_proceso',
+                'b30' => $formatoVigente['codigo'], 'b31' => $formatoVigente['version'], 'b32' => $formatoVigente['fecha'],
             ]);
 
             $permisoId = (int) $pdo->lastInsertId();

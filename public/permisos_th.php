@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../src/models/FormatoPermisoModel.php';
 requireSuperAdmin();
 
 // El teniente es solo lectura: no debe ver el botón de anular.
@@ -27,12 +28,45 @@ $enfocadoEnUno = !empty($_GET['id']);
             </div>
             <div class="pm-header__actions">
                 <span class="pm-live" title="La lista se actualiza sola cada pocos segundos"><i></i> En vivo</span>
+                <?php if (in_array($_SESSION['superadmin_rol'] ?? '', ROLES_TALENTO_HUMANO, true)):
+                    $formatoPermiso = FormatoPermisoModel::obtener(); ?>
+                <button type="button" id="btnAbrirFormato" class="pm-btn pm-btn--outline-brand pm-btn--sm"
+                    title="Código, versión y fecha del formato impreso">Versión</button>
+                <dialog id="dlgFormato" class="rounded-xl shadow-lg p-0 w-full max-w-md">
+                    <form method="dialog" class="p-5 space-y-3">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800">Formato del permiso</p>
+                            <p class="text-xs text-gray-600">Aparece bajo el consecutivo de cada permiso impreso. Los permisos ya creados no cambian; el código nuevo se usa en los permisos que se creen desde ahora.</p>
+                        </div>
+                        <label class="block text-xs text-gray-600">Código
+                            <input id="formatoCodigo" type="text" maxlength="20" value="<?= htmlspecialchars($formatoPermiso['codigo']) ?>"
+                                class="block mt-1 w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm uppercase">
+                        </label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="block text-xs text-gray-600">Versión
+                                <input id="formatoVersion" type="number" min="1" max="999" step="1" value="<?= (int) $formatoPermiso['version'] ?>"
+                                    class="block mt-1 w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm">
+                            </label>
+                            <label class="block text-xs text-gray-600">Fecha
+                                <input id="formatoFecha" type="date" value="<?= htmlspecialchars($formatoPermiso['fecha']) ?>"
+                                    class="block mt-1 w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm">
+                            </label>
+                        </div>
+                        <p id="formatoMsg" class="text-xs text-gray-600 min-h-4" aria-live="polite"></p>
+                        <div class="flex justify-end gap-2">
+                            <button type="button" id="btnCerrarFormato" class="border border-gray-300 rounded-xl px-4 py-2 text-sm text-gray-700">Cancelar</button>
+                            <button type="button" id="btnGuardarFormato" class="bg-red-600 hover:bg-red-700 text-white text-sm rounded-xl px-4 py-2 disabled:opacity-50">Guardar</button>
+                        </div>
+                    </form>
+                </dialog>
+                <?php endif; ?>
             </div>
         </div>
     </header>
 
     <input type="hidden" id="csrfToken" value="<?= htmlspecialchars(csrfToken()) ?>">
     <main class="pm-main">
+
 
         <?php if ($enfocadoEnUno): ?>
             <div class="pm-banner">
@@ -149,5 +183,6 @@ $enfocadoEnUno = !empty($_GET['id']);
     </main>
 </div>
 <script src="./assets/js/permisos_th.js"></script>
+<script src="./assets/js/formato_permiso.js?v=<?= (int) @filemtime(__DIR__ . '/assets/js/formato_permiso.js') ?>"></script>
 </body>
 </html>

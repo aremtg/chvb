@@ -31,10 +31,11 @@ try {
     $fechaFin = $_POST['fecha_fin'] ?? '';
     $diasConfirmadosJson = $_POST['dias_confirmados'] ?? '';
 
-    $remunerado = isset($_POST['remunerado']) ? 1 : 0;
-    $esCompensatorio = isset($_POST['es_compensatorio']) ? 1 : 0;
+    // Sí/No: sin valor (o cualquier cosa distinta de '1') se guarda como No.
+    $remunerado = (($_POST['remunerado'] ?? '0') === '1') ? 1 : 0;
+    $esCompensatorio = (($_POST['es_compensatorio'] ?? '0') === '1') ? 1 : 0;
     $fechaHorasExtra = $_POST['fecha_horas_extra'] ?? null;
-    $esDevolucion = isset($_POST['es_devolucion']) ? 1 : 0;
+    $esDevolucion = (($_POST['es_devolucion'] ?? '0') === '1') ? 1 : 0;
     $devolucionesJson = $_POST['devoluciones_json'] ?? '';
 
     $tieneReemplazo = isset($_POST['tiene_reemplazo']) ? 1 : 0;
@@ -174,8 +175,8 @@ try {
         'fecha_fin' => $fechaFinReal,
         'hora_fin' => $horaFinReal,
         'total_horas' => $recalculo['total_horas'],
-        'incluye_festivo' => array_reduce($recalculo['dias'], fn($c, $d) => $c || $d['es_festivo'], false) ? 1 : 0,
-        'festivo_confirmado' => 1,
+        'incluye_festivo' => 0,
+        'festivo_confirmado' => 0,
         'remunerado' => $remunerado,
         'es_compensatorio' => $esCompensatorio,
         'fecha_horas_extra' => $esCompensatorio ? $fechaHorasExtra : null,

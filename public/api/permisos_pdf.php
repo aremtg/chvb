@@ -14,6 +14,7 @@
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../src/models/PermisoModel.php';
 require_once __DIR__ . '/../../src/helpers/PermisoPdf.php';
+require_once __DIR__ . '/../../src/models/FormatoPermisoModel.php';
 
 requireSuperAdmin();
 validarCSRF();
@@ -54,7 +55,7 @@ $permisos = PermisoModel::enriquecerParaPdf($permisos);
 @ini_set('memory_limit', '512M');
 
 try {
-    $pdf = PermisoPdf::generar($permisos, $dosPorHoja, (string)($_SESSION['superadmin_username'] ?? ''));
+    $pdf = PermisoPdf::generar($permisos, $dosPorHoja, (string)($_SESSION['superadmin_username'] ?? ''), null, FormatoPermisoModel::obtener());
 } catch (Throwable $ex) {
     error_log('permisos_pdf: ' . $ex->getMessage());
     pdfError(500, 'No se pudo generar el PDF.');

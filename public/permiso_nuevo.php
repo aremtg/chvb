@@ -37,7 +37,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
             <h1 class="text-lg font-bold text-gray-800"><?= $editarId ? 'Editar y reenviar permiso' : 'Nueva solicitud de permiso' ?></h1>
         </header>
 
-        <main class="p-2 md:p-4 max-w-3xl mx-auto">
+        <main class="p-2 md:p-4 max-w-3xl lg:max-w-6xl mx-auto">
 
             <?php if (!$datosCompletos): ?>
                 <div class="bg-white rounded-xl shadow p-6 text-center">
@@ -57,12 +57,12 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                     class="hidden bg-blue-50 border border-blue-200 text-blue-800 text-sm rounded-xl p-3"></div>
                 <div id="erroresForm" class="hidden bg-red-100 text-red-700 text-sm rounded-xl p-3"></div>
 
-                <form id="formPermiso" class="space-y-2">
+                <form id="formPermiso" class="space-y-2 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-4 lg:items-start">
                     <?= csrfCampoHTML() ?>
                     <?php if ($editarId): ?><input type="hidden" id="permisoEditarId" value="<?= $editarId ?>"><input type="hidden" id="permisoEditarVersion" value="<?= (int)$permisoEditar['version'] ?>"><?php endif; ?>
 
                     <!-- Datos automáticos -->
-                    <div class="bg-white rounded-xl shadow p-4 grid grid-cols-2 gap-3 text-sm">
+                    <div class="bg-white rounded-xl shadow p-4 grid grid-cols-2 gap-3 text-sm lg:col-span-2">
                         <p><strong>Nombre:</strong> <?= htmlspecialchars($empleado['nombre']) ?></p>
                         <p><strong>Cédula:</strong> <?= htmlspecialchars($cedula) ?></p>
                         <p><strong>Cargo:</strong> <?= htmlspecialchars(JornadaHelper::cargoDetalle($empleado)) ?></p>
@@ -147,14 +147,28 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
 
                     <!-- Checks: remunerado / compensatorio / devolución -->
                     <div class="bg-white rounded-xl shadow p-4 space-y-4">
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" id="remunerado" name="remunerado" class="rounded">
-                            <label for="remunerado" class="text-sm text-gray-700">¿Remunerado?</label>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-1">¿Remunerado? <span class="text-red-600">*</span></p>
+                            <div class="flex gap-4" role="radiogroup" aria-label="¿Remunerado?">
+                                <label class="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
+                                    <input type="radio" name="remunerado" id="remuneradoSi" value="1" required class="rounded-full"> Sí
+                                </label>
+                                <label class="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
+                                    <input type="radio" name="remunerado" id="remuneradoNo" value="0" required checked class="rounded-full"> No
+                                </label>
+                            </div>
                         </div>
 
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" id="esCompensatorio" name="es_compensatorio" class="rounded">
-                            <label for="esCompensatorio" class="text-sm text-gray-700">¿Compensatorio?</label>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-1">¿Compensatorio? <span class="text-red-600">*</span></p>
+                            <div class="flex gap-4" role="radiogroup" aria-label="¿Compensatorio?">
+                                <label class="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
+                                    <input type="radio" name="es_compensatorio" id="esCompensatorioSi" value="1" required class="rounded-full"> Sí
+                                </label>
+                                <label class="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
+                                    <input type="radio" name="es_compensatorio" id="esCompensatorioNo" value="0" required checked class="rounded-full"> No
+                                </label>
+                            </div>
                         </div>
                         <div id="cajaCompensatorio" class="hidden pl-6">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha en que hiciste las horas
@@ -163,9 +177,16 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                                 class="w-full border border-gray-300 rounded-xl px-3 py-2">
                         </div>
 
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" id="esDevolucion" name="es_devolucion" class="rounded">
-                            <label for="esDevolucion" class="text-sm text-gray-700">¿Devolución de tiempo?</label>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-1">¿Devolución de tiempo? <span class="text-red-600">*</span></p>
+                            <div class="flex gap-4" role="radiogroup" aria-label="¿Devolución de tiempo?">
+                                <label class="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
+                                    <input type="radio" name="es_devolucion" id="esDevolucionSi" value="1" required class="rounded-full"> Sí
+                                </label>
+                                <label class="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
+                                    <input type="radio" name="es_devolucion" id="esDevolucionNo" value="0" required checked class="rounded-full"> No
+                                </label>
+                            </div>
                         </div>
                         <div id="cajaDevolucion" class="hidden pl-6 space-y-3">
                             <p class="text-xs text-gray-500">Agrega tantas fechas como necesites para compensar el total de
@@ -268,7 +289,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                     </div>
 
                     <button type="submit"
-                        class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition">
+                        class="w-full lg:col-span-2 bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition">
                         <?= $editarId ? 'Guardar cambios y reenviar' : 'Guardar solicitud' ?>
                     </button>
                 </form>

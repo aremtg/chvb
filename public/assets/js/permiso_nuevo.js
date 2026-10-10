@@ -29,82 +29,60 @@ const HORARIO_CIVIL_FIN =
 
 let mesCalendarioActual = new Date().getMonth();
 let anioCalendarioActual = new Date().getFullYear();
-let festivosCache = {};
 
 // Mapa PERSISTENTE por fecha: única fuente de verdad de la selección.
-// { 'YYYY-MM-DD': { esFestivo, festivoNombre, decidido, incluido, diaCompleto,
-//                    horaInicio, horaFin, horasNetas, calculando } }
+// { 'YYYY-MM-DD': { diaCompleto, horaInicio, horaFin, horasNetas, calculando } }
+// La persona elige los días que solicita; no hay festivos automáticos.
 let infoDias = {};
 
 // =====================================================================
-// CALENDARIO — solo pinta/despinta, nunca decide inclusión de festivos aquí
+// CALENDARIO — sábados y domingos en amarillo claro, hoy en amarillo fuerte
 // =====================================================================
 
-async function asegurarFestivosDelAnio(anio) {
-  if (festivosCache[anio]) return festivosCache[anio];
-  
-  // SE AGREGARON LOS HEADERS CON EL TOKEN CSRF AQUÍ:
-  const res = await fetch(
-    `./api/festivos_verificar.php?anio=${anio}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ""
-      }
-    }
-  );
-  
-  const data = await res.json();
-  const mapa = {};
-  if (data.ok)
-    data.festivos.forEach((f) => {
-      mapa[f.fecha] = f.nombre;
-    });
-  festivosCache[anio] = mapa;
-  return mapa;
-}
-
+const DIAS_SEMANA_LARGO = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
 function formatearFechaEs(fechaStr) {
   const [y, m, d] = fechaStr.split("-").map(Number);
   return `${d} de ${MESES_ES[m - 1]} de ${y}`;
 }
 
-async function renderCalendario() {
+function fechaStrDe(fecha) {
+  return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}-${String(fecha.getDate()).padStart(2, "0")}`;
+}
+
+function renderCalendario() {
   const contenedor = document.getElementById("calendarioBonito");
-  const festivos = await asegurarFestivosDelAnio(anioCalendarioActual);
+  const hoy = new Date();
+  const hoyStr = fechaStrDe(hoy);
 
   const primerDiaMes = new Date(anioCalendarioActual, mesCalendarioActual, 1);
-  const diasEnMes = new Date(
-    anioCalendarioActual,
-    mesCalendarioActual + 1,
-    0,
-  ).getDate();
-  const diaSemanaInicio = primerDiaMes.getDay();
+  const diasEnMes = new Date(anioCalendarioActual, mesCalendarioActual + 1, 0).getDate();
+  const diaSemanaInicio = primerDiaMes.getDay();   // 0 = domingo, coincide con DIAS_SEMANA_ES
 
   let celdas = "";
   for (let i = 0; i < diaSemanaInicio; i++) celdas += `<div></div>`;
 
   for (let dia = 1; dia <= diasEnMes; dia++) {
     const fechaStr = `${anioCalendarioActual}-${String(mesCalendarioActual + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-    const esFestivo = !!festivos[fechaStr];
-    const info = infoDias[fechaStr];
-    const seleccionado = !!info; // solo existe en infoDias si está seleccionado Y aceptado (festivo dicho "Sí", o no festivo)
+    const diaSemana = new Date(anioCalendarioActual, mesCalendarioActual, dia).getDay();
+    const finDeSemana = diaSemana === 0 || diaSemana === 6;
+    const seleccionado = !!infoDias[fechaStr];
+    const esHoy = fechaStr === hoyStr;
 
-    let clases =
-      "w-9 h-9 flex items-center justify-center rounded-xl text-sm cursor-pointer transition ";
-    if (seleccionado) {
-      clases += "bg-red-600 text-white font-bold";
-    } else if (esFestivo) {
-      clases += "bg-yellow-100 text-yellow-700 hover:bg-yellow-200";
-    } else {
-      clases += "hover:bg-gray-100 text-gray-700";
-    }
+    let fondo;
+    if (seleccionado) fondo = "bg-red-600 text-white font-bold";
+    else if (esHoy) fondo = "bg-yellow-300 text-gray-900 font-bold";
+    else if (finDeSemana) fondo = "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
+    else fondo = "hover:bg-gray-100 text-gray-700";
+    const anillo = esHoy ? " ring-2 ring-yellow-500" : "";
 
-    celdas += `<button type="button" onclick="toggleDia('${fechaStr}', ${esFestivo}, '${(festivos[fechaStr] || "").replace(/'/g, "\\'")}')" class="${clases}" title="${esFestivo ? festivos[fechaStr] : ""}">${dia}</button>`;
+    const clases = "w-9 h-9 flex items-center justify-center rounded-xl text-sm cursor-pointer transition " + fondo + anillo;
+    const titulo = esHoy ? "Hoy" : "";
+    celdas += `<button type="button" onclick="toggleDia('${fechaStr}')" class="${clases}" title="${titulo}">${dia}</button>`;
   }
 
   contenedor.innerHTML = `
+        <p class="text-xs text-gray-700 mb-3">Hoy es <span class="font-semibold">${DIAS_SEMANA_LARGO[hoy.getDay()]} ${hoy.getDate()} de ${MESES_ES[hoy.getMonth()]} de ${hoy.getFullYear()}</span></p>
         <div class="flex items-center justify-between mb-3">
             <button type="button" onclick="cambiarMes(-1)" class="px-2 py-1 rounded-xl hover:bg-gray-100">&larr;</button>
             <span class="font-medium text-gray-800 text-sm">${MESES_ES[mesCalendarioActual]} ${anioCalendarioActual}</span>
@@ -114,7 +92,12 @@ async function renderCalendario() {
             ${DIAS_SEMANA_ES.map((d) => `<div>${d}</div>`).join("")}
         </div>
         <div class="grid grid-cols-7 gap-1">${celdas}</div>
-        <p class="text-xs text-gray-600 mt-2">Días amarillos = festivo. Toca para seleccionar/quitar un día.</p>
+        <div class="flex flex-wrap gap-3 text-xs text-gray-600 mt-3">
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-yellow-100 border border-yellow-300"></span>Sábado y domingo</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-yellow-300 ring-2 ring-yellow-500"></span>Hoy</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-600"></span>Seleccionado</span>
+        </div>
+        <p class="text-xs text-gray-600 mt-2">Toca un día para seleccionarlo o quitarlo.</p>
     `;
 }
 
@@ -132,14 +115,10 @@ function cambiarMes(delta) {
 }
 
 /**
- * Al tocar un día:
- * - Si YA estaba seleccionado -> se quita por completo (deselección directa, sin preguntar nada).
- * - Si NO estaba seleccionado y es festivo -> pregunta SIEMPRE con los datos de ESTE día
- *   (nunca reutiliza una decisión vieja de otro día). Si responde "No", NO se agrega
- *   a infoDias -> el día queda tal cual estaba (no pintado, no contado).
- * - Si NO estaba seleccionado y NO es festivo -> se agrega directo.
+ * Al tocar un día: si ya estaba seleccionado se quita; si no, se agrega.
+ * No hay confirmaciones especiales: la persona decide qué días solicita.
  */
-async function toggleDia(fechaStr, esFestivo, festivoNombre) {
+function toggleDia(fechaStr) {
   if (infoDias[fechaStr]) {
     delete infoDias[fechaStr];
     renderCalendario();
@@ -148,17 +127,7 @@ async function toggleDia(fechaStr, esFestivo, festivoNombre) {
     return;
   }
 
-  if (esFestivo) {
-    const confirmar = await preguntarFestivo(fechaStr, festivoNombre);
-    if (!confirmar) {
-      // "No": el día NO queda pintado ni contado. No se toca infoDias.
-      return;
-    }
-  }
-
   infoDias[fechaStr] = {
-    esFestivo,
-    festivoNombre: esFestivo ? festivoNombre : null,
     diaCompleto: true,
     horaInicio: null,
     horaFin: null,
@@ -169,33 +138,6 @@ async function toggleDia(fechaStr, esFestivo, festivoNombre) {
   renderCalendario();
   renderListaDiasConfig();
   recalcularDia(fechaStr);
-}
-
-function preguntarFestivo(fecha, nombreFestivo) {
-  return new Promise((resolve) => {
-    const modal = document.createElement("div");
-    modal.className =
-      "fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[80]";
-    modal.innerHTML = `
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 text-center">
-                <p class="font-medium text-gray-800 mb-2">${formatearFechaEs(fecha)} es festivo (${nombreFestivo})</p>
-                <p class="text-sm text-gray-600 mb-4">¿Seguro que vas a contar ese festivo? Pregúntale a Talento Humano.</p>
-                <div class="flex gap-2">
-                    <button id="btnFestivoNo" class="flex-1 border border-gray-300 rounded-xl py-2 text-gray-700">No</button>
-                    <button id="btnFestivoSi" class="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-xl py-2">Sí</button>
-                </div>
-            </div>
-        `;
-    document.body.appendChild(modal);
-    modal.querySelector("#btnFestivoSi").onclick = () => {
-      modal.remove();
-      resolve(true);
-    };
-    modal.querySelector("#btnFestivoNo").onclick = () => {
-      modal.remove();
-      resolve(false);
-    };
-  });
 }
 
 renderCalendario();
@@ -223,9 +165,9 @@ function renderListaDiasConfig() {
       const info = infoDias[f];
       const idSeguro = f.replace(/-/g, "_");
       return `
-            <div class="border border-gray-200 rounded-xl p-3 ${info.esFestivo ? "bg-green-50 border-green-300" : ""}">
+            <div class="border border-gray-200 rounded-xl p-3">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-medium text-gray-800">${formatearFechaEs(f)}${info.esFestivo ? ` <span class="text-xs text-green-700">(${info.festivoNombre})</span>` : ""}</span>
+                    <span class="text-sm font-medium text-gray-800">${formatearFechaEs(f)}</span>
                     <span class="text-sm font-bold text-red-600">${info.calculando ? "..." : info.horasNetas.toFixed(2) + " h"}</span>
                 </div>
                 ${info.calculando ? "" : `<p class="text-[11px] mb-2 ${esDiaCompleto(info) ? "text-green-700" : "text-gray-500"}">${etiquetaConteoDia(info)}</p>`}
@@ -312,10 +254,6 @@ async function recalcularDia(fecha) {
     alert(data.error || "Error al calcular las horas de este día.");
     renderListaDiasConfig();
     return;
-  }
-
-  if (data.dias[0].es_festivo === false) {
-    // no afecta nada, solo informativo
   }
 
   tipoPersonalGlobal = data.tipo_personal_usado || tipoPersonalGlobal;
@@ -405,8 +343,8 @@ function recalcularTotales() {
       fecha: f,
       hora_inicio: info.horaInicio,
       hora_fin: info.horaFin,
-      es_festivo: info.esFestivo,
-      festivo_nombre: info.festivoNombre,
+      es_festivo: false,
+      festivo_nombre: null,
       incluido: true,
       horas_brutas: info.horasBrutas || 0,
       horas_descuento_almuerzo: info.horasDescuentoAlmuerzo || 0,
@@ -423,8 +361,21 @@ function recalcularTotales() {
 // CHECKS: remunerado automático, compensatorio / devolución excluyentes
 // =====================================================================
 
+// Grupo de radios Sí/No (valor "1"/"0"). Expone .checked y addEventListener
+// para que el resto del código (que antes usaba checkboxes) siga funcionando.
+// Si no se toca nada, queda en "No".
+function crearSiNo(idBase) {
+  const si = document.getElementById(idBase + "Si");
+  const no = document.getElementById(idBase + "No");
+  return {
+    get checked() { return si.checked; },
+    set checked(v) { si.checked = !!v; no.checked = !v; },
+    addEventListener(tipo, fn) { si.addEventListener(tipo, fn); no.addEventListener(tipo, fn); },
+  };
+}
+
 const tipoPermisoEl = document.getElementById("tipoPermiso");
-const remuneradoEl = document.getElementById("remunerado");
+const remuneradoEl = crearSiNo("remunerado");
 let remuneradoTocadoManualmente = false;
 remuneradoEl.addEventListener("change", () => {
   remuneradoTocadoManualmente = true;
@@ -437,8 +388,8 @@ tipoPermisoEl.addEventListener("change", () => {
   }
 });
 
-const esCompensatorioEl = document.getElementById("esCompensatorio");
-const esDevolucionEl = document.getElementById("esDevolucion");
+const esCompensatorioEl = crearSiNo("esCompensatorio");
+const esDevolucionEl = crearSiNo("esDevolucion");
 const cajaCompensatorio = document.getElementById("cajaCompensatorio");
 const cajaDevolucion = document.getElementById("cajaDevolucion");
 
@@ -738,10 +689,12 @@ if (permisoEdicion) {
   const p = permisoEdicion.permiso;
   document.getElementById('tipoPermiso').value = p.tipo_permiso || '';
   document.getElementById('motivo').value = p.motivo || '';
-  document.getElementById('remunerado').checked = p.remunerado == 1;
-  document.getElementById('esCompensatorio').checked = p.es_compensatorio == 1;
+  remuneradoEl.checked = p.remunerado == 1;
+  remuneradoTocadoManualmente = true;
+  esCompensatorioEl.checked = p.es_compensatorio == 1;
+  cajaCompensatorio.classList.toggle('hidden', p.es_compensatorio != 1);
   document.getElementById('fechaHorasExtra').value = p.fecha_horas_extra || '';
-  document.getElementById('esDevolucion').checked = p.es_devolucion == 1;
+  esDevolucionEl.checked = p.es_devolucion == 1;
   document.getElementById('tieneReemplazo').checked = p.tiene_reemplazo == 1;
   cajaReemplazo.classList.toggle('hidden', !tieneReemplazoEl.checked);
   document.getElementById('cedulaReemplazoHidden').value = p.cedula_reemplazo || '';
@@ -765,7 +718,7 @@ if (permisoEdicion) {
   } else {
     infoDias = {};
     (permisoEdicion.dias || []).forEach(d => {
-      infoDias[d.fecha] = {esFestivo: d.es_festivo == 1, festivoNombre: d.festivo_nombre, diaCompleto: false,
+      infoDias[d.fecha] = {diaCompleto: false,
         horaInicio: (d.hora_inicio || '').substring(0,5), horaFin: (d.hora_fin || '').substring(0,5),
         horasNetas: parseFloat(d.horas_netas || 0), horasBrutas: parseFloat(d.horas_brutas || 0),
         horasDescuentoAlmuerzo: parseFloat(d.horas_descuento_almuerzo || 0), calculando:false};
