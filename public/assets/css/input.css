@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./botones.css" layer(components);
 
 @layer base {
   input, select, textarea, button {

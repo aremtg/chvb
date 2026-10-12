@@ -50,11 +50,11 @@ if ($filtrosActivos) {
     <input type="hidden" id="csrfToken" value="<?= htmlspecialchars(csrfToken()) ?>">
 
     <div class="md:ml-64 pt-14 md:pt-0">
-        <header class="bg-white shadow px-6 py-4">
+        <header class="bg-white shadow px-4 md:px-6 py-4">
             <h1 class="text-lg font-bold text-gray-800">Hojas de Vida</h1>
         </header>
 
-        <main class="p-6">
+        <main class="p-3 sm:p-4 md:p-6">
 
             <div id="resumenEmpleados" class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <p class="text-sm text-gray-600">
@@ -74,58 +74,66 @@ if ($filtrosActivos) {
                 <?php endif; ?>
             </div>
 
-            <form method="GET" class="flex flex-wrap items-end gap-3 mb-3">
-                <div class="flex-1 min-w-[220px] max-w-md">
+            <?php
+                // Cuántos filtros están activos (para el contador del botón "Filtros" en móvil).
+                $filtrosAplicados = (int) ($busqueda !== '') + count(array_filter($filtros, fn($v) => $v !== ''));
+            ?>
+            <form method="GET" class="mb-4">
+                <div class="flex items-center gap-2">
                     <input type="text" name="q" value="<?= htmlspecialchars($busqueda) ?>"
                         placeholder="Buscar por cédula, nombre, cargo, celular o correo..."
-                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        class="flex-1 min-w-0 border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <button type="button" id="btnToggleFiltros" aria-expanded="<?= $filtrosActivos ? 'true' : 'false' ?>" aria-controls="panelFiltros"
+                        class="btn btn-secondary md:hidden shrink-0">
+                        Filtros
+                        <?php if ($filtrosAplicados > 0): ?>
+                            <span class="bg-red-600 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1.5 inline-flex items-center justify-center"><?= $filtrosAplicados ?></span>
+                        <?php endif; ?>
+                    </button>
                 </div>
 
-                <select name="contrato" class="border border-gray-300 rounded px-3 py-2 bg-white text-sm">
-                    <option value="">Todos los contratos</option>
-                    <?php foreach (EmpleadoController::$tiposDeContrato as $tc): ?>
-                        <option value="<?= htmlspecialchars($tc) ?>" <?= $filtros['contrato'] === $tc ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($tc) ?></option>
-                    <?php endforeach; ?>
-                </select>
-
-                <select name="cargo" class="border border-gray-300 rounded px-3 py-2 bg-white text-sm max-w-[220px]">
-                    <option value="">Todos los cargos</option>
-                    <?php foreach ($cargosLista as $c): ?>
-                        <option value="<?= htmlspecialchars($c) ?>" <?= $filtros['cargo'] === $c ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($c) ?></option>
-                    <?php endforeach; ?>
-                </select>
-
-                <select name="estado" class="border border-gray-300 rounded px-3 py-2 bg-white text-sm">
-                    <option value="">Todos los estados</option>
-                    <?php foreach (EmpleadoController::$estadosValidos as $e): ?>
-                        <option value="<?= $e ?>" <?= $filtros['estado'] === $e ? 'selected' : '' ?>><?= ucfirst($e) ?></option>
-                    <?php endforeach; ?>
-                </select>
-
-                <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white text-sm px-4 py-2 rounded">Filtrar</button>
-                <a id="btnLimpiar" href="./empleados.php"
-                    class="text-sm text-gray-600 hover:text-gray-800 underline py-2 <?= $hayFiltros ? '' : 'hidden' ?>">Limpiar</a>
+                <div id="panelFiltros" class="<?= $filtrosActivos ? '' : 'hidden' ?> md:flex mt-3 flex-col md:flex-row md:flex-wrap md:items-end gap-3 bg-white md:bg-transparent rounded-xl border border-gray-200 md:border-0 p-3 md:p-0">
+                    <select name="contrato" class="w-full md:w-auto border border-gray-300 rounded-xl px-3 py-2.5 bg-white text-sm">                     <option value="">Todos los contratos</option>                     <?php foreach (EmpleadoController::$tiposDeContrato as $tc): ?>                         <option value="<?= htmlspecialchars($tc) ?>" <?= $filtros['contrato'] === $tc ? 'selected' : '' ?>>                             <?= htmlspecialchars($tc) ?></option>                     <?php endforeach; ?>                 </select>
+                    <select name="cargo" class="w-full md:w-auto border border-gray-300 rounded-xl px-3 py-2.5 bg-white text-sm md:max-w-[220px]">                     <option value="">Todos los cargos</option>                     <?php foreach ($cargosLista as $c): ?>                         <option value="<?= htmlspecialchars($c) ?>" <?= $filtros['cargo'] === $c ? 'selected' : '' ?>>                             <?= htmlspecialchars($c) ?></option>                     <?php endforeach; ?>                 </select>
+                    <select name="estado" class="w-full md:w-auto border border-gray-300 rounded-xl px-3 py-2.5 bg-white text-sm">                     <option value="">Todos los estados</option>                     <?php foreach (EmpleadoController::$estadosValidos as $e): ?>                         <option value="<?= $e ?>" <?= $filtros['estado'] === $e ? 'selected' : '' ?>><?= ucfirst($e) ?></option>                     <?php endforeach; ?>                 </select>
+                    <div class="flex items-center gap-3 md:contents">
+                        <button type="submit" class="btn btn-dark flex-1 md:flex-none">Filtrar</button>
+                        <a id="btnLimpiar" href="./empleados.php"
+                            class="flex-1 md:flex-none text-center text-sm text-gray-600 hover:text-gray-800 underline py-2.5 <?= $hayFiltros ? '' : 'hidden' ?>">Limpiar</a>
+                    </div>
+                </div>
             </form>
+            <script>
+                // Móvil: despliega y oculta el panel de filtros.
+                (function () {
+                    const boton = document.getElementById('btnToggleFiltros');
+                    const panel = document.getElementById('panelFiltros');
+                    if (!boton || !panel) return;
+                    boton.addEventListener('click', () => {
+                        const estabaOculto = panel.classList.contains('hidden');
+                        panel.classList.toggle('hidden', !estabaOculto);
+                        boton.setAttribute('aria-expanded', String(estabaOculto));
+                    });
+                })();
+            </script>
 
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-                <div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                <div class="w-full sm:w-auto">
                     <?php if ($puedeGestionarCargos): ?>
                         <button type="button" onclick="abrirModalCargos()" title="Gestionar cargos" aria-label="Gestionar cargos"
-                            class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-medium px-4 py-2 rounded-xl transition whitespace-nowrap">
+                            class="btn btn-secondary btn-block sm:w-auto">
                             <?= icon('briefcase', 'w-4 h-4') ?> Cargos
                         </button>
                     <?php endif; ?>
                 </div>
-                <div class="flex flex-wrap items-center justify-end gap-2">
+                <div class="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:justify-end">
                 <a id="btnExportar" href="./api/empleados_exportar.php?<?= htmlspecialchars(http_build_query($paramsBase)) ?>"
-                    class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-xl transition whitespace-nowrap">
+                    class="btn btn-success">
                     <?= icon('download', 'w-4 h-4') ?> Exportar a Excel
                 </a>
                 <?php if (($_SESSION['superadmin_rol'] ?? '') !== 'teniente'): ?>
                     <button onclick="document.getElementById('modalCrear').classList.remove('hidden')"
-                        class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-xl transition whitespace-nowrap">
+                        class="btn btn-primary">
                         <?= icon('plus', 'w-4 h-4') ?> Nuevo Empleado
                     </button>
                 <?php endif; ?>
@@ -301,13 +309,13 @@ if ($filtrosActivos) {
     <!-- MODAL CREAR EMPLEADO -->
     <div id="modalCrear" class="hidden fixed inset-0 modal-fondo bg-black/40 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div class="px-6 py-4 border-b flex justify-between items-center">
+            <div class="sticky top-0 z-10 bg-white px-6 py-4 border-b flex justify-between items-center">
                 <h2 class="font-bold text-gray-800">Nuevo Empleado</h2>
                 <button onclick="document.getElementById('modalCrear').classList.add('hidden')"
                     class="text-gray-600 hover:text-gray-700">✕</button>
             </div>
 
-            <form id="formCrear" class="p-5 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+            <form id="formCrear" class="p-5 sm:p-6 space-y-5">
                 <?= csrfCampoHTML() ?>
                 <div id="erroresCrear"
                     class="hidden bg-red-50 border border-red-100 text-red-700 text-sm rounded-xl p-3"></div>
@@ -505,7 +513,7 @@ if ($filtrosActivos) {
     <!-- MODAL VER EMPLEADO -->
     <div id="modalVer" class="hidden fixed inset-0 modal-fondo bg-black/40 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div class="px-6 py-4 border-b flex justify-between items-center">
+            <div class="sticky top-0 z-10 bg-white px-6 py-4 border-b flex justify-between items-center">
                 <h2 class="font-bold text-gray-800">Información del Empleado</h2>
                 <button onclick="document.getElementById('modalVer').classList.add('hidden')"
                     class="text-gray-600 hover:text-gray-700">✕</button>
@@ -517,13 +525,13 @@ if ($filtrosActivos) {
     <!-- MODAL EDITAR EMPLEADO -->
     <div id="modalEditar" class="hidden fixed inset-0 modal-fondo bg-black/40 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl shadow-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div class="px-6 py-4 border-b flex justify-between items-center">
+            <div class="sticky top-0 z-10 bg-white px-6 py-4 border-b flex justify-between items-center">
                 <h2 class="font-bold text-gray-800">Editar Empleado</h2>
                 <button onclick="document.getElementById('modalEditar').classList.add('hidden')"
                     class="text-gray-600 hover:text-gray-700">✕</button>
             </div>
 
-            <form id="formEditar" class="p-5 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+            <form id="formEditar" class="p-5 sm:p-6 space-y-5">
                 <?= csrfCampoHTML() ?>
                 <div id="erroresEditar"
                     class="hidden bg-red-50 border border-red-100 text-red-700 text-sm rounded-xl p-3"></div>

@@ -1,0 +1,91 @@
+/*
+ * Sistema de botones de CHVB.
+ *
+ * Uso:  <button class="btn btn-primary">Guardar</button>
+ *       <a class="btn btn-secondary btn-sm" href="...">Editar</a>
+ *
+ * Variantes (elige según la acción, no según el color que te guste):
+ *   btn-primary    acción principal de la pantalla: Nuevo, Firmar, Guardar, Enviar
+ *   btn-secondary  acción normal o cancelar: Cancelar, Editar, Ver, Cargos
+ *   btn-danger     acción destructiva o de rechazo: Eliminar, Rechazar
+ *   btn-success    exportar o descargar: Exportar a Excel, Descargar PDF
+ *   btn-info       registrar o confirmar algo informativo: Registrar llegada
+ *   btn-dark       filtrar o aplicar: Filtrar
+ *   btn-ghost      acción menor o sin peso visual: Limpiar, Ver detalle
+ *
+ * Tamaños (opcionales):
+ *   btn-sm      compacto (filas de tabla, tarjetas)
+ *   btn-block   ancho completo (móvil, formularios)
+ *   btn-icon    cuadrado, solo icono
+ *
+ * Los colores salen de las variables de :root. Para cambiar la marca, cambia --btn-primary.
+ */
+
+:root {
+  --btn-radius: .75rem;
+  --btn-ring: 0 0 0 3px rgba(220, 38, 38, .18);
+
+  --btn-primary: #dc2626;        --btn-primary-hover: #b91c1c;
+  --btn-success: #16a34a;        --btn-success-hover: #15803d;
+  --btn-info: #2563eb;           --btn-info-hover: #1d4ed8;
+  --btn-dark: #1f2937;           --btn-dark-hover: #111827;
+
+  --btn-text: #374151;           --btn-border: #d1d5db;   --btn-surface-hover: #f9fafb;
+  --btn-danger-text: #dc2626;    --btn-danger-border: #fecaca;  --btn-danger-hover: #fef2f2;
+  --btn-ghost-text: #6b7280;     --btn-ghost-hover: #f3f4f6;
+}
+
+/* ---------- Base ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--btn-radius);
+  font-size: .875rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.btn:focus-visible { outline: none; box-shadow: var(--btn-ring); }
+.btn:disabled,
+.btn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; pointer-events: none; }
+
+/* ---------- Variantes ---------- */
+.btn-primary { background: var(--btn-primary); color: #fff; box-shadow: 0 1px 2px rgba(185, 28, 28, .3); }
+.btn-primary:hover { background: var(--btn-primary-hover); }
+
+.btn-secondary { background: #fff; color: var(--btn-text); border-color: var(--btn-border); }
+.btn-secondary:hover { background: var(--btn-surface-hover); }
+
+.btn-danger { background: #fff; color: var(--btn-danger-text); border-color: var(--btn-danger-border); }
+.btn-danger:hover { background: var(--btn-danger-hover); }
+
+.btn-success { background: var(--btn-success); color: #fff; }
+.btn-success:hover { background: var(--btn-success-hover); }
+
+.btn-info { background: var(--btn-info); color: #fff; }
+.btn-info:hover { background: var(--btn-info-hover); }
+
+.btn-dark { background: var(--btn-dark); color: #fff; }
+.btn-dark:hover { background: var(--btn-dark-hover); }
+
+.btn-ghost { background: transparent; color: var(--btn-ghost-text); }
+.btn-ghost:hover { background: var(--btn-ghost-hover); color: #111827; }
+
+/* ---------- Tamaños ---------- */
+.btn-sm { height: 2rem; padding: 0 .75rem; font-size: .75rem; }
+.btn-block { width: 100%; }
+.btn-icon { width: 2.5rem; padding: 0; }
+.btn-sm.btn-icon { width: 2rem; }
+
+/* En móvil, área de toque mínima de 44 px. */
+@media (max-width: 767px) {
+  .btn:not(.btn-sm) { min-height: 2.75rem; }
+}
