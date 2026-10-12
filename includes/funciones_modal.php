@@ -15,7 +15,7 @@ $__fnCfg = [
     ],
 ];
 ?>
-<div id="modalFunciones" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50"
+<div id="modalFunciones" class="hidden fixed inset-0 modal-fondo bg-black/40 flex items-center justify-center p-4 z-50"
      role="dialog" aria-modal="true" aria-labelledby="fnTitulo">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
 

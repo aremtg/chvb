@@ -1,0 +1,14 @@
+/*
+ * Fondo borroso de TODOS los modales de CHVB.
+ * Para cambiar la intensidad del desenfoque, modifica solo la variable de abajo.
+ * Se aplica a los modales con la clase .modal-fondo y al fondo de <dialog> (::backdrop).
+ */
+:root {
+  --modal-backdrop-blur: blur(1px);
+}
+
+.modal-fondo,
+dialog::backdrop {
+  -webkit-backdrop-filter: var(--modal-backdrop-blur);
+  backdrop-filter: var(--modal-backdrop-blur);
+}

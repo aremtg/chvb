@@ -32,7 +32,7 @@ if (!$empleado) {
 }
 
 // null = empleado sin tipo_de_personal: el cálculo lo trata como Civil y avisa.
-$resultado = PermisoController::calcularHorasPorDias($fechaInicio, $horaInicio, $fechaFin, $horaFin, JornadaHelper::tipoParaCalculo($empleado));
+$resultado = PermisoController::calcularHorasPorDias($fechaInicio, $horaInicio, $fechaFin, $horaFin, JornadaHelper::tipoParaCalculo($empleado), JornadaHelper::reglas($empleado));
 if (!empty($resultado['ok'])) {
     $resultado['jornada'] = JornadaHelper::reglas($empleado);
 }

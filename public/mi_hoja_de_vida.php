@@ -129,7 +129,7 @@ foreach ($bolsillosPorSeccion as $lista) {
 
     <!-- MODAL PÁGINA DEL BOLSILLO -->
     <div id="modalBolsillo"
-        class="hidden fixed inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4 z-50">
+        class="hidden fixed inset-0 modal-fondo bg-black/40 flex items-center justify-center p-4 z-50">
         <div
             class="pagina-bolsillo bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
 
@@ -183,7 +183,7 @@ foreach ($bolsillosPorSeccion as $lista) {
     </div>
 
     <!-- MODAL VISOR PDF -->
-    <div id="modalVisorPDF" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[60]">
+    <div id="modalVisorPDF" class="hidden fixed inset-0 modal-fondo bg-black/70 flex items-center justify-center p-4 z-[60]">
         <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl h-[90vh] flex flex-col">
             <div class="px-4 py-3 border-b flex justify-between items-center">
                 <div>

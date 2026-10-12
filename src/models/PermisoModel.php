@@ -55,7 +55,7 @@ class PermisoModel {
                         devolucion_fecha, devolucion_hora_inicio, devolucion_hora_fin, devolucion_total_horas,
                         tiene_reemplazo, cedula_reemplazo, cedula_jefe,
                         foto_solicitante, firma_solicitante, evidencia_archivo, estado,
-                        formato_codigo, formato_version, formato_fecha
+                        formato_codigo, formato_version, formato_fecha, es_salida_pendiente_regreso
                     ) VALUES (
                         :b1, :b2, :b3, :b4, :b5, :b6, :b7, :b8, :b9,
                         :b10, :b11, :b12, :b13, :b14,
@@ -63,7 +63,7 @@ class PermisoModel {
                         :b19, :b20, :b21, :b22,
                         :b23, :b24, :b25,
                         :b26, :b27, :b28, :b29,
-                        :b30, :b31, :b32
+                        :b30, :b31, :b32, :b33
                     )";
             // Trazabilidad: el formato vigente AL CREAR queda grabado en el permiso.
             $formatoVigente = FormatoPermisoModel::obtener();
@@ -84,6 +84,7 @@ class PermisoModel {
                 'b27' => $datos['firma_solicitante'], 'b28' => $datos['evidencia_archivo'],
                 'b29' => 'en_proceso',
                 'b30' => $formatoVigente['codigo'], 'b31' => $formatoVigente['version'], 'b32' => $formatoVigente['fecha'],
+                'b33' => (int) ($datos['es_salida_pendiente_regreso'] ?? 0),
             ]);
 
             $permisoId = (int) $pdo->lastInsertId();

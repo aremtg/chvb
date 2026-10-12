@@ -9,11 +9,12 @@ require_once __DIR__ . '/../../config/database.php';
 class FormatoPermisoModel
 {
     public const CODIGO_DEFECTO = 'GH-FT-10';
+    public const FECHA_DEFECTO = '2026-02-10';
 
     /** Valores actuales (o por defecto si la tabla o la fila no existen todavía). */
     public static function obtener(): array
     {
-        $defecto = ['codigo' => self::CODIGO_DEFECTO, 'version' => 1, 'fecha' => date('Y-m-d')];
+        $defecto = ['codigo' => self::CODIGO_DEFECTO, 'version' => 1, 'fecha' => self::FECHA_DEFECTO];
         try {
             $fila = getPDO()->query('SELECT codigo, version, fecha FROM permisos_formato WHERE id = 1')->fetch();
         } catch (\Throwable $e) {
@@ -37,8 +38,8 @@ class FormatoPermisoModel
         if (!preg_match('/^[A-Z0-9][A-Z0-9-]{1,18}[A-Z0-9]$/', $codigo)) {
             throw new InvalidArgumentException('El código solo puede tener letras, números y guiones (ej. GH-FT-10).');
         }
-        if ($version < 1 || $version > 999) {
-            throw new InvalidArgumentException('La versión debe estar entre 1 y 999.');
+        if ($version < 1 || $version > 99) {
+            throw new InvalidArgumentException('La versión debe estar entre 01 y 99.');
         }
         $d = DateTime::createFromFormat('Y-m-d', $fecha);
         if (!$d || $d->format('Y-m-d') !== $fecha) {

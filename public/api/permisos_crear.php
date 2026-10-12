@@ -91,7 +91,7 @@ try {
     $tipoPersonal = JornadaHelper::tipoParaCalculo($empleado) ?? 'Civil';
     $recalculo = $esSalidaPendiente
         ? ['dias' => [], 'total_horas' => null]
-        : PermisoController::recalcularConfirmado($diasConfirmados, $tipoPersonal);
+        : PermisoController::recalcularConfirmado($diasConfirmados, $tipoPersonal, JornadaHelper::reglas($empleado));
 
     // Recalcular devoluciones en backend (nunca confiar en el total del frontend)
     $devolucionesRecalculadas = [];

@@ -77,7 +77,7 @@ class PermisoPdf
     {
         $resolverImagen ??= [self::class, 'imagenDesdeUploads'];
         // Versión y fecha del formato GH-FT-10 (las pone el endpoint desde la base de datos).
-        $formato ??= ['version' => 1, 'fecha' => date('Y-m-d')];
+        $formato ??= ['version' => 1, 'fecha' => '2026-02-10'];
         $logo = self::logo();
         $generado = date('d/m/Y H:i');
         $porPagina = $dosPorHoja ? 2 : 1;
@@ -264,7 +264,7 @@ class PermisoPdf
                 <td><div class="titulo">SOLICITUD DE TIPO: ' . $e(self::tipo($p['tipo_permiso'] ?? 'Permiso')) . '</div>
                     <div class="sub">CHVB · Gestion de Talento Humano</div></td>
                 <td style="width:135pt"><div class="consec">' . $e($p['consecutivo'] ?? '') . '</div>
-                    <div class="formato-info">Versión-' . $e((string) ($formato['version'] ?? 1)) . '</div>
+                    <div class="formato-info">Versión-' . $e(str_pad((string) ($formato['version'] ?? 1), 2, '0', STR_PAD_LEFT)) . '</div>
                     <div class="formato-info">Fecha-' . $e(self::fecha($formato['fecha'] ?? null)) . '</div></td>
             </tr></table>
 

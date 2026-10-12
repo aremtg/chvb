@@ -208,7 +208,7 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
     <!-- ========================================================= -->
 
     <div id="modalPin"
-        class="hidden fixed inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4 z-50">
+        class="hidden fixed inset-0 modal-fondo bg-black/40 flex items-center justify-center p-4 z-50">
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-sm overflow-hidden">
 

@@ -15,5 +15,6 @@ $chvLoadingJs  = __DIR__ . '/../public/assets/js/loading.js';
 <link rel="alternate icon" type="image/svg+xml" href="assets/img/logo-bomberos.svg">
 <link rel="icon" type="image/png" href="assets/img/logo-bomberos.png">
 <link rel="stylesheet" href="./assets/css/loading.css?v=<?= (int) @filemtime($chvLoadingCss) ?>">
+<link rel="stylesheet" href="./assets/css/modales.css?v=<?= (int) @filemtime(__DIR__ . '/../public/assets/css/modales.css') ?>">
 <?php // Sin "defer": así Loading existe también para los <script> inline del final de cada página. ?>
 <script src="./assets/js/loading.js?v=<?= (int) @filemtime($chvLoadingJs) ?>"></script>

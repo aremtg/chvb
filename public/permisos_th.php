@@ -32,7 +32,7 @@ $enfocadoEnUno = !empty($_GET['id']);
                     $formatoPermiso = FormatoPermisoModel::obtener(); ?>
                 <button type="button" id="btnAbrirFormato" class="pm-btn pm-btn--outline-brand pm-btn--sm"
                     title="Código, versión y fecha del formato impreso">Versión</button>
-                <dialog id="dlgFormato" class="rounded-xl shadow-lg p-0 w-full max-w-md">
+                <dialog id="dlgFormato" class="m-auto rounded-xl shadow-lg p-0 w-[min(28rem,calc(100vw-2rem))]">
                     <form method="dialog" class="p-5 space-y-3">
                         <div>
                             <p class="text-sm font-semibold text-gray-800">Formato del permiso</p>
@@ -44,7 +44,7 @@ $enfocadoEnUno = !empty($_GET['id']);
                         </label>
                         <div class="grid grid-cols-2 gap-3">
                             <label class="block text-xs text-gray-600">Versión
-                                <input id="formatoVersion" type="number" min="1" max="999" step="1" value="<?= (int) $formatoPermiso['version'] ?>"
+                                <input id="formatoVersion" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]{1,2}" value="<?= str_pad((string) (int) $formatoPermiso['version'], 2, '0', STR_PAD_LEFT) ?>"
                                     class="block mt-1 w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm">
                             </label>
                             <label class="block text-xs text-gray-600">Fecha

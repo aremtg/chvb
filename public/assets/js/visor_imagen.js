@@ -12,7 +12,7 @@
     const modal = document.createElement("div");
     modal.id = "visorImagenModal";
     modal.className =
-      "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75";
+      "fixed inset-0 modal-fondo z-[100] flex items-center justify-center p-4 bg-black/75";
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
     modal.innerHTML = `

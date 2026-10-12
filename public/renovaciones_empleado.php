@@ -333,7 +333,7 @@ if ($ficha) {
 
     <?php if ($ficha && $esAdmin && !$problemas): ?>
         <!-- MODAL EDITAR (solo superadmin) -->
-        <div id="renModal" class="ren-modal" role="dialog" aria-modal="true" aria-labelledby="renModalTitulo">
+        <div id="renModal" class="ren-modal modal-fondo" role="dialog" aria-modal="true" aria-labelledby="renModalTitulo">
             <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 space-y-4">
                 <h3 id="renModalTitulo" class="font-bold text-gray-800">Editar renovación</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

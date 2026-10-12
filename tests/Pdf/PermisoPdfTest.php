@@ -98,7 +98,7 @@ final class PermisoPdfTest extends TestCase
         $pdfs = [];
         $html = PermisoPdf::construirHtml([$this->permiso(2, 'GH-T-0001')], false, 'Prueba', null, $pdfs,
             ['version' => 3, 'fecha' => '2026-10-10']);
-        $this->assertStringContainsString('Versión-3', $html);
+        $this->assertStringContainsString('Versión-03', $html);
         $this->assertStringContainsString('Fecha-10 oct 2026', $html);
     }
 
@@ -122,8 +122,8 @@ final class PermisoPdfTest extends TestCase
         $pdfs = [];
         // El formato actual es otro: el permiso debe mostrar el suyo, no el actual.
         $html = PermisoPdf::construirHtml([$viejo], false, 'Prueba', null, $pdfs, ['version' => 2, 'fecha' => '2026-10-10']);
-        $this->assertStringContainsString('Versión-5', $html);
+        $this->assertStringContainsString('Versión-05', $html);
         $this->assertStringContainsString('Fecha-1 mar 2025', $html);
-        $this->assertStringNotContainsString('Versión-2', $html);
+        $this->assertStringNotContainsString('Versión-02', $html);
     }
 }

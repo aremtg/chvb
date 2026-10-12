@@ -40,7 +40,7 @@ class PermisoController
      * - Si tipo_de_personal viene vacío/null, se trata como Civil y se marca
      *   'aviso_tipo_personal' para que el frontend muestre el aviso corto.
      */
-    public static function calcularHorasPorDias(string $fechaInicio, string $horaInicio, string $fechaFin, string $horaFin, ?string $tipoPersonal): array
+    public static function calcularHorasPorDias(string $fechaInicio, string $horaInicio, string $fechaFin, string $horaFin, ?string $tipoPersonal, ?array $jornada = null): array
     {
         try {
             $inicio = new DateTime("$fechaInicio $horaInicio");
@@ -68,9 +68,19 @@ class PermisoController
             $inicioDelDia = new DateTime($fechaStr . ' 00:00:00');
             $finDelDia = (clone $inicioDelDia)->modify('+1 day');
 
-            // Porción del permiso que cae dentro de este día calendario
-            $horaInicioReal = max($inicio, $inicioDelDia);
-            $horaFinReal = min($fin, $finDelDia);
+            // Cada día cuenta según la jornada, igual que el formulario (día por día):
+            // el primer día va desde la hora de inicio, el último hasta la hora de fin,
+            // y los días intermedios cuentan la jornada completa. Las noches no cuentan.
+            [$ventanaIni, $ventanaFin] = self::ventanaJornada($tipoPersonal, $jornada);
+            $esPrimero = $fechaStr === $inicio->format('Y-m-d');
+            $esUltimo = $fechaStr === $fin->format('Y-m-d');
+            $horaInicioReal = $esPrimero ? $inicio : new DateTime($fechaStr . ' ' . $ventanaIni);
+            $horaFinReal = $esUltimo ? $fin : new DateTime($fechaStr . ' ' . $ventanaFin);
+            if ($horaFinReal <= $horaInicioReal) {
+                // Este día no tiene horas dentro de la jornada (p. ej. salida después de las 17:24).
+                $cursor->modify('+1 day');
+                continue;
+            }
 
             $horasBrutas = round(($horaFinReal->getTimestamp() - $horaInicioReal->getTimestamp()) / 3600, 2);
 
@@ -116,34 +126,60 @@ class PermisoController
     }
 
     /**
-     * Recalcula el total de horas a partir del array de días YA CONFIRMADO por el
-     * frontend (con 'incluido' ajustado según las respuestas del usuario a los
-     * festivos). Esta es la función que se usa justo antes de guardar en BD —
-     * nunca se confía en un total_horas que venga directo del frontend, pero SÍ
-     * se confía en las banderas 'incluido' porque son decisiones explícitas del
-     * usuario, y se revalida cada día contra el cálculo real en backend.
+     * Jornada completa de un día, igual que el formulario.
+     * $jornada = JornadaHelper::reglas($empleado): turnos -> día completo; administrativa o
+     * restringida -> su horario de entrada y salida. Sin dato: Civil 07:00-17:24, Bombero día completo.
      */
-    public static function recalcularConfirmado(array $diasConfirmados, string $tipoPersonal): array
+    private static function ventanaJornada(?string $tipoPersonal, ?array $jornada = null): array
+    {
+        if ($jornada !== null) {
+            if (!empty($jornada['por_turnos'])) {
+                return ['00:00:00', '23:59:00'];
+            }
+            if (!empty($jornada['entrada']) && !empty($jornada['salida'])) {
+                return [$jornada['entrada'] . ':00', $jornada['salida'] . ':00'];
+            }
+        }
+        return $tipoPersonal === 'Bombero' ? ['00:00:00', '23:59:00'] : ['07:00:00', '17:24:00'];
+    }
+
+    /**
+     * Recalcula cada día EN EL SERVIDOR a partir de su fecha, hora de inicio y hora de fin,
+     * con las mismas reglas del cálculo (jornada, almuerzo). Las horas que mande el navegador
+     * (horas_netas, horas_brutas, etc.) se IGNORAN: nunca se guardan tal cual.
+     * Un día inválido (fin antes de inicio, hora mal escrita) lanza InvalidArgumentException.
+     */
+    public static function recalcularConfirmado(array $diasConfirmados, string $tipoPersonal, ?array $jornada = null): array
     {
         $totalHoras = 0.0;
         $diasFinal = [];
 
         foreach ($diasConfirmados as $dia) {
-            // Todos los días cuentan: ya no existe exclusión por festivo.
-            $incluido = true;
-            $horasNetas = (float) $dia['horas_netas'];
-            $totalHoras += $horasNetas;
+            $fecha = (string) ($dia['fecha'] ?? '');
+            $calc = self::calcularHorasPorDias(
+                $fecha,
+                (string) ($dia['hora_inicio'] ?? ''),
+                $fecha,
+                (string) ($dia['hora_fin'] ?? ''),
+                $tipoPersonal,
+                $jornada
+            );
+            if (!$calc['ok'] || count($calc['dias']) !== 1) {
+                throw new InvalidArgumentException('Hay un día con horario inválido' . ($fecha !== '' ? " ($fecha)" : '') . '.');
+            }
+            $d = $calc['dias'][0];
+            $totalHoras += $d['horas_netas'];
 
             $diasFinal[] = [
-                'fecha' => $dia['fecha'],
-                'hora_inicio' => $dia['hora_inicio'],
-                'hora_fin' => $dia['hora_fin'],
+                'fecha' => $d['fecha'],
+                'hora_inicio' => $d['hora_inicio'],
+                'hora_fin' => $d['hora_fin'],
                 'es_festivo' => false,
                 'festivo_nombre' => null,
                 'incluido' => true,
-                'horas_brutas' => (float) $dia['horas_brutas'],
-                'horas_descuento_almuerzo' => (float) $dia['horas_descuento_almuerzo'],
-                'horas_netas' => $horasNetas,
+                'horas_brutas' => $d['horas_brutas'],
+                'horas_descuento_almuerzo' => $d['horas_descuento_almuerzo'],
+                'horas_netas' => $d['horas_netas'],
             ];
         }
 
@@ -395,9 +431,9 @@ class PermisoController
 
         $empleado = EmpleadoModel::obtenerPorCedula($cedula);
         $tipoPersonal = JornadaHelper::tipoParaCalculo($empleado ?? []) ?? 'Civil';
-        $calculo = self::calcularHorasPorDias($permiso['fecha_inicio'], $permiso['hora_inicio'], $fechaFin, $horaFin, $tipoPersonal);
+        $calculo = self::calcularHorasPorDias($permiso['fecha_inicio'], $permiso['hora_inicio'], $fechaFin, $horaFin, $tipoPersonal, JornadaHelper::reglas($empleado ?? []));
         if (!$calculo['ok']) return ['ok' => false, 'error' => $calculo['error']];
-        $recalculo = self::recalcularConfirmado($calculo['dias'], $tipoPersonal);
+        $recalculo = self::recalcularConfirmado($calculo['dias'], $tipoPersonal, JornadaHelper::reglas($empleado ?? []));
 
         $campos = ['fecha_fin'=>$fechaFin,'hora_fin'=>$horaFin,'total_horas'=>$recalculo['total_horas'],'estado'=>'por_firmar_jefe_final'];
         if ($rutaEvidencia !== null) $campos['evidencia_archivo'] = $rutaEvidencia;
@@ -451,7 +487,7 @@ class PermisoController
             $empleado = EmpleadoModel::obtenerPorCedula($permiso['cedula_empleado']);
             $tipoPersonal = JornadaHelper::tipoParaCalculo($empleado ?? []) ?? 'Civil';
 
-            $recalculo = self::recalcularConfirmado($diasConfirmados, $tipoPersonal);
+            $recalculo = self::recalcularConfirmado($diasConfirmados, $tipoPersonal, JornadaHelper::reglas($empleado ?? []));
             $camposNuevos['total_horas'] = $recalculo['total_horas'];
 
             $camposNuevos['firma_reemplazo'] = null;

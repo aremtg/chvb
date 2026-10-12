@@ -299,7 +299,7 @@ if ($filtrosActivos) {
     </div>
 
     <!-- MODAL CREAR EMPLEADO -->
-    <div id="modalCrear" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+    <div id="modalCrear" class="hidden fixed inset-0 modal-fondo bg-black/40 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b flex justify-between items-center">
                 <h2 class="font-bold text-gray-800">Nuevo Empleado</h2>
@@ -476,7 +476,7 @@ if ($filtrosActivos) {
     </div>
 
     <!-- MODAL ELIMINAR EMPLEADO -->
-    <div id="modalEliminar" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+    <div id="modalEliminar" class="hidden fixed inset-0 modal-fondo bg-black/40 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-sm">
             <div class="px-6 py-4 border-b">
                 <h2 class="font-bold text-gray-800">Eliminar Empleado</h2>
@@ -503,7 +503,7 @@ if ($filtrosActivos) {
     </div>
 
     <!-- MODAL VER EMPLEADO -->
-    <div id="modalVer" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+    <div id="modalVer" class="hidden fixed inset-0 modal-fondo bg-black/40 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b flex justify-between items-center">
                 <h2 class="font-bold text-gray-800">Información del Empleado</h2>
@@ -515,7 +515,7 @@ if ($filtrosActivos) {
     </div>
 
     <!-- MODAL EDITAR EMPLEADO -->
-    <div id="modalEditar" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+    <div id="modalEditar" class="hidden fixed inset-0 modal-fondo bg-black/40 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl shadow-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b flex justify-between items-center">
                 <h2 class="font-bold text-gray-800">Editar Empleado</h2>

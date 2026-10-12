@@ -141,7 +141,7 @@ function inicializarCapturaFoto(contenedorId) {
 
     async function abrirModalCamara() {
         const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[90]';
+        modal.className = 'fixed inset-0 modal-fondo bg-black/80 flex items-center justify-center p-4 z-[90]';
         modal.innerHTML = `
             <div class="bg-white rounded-xl overflow-hidden w-full max-w-sm">
                 <video id="videoCamara" autoplay playsinline muted class="w-full bg-black" style="max-height:60vh"></video>

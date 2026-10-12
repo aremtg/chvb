@@ -29,7 +29,7 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
     </main>
 </div>
 
-<div id="modalFirmarPermiso" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[80]">
+<div id="modalFirmarPermiso" class="hidden fixed inset-0 modal-fondo bg-black/50 flex items-center justify-center p-4 z-[80]">
     <div class="bg-white rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto p-6 space-y-4">
         <h2 id="tituloModalFirma" class="font-bold text-gray-800"></h2>
         <div id="cajaFirmaBandeja" class="space-y-2">

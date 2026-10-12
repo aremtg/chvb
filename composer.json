@@ -1,6 +1,7 @@
 {
     "name": "chvb/hojas-de-vida",
     "type": "project",
+    "license": "proprietary",
     "authors": [
         {
             "name": "aremtg",
@@ -14,5 +15,22 @@
         "dompdf/dompdf": "^3.1",
         "setasign/fpdi": "^2.6",
         "setasign/fpdf": "^1.8"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true,
+        "audit": {
+            "block-insecure": false
+        },
+        "policy": {
+            "advisories": {
+                "ignore-id": ["PKSA-z3gr-8qht-p93v"]
+            }
+        }
     }
 }

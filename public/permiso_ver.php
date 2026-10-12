@@ -68,7 +68,7 @@ if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula
 </div>
 
 <!-- Modal pro - mismos IDs -->
-<div id="modalAccionPermiso" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[80]">
+<div id="modalAccionPermiso" class="hidden fixed inset-0 modal-fondo bg-gray-900/60 flex items-center justify-center p-4 z-[80]">
     <div class="bg-white rounded- shadow-2xl w-full max-w-md max-h- overflow-hidden flex flex-col border border-gray-100">
         <div class="px-6 pt-6 pb-4 border-b border-gray-50 flex items-center justify-between">
             <h2 id="tituloModalAccion" class="font-bold text- text-gray-900"></h2>

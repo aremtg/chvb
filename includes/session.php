@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/errores.php';  // manejo central de errores (sin detalles al usuario, todo al log)
+registrarManejoErrores();
 // includes/session.php
 require_once __DIR__ . '/reloj.php';   // hora única de la app (fija la zona horaria de PHP)
 require_once __DIR__ . '/roles.php';   // roles de Talento Humano (única fuente)
@@ -106,7 +108,10 @@ function csrfCampoHTML(): string {
 
 function validarCSRF(): void {
     $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-    if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
+    $esperado = $_SESSION['csrf_token'] ?? '';
+    // Sin token en la sesión o sin token en la petición NO es válido
+    // (hash_equals('', '') devuelve true y dejaría pasar la petición).
+    if ($esperado === '' || $token === '' || !hash_equals($esperado, $token)) {
         http_response_code(403);
         header('Content-Type: application/json');
         echo json_encode(['ok' => false, 'error' => 'Sesión no válida, recarga la página.']);
