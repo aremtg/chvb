@@ -69,14 +69,13 @@ function renderCalendario() {
     const seleccionado = !!infoDias[fechaStr];
     const esHoy = fechaStr === hoyStr;
 
-    let fondo;
-    if (seleccionado) fondo = "bg-red-600 text-white font-bold";
-    else if (esHoy) fondo = "bg-yellow-300 text-gray-900 font-bold";
-    else if (finDeSemana) fondo = "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
-    else fondo = "hover:bg-gray-100 text-gray-700";
-    const anillo = esHoy ? " ring-2 ring-yellow-500" : "";
+    let estilo;
+    if (seleccionado) estilo = "fx-day--selected";
+    else if (esHoy) estilo = "fx-day--today";
+    else if (finDeSemana) estilo = "fx-day--weekend";
+    else estilo = "";
 
-    const clases = "w-9 h-9 flex items-center justify-center rounded-xl text-sm cursor-pointer transition " + fondo + anillo;
+    const clases = "fx-day " + estilo;
     const titulo = esHoy ? "Hoy" : "";
     celdas += `<button type="button" onclick="toggleDia('${fechaStr}')" class="${clases}" title="${titulo}">${dia}</button>`;
   }
@@ -93,9 +92,9 @@ function renderCalendario() {
         </div>
         <div class="grid grid-cols-7 gap-1">${celdas}</div>
         <div class="flex flex-wrap gap-3 text-xs text-gray-600 mt-3">
-            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-yellow-100 border border-yellow-300"></span>Sábado y domingo</span>
-            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-yellow-300 ring-2 ring-yellow-500"></span>Hoy</span>
-            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-600"></span>Seleccionado</span>
+            <span class="flex items-center gap-1"><span class="fx-swatch fx-swatch--weekend"></span>Sábado y domingo</span>
+            <span class="flex items-center gap-1"><span class="fx-swatch fx-swatch--today"></span>Hoy</span>
+            <span class="flex items-center gap-1"><span class="fx-swatch fx-swatch--selected"></span>Seleccionado</span>
         </div>
         <p class="text-xs text-gray-600 mt-2">Toca un día para seleccionarlo o quitarlo.</p>
     `;
@@ -171,9 +170,12 @@ function renderListaDiasConfig() {
                     <span class="text-sm font-bold text-red-600">${info.calculando ? "..." : info.horasNetas.toFixed(2) + " h"}</span>
                 </div>
                 ${info.calculando ? "" : `<p class="text-[11px] mb-2 ${esDiaCompleto(info) ? "text-green-700" : "text-gray-500"}">${etiquetaConteoDia(info)}</p>`}
-                <label class="flex items-center gap-2 text-sm mb-2">
-                    <input type="checkbox" ${info.diaCompleto ? "checked" : ""} onchange="toggleDiaCompleto('${f}', this.checked)" class="rounded">
-                    Día completo (falto toda la jornada)
+                <label class="fx-switch-row mb-3">
+                    <span class="fx-switch">
+                        <input type="checkbox" ${info.diaCompleto ? "checked" : ""} onchange="toggleDiaCompleto('${f}', this.checked)" class="fx-switch__input">
+                        <span class="fx-switch__track" aria-hidden="true"><span class="fx-switch__knob"></span></span>
+                    </span>
+                    <span class="fx-switch-text">Día completo (falto toda la jornada)</span>
                 </label>
                 <div id="horasPersonalizadas_${idSeguro}" class="grid grid-cols-2 gap-2 ${info.diaCompleto ? "hidden" : ""}">
                     <div>
@@ -391,6 +393,14 @@ tipoPermisoEl.addEventListener("change", () => {
 const esCompensatorioEl = crearSiNo("esCompensatorio");
 const esDevolucionEl = crearSiNo("esDevolucion");
 const cajaCompensatorio = document.getElementById("cajaCompensatorio");
+
+// Origen del compensatorio: el campo de detalle solo aparece cuando la causa es "Otro".
+function actualizarCajaOrigenOtro() {
+  const esOtro = document.getElementById("compensatorioOrigen").value === "otro";
+  document.getElementById("cajaOrigenOtro").classList.toggle("hidden", !esOtro);
+  if (!esOtro) document.getElementById("compensatorioOrigenDetalle").value = "";
+}
+document.getElementById("compensatorioOrigen").addEventListener("change", actualizarCajaOrigenOtro);
 const cajaDevolucion = document.getElementById("cajaDevolucion");
 
 esCompensatorioEl.addEventListener("change", () => {
@@ -694,6 +704,9 @@ if (permisoEdicion) {
   esCompensatorioEl.checked = p.es_compensatorio == 1;
   cajaCompensatorio.classList.toggle('hidden', p.es_compensatorio != 1);
   document.getElementById('fechaHorasExtra').value = p.fecha_horas_extra || '';
+  document.getElementById('compensatorioOrigen').value = p.compensatorio_origen || '';
+  document.getElementById('compensatorioOrigenDetalle').value = p.compensatorio_origen_detalle || '';
+  actualizarCajaOrigenOtro();
   esDevolucionEl.checked = p.es_devolucion == 1;
   document.getElementById('tieneReemplazo').checked = p.tiene_reemplazo == 1;
   cajaReemplazo.classList.toggle('hidden', !tieneReemplazoEl.checked);

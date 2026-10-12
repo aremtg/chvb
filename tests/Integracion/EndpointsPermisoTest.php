@@ -197,6 +197,19 @@ final class EndpointsPermisoTest extends TestCase
         $this->assertSame('por_firmar_jefe', $this->estado($id));
     }
 
+    public function testCrearCompensatorioSinOrigenSeRechazaAntesDeGuardar(): void
+    {
+        $r = $this->peticion('permisos_crear.php', $this->sesionEmpleado(self::SOLICITANTE), [
+            'tipo_permiso' => 'Permiso', 'motivo' => 'Compensar horas', 'cedula_jefe' => '9900000002',
+            'fecha_inicio' => '2026-10-19', 'dias_confirmados' => json_encode([['fecha' => '2026-10-19', 'hora_inicio' => '07:00', 'hora_fin' => '17:24']]),
+            'es_compensatorio' => '1', 'fecha_horas_extra' => '2026-10-05',
+            'remunerado' => '0', 'es_devolucion' => '0',
+        ]);
+        $json = json_decode($r['cuerpo'], true);
+        $this->assertFalse($json['ok'] ?? true, $r['cuerpo']);
+        $this->assertTrue(in_array('Indica el origen del compensatorio.', $json['errores'] ?? [], true), 'Debe pedir el origen');
+    }
+
     public function testUnaPersonaAjenaNoPuedeEditar(): void
     {
         $id = $this->crearPermiso('devuelto');
@@ -289,7 +302,8 @@ final class EndpointsPermisoTest extends TestCase
         $id = $this->crearPermiso('firmado');
         $r = $this->peticion('permisos_anular.php', $this->sesionEmpleado(self::SOLICITANTE),
             ['id' => $id, 'version' => $this->version($id), 'motivo' => 'Quiero anularlo yo']);
-        $this->assertSame(302, $r['http'], 'Solo Talento Humano entra a anular: el solicitante es redirigido');
+        $json = json_decode($r['cuerpo'], true);
+        $this->assertFalse($json['ok'] ?? true, 'El solicitante no puede anular aunque entre al endpoint');
         $this->assertSame('firmado', $this->estado($id));
     }
 

@@ -15,7 +15,7 @@ $contadoresPermisos = $cedulaSesion ? NotificacionModel::contarPermisosEmpleadoP
 $totalMisPermisosInicial = (int)$contadoresPermisos['mis_permisos'];
 $totalPorFirmarInicial = (int)$contadoresPermisos['por_firmar'];
 ?>
-<button onclick="document.getElementById('sidebarMovilEmpleado').classList.remove('-translate-x-full')"
+<button id="btnMenuMovil" onclick="document.getElementById('sidebarMovilEmpleado').classList.remove('-translate-x-full')"
     class="md:hidden fixed top-3 left-3 z-40 bg-white border border-gray-200 rounded-xl p-2 shadow">
     <?= icon('menu', 'w-5 h-5 text-gray-700') ?>
 </button>
@@ -73,6 +73,18 @@ $totalPorFirmarInicial = (int)$contadoresPermisos['por_firmar'];
     </div>
 </aside>
 
+<script>
+    // Móvil: el botón de menú vive dentro del encabezado de la página (misma línea),
+    // en vez de flotar sobre una franja separada. Si la página no tiene encabezado, se queda flotando.
+    document.addEventListener('DOMContentLoaded', () => {
+        const boton = document.getElementById('btnMenuMovil');
+        const cabecera = document.querySelector('.md\\:ml-64 > header');
+        if (!boton || !cabecera) return;
+        boton.classList.remove('fixed', 'top-3', 'left-3', 'z-40', 'shadow');
+        boton.classList.add('app-menu-btn');
+        cabecera.prepend(boton);
+    });
+</script>
 <script>
     const sidebarMovilEmpEl = document.getElementById('sidebarMovilEmpleado');
     const overlaySidebarEmpEl = document.getElementById('overlaySidebarEmpleado');

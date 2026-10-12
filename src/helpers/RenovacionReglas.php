@@ -10,6 +10,9 @@ final class RenovacionReglas
     /** Días de anticipación con los que empieza a avisar el vencimiento. */
     public const DIAS_AVISO = 60;
 
+    /** Un contrato vencido sigue apareciendo en alarmas solo durante estos días; después queda en el panel (en rojo). */
+    public const DIAS_VENCIDO_MAX = 30;
+
     /** Tope de duración total de un contrato a término fijo (con renovaciones), en meses. */
     public const TOPE_MESES_FIJO = 48;
 

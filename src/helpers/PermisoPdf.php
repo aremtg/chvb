@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/CompensatorioOrigen.php';
 // src/helpers/PermisoPdf.php
 //
 // Genera el PDF de uno o varios permisos. El PDF se crea en memoria y se envía
@@ -263,9 +264,11 @@ class PermisoPdf
                 <td style="width:63pt">' . $logoHtml . '</td>
                 <td><div class="titulo">SOLICITUD DE TIPO: ' . $e(self::tipo($p['tipo_permiso'] ?? 'Permiso')) . '</div>
                     <div class="sub">CHVB · Gestion de Talento Humano</div></td>
-                <td style="width:135pt"><div class="consec">' . $e($p['consecutivo'] ?? '') . '</div>
-                    <div class="formato-info">Versión-' . $e(str_pad((string) ($formato['version'] ?? 1), 2, '0', STR_PAD_LEFT)) . '</div>
-                    <div class="formato-info">Fecha-' . $e(self::fecha($formato['fecha'] ?? null)) . '</div></td>
+                <td style="width:135pt">
+                    <div class="consec">' . $e($p['consecutivo'] ?? '') . '</div>
+                    <div class="formato-info" style="text-align:right">Versión-' . $e(str_pad((string) ($formato['version'] ?? 1), 2, '0', STR_PAD_LEFT)) . '</div>
+                    <div class="formato-info" style="text-align:right">Fecha-' . $e(self::fecha($formato['fecha'] ?? null)) . '</div>
+                </td>
             </tr></table>
 
             <div class="sec">Solicitante</div>
@@ -290,7 +293,7 @@ class PermisoPdf
             <div class="motivo">' . nl2br($e(self::recortar((string) ($p['motivo'] ?? ''), 380))) . '</div>
 
             <div class="sec">Condiciones</div>
-            <div class="motivo">Remunerado: <strong>' . (!empty($p['remunerado']) ? 'Sí' : 'No') . '</strong> &nbsp;·&nbsp; Compensatorio: <strong>' . (!empty($p['es_compensatorio']) ? 'Sí' : 'No') . '</strong> &nbsp;·&nbsp; Devolución de tiempo: <strong>' . (!empty($p['es_devolucion']) ? 'Sí' : 'No') . '</strong></div>
+            <div class="motivo">Remunerado: <strong>' . (!empty($p['remunerado']) ? 'Sí' : 'No') . '</strong> &nbsp;·&nbsp; Compensatorio: <strong>' . (!empty($p['es_compensatorio']) ? 'Sí' : 'No') . '</strong>' . (!empty($p['es_compensatorio']) && !empty($p['compensatorio_origen']) ? ' <span style="color:#6b7280">(' . $e(CompensatorioOrigen::etiqueta($p['compensatorio_origen'], $p['compensatorio_origen_detalle'] ?? null)) . ')</span>' : '') . ' &nbsp;·&nbsp; Devolución de tiempo: <strong>' . (!empty($p['es_devolucion']) ? 'Sí' : 'No') . '</strong></div>
 
             <div class="sec">Fechas y horas · ' . $totales . '</div>
             ' . self::tablaDias($p, $e) . '

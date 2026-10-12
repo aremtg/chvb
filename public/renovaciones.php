@@ -14,14 +14,7 @@ $incompletos = [];
 $falloTablas = false;
 $falloGeneral = false;
 
-// Al abrir el panel se ponen al día los avisos de vencimiento (cada aviso se envía una sola vez).
-// Si falla (p. ej. falta la migración de avisos), el panel se muestra igual.
-try {
-    require_once __DIR__ . '/../src/helpers/RenovacionAvisos.php';
-    RenovacionAvisos::generarPendientes();
-} catch (Throwable $e) {
-    error_log('renovaciones avisos: ' . $e->getMessage());
-}
+// Los avisos de vencimiento ya no son notificaciones: se muestran en Panel de Alarmas (pestaña Renovaciones).
 
 try {
     $vigencias = RenovacionModel::listarVigencias();

@@ -307,7 +307,7 @@ if ($filtrosActivos) {
                     class="text-gray-600 hover:text-gray-700">✕</button>
             </div>
 
-            <form id="formCrear" class="p-5 sm:p-6 space-y-5 max-h- overflow-y-auto">
+            <form id="formCrear" class="p-5 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto">
                 <?= csrfCampoHTML() ?>
                 <div id="erroresCrear"
                     class="hidden bg-red-50 border border-red-100 text-red-700 text-sm rounded-xl p-3"></div>
@@ -523,7 +523,7 @@ if ($filtrosActivos) {
                     class="text-gray-600 hover:text-gray-700">✕</button>
             </div>
 
-            <form id="formEditar" class="p-5 sm:p-6 space-y-5 max-h- overflow-y-auto">
+            <form id="formEditar" class="p-5 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto">
                 <?= csrfCampoHTML() ?>
                 <div id="erroresEditar"
                     class="hidden bg-red-50 border border-red-100 text-red-700 text-sm rounded-xl p-3"></div>

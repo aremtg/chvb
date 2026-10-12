@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../src/controllers/PermisoController.php';
 require_once __DIR__ . '/../../src/models/PermisoModel.php';
+require_once __DIR__ . '/../../src/helpers/CompensatorioOrigen.php';
 require_once __DIR__ . '/../../src/models/EmpleadoModel.php';
 require_once __DIR__ . '/../../src/helpers/FileManager.php';
 require_once __DIR__ . '/../../src/controllers/FirmaController.php';
@@ -35,6 +36,8 @@ try {
     $remunerado = (($_POST['remunerado'] ?? '0') === '1') ? 1 : 0;
     $esCompensatorio = (($_POST['es_compensatorio'] ?? '0') === '1') ? 1 : 0;
     $fechaHorasExtra = $_POST['fecha_horas_extra'] ?? null;
+    $origenComp = trim($_POST['compensatorio_origen'] ?? '');
+    $origenCompDetalle = trim($_POST['compensatorio_origen_detalle'] ?? '');
     $esDevolucion = (($_POST['es_devolucion'] ?? '0') === '1') ? 1 : 0;
     $devolucionesJson = $_POST['devoluciones_json'] ?? '';
 
@@ -59,7 +62,11 @@ try {
     if ($esCompensatorio && $esDevolucion)
         $errores[] = 'No puedes marcar compensatorio y devolución al mismo tiempo.';
     if ($esCompensatorio && !$fechaHorasExtra)
-        $errores[] = 'Debes indicar la fecha en que hiciste las horas extra.';
+        $errores[] = 'Indica la fecha del día que genera el compensatorio.';
+    if ($esCompensatorio && !CompensatorioOrigen::valido($origenComp))
+        $errores[] = 'Indica el origen del compensatorio.';
+    if ($esCompensatorio && $origenComp === 'otro' && $origenCompDetalle === '')
+        $errores[] = 'Describe el origen del compensatorio.';
     $esSalidaPendiente = isset($_POST['es_salida_pendiente_regreso']) && $tipoPermiso === 'Permiso';
 
     if (!$esSalidaPendiente) {
@@ -180,6 +187,8 @@ try {
         'remunerado' => $remunerado,
         'es_compensatorio' => $esCompensatorio,
         'fecha_horas_extra' => $esCompensatorio ? $fechaHorasExtra : null,
+        'compensatorio_origen' => $esCompensatorio ? $origenComp : null,
+        'compensatorio_origen_detalle' => ($esCompensatorio && $origenComp === 'otro') ? mb_substr($origenCompDetalle, 0, 120) : null,
         'es_devolucion' => $esDevolucion,
         'devolucion_fecha' => null,
         'devolucion_hora_inicio' => null,

@@ -401,18 +401,31 @@ class PermisoController
         $permiso = PermisoModel::obtenerPorId($permisoId);
         if (!$permiso) return ['ok' => false, 'error' => 'Permiso no encontrado.'];
         if ($permiso['estado'] !== 'firmado') return ['ok' => false, 'error' => 'Solo se puede anular un permiso que ya tenga firma final.'];
+        // Anular: Talento Humano (admin, auxiliar o teniente) o el jefe inmediato del permiso.
+        // Solo sobre permisos ya firmados. Rechazar NO es de Talento Humano: solo lo hace el jefe.
         $rol = $_SESSION['superadmin_rol'] ?? '';
-        if (!in_array($rol, ['teniente','superadmin_talento_humano','auxiliar_talento_humano'], true)) return ['ok' => false, 'error' => 'No tienes autorización para anular permisos.'];
+        $esTH = !empty($_SESSION['superadmin_id']) && in_array($rol, ['teniente','superadmin_talento_humano','auxiliar_talento_humano'], true);
+        $esJefe = !empty($_SESSION['empleado_cedula']) && $_SESSION['empleado_cedula'] === $permiso['cedula_jefe'];
+        if (!$esTH && !$esJefe) return ['ok' => false, 'error' => 'No tienes autorización para anular este permiso.'];
         $motivo = trim($motivo);
         if ($motivo === '') return ['ok' => false, 'error' => 'El motivo de anulación es obligatorio.'];
-        $actor = $_SESSION['superadmin_username'] ?? $rol;
+        if ($esTH) {
+            $actor = $_SESSION['superadmin_username'] ?? $rol;
+            $tipoActor = 'talento_humano';
+        } else {
+            $cedulaJefe = $_SESSION['empleado_cedula'];
+            require_once __DIR__ . '/../models/EmpleadoModel.php';
+            $jefe = EmpleadoModel::obtenerPorCedula($cedulaJefe);
+            $actor = $jefe['nombre'] ?? $cedulaJefe;
+            $tipoActor = 'jefe';
+        }
         if (!PermisoModel::actualizarConVersion($permisoId, $versionActual, ['estado' => 'anulado','motivo_anulacion' => $motivo,'anulado_por' => $actor,'fecha_anulacion' => date('Y-m-d H:i:s')])) return ['ok' => false, 'error' => 'conflicto_version'];
-        PermisoModel::registrarHistorial($permisoId, $versionActual, 'firmado', 'anulado', 'talento_humano', $actor, $motivo);
+        PermisoModel::registrarHistorial($permisoId, $versionActual, 'firmado', 'anulado', $tipoActor, $actor, $motivo);
         NotificacionModel::crearParaSuperAdminsSinPropiaAccion(
             $permiso['cedula_empleado'],
             $actor,
             'permiso_anulado',
-            "Talento Humano \"{$actor}\" anuló el permiso \"{$permiso['consecutivo']}\" del empleado \"{$permiso['nombre_empleado_snapshot']}\". Motivo: {$motivo}",
+            "\"{$actor}\" anuló el permiso \"{$permiso['consecutivo']}\" del empleado \"{$permiso['nombre_empleado_snapshot']}\". Motivo: {$motivo}",
             "/chvb/public/permiso_ver.php?id={$permisoId}"
         );
         NotificacionModel::crearParaEmpleado($permiso['cedula_empleado'], "Tu permiso \"{$permiso['consecutivo']}\" fue anulado: {$motivo}", "/chvb/public/permiso_ver.php?id={$permisoId}", 'permiso');

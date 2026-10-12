@@ -1,0 +1,173 @@
+/*
+ * Sistema de diseño del formulario de permisos (CHVB).
+ * Colores, espaciados y componentes en un solo lugar. Para cambiar la marca
+ * o un color de todo el formulario, modifica solo las variables de :root.
+ */
+
+:root {
+  /* Marca */
+  --fx-primary: #dc2626;
+  --fx-primary-hover: #b91c1c;
+  --fx-primary-soft: #fef2f2;
+  --fx-ring: 0 0 0 3px rgba(220, 38, 38, .18);
+
+  /* Neutros (texto, bordes, superficies) */
+  --fx-ink: #111827;
+  --fx-ink-2: #4b5563;
+  --fx-ink-3: #6b7280;
+  --fx-line: #e5e7eb;
+  --fx-line-strong: #d1d5db;
+  --fx-surface: #ffffff;
+  --fx-page: #f5f6f8;
+
+  /* Estados */
+  --fx-info-bg: #eff6ff;
+  --fx-info-line: #bfdbfe;
+  --fx-info-ink: #1e40af;
+  --fx-danger-bg: #fef2f2;
+  --fx-danger-line: #fecaca;
+  --fx-danger-ink: #b91c1c;
+  --fx-success-ink: #15803d;
+
+  /* Calendario */
+  --fx-weekend-bg: #fef9c3;
+  --fx-weekend-ink: #854d0e;
+  --fx-weekend-hover: #fef08a;
+  --fx-today-bg: #fde047;
+  --fx-today-line: #eab308;
+
+  /* Interruptores */
+  --fx-switch-off: #d1d5db;
+
+  /* Forma */
+  --fx-radius: 16px;
+  --fx-radius-sm: 12px;
+  --fx-shadow: 0 1px 2px rgba(17, 24, 39, .04), 0 1px 3px rgba(17, 24, 39, .06);
+}
+
+/* ---------- Tarjetas y textos ---------- */
+.fx-card {
+  background: var(--fx-surface);
+  border: 1px solid var(--fx-line);
+  border-radius: var(--fx-radius);
+  box-shadow: var(--fx-shadow);
+  padding: 1rem;
+}
+.fx-label {
+  display: block;
+  margin-bottom: .375rem;
+  font-size: .8125rem;
+  font-weight: 600;
+  color: var(--fx-ink-2);
+}
+.fx-required { color: var(--fx-primary); font-weight: 700; }
+
+/* ---------- Campos ---------- */
+.fx-input {
+  width: 100%;
+  padding: .625rem .75rem;
+  font-size: .875rem;
+  color: var(--fx-ink);
+  background: #fff;
+  border: 1px solid var(--fx-line-strong);
+  border-radius: var(--fx-radius-sm);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.fx-input::placeholder { color: #9ca3af; }
+.fx-input:hover { border-color: #9ca3af; }
+.fx-input:focus { outline: none; border-color: var(--fx-primary); box-shadow: var(--fx-ring); }
+
+/* ---------- Botones ---------- */
+.fx-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: .5rem; padding: .75rem 1rem; font-size: .9375rem; font-weight: 600;
+  border-radius: var(--fx-radius-sm); border: 1px solid transparent;
+  transition: background-color .15s ease, box-shadow .15s ease;
+}
+.fx-btn:focus-visible { outline: none; box-shadow: var(--fx-ring); }
+.fx-btn--primary { background: var(--fx-primary); color: #fff; box-shadow: 0 1px 2px rgba(185, 28, 28, .35); }
+.fx-btn--primary:hover { background: var(--fx-primary-hover); }
+.fx-btn--ghost { background: #fff; color: var(--fx-ink-2); border-color: var(--fx-line-strong); }
+.fx-btn--ghost:hover { background: #f9fafb; color: var(--fx-ink); }
+
+/* ---------- Avisos ---------- */
+.fx-alert { border-radius: var(--fx-radius-sm); border: 1px solid; padding: .75rem 1rem; font-size: .875rem; }
+.fx-alert--info { background: var(--fx-info-bg); border-color: var(--fx-info-line); color: var(--fx-info-ink); }
+.fx-alert--danger { background: var(--fx-danger-bg); border-color: var(--fx-danger-line); color: var(--fx-danger-ink); }
+
+/* ---------- Opciones Sí / No (radios) ---------- */
+.fx-radio input { accent-color: var(--fx-primary); width: 1rem; height: 1rem; }
+
+/* ---------- Interruptor deslizante ---------- */
+.fx-switch-row {
+  display: flex; align-items: center; gap: .75rem;
+  cursor: pointer; user-select: none;
+}
+.fx-switch-text { font-size: .875rem; color: var(--fx-ink); }
+.fx-switch {
+  position: relative; display: inline-block; flex: none;
+  width: 2.75rem; height: 1.5rem;
+}
+.fx-switch__input {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  margin: 0; opacity: 0; cursor: pointer; z-index: 1;
+}
+.fx-switch__track {
+  position: absolute; inset: 0; border-radius: 999px;
+  background: var(--fx-switch-off);
+  transition: background-color .2s ease, box-shadow .2s ease;
+}
+.fx-switch__knob {
+  position: absolute; top: .125rem; left: .125rem;
+  width: 1.25rem; height: 1.25rem; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 2px rgba(17, 24, 39, .25);
+  transition: transform .2s ease;
+}
+.fx-switch__input:checked ~ .fx-switch__track { background: var(--fx-primary); }
+.fx-switch__input:checked ~ .fx-switch__track .fx-switch__knob { transform: translateX(1.25rem); }
+.fx-switch__input:focus-visible ~ .fx-switch__track { box-shadow: var(--fx-ring); }
+.fx-switch__input:disabled { cursor: not-allowed; }
+.fx-switch__input:disabled ~ .fx-switch__track { opacity: .5; }
+
+/* ---------- Calendario ---------- */
+.fx-day {
+  width: 2.25rem; height: 2.25rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--fx-radius-sm);
+  font-size: .875rem; color: var(--fx-ink-2); cursor: pointer;
+  transition: background-color .15s ease;
+}
+.fx-day:hover { background: #f3f4f6; }
+.fx-day--weekend { background: var(--fx-weekend-bg); color: var(--fx-weekend-ink); }
+.fx-day--weekend:hover { background: var(--fx-weekend-hover); }
+.fx-day--today { background: var(--fx-today-bg); color: var(--fx-ink); font-weight: 700; box-shadow: 0 0 0 2px var(--fx-today-line); }
+.fx-day--selected { background: var(--fx-primary); color: #fff; font-weight: 700; }
+.fx-day--selected:hover { background: var(--fx-primary-hover); }
+
+.fx-swatch { display: inline-block; width: .75rem; height: .75rem; border-radius: .25rem; }
+.fx-swatch--weekend { background: var(--fx-weekend-bg); border: 1px solid #fde68a; }
+.fx-swatch--today { background: var(--fx-today-bg); box-shadow: 0 0 0 2px var(--fx-today-line); }
+.fx-swatch--selected { background: var(--fx-primary); }
+
+/* ---------- Opciones Sí / No en fila (pantallas medianas y grandes) ---------- */
+.fx-options {
+  display: grid;
+  gap: .75rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+  .fx-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.fx-option {
+  display: flex; flex-direction: column; gap: .5rem;
+  padding: .75rem .875rem;
+  background: #f9fafb;
+  border: 1px solid var(--fx-line);
+  border-radius: var(--fx-radius-sm);
+}
+.fx-option__title { font-size: .8125rem; font-weight: 600; color: var(--fx-ink); }
+.fx-choice { display: flex; gap: 1rem; }
+
+/* ---------- Protección de ancho: ninguna tarjeta ni lienzo se sale del formulario ---------- */
+.fx-card { min-width: 0; }
+#formPermiso canvas { display: block; max-width: 100%; }

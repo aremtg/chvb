@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 12-10-2026 a las 01:15:02
+-- Tiempo de generación: 12-10-2026 a las 04:54:01
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -207,6 +207,8 @@ CREATE TABLE `permisos` (
   `remunerado` tinyint(1) NOT NULL DEFAULT 0,
   `es_compensatorio` tinyint(1) NOT NULL DEFAULT 0,
   `fecha_horas_extra` date DEFAULT NULL,
+  `compensatorio_origen` varchar(30) DEFAULT NULL,
+  `compensatorio_origen_detalle` varchar(120) DEFAULT NULL,
   `es_devolucion` tinyint(1) NOT NULL DEFAULT 0,
   `es_salida_pendiente_regreso` tinyint(1) NOT NULL DEFAULT 0,
   `devolucion_fecha` date DEFAULT NULL,
@@ -312,20 +314,6 @@ CREATE TABLE `permisos_historial` (
   `actor_tipo` enum('empleado','reemplazo','jefe','talento_humano') NOT NULL,
   `actor_cedula_o_usuario` varchar(50) NOT NULL,
   `detalle` varchar(500) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `renovaciones_avisos`
---
-
-CREATE TABLE `renovaciones_avisos` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `cedula` varchar(10) NOT NULL,
-  `vigencia_fin` date NOT NULL COMMENT 'Fecha de vencimiento a la que corresponde el aviso',
-  `tipo` enum('por_vencer','vencido') NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -514,13 +502,6 @@ ALTER TABLE `permisos_historial`
   ADD KEY `idx_permiso` (`permiso_id`);
 
 --
--- Indices de la tabla `renovaciones_avisos`
---
-ALTER TABLE `renovaciones_avisos`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uq_renaviso` (`cedula`,`vigencia_fin`,`tipo`);
-
---
 -- Indices de la tabla `renovaciones_contrato`
 --
 ALTER TABLE `renovaciones_contrato`
@@ -620,12 +601,6 @@ ALTER TABLE `permisos_historial`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `renovaciones_avisos`
---
-ALTER TABLE `renovaciones_avisos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT de la tabla `renovaciones_contrato`
 --
 ALTER TABLE `renovaciones_contrato`
@@ -670,12 +645,6 @@ ALTER TABLE `empleados`
 --
 ALTER TABLE `funciones_certificados`
   ADD CONSTRAINT `fk_fcert_cargo` FOREIGN KEY (`cargo_id`) REFERENCES `cargos` (`id`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `renovaciones_avisos`
---
-ALTER TABLE `renovaciones_avisos`
-  ADD CONSTRAINT `fk_renaviso_empleado` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `renovaciones_contrato`

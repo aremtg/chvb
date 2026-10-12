@@ -39,10 +39,17 @@ if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula
     <header class="bg-white border-b border-gray-100 sticky top-0 z-20">
         <div class="px-4 md:px-8 py-4 flex items-center justify-between gap-4">
             <div>
-                <a href="<?= $esTH ? './permisos_th.php' : './permisos.php' ?>" class="inline-flex items-center gap-1.5 text- font-medium text-gray-500 hover:text-gray-800 transition">
+                <a href="<?= $esTH ? './permisos_th.php' : './permisos.php' ?>" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-800 transition">
                     <span>←</span> <?= $esTH ? 'Permisos' : 'Mis permisos' ?>
                 </a>
-                <h1 class="text- font-bold tracking-tight text-gray-900 mt-1"><?= htmlspecialchars($permiso['consecutivo'])?></h1>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900 mt-1"><?= htmlspecialchars($permiso['consecutivo'])?></h1>
+                <?php if (!empty($permiso['formato_version'])):
+                    $mesesCortos = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+                    $tsFormato = strtotime((string) $permiso['formato_fecha']);
+                    $fechaFormato = date('j', $tsFormato) . ' ' . $mesesCortos[(int) date('n', $tsFormato) - 1] . ' ' . date('Y', $tsFormato);
+                ?>
+                <p class="text-xs text-gray-500 mt-0.5"><?= htmlspecialchars($permiso['formato_codigo'] ?? 'GH-FT-10') ?> · Versión-<?= str_pad((string) (int) $permiso['formato_version'], 2, '0', STR_PAD_LEFT) ?> · Fecha-<?= htmlspecialchars($fechaFormato) ?></p>
+                <?php endif; ?>
             </div>
             <?php if ($esTH): ?>
             <button type="button" id="btnPdfPermiso" class="inline-flex items-center gap-2 border border-gray-300 hover:bg-gray-50 text-sm font-semibold text-gray-700 px-4 py-2 rounded-xl transition">
@@ -68,42 +75,42 @@ if ($esEmpleado) { NotificacionModel::marcarPermisoComoLeidoParaEmpleado($cedula
 </div>
 
 <!-- Modal pro - mismos IDs -->
-<div id="modalAccionPermiso" class="hidden fixed inset-0 modal-fondo bg-gray-900/60 flex items-center justify-center p-4 z-[80]">
-    <div class="bg-white rounded- shadow-2xl w-full max-w-md max-h- overflow-hidden flex flex-col border border-gray-100">
-        <div class="px-6 pt-6 pb-4 border-b border-gray-50 flex items-center justify-between">
-            <h2 id="tituloModalAccion" class="font-bold text- text-gray-900"></h2>
+<div id="modalAccionPermiso" class="hidden fixed inset-0 modal-fondo bg-black/40 flex items-center justify-center p-4 z-[80]">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col border border-gray-200">
+        <div class="px-5 md:px-6 pt-5 md:pt-6 pb-4 border-b border-gray-100 flex items-center justify-between">
+            <h2 id="tituloModalAccion" class="text-lg font-bold text-gray-900"></h2>
             <button type="button" onclick="document.getElementById('modalAccionPermiso').classList.add('hidden')" class="w-8 h-8 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-500">✕</button>
         </div>
 
-        <div class="p-6 space-y-5 overflow-y-auto">
+        <div class="px-5 md:px-6 py-5 space-y-4 overflow-y-auto">
             <div id="cajaFirmaAccion" class="space-y-4 hidden">
                 <?php if ($firmaGuardada):?>
-                    <label class="flex items-center gap-2.5 text- font-medium text-gray-700 bg-gray-50 border border-gray-100 rounded-xl px-3 py-2.5 cursor-pointer">
+                    <label class="flex items-center gap-2.5 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 cursor-pointer">
                         <input type="checkbox" id="usarFirmaGuardadaAccion" checked class="rounded border-gray-300 text-gray-900 focus:ring-0"> Usar mi firma guardada
                     </label>
                 <?php endif;?>
                 <div id="cajaCanvasAccion" class="<?= $firmaGuardada? 'hidden' : ''?> space-y-2">
-                    <p class="text- font-semibold tracking-widest uppercase text-gray-600">Dibuja tu firma</p>
+                    <p class="text-xs font-bold uppercase text-gray-600">Dibuja tu firma</p>
                     <canvas id="canvasFirmaAccion" data-alto="200" class="border border-gray-200 rounded-xl w-full bg-white touch-none" style="height:200px"></canvas>
-                    <button type="button" id="btnLimpiarFirmaAccion" class="text- font-medium text-gray-500 hover:text-red-600">Limpiar firma</button>
+                    <button type="button" id="btnLimpiarFirmaAccion" class="text-xs font-medium text-gray-500 hover:text-red-600">Limpiar firma</button>
                 </div>
                 <div class="space-y-2">
-                    <label class="block text- font-semibold tracking-widest uppercase text-gray-600">Foto (opcional)</label>
-                    <div id="capturaFotoAccion" class="rounded-xl border border-dashed border-gray-200 bg-gray-50/50 p-3 min-h-"></div>
+                    <label class="block text-xs font-bold uppercase text-gray-600 mb-1.5">Foto (opcional)</label>
+                    <div id="capturaFotoAccion" class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-3 min-h-[64px]"></div>
                 </div>
             </div>
 
             <div id="cajaMotivoAccion" class="hidden space-y-2">
-                <label class="block text- font-semibold tracking-widest uppercase text-gray-600">Motivo</label>
-                <textarea id="motivoAccion" rows="4" class="w-full border border-gray-200 rounded-xl px-3.5 py-3 text- focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900 resize-none" placeholder="Escribe el motivo..."></textarea>
+                <label class="block text-xs font-bold uppercase text-gray-600 mb-1.5">Motivo</label>
+                <textarea id="motivoAccion" rows="4" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 resize-none" placeholder="Escribe el motivo..."></textarea>
             </div>
 
-            <p id="errorAccion" class="hidden text- text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2"></p>
+            <p id="errorAccion" class="hidden text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2"></p>
         </div>
 
-        <div class="p-4 bg-gray-50 border-t border-gray-100 flex gap-2.5">
-            <button type="button" onclick="document.getElementById('modalAccionPermiso').classList.add('hidden')" class="flex-1 bg-white border border-gray-200 rounded-xl py-2.5 text- font-medium text-gray-700 hover:bg-gray-50 transition">Cancelar</button>
-            <button type="button" id="btnConfirmarAccionPermiso" class="flex-1 bg-gray-900 hover:bg-black text-white rounded-xl py-2.5 text- font-semibold transition">Confirmar</button>
+        <div class="px-5 md:px-6 py-4 bg-gray-50 border-t border-gray-100 flex gap-2.5">
+            <button type="button" onclick="document.getElementById('modalAccionPermiso').classList.add('hidden')" class="flex-1 border border-gray-300 rounded-xl py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition">Cancelar</button>
+            <button type="button" id="btnConfirmarAccionPermiso" class="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded-xl py-2.5 font-semibold transition">Confirmar</button>
         </div>
     </div>
 </div>

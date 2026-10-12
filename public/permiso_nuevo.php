@@ -27,17 +27,26 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $editarId ? 'Editar permiso' : 'Nuevo Permiso' ?> - CHVB</title>
     <link rel="stylesheet" href="./assets/css/tailwind.css">
+    <link rel="stylesheet" href="./assets/css/formulario_permiso.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/formulario_permiso.css') ?>">
 </head>
 
 <body class="bg-gray-100 min-h-screen">
     <?php require __DIR__ . '/../includes/sidebar_empleado.php'; ?>
 
     <div class="md:ml-64 pt-14 md:pt-0">
-        <header class="bg-white shadow px-6 py-4">
+        <?php
+            require_once __DIR__ . '/../src/models/FormatoPermisoModel.php';
+            $formatoActual = FormatoPermisoModel::obtener();
+            $mesesCortos = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+            $tsFormato = strtotime($formatoActual['fecha']);
+            $fechaFormatoTxt = date('j', $tsFormato) . ' ' . $mesesCortos[(int) date('n', $tsFormato) - 1] . ' ' . date('Y', $tsFormato);
+        ?>
+        <header class="bg-white shadow px-6 py-4 flex flex-wrap items-center justify-between gap-2">
             <h1 class="text-lg font-bold text-gray-800"><?= $editarId ? 'Editar y reenviar permiso' : 'Nueva solicitud de permiso' ?></h1>
+            <p class="text-xs text-gray-500"><?= htmlspecialchars($formatoActual['codigo']) ?> · Versión-<?= str_pad((string) $formatoActual['version'], 2, '0', STR_PAD_LEFT) ?> · Fecha-<?= htmlspecialchars($fechaFormatoTxt) ?></p>
         </header>
 
-        <main class="p-2 md:p-4 max-w-3xl lg:max-w-6xl mx-auto">
+        <main class="p-3 md:p-4 max-w-3xl mx-auto">
 
             <?php if (!$datosCompletos): ?>
                 <div class="bg-white rounded-xl shadow p-6 text-center">
@@ -54,15 +63,15 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
             <?php else: ?>
 
                 <div id="avisoTipoPersonal"
-                    class="hidden bg-blue-50 border border-blue-200 text-blue-800 text-sm rounded-xl p-3"></div>
-                <div id="erroresForm" class="hidden bg-red-100 text-red-700 text-sm rounded-xl p-3"></div>
+                    class="hidden fx-alert fx-alert--info"></div>
+                <div id="erroresForm" class="hidden fx-alert fx-alert--danger"></div>
 
-                <form id="formPermiso" class="space-y-2 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-4 lg:items-start">
+                <form id="formPermiso" class="space-y-4">
                     <?= csrfCampoHTML() ?>
                     <?php if ($editarId): ?><input type="hidden" id="permisoEditarId" value="<?= $editarId ?>"><input type="hidden" id="permisoEditarVersion" value="<?= (int)$permisoEditar['version'] ?>"><?php endif; ?>
 
                     <!-- Datos automáticos -->
-                    <div class="bg-white rounded-xl shadow p-4 grid grid-cols-2 gap-3 text-sm lg:col-span-2">
+                    <div class="fx-card grid grid-cols-2 gap-3 text-sm">
                         <p><strong>Nombre:</strong> <?= htmlspecialchars($empleado['nombre']) ?></p>
                         <p><strong>Cédula:</strong> <?= htmlspecialchars($cedula) ?></p>
                         <p><strong>Cargo:</strong> <?= htmlspecialchars(JornadaHelper::cargoDetalle($empleado)) ?></p>
@@ -70,11 +79,11 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                     </div>
 
                     <!-- Tipo y motivo -->
-                    <div class="bg-white rounded-xl shadow p-4 space-y-4">
+                    <div class="fx-card space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de permiso</label>
+                            <label class="fx-label">Tipo de permiso</label>
                             <select id="tipoPermiso" name="tipo_permiso" required
-                                class="w-full border border-gray-300 rounded-xl px-3 py-2">
+                                class="fx-input">
                                 <option value="">Selecciona</option>
                                 <option value="Permiso">Permiso</option>
                                 <option value="Vacaciones">Vacaciones</option>
@@ -83,20 +92,17 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Motivo</label>
+                            <label class="fx-label">Motivo</label>
                             <textarea name="motivo" id="motivo" required rows="3"
-                                class="w-full border border-gray-300 rounded-xl px-3 py-2"></textarea>
+                                class="fx-input"></textarea>
                         </div>
                         <div id="cajaSalidaPendiente" class="hidden">
-                            <label class="flex items-center gap-2 text-sm">
-                                <input type="checkbox" id="esSalidaPendiente" class="rounded">
-                                No sé mi hora de llegada / Regreso por confirmar
-                            </label>
+                            <label class="fx-switch-row"><span class="fx-switch"><input type="checkbox" id="esSalidaPendiente" class="fx-switch__input"><span class="fx-switch__track" aria-hidden="true"><span class="fx-switch__knob"></span></span></span><span class="fx-switch-text">No sé mi hora de llegada / Regreso por confirmar</span></label>
                         </div>
                     </div>
 
                     <!-- Calendario y horario POR DÍA -->
-                    <div id="bloqueCalendarioNormal" class="bg-white rounded-xl shadow p-4 space-y-4">
+                    <div id="bloqueCalendarioNormal" class="fx-card space-y-4">
                         <p class="text-sm font-medium text-gray-700">1. Selecciona los días</p>
                         <div id="calendarioBonito" class="border border-gray-200 rounded-xl p-3"></div>
 
@@ -127,18 +133,18 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                         </div>
                     </div>
 
-                    <div id="bloqueSalidaPendiente" class="hidden bg-white rounded-xl shadow p-4 space-y-4">
+                    <div id="bloqueSalidaPendiente" class="hidden fx-card space-y-4">
                         <p class="text-sm font-medium text-gray-700">Datos de la salida</p>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de salida</label>
+                                <label class="fx-label">Fecha de salida</label>
                                 <input type="date" id="fechaSalidaUnica"
-                                    class="w-full border border-gray-300 rounded-xl px-3 py-2">
+                                    class="fx-input">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Hora de salida</label>
+                                <label class="fx-label">Hora de salida</label>
                                 <input type="time" id="horaSalidaUnica"
-                                    class="w-full border border-gray-300 rounded-xl px-3 py-2">
+                                    class="fx-input">
                             </div>
                         </div>
                         <p class="text-xs text-gray-500">Cuando regreses, entra a "Todos mis permisos" y usa "Registrar
@@ -146,10 +152,11 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                     </div>
 
                     <!-- Checks: remunerado / compensatorio / devolución -->
-                    <div class="bg-white rounded-xl shadow p-4 space-y-4">
-                        <div>
-                            <p class="text-sm font-medium text-gray-700 mb-1">¿Remunerado? <span class="text-red-600">*</span></p>
-                            <div class="flex gap-4" role="radiogroup" aria-label="¿Remunerado?">
+                    <div class="fx-card space-y-4">
+                        <div class="fx-options">
+                        <div class="fx-option">
+                            <p class="fx-option__title">¿Remunerado? <span class="fx-required">*</span></p>
+                            <div class="fx-choice" role="radiogroup" aria-label="¿Remunerado?">
                                 <label class="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
                                     <input type="radio" name="remunerado" id="remuneradoSi" value="1" required class="rounded-full"> Sí
                                 </label>
@@ -158,10 +165,9 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                                 </label>
                             </div>
                         </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-gray-700 mb-1">¿Compensatorio? <span class="text-red-600">*</span></p>
-                            <div class="flex gap-4" role="radiogroup" aria-label="¿Compensatorio?">
+                        <div class="fx-option">
+                            <p class="fx-option__title">¿Compensatorio? <span class="fx-required">*</span></p>
+                            <div class="fx-choice" role="radiogroup" aria-label="¿Compensatorio?">
                                 <label class="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
                                     <input type="radio" name="es_compensatorio" id="esCompensatorioSi" value="1" required class="rounded-full"> Sí
                                 </label>
@@ -170,22 +176,37 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                                 </label>
                             </div>
                         </div>
-                        <div id="cajaCompensatorio" class="hidden pl-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha en que hiciste las horas
-                                extra</label>
-                            <input type="date" name="fecha_horas_extra" id="fechaHorasExtra"
-                                class="w-full border border-gray-300 rounded-xl px-3 py-2">
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-gray-700 mb-1">¿Devolución de tiempo? <span class="text-red-600">*</span></p>
-                            <div class="flex gap-4" role="radiogroup" aria-label="¿Devolución de tiempo?">
+                        <div class="fx-option">
+                            <p class="fx-option__title">¿Devolución de tiempo? <span class="fx-required">*</span></p>
+                            <div class="fx-choice" role="radiogroup" aria-label="¿Devolución de tiempo?">
                                 <label class="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
                                     <input type="radio" name="es_devolucion" id="esDevolucionSi" value="1" required class="rounded-full"> Sí
                                 </label>
                                 <label class="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
                                     <input type="radio" name="es_devolucion" id="esDevolucionNo" value="0" required checked class="rounded-full"> No
                                 </label>
+                            </div>
+                        </div>
+                        </div>
+                        <div id="cajaCompensatorio" class="hidden space-y-3">
+                            <div>
+                                <label class="fx-label" for="fechaHorasExtra">Día que genera el compensatorio</label>
+                                <input type="date" name="fecha_horas_extra" id="fechaHorasExtra" class="fx-input">
+                                <p class="text-xs text-gray-500 mt-1">Día que trabajaste y que da derecho a compensar: horas extra, jornada electoral, festivo trabajado, etc.</p>
+                            </div>
+                            <div>
+                                <label class="fx-label" for="compensatorioOrigen">Origen</label>
+                                <select name="compensatorio_origen" id="compensatorioOrigen" class="fx-input">
+                                <option value="">Selecciona...</option>
+                                <option value="horas_extra">Horas extra</option>
+                                <option value="jornada_electoral">Jornada electoral</option>
+                                <option value="festivo_trabajado">Festivo trabajado</option>
+                                <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div id="cajaOrigenOtro" class="hidden">
+                                <label class="fx-label" for="compensatorioOrigenDetalle">Describe el origen</label>
+                                <input type="text" name="compensatorio_origen_detalle" id="compensatorioOrigenDetalle" maxlength="120" class="fx-input" placeholder="Ej.: día de la familia autorizado">
                             </div>
                         </div>
                         <div id="cajaDevolucion" class="hidden pl-6 space-y-3">
@@ -207,15 +228,12 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                     </div>
 
                     <!-- Reemplazo y jefe -->
-                    <div class="bg-white rounded-xl shadow p-4 space-y-4">
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" id="tieneReemplazo" name="tiene_reemplazo" class="rounded">
-                            <label for="tieneReemplazo" class="text-sm text-gray-700">¿Alguien te reemplazará?</label>
-                        </div>
+                    <div class="fx-card space-y-4">
+                        <label class="fx-switch-row"><span class="fx-switch"><input type="checkbox" id="tieneReemplazo" name="tiene_reemplazo" class="fx-switch__input"><span class="fx-switch__track" aria-hidden="true"><span class="fx-switch__knob"></span></span></span><span class="fx-switch-text">¿Alguien te reemplazará?</span></label>
                         <div id="cajaReemplazo" class="hidden">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Empleado de reemplazo</label>
+                            <label class="fx-label">Empleado de reemplazo</label>
                             <input type="text" id="buscadorReemplazo" placeholder="Escribe nombre o cédula..."
-                                autocomplete="off" class="w-full border border-gray-300 rounded-xl px-3 py-2">
+                                autocomplete="off" class="fx-input">
                             <div id="resultadosReemplazo"
                                 class="hidden border border-gray-200 rounded-xl mt-1 max-h-40 overflow-y-auto bg-white shadow-lg relative z-10">
                             </div>
@@ -223,9 +241,9 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Jefe inmediato</label>
+                            <label class="fx-label">Jefe inmediato</label>
                             <input type="text" id="buscadorJefe" placeholder="Escribe nombre o cédula..." autocomplete="off"
-                                class="w-full border border-gray-300 rounded-xl px-3 py-2">
+                                class="fx-input">
                             <div id="resultadosJefe"
                                 class="hidden border border-gray-200 rounded-xl mt-1 max-h-40 overflow-y-auto bg-white shadow-lg relative z-10">
                             </div>
@@ -237,24 +255,22 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                     </div>
 
                     <!-- Foto y firma del solicitante -->
-                    <div class="bg-white rounded-xl shadow p-4 space-y-4">
+                    <div class="fx-card space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tu foto (obligatoria, tomada en este
+                            <label class="fx-label">Tu foto (obligatoria, tomada en este
                                 momento)</label>
                             <div id="capturaFotoSolicitante"></div>
                             <input type="hidden" name="foto_solicitante_base64" id="fotoSolicitanteHidden">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tu firma</label>
+                            <label class="fx-label">Tu firma</label>
                             <?php if ($firmaGuardada): ?>
                                 <div class="flex items-center gap-3 mb-2 p-2 border border-gray-200 rounded-xl">
                                     <img src="./api/firma_ver.php?cedula=<?= urlencode($cedula) ?>"
                                         class="h-14 border rounded bg-white">
-                                    <label class="flex items-center gap-2 text-sm">
-                                        <input type="checkbox" id="usarFirmaGuardada" checked class="rounded"> Usar mi firma
-                                        guardada
-                                    </label>
+                                    <label class="fx-switch-row"><span class="fx-switch"><input type="checkbox" id="usarFirmaGuardada" checked class="fx-switch__input"><span class="fx-switch__track" aria-hidden="true"><span class="fx-switch__knob"></span></span></span><span class="fx-switch-text">Usar mi firma
+                                        guardada</span></label>
                                 </div>
                             <?php endif; ?>
                             <div id="cajaFirmaNueva" class="<?= $firmaGuardada ? 'hidden' : '' ?> space-y-2">
@@ -276,20 +292,26 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                                 </div>
                                 <div id="panelFirmaArchivo" class="hidden">
                                     <input type="file" id="inputFirmaArchivo" accept="image/png,image/jpeg"
-                                        class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm">
+                                        class="fx-input">
                                 </div>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Evidencia (opcional)</label>
+                            <label class="fx-label">Evidencia (opcional)</label>
                             <input type="file" name="evidencia"
-                                class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm">
+                                class="fx-input">
                         </div>
                     </div>
 
+                    <div class="fx-card text-[11px] leading-snug text-gray-500 space-y-1">
+                        <p><strong>Nota importante:</strong> Las vacaciones deben solicitarse con 2 meses de anticipación y los permisos personales con 2 días de anticipación, según instructivo GH-FT-10.</p>
+                        <p>La compensación debe realizarse dentro del mismo mes del permiso.</p>
+                        <p>No se considerará accidente de trabajo si ocurre durante permisos que no sean misión institucional ordenada por el empleador.</p>
+                    </div>
+
                     <button type="submit"
-                        class="w-full lg:col-span-2 bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition">
+                        class="fx-btn fx-btn--primary w-full">
                         <?= $editarId ? 'Guardar cambios y reenviar' : 'Guardar solicitud' ?>
                     </button>
                 </form>

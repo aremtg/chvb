@@ -67,6 +67,26 @@ class RenovacionModel
      * (fin de la última renovación, o fin del contrato inicial si no tiene renovaciones).
      * Ordenados del que vence primero al que vence último (los ya vencidos arriba).
      */
+    /**
+     * Contratos que hay que avisar en Panel de Alarmas (mismos plazos que tenían las notificaciones):
+     *   - por vencer: faltan RenovacionReglas::DIAS_AVISO días o menos (y todavía no venció).
+     *   - vencido: venció hace no más de RenovacionReglas::DIAS_VENCIDO_MAX días.
+     * Solo informa: no crea notificaciones ni cambia ningún dato.
+     */
+    public static function avisosParaAlarmas(): array
+    {
+        $avisos = [];
+        foreach (self::listarVigencias() as $f) {
+            $dias = (int) $f['dias_restantes'];
+            if ($f['estado'] === 'por_vencer' && $dias <= RenovacionReglas::DIAS_AVISO) {
+                $avisos[] = $f;
+            } elseif ($f['estado'] === 'vencido' && $dias >= -RenovacionReglas::DIAS_VENCIDO_MAX) {
+                $avisos[] = $f;
+            }
+        }
+        return $avisos;
+    }
+
     public static function listarVigencias(): array
     {
         $tipos = RenovacionReglas::tiposControlados();

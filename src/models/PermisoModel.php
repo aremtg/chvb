@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/FormatoPermisoModel.php';
+require_once __DIR__ . '/../helpers/CompensatorioOrigen.php';
 // src/models/PermisoModel.php
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../helpers/JornadaHelper.php';
@@ -55,7 +56,8 @@ class PermisoModel {
                         devolucion_fecha, devolucion_hora_inicio, devolucion_hora_fin, devolucion_total_horas,
                         tiene_reemplazo, cedula_reemplazo, cedula_jefe,
                         foto_solicitante, firma_solicitante, evidencia_archivo, estado,
-                        formato_codigo, formato_version, formato_fecha, es_salida_pendiente_regreso
+                        formato_codigo, formato_version, formato_fecha, es_salida_pendiente_regreso,
+                        compensatorio_origen, compensatorio_origen_detalle
                     ) VALUES (
                         :b1, :b2, :b3, :b4, :b5, :b6, :b7, :b8, :b9,
                         :b10, :b11, :b12, :b13, :b14,
@@ -63,7 +65,7 @@ class PermisoModel {
                         :b19, :b20, :b21, :b22,
                         :b23, :b24, :b25,
                         :b26, :b27, :b28, :b29,
-                        :b30, :b31, :b32, :b33
+                        :b30, :b31, :b32, :b33, :b34, :b35
                     )";
             // Trazabilidad: el formato vigente AL CREAR queda grabado en el permiso.
             $formatoVigente = FormatoPermisoModel::obtener();
@@ -85,6 +87,7 @@ class PermisoModel {
                 'b29' => 'en_proceso',
                 'b30' => $formatoVigente['codigo'], 'b31' => $formatoVigente['version'], 'b32' => $formatoVigente['fecha'],
                 'b33' => (int) ($datos['es_salida_pendiente_regreso'] ?? 0),
+                'b34' => $datos['compensatorio_origen'] ?? null, 'b35' => $datos['compensatorio_origen_detalle'] ?? null,
             ]);
 
             $permisoId = (int) $pdo->lastInsertId();
@@ -325,6 +328,24 @@ class PermisoModel {
      * Lista permisos del empleado con filtros opcionales. Los DEVUELTOS siempre
      * aparecen primero (anclados), porque requieren acción inmediata del empleado.
      */
+    /**
+     * Permisos que aún necesitan firma (reemplazo o jefe) y cuya fecha de inicio está dentro
+     * de los próximos $dias días, o ya pasó. Solo sirve para AVISAR: no cambia ningún estado.
+     */
+    public static function pendientesProximosAVencer(int $dias = 5): array {
+        $limite = date('Y-m-d', strtotime("+{$dias} days"));
+        $stmt = getPDO()->prepare(
+            "SELECT id, consecutivo, nombre_empleado_snapshot, tipo_permiso, fecha_inicio, hora_inicio, estado,
+                    DATEDIFF(fecha_inicio, CURDATE()) AS dias_restantes
+               FROM permisos
+              WHERE estado IN ('por_firmar_reemplazo', 'por_firmar_jefe')
+                AND fecha_inicio <= :limite
+              ORDER BY fecha_inicio ASC, hora_inicio ASC"
+        );
+        $stmt->execute(['limite' => $limite]);
+        return $stmt->fetchAll();
+    }
+
     public static function listarPorEmpleadoConFiltros(string $cedula, array $filtros): array {
         $pdo = getPDO();
         $sql = "SELECT * FROM permisos WHERE cedula_empleado = :b1";

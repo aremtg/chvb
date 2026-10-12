@@ -17,6 +17,13 @@ const MESES_V = [
   "noviembre",
   "diciembre",
 ];
+// Etiqueta del origen del compensatorio (mismas opciones que src/helpers/CompensatorioOrigen.php).
+function etiquetaOrigenComp(clave, detalle) {
+  const nombres = { horas_extra: "Horas extra", jornada_electoral: "Jornada electoral", festivo_trabajado: "Festivo trabajado", otro: "Otro" };
+  if (clave === "otro" && detalle) return "Otro: " + detalle;
+  return nombres[clave] || "";
+}
+
 function fechaV(f) {
   if (!f) return "-";
   const fp = f.split(" ")[0].split("T")[0];
@@ -100,6 +107,7 @@ function render() {
   const p = permisoActual;
   const [textoEstado, claseEstado] = etiquetaEstadoV(p.estado);
   const esDueno = p.cedula_empleado === cedulaPropia;
+  const esJefeDelPermiso = p.cedula_jefe === cedulaPropia;
   const esReemplazoPendiente =
     p.cedula_reemplazo === cedulaPropia && p.estado === "por_firmar_reemplazo";
   const esJefePendiente =
@@ -112,6 +120,11 @@ function render() {
     if (p.estado === "devuelto")
       acciones += `<a href="./permiso_nuevo.php?editar=${p.id}" class="border border-gray-300 text-sm px-4 py-2.5 rounded-xl text-gray-700 font-semibold">Editar permiso</a>`;
   }
+  // Anular: solo permisos firmados. Lo puede hacer el jefe del permiso o Talento Humano.
+  const puedeAnular = p.estado === "firmado" && (esJefeDelPermiso || contenedorPermiso.dataset.esTh === "1");
+  if (puedeAnular)
+    acciones += `<button onclick="abrirModalAccion('anular','${esJefeDelPermiso ? "jefe" : "th"}')" class="text-red-600 hover:bg-red-50 border border-red-200 text-sm px-4 py-2.5 rounded-xl font-semibold">Anular</button>`;
+
   if (esReemplazoPendiente || esJefePendiente) {
     const rol = esReemplazoPendiente ? "reemplazo" : "jefe";
     acciones += `<button onclick="abrirModalAccion('firmar','${rol}')" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2.5 rounded-xl font-semibold">Firmar</button>`;
@@ -158,21 +171,17 @@ function render() {
         <div class="rounded-xl bg-gray-50 p-3 flex items-center justify-between gap-2"><span class="text-sm text-gray-700">Compensatorio</span>${siNoV(p.es_compensatorio)}</div>
         <div class="rounded-xl bg-gray-50 p-3 flex items-center justify-between gap-2"><span class="text-sm text-gray-700">Devolución de tiempo</span>${siNoV(p.es_devolucion)}</div>
       </div>
-      ${p.es_compensatorio == 1 && p.fecha_horas_extra ? `<p class="text-xs text-gray-600 mt-3">Horas extra realizadas el <strong>${fechaV(p.fecha_horas_extra)}</strong></p>` : ""}
+      ${p.es_compensatorio == 1 && p.fecha_horas_extra ? `<p class="text-xs text-gray-600 mt-3">Día que genera el compensatorio: <strong>${fechaV(p.fecha_horas_extra)}</strong>${p.compensatorio_origen ? ` · Origen: <strong>${escaparV(etiquetaOrigenComp(p.compensatorio_origen, p.compensatorio_origen_detalle))}</strong>` : ""}</p>` : ""}
     </div>
 `;
 
-  // Formato con el que se creó el permiso (trazabilidad) y nota importante, igual que en el PDF.
-  const formatoHtml = p.formato_version ? `
-    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
-      <p class="text-xs font-bold uppercase text-gray-600 mb-2">Formato</p>
-      <p class="text-xs text-gray-700">${escaparV(p.formato_codigo || "GH-FT-10")} · Versión-${escaparV(String(p.formato_version).padStart(2, "0"))} · Fecha-${fechaV(p.formato_fecha)}</p>
-      <div class="text-[11px] leading-snug text-gray-500 mt-3 pt-3 border-t border-gray-200 space-y-1">
+  // Nota importante (igual que en el PDF): se muestra debajo de las firmas.
+  const notaHtml = `
+    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm px-5 py-4 text-[11px] leading-snug text-gray-500 space-y-1">
         <p><strong>Nota importante:</strong> Las vacaciones deben solicitarse con 2 meses de anticipación y los permisos personales con 2 días de anticipación, según instructivo GH-FT-10.</p>
         <p>La compensación debe realizarse dentro del mismo mes del permiso.</p>
         <p>No se considerará accidente de trabajo si ocurre durante permisos que no sean misión institucional ordenada por el empleador.</p>
-      </div>
-    </div>` : "";
+    </div>`;
 
   const alertas = [];
   if (p.motivo_devolucion)
@@ -253,7 +262,6 @@ function render() {
 
     ${condicionesHtml}
 
-    ${formatoHtml}
 
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
   <div class="grid grid-cols-2 gap-4 mb-3">
@@ -285,6 +293,8 @@ function render() {
       ${bloqueFirmante("Reemplazo", p.nombre_reemplazo, p.cedula_reemplazo, "foto_reemplazo", "firma_reemplazo")}
       ${bloqueFirmante("Jefe", p.nombre_jefe, p.cedula_jefe, "foto_jefe", "firma_jefe")}
     </div>
+
+    ${notaHtml}
 
     ${p.evidencia_archivo ? `<div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5"><p class="text-xs font-bold uppercase  text-gray-600">Evidencia</p><a href="${imgUrl("evidencia_archivo")}" target="_blank" class="inline-block mt-2 text-sm font-semibold text-red-600 hover:underline">Ver archivo de evidencia</a></div>` : ""}
 
@@ -335,7 +345,9 @@ function abrirModalAccion(accion, rol) {
       ? "Firmar permiso"
       : accion === "devolver"
         ? "Devolver permiso"
-        : "Rechazar permiso";
+        : accion === "anular"
+          ? "Anular permiso"
+          : "Rechazar permiso";
   document
     .getElementById("cajaFirmaAccion")
     .classList.toggle("hidden", accion !== "firmar");
@@ -396,7 +408,9 @@ document
       url =
         accionActualV === "devolver"
           ? "./api/permisos_devolver.php"
-          : "./api/permisos_rechazar.php";
+          : accionActualV === "anular"
+            ? "./api/permisos_anular.php"
+            : "./api/permisos_rechazar.php";
       const motivo = document.getElementById("motivoAccion").value.trim();
       if (!motivo) {
         error.textContent = "Indica el motivo.";

@@ -107,6 +107,8 @@ final class CrearPermisoTest extends TestCase
             'remunerado' => !empty($p['remunerado']) ? 1 : 0,
             'es_compensatorio' => $esComp ? 1 : 0,
             'fecha_horas_extra' => $esComp ? ($p['fecha_horas_extra'] ?? null) : null,
+            'compensatorio_origen' => $esComp ? ($p['compensatorio_origen'] ?? null) : null,
+            'compensatorio_origen_detalle' => ($esComp && ($p['compensatorio_origen'] ?? '') === 'otro') ? ($p['compensatorio_origen_detalle'] ?? null) : null,
             'es_devolucion' => $esDevolucion ? 1 : 0,
             'devolucion_fecha' => null,
             'devolucion_hora_inicio' => null,
@@ -245,6 +247,30 @@ final class CrearPermisoTest extends TestCase
         $this->assertSame(0, (int) $f['remunerado']);
         $this->assertSame(0, (int) $f['es_compensatorio']);
         $this->assertSame(0, (int) $f['es_devolucion']);
+    }
+
+    public function testCompensatorioGuardaElOrigenYElDetalleSoloSiEsOtro(): void
+    {
+        $base = ['fecha_inicio' => '2026-10-19', 'hora_inicio' => '07:00', 'fecha_fin' => '2026-10-19', 'hora_fin' => '17:24'];
+
+        $id = $this->crearPermiso(['es_compensatorio' => true, 'fecha_horas_extra' => '2026-10-05',
+            'compensatorio_origen' => 'jornada_electoral', 'compensatorio_origen_detalle' => 'no debe guardarse'] + $base);
+        $f = $this->fila($id);
+        $this->assertSame('jornada_electoral', $f['compensatorio_origen']);
+        $this->assertNull($f['compensatorio_origen_detalle'], 'El detalle solo se guarda cuando la causa es Otro');
+
+        $id = $this->crearPermiso(['es_compensatorio' => true, 'fecha_horas_extra' => '2026-10-06',
+            'compensatorio_origen' => 'otro', 'compensatorio_origen_detalle' => 'Día autorizado por el comandante'] + $base);
+        $f = $this->fila($id);
+        $this->assertSame('otro', $f['compensatorio_origen']);
+        $this->assertSame('Día autorizado por el comandante', $f['compensatorio_origen_detalle']);
+    }
+
+    public function testSinCompensatorioNoSeGuardaOrigen(): void
+    {
+        $id = $this->crearPermiso(['fecha_inicio' => '2026-10-19', 'hora_inicio' => '07:00', 'fecha_fin' => '2026-10-19', 'hora_fin' => '17:24']);
+        $f = $this->fila($id);
+        $this->assertNull($f['compensatorio_origen']);
     }
 
     public function testCompensatorioGuardaLaFechaDeLasHorasExtra(): void

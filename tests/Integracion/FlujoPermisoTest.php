@@ -329,4 +329,147 @@ final class FlujoPermisoTest extends TestCase
         $this->assertTrue($r['ok'], $r['error'] ?? '');
         $this->assertSame('firmado', $this->estado($id));
     }
+
+    // ------------------------------------------------------------------ notificaciones
+
+    /** Mensajes guardados para una cédula (destinatario en cedula_empleado). */
+    private function mensajesPara(string $cedula): array
+    {
+        $st = getPDO()->prepare('SELECT mensaje FROM notificaciones WHERE cedula_empleado = ?');
+        $st->execute([$cedula]);
+        return $st->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    private function consecutivo(int $id): string
+    {
+        $st = getPDO()->prepare('SELECT consecutivo FROM permisos WHERE id = ?');
+        $st->execute([$id]);
+        return (string) $st->fetchColumn();
+    }
+
+    public function testEnviarConReemplazoAvisaAlReemplazoYAlJefe(): void
+    {
+        $id = $this->crearBorrador(['reemplazo' => true]);
+        $this->comoSolicitante();
+        PermisoController::enviar($id, $this->version($id));
+
+        $c = $this->consecutivo($id);
+        $this->assertTrue((bool) array_filter($this->mensajesPara(self::REEMPLAZO), fn($m) => str_contains($m, 'permiso')), 'El reemplazo debe recibir aviso');
+        $this->assertTrue((bool) array_filter($this->mensajesPara(self::JEFE), fn($m) => str_contains($m, 'permiso')), 'El jefe debe recibir aviso');
+    }
+
+    public function testLaFirmaDelReemplazoAvisaAlJefeConElConsecutivo(): void
+    {
+        $id = $this->crearBorrador(['reemplazo' => true]);
+        $this->comoSolicitante();
+        PermisoController::enviar($id, $this->version($id));
+        $this->comoReemplazo();
+        PermisoController::firmarReemplazo($id, $this->version($id), 'firmas/reemplazo.png', null);
+
+        $c = $this->consecutivo($id);
+        $avisos = array_filter($this->mensajesPara(self::JEFE), fn($m) => str_contains($m, 'ya firmó') && str_contains($m, $c));
+        $this->assertNotEmpty($avisos, 'El jefe debe saber que el reemplazo ya firmó, con el consecutivo');
+    }
+
+    public function testLaDevolucionLlegaAlSolicitanteConElMotivo(): void
+    {
+        $id = $this->crearBorrador();
+        $this->comoSolicitante();
+        PermisoController::enviar($id, $this->version($id));
+        $this->comoJefe();
+        PermisoController::devolver($id, $this->version($id), 'Falta el motivo detallado');
+
+        $avisos = array_filter($this->mensajesPara(self::SOLICITANTE), fn($m) => str_contains($m, 'devuelto') && str_contains($m, 'Falta el motivo detallado'));
+        $this->assertNotEmpty($avisos, 'El solicitante debe recibir la devolución con el motivo');
+    }
+
+    public function testElRechazoAvisaAlSolicitanteYATalentoHumano(): void
+    {
+        $id = $this->crearBorrador();
+        $this->comoSolicitante();
+        PermisoController::enviar($id, $this->version($id));
+        $this->comoJefe();
+        PermisoController::rechazar($id, $this->version($id), 'Conflicto de fechas');
+
+        $c = $this->consecutivo($id);
+        $th = getPDO()->prepare("SELECT COUNT(*) FROM notificaciones WHERE cedula_empleado = ? AND campo = 'permiso_rechazado' AND mensaje LIKE ?");
+        $th->execute([self::SOLICITANTE, '%Conflicto de fechas%']);
+        $this->assertGreaterThanOrEqual(1, (int) $th->fetchColumn(), 'Talento Humano debe ver el rechazo con su motivo');
+    }
+
+    public function testLaFirmaFinalAvisaAlSolicitante(): void
+    {
+        $id = $this->crearBorrador();
+        $this->comoSolicitante();
+        PermisoController::enviar($id, $this->version($id));
+        $this->comoJefe();
+        PermisoController::firmarJefe($id, $this->version($id), 'firmas/jefe.png', null);
+
+        $avisos = array_filter($this->mensajesPara(self::SOLICITANTE), fn($m) => str_contains($m, 'firmado y aprobado'));
+        $this->assertNotEmpty($avisos, 'El solicitante debe saber que su permiso quedó aprobado');
+    }
+
+    // ------------------------------------------------------------------ reglas nuevas
+
+    private function firmadoListo(): int
+    {
+        $id = $this->crearBorrador();
+        $this->comoSolicitante();
+        PermisoController::enviar($id, $this->version($id));
+        $this->comoJefe();
+        PermisoController::firmarJefe($id, $this->version($id), 'firmas/jefe.png', null);
+        $this->assertSame('firmado', $this->estado($id));
+        return $id;
+    }
+
+    public function testElJefeAnulaUnFirmadoYElSolicitanteNo(): void
+    {
+        $id = $this->firmadoListo();
+
+        $this->comoSolicitante();
+        $r = PermisoController::anular($id, $this->version($id), 'Quiero anularlo yo');
+        $this->assertFalse($r['ok'], 'El solicitante no puede anular');
+        $this->assertSame('firmado', $this->estado($id));
+
+        $this->comoJefe();
+        $r = PermisoController::anular($id, $this->version($id), 'Error en la firma');
+        $this->assertTrue($r['ok'], $r['error'] ?? '');
+        $this->assertSame('anulado', $this->estado($id));
+    }
+
+    public function testElJefeNoPuedeAnularUnPermisoQueNoEstaFirmado(): void
+    {
+        $id = $this->crearBorrador();
+        $this->comoSolicitante();
+        PermisoController::enviar($id, $this->version($id));
+        $this->comoJefe();
+        $r = PermisoController::anular($id, $this->version($id), 'Motivo');
+        $this->assertFalse($r['ok']);
+        $this->assertSame('por_firmar_jefe', $this->estado($id));
+    }
+
+    public function testTalentoHumanoNoPuedeRechazarSoloElJefe(): void
+    {
+        $id = $this->crearBorrador();
+        $this->comoSolicitante();
+        PermisoController::enviar($id, $this->version($id));
+        $this->comoTalentoHumano();
+        $r = PermisoController::rechazar($id, $this->version($id), 'Motivo');
+        $this->assertFalse($r['ok'], 'Rechazar es solo del jefe');
+        $this->assertSame('por_firmar_jefe', $this->estado($id));
+    }
+
+    public function testAlertaIncluyeLosProximosSinFirmaYNoLosLejanos(): void
+    {
+        $cerca = $this->crearBorrador(['fecha_inicio' => date('Y-m-d', strtotime('+1 day')), 'fecha_fin' => date('Y-m-d', strtotime('+1 day'))]);
+        $lejos = $this->crearBorrador(['fecha_inicio' => date('Y-m-d', strtotime('+30 days')), 'fecha_fin' => date('Y-m-d', strtotime('+30 days'))]);
+        $this->comoSolicitante();
+        PermisoController::enviar($cerca, $this->version($cerca));
+        PermisoController::enviar($lejos, $this->version($lejos));
+
+        $ids = array_map('intval', array_column(PermisoModel::pendientesProximosAVencer(5), 'id'));
+        $this->assertContains($cerca, $ids, 'Un permiso de mañana sin firma debe aparecer en la alerta');
+        $this->assertNotContains($lejos, $ids, 'Un permiso dentro de 30 días no debe aparecer todavía');
+        $this->assertSame('por_firmar_jefe', $this->estado($cerca), 'La alerta no cambia el estado');
+    }
 }

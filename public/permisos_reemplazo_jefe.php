@@ -17,21 +17,26 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
     <title>Permisos por firmar - CHVB</title>
     <link rel="stylesheet" href="./assets/css/tailwind.css">
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-[#f5f6f7] min-h-screen antialiased">
 <?php require __DIR__ . '/../includes/sidebar_empleado.php'; ?>
 <input type="hidden" id="csrfToken" value="<?= htmlspecialchars(csrfToken()) ?>">
 <div class="md:ml-64 pt-14 md:pt-0">
-    <header class="bg-white shadow px-6 py-4"><h1 class="text-lg font-bold text-gray-800">Permisos por firmar</h1></header>
-    <main class="p-4 md:p-6 max-w-3xl mx-auto">
-        <div id="listaBandeja" class="space-y-3" data-cedula="<?= htmlspecialchars($cedula) ?>"
+    <header class="bg-white border-b border-gray-100 sticky top-0 z-20">
+        <div class="px-4 md:px-8 py-4">
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900">Permisos por firmar</h1>
+            <p class="text-sm text-gray-500 mt-1">Permisos que esperan tu firma como jefe o como reemplazo.</p>
+        </div>
+    </header>
+    <main class="px-4 md:px-8 py-6 max-w-4xl mx-auto">
+        <div id="listaBandeja" class="space-y-4" data-cedula="<?= htmlspecialchars($cedula) ?>"
              data-permisos='<?= htmlspecialchars(json_encode($permisos), ENT_QUOTES) ?>'
              data-tiene-firma-guardada="<?= $firmaGuardada ? '1' : '0' ?>"></div>
     </main>
 </div>
 
-<div id="modalFirmarPermiso" class="hidden fixed inset-0 modal-fondo bg-black/50 flex items-center justify-center p-4 z-[80]">
-    <div class="bg-white rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto p-6 space-y-4">
-        <h2 id="tituloModalFirma" class="font-bold text-gray-800"></h2>
+<div id="modalFirmarPermiso" class="hidden fixed inset-0 modal-fondo bg-black/40 flex items-center justify-center p-4 z-[80]">
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 md:p-6 space-y-4">
+        <h2 id="tituloModalFirma" class="text-lg font-bold text-gray-900"></h2>
         <div id="cajaFirmaBandeja" class="space-y-2">
             <?php if ($firmaGuardada): ?>
                 <label class="flex items-center gap-2 text-sm">
@@ -44,17 +49,17 @@ $firmaGuardada = FirmaModel::obtenerPorCedula($cedula);
             </div>
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Tu foto (opcional, cámara)</label>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1.5">Tu foto (opcional, cámara)</label>
             <div id="capturaFotoBandeja"></div>
         </div>
         <div id="cajaMotivo" class="hidden">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Motivo</label>
-            <textarea id="motivoBandeja" rows="3" class="w-full border border-gray-300 rounded-xl px-3 py-2"></textarea>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1.5">Motivo</label>
+            <textarea id="motivoBandeja" rows="3" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"></textarea>
         </div>
-        <p id="errorBandeja" class="hidden text-xs text-red-600"></p>
+        <p id="errorBandeja" class="hidden text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2"></p>
         <div class="flex gap-2">
-            <button type="button" onclick="cerrarModalFirma()" class="flex-1 border border-gray-300 rounded-xl py-2 text-gray-700">Cancelar</button>
-            <button type="button" id="btnConfirmarAccion" class="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-xl py-2">Confirmar</button>
+            <button type="button" onclick="cerrarModalFirma()" class="flex-1 border border-gray-300 rounded-xl py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition">Cancelar</button>
+            <button type="button" id="btnConfirmarAccion" class="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl py-2.5 transition">Confirmar</button>
         </div>
     </div>
 </div>

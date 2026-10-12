@@ -4,6 +4,7 @@ requireEmpleado();
 validarCSRF();
 require_once __DIR__ . '/../../src/controllers/PermisoController.php';
 require_once __DIR__ . '/../../src/models/PermisoModel.php';
+require_once __DIR__ . '/../../src/helpers/CompensatorioOrigen.php';
 require_once __DIR__ . '/../../src/models/EmpleadoModel.php';
 require_once __DIR__ . '/../../src/models/FirmaModel.php';
 require_once __DIR__ . '/../../src/controllers/FirmaController.php';
@@ -28,7 +29,10 @@ try {
     if(!$especial && empty($_POST['dias_confirmados'])) $errores[]='Debes indicar los días y horarios del permiso.';
     $esCompE=(($_POST['es_compensatorio']??'0')==='1'); $esDevE=(($_POST['es_devolucion']??'0')==='1');
     if($esCompE && $esDevE) $errores[]='No puedes marcar compensatorio y devolución al mismo tiempo.';
-    if($esCompE && empty($_POST['fecha_horas_extra'])) $errores[]='Debes indicar la fecha en que hiciste las horas extra.';
+    $origenComp=trim($_POST['compensatorio_origen']??''); $origenCompDetalle=trim($_POST['compensatorio_origen_detalle']??'');
+    if($esCompE && empty($_POST['fecha_horas_extra'])) $errores[]='Indica la fecha del día que genera el compensatorio.';
+    if($esCompE && !CompensatorioOrigen::valido($origenComp)) $errores[]='Indica el origen del compensatorio.';
+    if($esCompE && $origenComp==='otro' && $origenCompDetalle==='') $errores[]='Describe el origen del compensatorio.';
     if($errores){ echo json_encode(['ok'=>false,'errores'=>$errores]); exit; }
 
     $campos=['tipo_permiso'=>$tipo,'motivo'=>$motivo,'tiene_reemplazo'=>$tiene,'cedula_reemplazo'=>$reemplazo,'cedula_jefe'=>$jefe,'es_salida_pendiente_regreso'=>$especial,
@@ -47,6 +51,8 @@ try {
     $campos['remunerado']=(($_POST['remunerado']??'0')==='1')?1:0;
     $campos['es_compensatorio']=(($_POST['es_compensatorio']??'0')==='1')?1:0;
     $campos['fecha_horas_extra']=$campos['es_compensatorio']?($_POST['fecha_horas_extra']??null):null;
+    $campos['compensatorio_origen']=$campos['es_compensatorio']?$origenComp:null;
+    $campos['compensatorio_origen_detalle']=($campos['es_compensatorio'] && $origenComp==='otro')?mb_substr($origenCompDetalle,0,120):null;
     $campos['es_devolucion']=(($_POST['es_devolucion']??'0')==='1')?1:0;
     if($campos['es_devolucion']){
       $devs=json_decode($_POST['devoluciones_json']??'[]',true)?:[]; $total=0;

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-10-2026 a las 16:18:13
+-- Tiempo de generación: 12-10-2026 a las 05:08:14
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -346,6 +346,8 @@ CREATE TABLE `permisos` (
   `remunerado` tinyint(1) NOT NULL DEFAULT 0,
   `es_compensatorio` tinyint(1) NOT NULL DEFAULT 0,
   `fecha_horas_extra` date DEFAULT NULL,
+  `compensatorio_origen` varchar(30) DEFAULT NULL,
+  `compensatorio_origen_detalle` varchar(120) DEFAULT NULL,
   `es_devolucion` tinyint(1) NOT NULL DEFAULT 0,
   `es_salida_pendiente_regreso` tinyint(1) NOT NULL DEFAULT 0,
   `devolucion_fecha` date DEFAULT NULL,
@@ -375,14 +377,6 @@ CREATE TABLE `permisos` (
   `fecha_actualizacion` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Volcado de datos para la tabla `permisos`
---
-
-INSERT INTO `permisos` (`id`, `consecutivo`, `formato_codigo`, `formato_version`, `formato_fecha`, `cedula_empleado`, `nombre_empleado_snapshot`, `cargo_empleado_snapshot`, `celular_empleado_snapshot`, `tipo_permiso`, `motivo`, `fecha_inicio`, `hora_inicio`, `fecha_fin`, `hora_fin`, `total_horas`, `incluye_festivo`, `festivo_confirmado`, `remunerado`, `es_compensatorio`, `fecha_horas_extra`, `es_devolucion`, `es_salida_pendiente_regreso`, `devolucion_fecha`, `devolucion_hora_inicio`, `devolucion_hora_fin`, `devolucion_total_horas`, `tiene_reemplazo`, `cedula_reemplazo`, `cedula_jefe`, `foto_solicitante`, `firma_solicitante`, `foto_reemplazo`, `firma_reemplazo`, `foto_jefe`, `firma_jefe`, `foto_jefe_prefirmado`, `firma_jefe_prefirmado`, `evidencia_archivo`, `estado`, `motivo_devolucion`, `motivo_rechazo`, `motivo_anulacion`, `anulado_por`, `fecha_anulacion`, `version`, `fecha_solicitud`, `fecha_actualizacion`) VALUES
-(1, 'GH-FT-10-2026-0001', 'GH-FT-10', 1, '2026-10-10', '1124989349', 'Tatiana Andrea Guzman Galindo', 'Practicante Fundetec', '3229496595', 'Permiso', 'Mi primer permiso', '2026-10-21', '07:00:00', '2026-10-26', '17:24:00', 33.60, 0, 1, 1, 0, NULL, 0, 0, NULL, NULL, NULL, NULL, 0, NULL, '74861664', 'hv_1124989349/permisos/fotos/foto_1791586699.jpg', 'hv_1124989349/firma/firma_1791586699.png', NULL, NULL, 'hv_74861664/permisos/fotos/foto_1791591060.jpg', 'hv_74861664/firma/firma_1791591060.png', NULL, NULL, NULL, 'anulado', NULL, NULL, 'nonon', 'Tatiana', '2026-10-10 00:12:35', 4, '2026-10-09 22:58:19', '2026-10-10 14:06:21'),
-(2, 'GH-FT-10-2026-0002', 'GH-FT-10', 1, '2026-10-10', '1124989349', 'Tatiana Andrea Guzman Galindo', 'Practicante Fundetec', '3229496595', 'Vacaciones', 'Puvv', '2026-10-21', '07:00:00', '2026-11-05', '17:24:00', 100.80, 1, 1, 1, 0, NULL, 0, 0, NULL, NULL, NULL, NULL, 0, NULL, '74861664', 'hv_1124989349/permisos/fotos/foto_1791597945.jpg', 'hv_1124989349/firma/firma_1791586699.png', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'por_firmar_jefe', NULL, NULL, NULL, NULL, NULL, 2, '2026-10-10 02:05:45', '2026-10-10 14:06:21');
-
 -- --------------------------------------------------------
 
 --
@@ -393,13 +387,6 @@ CREATE TABLE `permisos_consecutivos` (
   `anio` int(11) NOT NULL,
   `ultimo_numero` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `permisos_consecutivos`
---
-
-INSERT INTO `permisos_consecutivos` (`anio`, `ultimo_numero`) VALUES
-(2026, 2);
 
 -- --------------------------------------------------------
 
@@ -436,28 +423,6 @@ CREATE TABLE `permisos_dias` (
   `horas_netas` decimal(6,2) NOT NULL COMMENT '0 si incluido=0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Volcado de datos para la tabla `permisos_dias`
---
-
-INSERT INTO `permisos_dias` (`id`, `permiso_id`, `fecha`, `hora_inicio`, `hora_fin`, `es_festivo`, `festivo_nombre`, `incluido`, `horas_brutas`, `horas_descuento_almuerzo`, `horas_netas`) VALUES
-(1, 1, '2026-10-21', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(2, 1, '2026-10-22', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(3, 1, '2026-10-23', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(4, 1, '2026-10-26', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(5, 2, '2026-10-21', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(6, 2, '2026-10-22', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(7, 2, '2026-10-23', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(8, 2, '2026-10-26', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(9, 2, '2026-10-27', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(10, 2, '2026-10-28', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(11, 2, '2026-10-29', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(12, 2, '2026-10-30', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(13, 2, '2026-11-02', '07:00:00', '17:24:00', 1, 'Todos los Santos', 1, 10.40, 2.00, 8.40),
-(14, 2, '2026-11-03', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(15, 2, '2026-11-04', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40),
-(16, 2, '2026-11-05', '07:00:00', '17:24:00', 0, NULL, 1, 10.40, 2.00, 8.40);
-
 -- --------------------------------------------------------
 
 --
@@ -478,7 +443,7 @@ CREATE TABLE `permisos_formato` (
 --
 
 INSERT INTO `permisos_formato` (`id`, `codigo`, `version`, `fecha`, `actualizado_por`, `actualizado_en`) VALUES
-(1, 'GH-FT-10', 1, '2026-10-10', NULL, NULL);
+(1, 'GH-FT-10', 1, '2026-02-10', 'Tatiana', '2026-10-10 11:56:05');
 
 -- --------------------------------------------------------
 
@@ -497,39 +462,6 @@ CREATE TABLE `permisos_historial` (
   `detalle` varchar(500) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `permisos_historial`
---
-
-INSERT INTO `permisos_historial` (`id`, `permiso_id`, `version_anterior`, `estado_anterior`, `estado_nuevo`, `actor_tipo`, `actor_cedula_o_usuario`, `detalle`, `created_at`) VALUES
-(1, 1, 1, 'en_proceso', 'por_firmar_jefe', 'empleado', '1124989349', 'Permiso creado y enviado', '2026-10-09 22:58:19'),
-(2, 1, 2, 'por_firmar_jefe', 'firmado', 'jefe', '74861664', 'Jefe firmó, permiso finalizado', '2026-10-10 00:11:00'),
-(3, 1, 3, 'firmado', 'anulado', 'talento_humano', 'Tatiana', 'nonon', '2026-10-10 00:12:35'),
-(4, 2, 1, 'en_proceso', 'por_firmar_jefe', 'empleado', '1124989349', 'Permiso creado y enviado', '2026-10-10 02:05:45');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `renovaciones_avisos`
---
-
-CREATE TABLE `renovaciones_avisos` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `cedula` varchar(10) NOT NULL,
-  `vigencia_fin` date NOT NULL COMMENT 'Fecha de vencimiento a la que corresponde el aviso',
-  `tipo` enum('por_vencer','vencido') NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `renovaciones_avisos`
---
-
-INSERT INTO `renovaciones_avisos` (`id`, `cedula`, `vigencia_fin`, `tipo`, `created_at`) VALUES
-(1, '1006556137', '2026-09-11', 'vencido', '2026-10-08 22:16:14'),
-(2, '1005719736', '2026-10-06', 'vencido', '2026-10-08 22:16:14'),
-(3, '1118534974', '2026-10-14', 'por_vencer', '2026-10-08 22:16:14');
 
 -- --------------------------------------------------------
 
@@ -779,13 +711,6 @@ ALTER TABLE `permisos_historial`
   ADD KEY `idx_permiso` (`permiso_id`);
 
 --
--- Indices de la tabla `renovaciones_avisos`
---
-ALTER TABLE `renovaciones_avisos`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uq_renaviso` (`cedula`,`vigencia_fin`,`tipo`);
-
---
 -- Indices de la tabla `renovaciones_contrato`
 --
 ALTER TABLE `renovaciones_contrato`
@@ -864,7 +789,7 @@ ALTER TABLE `notificaciones`
 -- AUTO_INCREMENT de la tabla `permisos`
 --
 ALTER TABLE `permisos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `permisos_devoluciones`
@@ -876,19 +801,13 @@ ALTER TABLE `permisos_devoluciones`
 -- AUTO_INCREMENT de la tabla `permisos_dias`
 --
 ALTER TABLE `permisos_dias`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `permisos_historial`
 --
 ALTER TABLE `permisos_historial`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT de la tabla `renovaciones_avisos`
---
-ALTER TABLE `renovaciones_avisos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=158;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `renovaciones_contrato`
@@ -935,12 +854,6 @@ ALTER TABLE `empleados`
 --
 ALTER TABLE `funciones_certificados`
   ADD CONSTRAINT `fk_fcert_cargo` FOREIGN KEY (`cargo_id`) REFERENCES `cargos` (`id`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `renovaciones_avisos`
---
-ALTER TABLE `renovaciones_avisos`
-  ADD CONSTRAINT `fk_renaviso_empleado` FOREIGN KEY (`cedula`) REFERENCES `empleados` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `renovaciones_contrato`
