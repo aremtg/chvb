@@ -1076,9 +1076,6 @@
   .border-yellow-200 {
     border-color: var(--color-yellow-200);
   }
-  .border-yellow-400 {
-    border-color: var(--color-yellow-400);
-  }
   .bg-\[\#f5f6f7\] {
     background-color: #f5f6f7;
   }
@@ -1434,10 +1431,6 @@
     --tw-font-weight: var(--font-weight-medium);
     font-weight: var(--font-weight-medium);
   }
-  .font-normal {
-    --tw-font-weight: var(--font-weight-normal);
-    font-weight: var(--font-weight-normal);
-  }
   .font-semibold {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
@@ -1521,9 +1514,6 @@
   .text-pink-500 {
     color: var(--color-pink-500);
   }
-  .text-red-400 {
-    color: var(--color-red-400);
-  }
   .text-red-500 {
     color: var(--color-red-500);
   }
@@ -1553,9 +1543,6 @@
   }
   .uppercase {
     text-transform: uppercase;
-  }
-  .no-underline {
-    text-decoration-line: none;
   }
   .underline {
     text-decoration-line: underline;
@@ -1600,10 +1587,6 @@
   .ring-red-400 {
     --tw-ring-color: var(--color-red-400);
   }
-  .outline {
-    outline-style: var(--tw-outline-style);
-    outline-width: 1px;
-  }
   .blur {
     --tw-blur: blur(8px);
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
@@ -1626,10 +1609,6 @@
   .duration-200 {
     --tw-duration: 200ms;
     transition-duration: 200ms;
-  }
-  .ease-in-out {
-    --tw-ease: var(--ease-in-out);
-    transition-timing-function: var(--ease-in-out);
   }
   .peer-checked\:border-red-500:is(:where(.peer):checked ~ *) {
     border-color: var(--color-red-500);
@@ -1732,9 +1711,6 @@
     }
     .hover\:bg-red-700:hover {
       background-color: var(--color-red-700);
-    }
-    .hover\:text-blue-600:hover {
-      color: var(--color-blue-600);
     }
     .hover\:text-gray-700:hover {
       color: var(--color-gray-700);
@@ -2456,11 +2432,6 @@ body {
   inherits: false;
   initial-value: 0 0 #0000;
 }
-@property --tw-outline-style {
-  syntax: "*";
-  inherits: false;
-  initial-value: solid;
-}
 @property --tw-blur {
   syntax: "*";
   inherits: false;
@@ -2518,10 +2489,6 @@ body {
   syntax: "*";
   inherits: false;
 }
-@property --tw-ease {
-  syntax: "*";
-  inherits: false;
-}
 @keyframes pulse {
   50% {
     opacity: 0.5;
@@ -2558,7 +2525,6 @@ body {
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
-      --tw-outline-style: solid;
       --tw-blur: initial;
       --tw-brightness: initial;
       --tw-contrast: initial;
@@ -2573,7 +2539,6 @@ body {
       --tw-drop-shadow-alpha: 100%;
       --tw-drop-shadow-size: initial;
       --tw-duration: initial;
-      --tw-ease: initial;
     }
   }
 }

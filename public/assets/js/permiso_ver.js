@@ -242,7 +242,7 @@ function render() {
   contenedorPermiso.innerHTML = `
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-wrap justify-between gap-3 items-start">
-        <div><h2 class="text-lg font-bold text-gray-900 mt-1">${escaparV(p.consecutivo)}</h2><p class="text-sm text-gray-500 mt-1">Tipo de permiso: ${escaparV(p.tipo_permiso)}</p></div>
+        <div><p class="text-sm text-gray-500 mt-1">Tipo de permiso: ${escaparV(p.tipo_permiso)}</p></div>
         <span class="text-xs font-bold px-3 py-1.5 rounded-full ${claseEstado}">${textoEstado}</span>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-5">
