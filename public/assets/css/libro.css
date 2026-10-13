@@ -53,6 +53,8 @@
 .libro-tab:hover { color: var(--libro-ink-2); }
 .libro-tab--activa { background: #fff; color: var(--libro-brand); box-shadow: var(--libro-shadow); }
 .libro-tab--activa:hover { color: var(--libro-brand); }
+.libro-tab:focus { outline: none; }
+.libro-tab:focus-visible { outline: 2px solid var(--libro-brand); outline-offset: 2px; }
 
 /* ---------- Tarjetas de bolsillo ---------- */
 .libro-grid { display: grid; grid-template-columns: 1fr; gap: .875rem; }

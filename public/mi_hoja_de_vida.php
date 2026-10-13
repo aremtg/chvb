@@ -62,9 +62,11 @@ foreach ($bolsillosPorSeccion as $lista) {
         <header class="bg-white shadow px-6 py-4 flex items-center gap-3">
             <?php if (!empty($empleado['foto'])): ?>
                 <img src="./api/foto_ver.php?cedula=<?= urlencode($cedula) ?>"
-                    class="w-12 h-12 rounded-full object-cover border border-gray-200">
+                    data-visor-img="./api/foto_ver.php?cedula=<?= urlencode($cedula) ?>"
+                    alt="Mi foto de perfil" role="button" tabindex="0"
+                    class="w-12 h-12 rounded-full object-cover object-center border border-gray-200 flex-shrink-0 cursor-zoom-in">
             <?php else: ?>
-                <span class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl">👤</span>
+                <span class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center"><?= icon('user', 'w-5 h-5 text-gray-500') ?></span>
             <?php endif; ?>
             <div>
                 <h1 class="text-lg font-bold text-gray-800"><?= htmlspecialchars($empleado['nombre']) ?></h1>
@@ -183,9 +185,11 @@ foreach ($bolsillosPorSeccion as $lista) {
         </div>
     </div>
     <script>
+        window.LIBRO_ICONOS = <?= json_encode(['file-text' => icon('file-text', 'w-4 h-4'), 'x' => icon('x', 'w-4 h-4')], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
         const BOLSILLOS_DATA = <?= json_encode($bolsillosJs, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     </script>
-    <script src="./assets/js/mi_hoja_de_vida.js"></script>
+    <script src="./assets/js/visor_imagen.js?v=<?= (int) @filemtime(__DIR__ . '/assets/js/visor_imagen.js') ?>"></script>
+    <script src="./assets/js/mi_hoja_de_vida.js?v=<?= (int) @filemtime(__DIR__ . '/assets/js/mi_hoja_de_vida.js') ?>"></script>
 </body>
 
 </html>

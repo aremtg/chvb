@@ -26,7 +26,7 @@ $notificaciones = NotificacionModel::listar();
     <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 
     <div class="md:ml-64 pt-14 md:pt-0">
-        <header class="bg-white shadow px-6 py-4 flex justify-between items-center">
+        <header class="bg-white shadow px-4 md:px-6 py-4 flex justify-between items-center">
             <h1 class="text-lg font-bold text-gray-800">Notificaciones</h1>
             <button id="btnEliminarTodas" onclick="eliminarTodasNotificaciones()"
                 class="text-sm border border-red-300 text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-xl <?= empty($notificaciones) ? 'hidden' : '' ?>">
@@ -36,8 +36,7 @@ $notificaciones = NotificacionModel::listar();
 
         <main class="p-6 max-w-3xl">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken()) ?>">
-            <p class="text-xs text-gray-600 mb-4">Las notificaciones se eliminan automáticamente después de 3 meses.
-                Esta lista se actualiza sola.</p>
+            <p class="text-xs text-gray-600 mb-4">Las notificaciones se eliminan automáticamente después de 3 meses.</p>
 
             <div class="bg-white rounded-xl shadow overflow-hidden">
                 <p id="mensajeSinNotificaciones"

@@ -114,8 +114,8 @@ $aniosSelector = range((int) date('Y') + 1, (int) date('Y') - 4);
     <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 
     <div class="md:ml-64 pt-14 md:pt-0">
-        <header class="bg-white shadow px-6 py-4 flex justify-end items-center">
-           
+        <header class="bg-white shadow px-4 md:px-6 py-4">
+            <h1 class="text-lg font-bold text-gray-800">Dashboard/Inicio</h1>
         </header>
         <main class="p-6 max-w-6xl mx-auto space-y-6">
             <!-- CALENDARIO DE CUMPLEAÑOS -->
@@ -490,39 +490,6 @@ $aniosSelector = range((int) date('Y') + 1, (int) date('Y') - 4);
                 <?php endif; ?>
             </section>
 
-            <?php if (($_SESSION['superadmin_rol'] ?? '') !== 'teniente'): ?>
-                <!-- RESUMEN DE ALARMAS -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <?= icon('alarm-clock', 'w-5 h-5') ?> Alarmas próximas a vencer
-                    </h2>
-
-                    <?php if (empty($alarmas)): ?>
-                        <p class="text-sm text-gray-600">No hay alarmas próximas a vencer.</p>
-                    <?php else: ?>
-                        <ul class="divide-y divide-gray-100">
-                            <?php foreach (array_slice($alarmas, 0, 5) as $al): ?>
-                                <?php $vencida = $al['estado_alarma'] === 'vencida'; ?>
-                                <li class="py-3 flex justify-between items-center">
-                                    <div>
-                                        <p class="font-medium text-gray-800"><?= htmlspecialchars($al['nombre_empleado']) ?></p>
-                                        <p class="text-xs text-gray-500"><?= htmlspecialchars($al['nombre_completo']) ?></p>
-                                    </div>
-                                    <span
-                                        class="text-xs px-2 py-1 rounded-lg font-medium <?= $vencida ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700' ?>">
-                                        <?= $vencida ? '🔴 Vencida: ' : '🟡 Vence: ' ?> <?= EmpleadoModel::formatearFechaLarga($al['alarma_fecha']) ?>
-                                    </span>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                        <?php if (count($alarmas) > 5): ?>
-                            <a href="./alarmas.php" class="text-sm text-red-600 hover:underline mt-3 inline-block">
-                                Ver todas (<?= count($alarmas) ?>) &rarr;
-                            </a>
-                        <?php endif; ?>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
         </main>
     </div>
 </body>

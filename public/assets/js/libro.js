@@ -31,13 +31,13 @@ function cambiarSeccion(seccion) {
     .forEach((s) => s.classList.add("hidden"));
   document.getElementById(`seccion-${seccion}`).classList.remove("hidden");
 
-  document.querySelectorAll(".tab-seccion").forEach((t) => {
-    t.classList.remove("bg-red-600", "text-white");
-    t.classList.add("bg-white", "text-gray-600");
+  document.querySelectorAll(".libro-tab").forEach((t) => {
+    t.classList.remove("libro-tab--activa");
+    t.setAttribute("aria-selected", "false");
   });
   const tabActivo = document.getElementById(`tab-${seccion}`);
-  tabActivo.classList.remove("bg-white", "text-gray-600");
-  tabActivo.classList.add("bg-red-600", "text-white");
+  tabActivo.classList.add("libro-tab--activa");
+  tabActivo.setAttribute("aria-selected", "true");
 }
 
 function abrirBolsillo(bolsillo) {
@@ -170,29 +170,23 @@ function actualizarTarjetaBolsillo(bolsillo) {
   if (!btn || !label) return;
 
   const estado = calcularEstadoAlarmaJS(bolsillo);
-  btn.classList.remove(
-    "border-red-400",
-    "bg-red-50",
-    "border-yellow-400",
-    "bg-yellow-50",
-    "border-gray-200",
-  );
+  const claseEstado = estado === "vencida" ? "vencida" : estado === "proxima" ? "proxima" : "ok";
+  btn.className = `libro-bolsillo libro-bolsillo--${claseEstado}`;
 
+  let claseEtiqueta = "";
+  let texto = "";
   if (estado === "vencida") {
-    btn.classList.add("border-red-400", "bg-red-50");
-    label.innerHTML = '<span class="text-red-600">🔴 Alarma vencida</span>';
+    claseEtiqueta = "libro-pill--vencida";
+    texto = "Alarma vencida";
   } else if (estado === "proxima") {
-    btn.classList.add("border-yellow-400", "bg-yellow-50");
-    label.innerHTML =
-      '<span class="text-yellow-600">🟡 Próxima a vencer</span>';
+    claseEtiqueta = "libro-pill--proxima";
+    texto = "Próxima a vencer";
   } else if (bolsillo.alarma_activa) {
-    btn.classList.add("border-gray-200");
-    label.innerHTML =
-      '<span class="text-gray-600 font-normal">⏰ Alarma configurada</span>';
-  } else {
-    btn.classList.add("border-gray-200");
-    label.innerHTML = "";
+    claseEtiqueta = "libro-pill--configurada";
+    texto = "Alarma configurada";
   }
+  label.className = `libro-pill ${claseEtiqueta}`;
+  label.textContent = texto;
 
   // Mantiene sincronizado el objeto global para que la próxima apertura (manual o por URL) use datos frescos
   if (window.TODOS_LOS_BOLSILLOS) {
@@ -218,30 +212,32 @@ function renderDocumentos(documentos) {
   const lista = document.getElementById("listaDocumentos");
   lista.innerHTML = "";
   const soloLectura = document.body.dataset.soloLectura === "1";
+  const iconos = window.LIBRO_ICONOS || {};
 
   if (!documentos || documentos.length === 0) {
     lista.innerHTML =
-      '<li class="p-3 text-sm text-gray-600">No hay documentos en este bolsillo.</li>';
+      '<li class="p-4 text-sm text-gray-600 text-center">Aún no hay documentos en este bolsillo.</li>';
     return;
   }
 
   documentos.forEach((doc, index) => {
     const li = document.createElement("li");
-    li.className = "p-3 flex items-center justify-between text-sm";
+    li.className = "libro-doc";
+    const nombreJs = doc.nombre_archivo.replace(/'/g, "\\'");
     li.innerHTML = `
-            <button onclick="abrirVisorPDF(${index})" class="flex items-center gap-2 text-left flex-1 text-red-600 hover:underline">
-                <span class="text-gray-600 no-underline">${index + 1}.</span>
-                <span>${doc.nombre_archivo}</span>
+            <span class="libro-doc__icono">${iconos["file-text"] || ""}</span>
+            <button onclick="abrirVisorPDF(${index})" class="libro-doc__nombre" title="Ver ${doc.nombre_archivo}">
+                ${doc.nombre_archivo}
             </button>
             ${
               soloLectura
                 ? ""
                 : `
-            <div class="flex items-center gap-1">
-                <button onclick="abrirModalRenombrar(${doc.id}, '${doc.nombre_archivo.replace(/'/g, "\\'")}')" class="text-gray-600 hover:text-blue-600 px-1">✎</button>
-                <button onclick="moverDocumento(${doc.id}, 'arriba')" class="text-gray-600 hover:text-gray-700 px-1">↑</button>
-                <button onclick="moverDocumento(${doc.id}, 'abajo')" class="text-gray-600 hover:text-gray-700 px-1">↓</button>
-                <button onclick="eliminarDocumento(${doc.id})" class="text-red-400 hover:text-red-600 px-1">✕</button>
+            <div class="libro-doc__acciones">
+                <button onclick="abrirModalRenombrar(${doc.id}, '${nombreJs}')" class="libro-accion" title="Renombrar" aria-label="Renombrar">${iconos["pencil"] || ""}</button>
+                <button onclick="moverDocumento(${doc.id}, 'arriba')" class="libro-accion" title="Subir" aria-label="Subir">${iconos["chevron-up"] || ""}</button>
+                <button onclick="moverDocumento(${doc.id}, 'abajo')" class="libro-accion" title="Bajar" aria-label="Bajar">${iconos["chevron-down"] || ""}</button>
+                <button onclick="eliminarDocumento(${doc.id})" class="libro-accion libro-accion--peligro" title="Eliminar" aria-label="Eliminar">${iconos["x"] || ""}</button>
             </div>`
             }
         `;
