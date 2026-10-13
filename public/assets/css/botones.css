@@ -7,7 +7,8 @@
  * Variantes (elige según la acción, no según el color que te guste):
  *   btn-primary    acción principal de la pantalla: Nuevo, Firmar, Guardar, Enviar
  *   btn-secondary  acción normal o cancelar: Cancelar, Editar, Ver, Cargos
- *   btn-danger     acción destructiva o de rechazo: Eliminar, Rechazar
+ *   btn-danger     eliminar algo (rojo sólido, sin borde): Eliminar
+ *   btn-warning    rechazar una solicitud (naranja): Rechazar
  *   btn-success    exportar o descargar: Exportar a Excel, Descargar PDF
  *   btn-info       registrar o confirmar algo informativo: Registrar llegada
  *   btn-dark       filtrar o aplicar: Filtrar
@@ -31,7 +32,8 @@
   --btn-dark: #1f2937;           --btn-dark-hover: #111827;
 
   --btn-text: #374151;           --btn-border: #d1d5db;   --btn-surface-hover: #f9fafb;
-  --btn-danger-text: #dc2626;    --btn-danger-border: #fecaca;  --btn-danger-hover: #fef2f2;
+  --btn-danger: #dc2626;         --btn-danger-hover: #b91c1c;
+  --btn-warning: #ea580c;        --btn-warning-hover: #c2410c;
   --btn-ghost-text: #6b7280;     --btn-ghost-hover: #f3f4f6;
 }
 
@@ -64,8 +66,11 @@
 .btn-secondary { background: #fff; color: var(--btn-text); border-color: var(--btn-border); }
 .btn-secondary:hover { background: var(--btn-surface-hover); }
 
-.btn-danger { background: #fff; color: var(--btn-danger-text); border-color: var(--btn-danger-border); }
+.btn-danger { background: var(--btn-danger); color: #fff; }
 .btn-danger:hover { background: var(--btn-danger-hover); }
+
+.btn-warning { background: var(--btn-warning); color: #fff; }
+.btn-warning:hover { background: var(--btn-warning-hover); }
 
 .btn-success { background: var(--btn-success); color: #fff; }
 .btn-success:hover { background: var(--btn-success-hover); }

@@ -1,6 +1,7 @@
 <?php
 // src/models/EmpleadoModel.php
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../helpers/Busqueda.php';
 
 class EmpleadoModel
 {
@@ -68,10 +69,10 @@ class EmpleadoModel
         $params = [];
 
         if ($busqueda !== '') {
-            $condiciones[] = '(cedula LIKE :b1 OR nombre LIKE :b2 OR cargo LIKE :b3 OR celular LIKE :b4 OR correo LIKE :b5)';
-            $valor = '%' . $busqueda . '%';
-            foreach (['b1', 'b2', 'b3', 'b4', 'b5'] as $k) {
-                $params[$k] = $valor;
+            [$sqlBusqueda, $paramsBusqueda] = Busqueda::condicion($busqueda, ['nombre', 'cargo', 'celular', 'correo'], 'cedula', 'b');
+            if ($sqlBusqueda !== '') {
+                $condiciones[] = $sqlBusqueda;
+                $params = array_merge($params, $paramsBusqueda);
             }
         }
         if (!empty($filtros['contrato'])) {

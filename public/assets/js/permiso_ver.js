@@ -130,7 +130,7 @@ function render() {
     acciones += `<button onclick="abrirModalAccion('firmar','${rol}')" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2.5 rounded-xl font-semibold">Firmar</button>`;
     acciones += `<button onclick="abrirModalAccion('devolver','${rol}')" class="border border-gray-300 text-sm px-4 py-2.5 rounded-xl text-gray-700 font-semibold">Devolver</button>`;
     if (rol === "jefe" && p.estado === "por_firmar_jefe")
-      acciones += `<button onclick="abrirModalAccion('rechazar','${rol}')" class="text-red-600 hover:bg-red-50 border border-red-200 text-sm px-4 py-2.5 rounded-xl font-semibold">Rechazar</button>`;
+      acciones += `<button onclick="abrirModalAccion('rechazar','${rol}')" class="btn btn-warning">Rechazar</button>`;
   }
   if (
     ["aprobado_pendiente_regreso", "devuelto_regreso"].includes(p.estado) &&

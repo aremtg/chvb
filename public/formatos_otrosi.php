@@ -48,72 +48,7 @@ if (is_dir($generadosDir)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Otrosí</title>
     <link rel="stylesheet" href="./assets/css/tailwind.css">
-    <style>
-        * { box-sizing: border-box; }
-        body { background:#f8fafc; color:#1f2937; }
-
-        .otrosi-card {
-            min-width:0;
-            transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
-        }
-        .otrosi-card:hover {
-            transform:translateY(-2px);
-            border-color:#e5e7eb;
-            box-shadow:0 10px 28px rgba(15,23,42,.06);
-        }
-
-        .otrosi-generado {
-            display:grid;
-            grid-template-columns:minmax(0,1fr) auto;
-            align-items:center;
-            gap:12px;
-            min-width:0;
-        }
-        .otrosi-generado-contenido { min-width:0; }
-        .otrosi-acciones {
-            display:flex;
-            flex-wrap:wrap;
-            justify-content:flex-end;
-            gap:7px;
-        }
-        .otrosi-acciones a,
-        .otrosi-acciones button {
-            min-height:34px;
-            white-space:nowrap;
-        }
-
-        #otrosiEmpleado {
-            transition:all .2s ease;
-        }
-
-        @media (max-width: 1023px) {
-            .otrosi-generado {
-                grid-template-columns:minmax(0,1fr);
-            }
-            .otrosi-acciones { justify-content:flex-start; }
-        }
-
-        @media (max-width:640px) {
-            .otrosi-acciones {
-                display:grid;
-                grid-template-columns:repeat(2,minmax(0,1fr));
-                width:100%;
-            }
-            .otrosi-acciones a,
-            .otrosi-acciones button {
-                width:100%;
-                justify-content:center;
-            }
-            .otrosi-acciones .btn-eliminar-otrosi {
-                grid-column:1 / -1;
-            }
-        }
-
-        @media (max-width:420px) {
-            .otrosi-acciones { grid-template-columns:1fr; }
-            .otrosi-acciones .btn-eliminar-otrosi { grid-column:auto; }
-        }
-    </style>
+    <link rel="stylesheet" href="./assets/css/formatos_otrosi.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/formatos_otrosi.css') ?>">
 </head>
 <body class="bg-gray-50 min-h-screen text-gray-800">
 
@@ -140,12 +75,11 @@ if (is_dir($generadosDir)) {
             <div class="p-4 sm:p-5 lg:p-6 space-y-5">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Buscar empleado</label>
-                    <input id="otrosiCedulaBuscar"
+                    <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" id="otrosiCedulaBuscar"
                             type="text"
                             
                             autocomplete="off"
-                            placeholder="Escribe nombre o cédula..."
-                            class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
+                            placeholder="Escribe nombre o cédula..."></div>
                     <div id="otrosiResultados" class="mt-2 space-y-1"></div>
                     <p class="text-[11px] text-gray-600 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p>
                 </div>

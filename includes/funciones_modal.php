@@ -49,8 +49,7 @@ $__fnCfg = [
                     class="h-10 sm:w-64 border border-gray-200 bg-white rounded-lg px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
                     <option value="">Todos los cargos</option>
                 </select>
-                <input id="fnBuscar" type="text" autocomplete="off" placeholder="Buscar en las funciones..."
-                    class="h-10 flex-1 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
+                <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" id="fnBuscar" type="text" autocomplete="off" placeholder="Buscar en las funciones..."></div>
                 <?php if ($__fnCfg['puedeEditar']): ?>
                     <button type="button" id="fnNueva"
                         class="h-10 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition">+ Nueva</button>

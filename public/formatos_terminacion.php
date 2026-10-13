@@ -44,9 +44,7 @@ $csrf = csrfToken();
         <div>
             <label for="termBuscar" class="block text-sm font-medium text-gray-700 mb-1">Buscar empleado</label>
             <div class="relative">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none"><?= icon('search', 'w-4 h-4') ?></span>
-                <input id="termBuscar" type="text" autocomplete="off" placeholder="Escribe nombre o cédula..."
-                       class="w-full h-10 pl-9 pr-3.5 border border-gray-200 bg-white rounded-lg text-sm text-gray-700 placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
+                <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" id="termBuscar" type="text" autocomplete="off" placeholder="Escribe nombre o cédula..."></div>
             </div>
             <div id="termResultados" class="relative z-20 mt-2 space-y-1"></div>
             <p class="text-[11px] text-gray-600 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p>
@@ -121,7 +119,7 @@ $csrf = csrfToken();
                     <a href="./api/formato_archivo.php?f=<?= rawurlencode($g['archivo']) ?>&accion=descargar"
                        class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm whitespace-nowrap text-gray-600 border border-gray-200 hover:bg-gray-50 rounded-lg transition"><?= icon('download', 'w-4 h-4') ?> Descargar</a>
                     <button type="button" onclick="eliminarTerm(<?= htmlspecialchars(json_encode($g['archivo'], JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT)) ?>)"
-                            class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm whitespace-nowrap text-red-600 border border-red-200 hover:bg-red-50 rounded-lg transition max-sm:col-span-2 max-[380px]:col-span-1"><?= icon('trash-2', 'w-4 h-4') ?> Eliminar</button>
+                            class="btn btn-danger btn-sm max-sm:col-span-2 max-[380px]:col-span-1"><?= icon('trash-2', 'w-4 h-4') ?> Eliminar</button>
                 </div>
             </div>
             <?php endforeach; ?>

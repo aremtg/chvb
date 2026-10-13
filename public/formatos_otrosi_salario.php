@@ -19,17 +19,7 @@ $hoyIso = $hoy->format('Y-m-d');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Otrosí Cambio de Salario</title>
     <link rel="stylesheet" href="./assets/css/tailwind.css">
-    <style>
-        .salario-card { overflow: visible !important; }
-        .salario-resultado { border: 1px solid #f3f4f6; background: #f9fafb; }
-        .salario-empleado-option { border: 1px solid #e5e7eb; background: #fff; }
-        .salario-empleado-option:hover { border-color: #fecaca; background: #fffafa; }
-        .salario-generado { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
-        .salario-generado-contenido { min-width:0; flex:1 1 240px; }
-        .salario-generado-acciones { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; width:100%; }
-        .salario-generado-acciones .btn-eliminar { grid-column:1/-1; }
-        @media(max-width:380px){ .salario-generado-acciones{grid-template-columns:1fr}.salario-generado-acciones .btn-eliminar{grid-column:auto} }
-    </style>
+    <link rel="stylesheet" href="./assets/css/formatos_otrosi_salario.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/formatos_otrosi_salario.css') ?>">
 </head>
 <body class="bg-gray-50 min-h-screen text-gray-800">
 <?php require __DIR__ . '/../includes/sidebar.php'; ?>
@@ -53,8 +43,7 @@ $hoyIso = $hoy->format('Y-m-d');
             <div class="p-4 sm:p-5 lg:p-6 space-y-5">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Buscar empleado</label>
-                    <input id="salarioBuscar" type="text" autocomplete="off" placeholder="Nombre o cédula..."
-                            class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
+                    <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" id="salarioBuscar" type="text" autocomplete="off" placeholder="Nombre o cédula..."></div>
                     <div id="salarioResultados" class="mt-2 space-y-1"></div>
                     <p class="text-[11px] text-gray-600 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p>
                 </div>

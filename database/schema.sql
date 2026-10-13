@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 12-10-2026 a las 05:08:14
+-- Tiempo de generación: 13-10-2026 a las 03:10:16
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -437,13 +437,6 @@ CREATE TABLE `permisos_formato` (
   `actualizado_por` varchar(100) DEFAULT NULL,
   `actualizado_en` datetime DEFAULT NULL
 ) ;
-
---
--- Volcado de datos para la tabla `permisos_formato`
---
-
-INSERT INTO `permisos_formato` (`id`, `codigo`, `version`, `fecha`, `actualizado_por`, `actualizado_en`) VALUES
-(1, 'GH-FT-10', 1, '2026-02-10', 'Tatiana', '2026-10-10 11:56:05');
 
 -- --------------------------------------------------------
 

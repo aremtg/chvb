@@ -1,0 +1,15 @@
+/* formatos_remision_examenes: estilos de esta pantalla (antes en un bloque <style> dentro de formatos_remision_examenes.php). */
+.rem-alerta{border:1px solid #fecaca;background:#fef2f2;color:#b91c1c}
+.rem-resultados{position:relative;z-index:20}
+.rem-generado{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.rem-generado-contenido{min-width:0;flex:1 1 240px}
+.rem-generado-acciones{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.rem-generado-acciones a,.rem-generado-acciones button{white-space:nowrap}
+@media(max-width:640px){
+    .rem-generado-acciones{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+    .rem-generado-acciones .btn-eliminar-rem{grid-column:1/-1}
+}
+@media(max-width:380px){
+    .rem-generado-acciones{grid-template-columns:1fr}
+    .rem-generado-acciones .btn-eliminar-rem{grid-column:auto}
+}

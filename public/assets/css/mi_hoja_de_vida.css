@@ -1,0 +1,17 @@
+/* mi_hoja_de_vida: estilos de esta pantalla (antes en un bloque <style> dentro de mi_hoja_de_vida.php). */
+.pagina-bolsillo {
+    transform-origin: left center;
+    animation: abrirPagina 0.35s ease-out;
+}
+
+@keyframes abrirPagina {
+    from {
+        transform: rotateY(-15deg);
+        opacity: 0;
+    }
+
+    to {
+        transform: rotateY(0deg);
+        opacity: 1;
+    }
+}

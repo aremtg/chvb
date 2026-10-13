@@ -3,6 +3,7 @@ require_once __DIR__ . '/FormatoPermisoModel.php';
 require_once __DIR__ . '/../helpers/CompensatorioOrigen.php';
 // src/models/PermisoModel.php
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../helpers/Busqueda.php';
 require_once __DIR__ . '/../helpers/JornadaHelper.php';
 
 class PermisoModel {
@@ -441,11 +442,16 @@ class PermisoModel {
         if (!empty($filtros['fecha_hasta'])) {
             $sql .= " AND DATE(p.fecha_solicitud) <= :b{$i}"; $params["b{$i}"] = $filtros['fecha_hasta']; $i++;
         }
-        if (!empty($filtros['cedula_jefe'])) {
-            $sql .= " AND p.cedula_jefe LIKE :b{$i}"; $params["b{$i}"] = $filtros['cedula_jefe'] . '%'; $i++;
-        }
+        // Empleado y jefe: cédula con o sin puntos, o nombre (todas las palabras deben aparecer).
         if (!empty($filtros['cedula_empleado'])) {
-            $sql .= " AND p.cedula_empleado LIKE :b{$i}"; $params["b{$i}"] = $filtros['cedula_empleado'] . '%'; $i++;
+            [$sqlEmp, $paramsEmp] = Busqueda::condicion((string)$filtros['cedula_empleado'], ['p.nombre_empleado_snapshot'], 'p.cedula_empleado', "pe{$i}");
+            if ($sqlEmp !== '') { $sql .= " AND {$sqlEmp}"; $params = array_merge($params, $paramsEmp); }
+            $i++;
+        }
+        if (!empty($filtros['cedula_jefe'])) {
+            [$sqlJefe, $paramsJefe] = Busqueda::condicion((string)$filtros['cedula_jefe'], ['(SELECT e.nombre FROM empleados e WHERE e.cedula = p.cedula_jefe LIMIT 1)'], 'p.cedula_jefe', "pj{$i}");
+            if ($sqlJefe !== '') { $sql .= " AND {$sqlJefe}"; $params = array_merge($params, $paramsJefe); }
+            $i++;
         }
         if (!empty($filtros['tipo_permiso'])) {
             $sql .= " AND p.tipo_permiso = :b{$i}"; $params["b{$i}"] = $filtros['tipo_permiso']; $i++;

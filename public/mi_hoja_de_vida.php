@@ -50,24 +50,7 @@ foreach ($bolsillosPorSeccion as $lista) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Hoja de Vida - CHVB</title>
     <link rel="stylesheet" href="./assets/css/tailwind.css">
-    <style>
-        .pagina-bolsillo {
-            transform-origin: left center;
-            animation: abrirPagina 0.35s ease-out;
-        }
-
-        @keyframes abrirPagina {
-            from {
-                transform: rotateY(-15deg);
-                opacity: 0;
-            }
-
-            to {
-                transform: rotateY(0deg);
-                opacity: 1;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="./assets/css/mi_hoja_de_vida.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/mi_hoja_de_vida.css') ?>">
 </head>
 
 <body class="bg-gray-100 min-h-screen" data-csrf="<?= htmlspecialchars(csrfToken()) ?>">

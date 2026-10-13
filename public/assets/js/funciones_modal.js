@@ -118,7 +118,7 @@
                         <button type="button" data-a="no" data-id="${f.id}" class="px-2.5 h-8 rounded-lg border border-gray-200 text-gray-600 text-xs font-semibold">No</button>`;
                 } else {
                     acciones += `<button type="button" data-a="editar" data-id="${f.id}" title="Editar" class="${btn} border-gray-200 text-gray-500 hover:bg-gray-50">${cfg.iconos.pencil}</button>
-                        <button type="button" data-a="borrar" data-id="${f.id}" title="Eliminar" class="${btn} border-red-200 text-red-600 hover:bg-red-50">${cfg.iconos.trash}</button>`;
+                        <button type="button" data-a="borrar" data-id="${f.id}" title="Eliminar" class="btn btn-danger btn-sm btn-icon">${cfg.iconos.trash}</button>`;
                 }
             }
             return `<div class="border border-gray-100 rounded-xl p-3 hover:bg-gray-50/70 transition flex flex-wrap items-start gap-3">

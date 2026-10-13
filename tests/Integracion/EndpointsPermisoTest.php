@@ -210,6 +210,17 @@ final class EndpointsPermisoTest extends TestCase
         $this->assertTrue(in_array('Indica el origen del compensatorio.', $json['errores'] ?? [], true), 'Debe pedir el origen');
     }
 
+    public function testBuscadorDeFormatosEncuentraPorCedulaConPuntosYPorNombre(): void
+    {
+        $porPuntos = $this->peticion('formatos_empleados_buscar.php', $this->sesionTH(), [], false, ['q' => '9.900.000.001'], 'GET');
+        $cedulas = array_column(json_decode($porPuntos['cuerpo'], true)['empleados'] ?? [], 'cedula');
+        $this->assertContains(self::SOLICITANTE, $cedulas, 'La cédula con puntos debe encontrar al empleado');
+
+        $porNombre = $this->peticion('formatos_empleados_buscar.php', $this->sesionTH(), [], false, ['q' => 'Empleado prueba'], 'GET');
+        $cedulas = array_column(json_decode($porNombre['cuerpo'], true)['empleados'] ?? [], 'cedula');
+        $this->assertContains(self::SOLICITANTE, $cedulas, 'Varias palabras deben encontrarse en el nombre');
+    }
+
     public function testUnaPersonaAjenaNoPuedeEditar(): void
     {
         $id = $this->crearPermiso('devuelto');

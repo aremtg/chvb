@@ -232,8 +232,8 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                         <label class="fx-switch-row"><span class="fx-switch"><input type="checkbox" id="tieneReemplazo" name="tiene_reemplazo" class="fx-switch__input"><span class="fx-switch__track" aria-hidden="true"><span class="fx-switch__knob"></span></span></span><span class="fx-switch-text">¿Alguien te reemplazará?</span></label>
                         <div id="cajaReemplazo" class="hidden">
                             <label class="fx-label">Empleado de reemplazo</label>
-                            <input type="text" id="buscadorReemplazo" placeholder="Escribe nombre o cédula..."
-                                autocomplete="off" class="fx-input">
+                            <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" type="text" id="buscadorReemplazo" placeholder="Escribe nombre o cédula..."
+                                autocomplete="off"></div>
                             <div id="resultadosReemplazo"
                                 class="hidden border border-gray-200 rounded-xl mt-1 max-h-40 overflow-y-auto bg-white shadow-lg relative z-10">
                             </div>
@@ -242,8 +242,7 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
 
                         <div>
                             <label class="fx-label">Jefe inmediato</label>
-                            <input type="text" id="buscadorJefe" placeholder="Escribe nombre o cédula..." autocomplete="off"
-                                class="fx-input">
+                            <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" type="text" id="buscadorJefe" placeholder="Escribe nombre o cédula..." autocomplete="off"></div>
                             <div id="resultadosJefe"
                                 class="hidden border border-gray-200 rounded-xl mt-1 max-h-40 overflow-y-auto bg-white shadow-lg relative z-10">
                             </div>

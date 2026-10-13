@@ -1,0 +1,17 @@
+/* formatos: estilos de esta pantalla (antes en un bloque <style> dentro de formatos.php). */
+.fmt-card{display:flex;align-items:center;gap:14px;height:100%;padding:16px;background:#fff;border:1px solid #f3f4f6;border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:border-color .15s,box-shadow .15s}
+a.fmt-card:hover{border-color:#fecaca;box-shadow:0 4px 12px rgba(0,0,0,.06)}
+a.fmt-card:focus-visible{outline:2px solid #fca5a5;outline-offset:2px}
+.fmt-card .fmt-ico{flex:none;width:44px;height:44px;border-radius:12px;background:#fef2f2;color:#dc2626;display:flex;align-items:center;justify-content:center}
+.fmt-card .fmt-txt{min-width:0;flex:1}
+.fmt-card .fmt-go{flex:none;color:#9ca3af}
+a.fmt-card:hover .fmt-go{color:#dc2626}
+.fmt-codigo{display:inline-block;margin-top:6px;padding:1px 8px;border-radius:999px;background:#f3f4f6;color:#4b5563;font-size:11px;font-weight:600;letter-spacing:.03em}
+.fmt-pronto{border-style:dashed;background:#f9fafb;box-shadow:none}
+.fmt-pronto .fmt-ico{background:#f3f4f6;color:#9ca3af}
+.fmt-pronto h3{color:#6b7280}
+.fmt-badge{display:inline-block;margin-top:6px;padding:1px 8px;border-radius:999px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:11px;font-weight:600}
+.fmt-cat-titulo{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.fmt-cat-titulo .fmt-cat-ico{width:28px;height:28px;border-radius:8px;background:#fee2e2;color:#dc2626;display:flex;align-items:center;justify-content:center}
+.fmt-cat-titulo::after{content:"";flex:1;height:1px;background:#e5e7eb;margin-left:6px}
+.fmt-categoria+.fmt-categoria{margin-top:28px}

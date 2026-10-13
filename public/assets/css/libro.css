@@ -1,0 +1,21 @@
+/* libro: estilos de esta pantalla (antes en un bloque <style> dentro de libro.php). */
+.pagina-bolsillo {
+    transform-origin: left center;
+    animation: abrirPagina 0.35s ease-out;
+}
+
+@keyframes abrirPagina {
+    from {
+        transform: rotateY(-15deg);
+        opacity: 0;
+    }
+
+    to {
+        transform: rotateY(0deg);
+        opacity: 1;
+    }
+}
+
+.libro-sombra {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+}

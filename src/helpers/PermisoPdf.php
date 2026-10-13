@@ -197,7 +197,7 @@ class PermisoPdf
             .evi-t { font-size: 10pt; font-weight: bold; color: #111827; }
             .evi-c { text-align: center; margin-top: 6pt; }
             .evi-nota { border: 1px dashed #9ca3af; color: #6b7280; padding: 14pt; margin-top: 8pt; font-size: 8.5pt; text-align: center; }
-            .pie { font-size: 6.5pt; color: #00000; margin-top: 8pt; }
+            .pie { font-size: 6.5pt; color: #6b7280; margin-top: 8pt; }
             .formato-info { font-size: 6.5pt; color: #6b7280; margin-top: 1pt; }
             .nota-legal { font-size: 6pt; color: #4b5563; margin-top: 4pt; padding-top: 3pt; border-top: 0.5pt solid #d1d5db; line-height: 1.25; }
         </style></head><body>' . $cuerpo . '</body></html>';

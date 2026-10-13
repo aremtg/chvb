@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../src/helpers/JornadaHelper.php';
 
 header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/../../src/helpers/Busqueda.php';
 requireFormatosAccess(true);
 
 const MIN_CARACTERES = 2;
@@ -21,26 +22,18 @@ try {
         exit;
     }
 
-    // Cada palabra debe aparecer en el nombre o en la cédula (AND entre palabras).
-    $tokens = array_slice(explode(' ', $q), 0, 5);
-    $where = [];
-    $params = [];
-    foreach ($tokens as $i => $t) {
-        // Escapa comodines LIKE para que "%" o "_" escritos por el usuario no rompan la búsqueda.
-        $like = '%' . addcslashes($t, '\\%_') . '%';
-        $where[] = "(nombre LIKE :n$i OR cedula LIKE :c$i)";
-        $params["n$i"] = $like;
-        $params["c$i"] = $like;
-    }
-    $params['exacta']  = $q;
-    $params['prefijo'] = addcslashes($q, '\\%_') . '%';
+    // Cada palabra debe aparecer en el nombre o en la cédula (con o sin puntos).
+    [$condicionSql, $params] = Busqueda::condicion($q, ['nombre'], 'cedula', 'f');
+    $digitos = Busqueda::digitos($q);
+    $params['exacta'] = $digitos !== '' ? $digitos : $q;
+    $params['prefijo'] = ($digitos !== '' ? $digitos : Busqueda::escapar($q)) . '%';
 
     $sql = 'SELECT cedula, lugar_expedicion, nombre, sexo, cargo, tipo_de_personal, es_bombero_integral,
                    tipo_de_contrato, fecha_inicio_contrato, fecha_fin_contrato, estado
             FROM empleados
-            WHERE ' . implode(' AND ', $where) . '
-            ORDER BY (cedula = :exacta) DESC, (cedula LIKE :prefijo) DESC, nombre ASC
-            LIMIT ' . MAX_RESULTADOS;
+            WHERE ' . $condicionSql . "
+            ORDER BY (REPLACE(cedula, '.', '') = :exacta) DESC, (REPLACE(cedula, '.', '') LIKE :prefijo) DESC, nombre ASC
+            LIMIT " . MAX_RESULTADOS;
 
     $stmt = getPDO()->prepare($sql);
     $stmt->execute($params);

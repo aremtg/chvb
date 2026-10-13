@@ -6,13 +6,20 @@
          failOnRisky="true"
          failOnWarning="true">
     <testsuites>
-        <testsuite name="Reglas de jornada">
+        <testsuite name="Reglas de jornada y búsqueda">
             <directory>tests/Unit</directory>
         </testsuite>
         <testsuite name="PDF de permisos">
             <directory>tests/Pdf</directory>
         </testsuite>
+        <testsuite name="Integración (base de pruebas)">
+            <directory>tests/Integracion</directory>
+        </testsuite>
     </testsuites>
+    <php>
+        <!-- Las pruebas de integración escriben datos: SIEMPRE contra una base de pruebas. -->
+        <env name="DB_NAME" value="chvb_test" force="true"/>
+    </php>
     <source>
         <include>
             <directory>src</directory>

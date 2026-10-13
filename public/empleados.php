@@ -80,9 +80,8 @@ if ($filtrosActivos) {
             ?>
             <form method="GET" class="mb-4">
                 <div class="flex items-center gap-2">
-                    <input type="text" name="q" value="<?= htmlspecialchars($busqueda) ?>"
-                        placeholder="Buscar por cédula, nombre, cargo, celular o correo..."
-                        class="flex-1 min-w-0 border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <div class="campo-buscar flex-1 min-w-0"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" type="text" name="q" value="<?= htmlspecialchars($busqueda) ?>"
+                        placeholder="Buscar por cédula, nombre, cargo, celular o correo..."></div>
                     <button type="button" id="btnToggleFiltros" aria-expanded="<?= $filtrosActivos ? 'true' : 'false' ?>" aria-controls="panelFiltros"
                         class="btn btn-secondary md:hidden shrink-0">
                         Filtros
@@ -233,7 +232,7 @@ if ($filtrosActivos) {
                                                 <div class="my-1 border-t border-gray-100"></div>
                                                 <button
                                                     onclick="abrirModalEliminar('<?= $emp['cedula'] ?>', '<?= htmlspecialchars($emp['nombre'], ENT_QUOTES) ?>')"
-                                                    class="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-red-600 hover:bg-red-50 rounded-xl transition">
+                                                    class="btn btn-danger btn-block justify-start">
                                                     <?= icon('trash-2', 'w-4 h-4') ?> Eliminar
                                                 </button>
                                             <?php endif; ?>
@@ -504,7 +503,7 @@ if ($filtrosActivos) {
                     <button type="button" onclick="document.getElementById('modalEliminar').classList.add('hidden')"
                         class="flex-1 border border-gray-300 rounded py-2 text-gray-700">Cancelar</button>
                     <button type="submit"
-                        class="flex-1 bg-red-600 hover:bg-red-700 text-white rounded py-2">Eliminar</button>
+                        class="btn btn-danger flex-1">Eliminar</button>
                 </div>
             </form>
         </div>

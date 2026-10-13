@@ -324,3 +324,13 @@ a.pm-card:hover .pm-card__cta .pm-ico:last-child { transform: translateX(3px); }
 @media (prefers-reduced-motion: reduce) {
   .pm-card, .pm-row, .pm-btn, .pm-live i::after, .pm-card__cta .pm-ico { animation: none !important; transition: none !important; }
 }
+
+/* ---------- Barra de descarga de PDF (permisos_th.php) ---------- */
+.pm-pdfbar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: .5rem .75rem; margin: .25rem 0 .5rem;
+}
+.pm-pdfbar__acciones { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; }
+.pm-check { display: inline-flex; align-items: center; gap: .4rem; font-size: .85rem; cursor: pointer; }
+.pm-check[hidden] { display: none; }
+

@@ -113,11 +113,11 @@ $enfocadoEnUno = !empty($_GET['id']);
             <div class="pm-filters__body pm-cols-4" id="pmFiltrosBody">
                 <div class="pm-field">
                     <label for="fEmpleado">Empleado (creador)</label>
-                    <input type="text" id="fEmpleado" placeholder="Cédula" inputmode="numeric" autocomplete="off" class="pm-input">
+                    <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" type="text" id="fEmpleado" placeholder="Cédula" inputmode="numeric" autocomplete="off"></div>
                 </div>
                 <div class="pm-field">
                     <label for="fJefe">Jefe inmediato</label>
-                    <input type="text" id="fJefe" placeholder="Cédula" inputmode="numeric" autocomplete="off" class="pm-input">
+                    <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" type="text" id="fJefe" placeholder="Cédula" inputmode="numeric" autocomplete="off"></div>
                 </div>
                 <div class="pm-field">
                     <label for="fTipo">Tipo</label>
@@ -160,10 +160,10 @@ $enfocadoEnUno = !empty($_GET['id']);
         </section>
 
         <!-- Exportar a PDF (admin, auxiliar y teniente). Se descarga en el dispositivo; no se guarda en la BD. -->
-        <div class="pm-pdfbar" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem .75rem;margin:.25rem 0 .5rem">
-            <div class="pm-count" aria-live="polite" id="pmContador" style="margin:0"></div>
-            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .9rem">
-                <label id="pmPdfDosWrap" hidden style="display:none;align-items:center;gap:.4rem;font-size:.85rem;cursor:pointer">
+        <div class="pm-pdfbar">
+            <div class="pm-count" aria-live="polite" id="pmContador"></div>
+            <div class="pm-pdfbar__acciones">
+                <label id="pmPdfDosWrap" hidden class="pm-check">
                     <input type="checkbox" id="pmPdfDos" checked>
                     2 permisos por hoja oficio
                 </label>

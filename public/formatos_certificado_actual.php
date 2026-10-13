@@ -45,8 +45,7 @@ $csrf = csrfToken();
     <div class="p-4 sm:p-5 lg:p-6 space-y-5">
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Buscar empleado</label>
-            <input id="certBuscar" type="text" autocomplete="off" placeholder="Escribe nombre o cédula..."
-                class="w-full h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
+            <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" id="certBuscar" type="text" autocomplete="off" placeholder="Escribe nombre o cédula..."></div>
             <div id="certResultados" class="relative z-20 mt-2 space-y-1"></div>
             <p class="text-[11px] text-gray-600 mt-1.5">Puedes buscar por nombre completo, parte del nombre o número de cédula.</p>
         </div>
@@ -110,7 +109,7 @@ $csrf = csrfToken();
                                 <?= icon('download', 'w-4 h-4') ?> Descargar</a>
                             <button type="button"
                                 onclick="eliminarCertificado(<?= htmlspecialchars(json_encode($g['archivo'], JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT)) ?>)"
-                                class="inline-flex items-center gap-2 px-3 py-2 text-sm text-red-600 border border-red-200 hover:bg-red-50 rounded-lg transition">
+                                class="btn btn-danger btn-sm">
                                 <?= icon('trash-2', 'w-4 h-4') ?> Eliminar</button>
                         </div>
                     </div>

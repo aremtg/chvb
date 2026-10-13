@@ -195,7 +195,7 @@ if (!$converted) {
     http_response_code(503);
     header('Content-Type: text/html; charset=utf-8');
     echo '<!doctype html><html lang="es"><meta charset="utf-8">';
-    echo '<style>body{font-family:Arial,sans-serif;background:#f8fafc;padding:32px;color:#1f2937}.box{max-width:720px;margin:auto;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;box-shadow:0 4px 18px rgba(0,0,0,.06)}h2{margin:0 0 12px;color:#b91c1c}li{margin:8px 0}</style>';
+    echo '<link rel="stylesheet" href="../assets/css/formato_preview_error.css">';
     echo '<div class="box"><h2>No se pudo generar la vista previa</h2>';
     echo '<p>El servidor pudo abrir el archivo, pero no encontró un conversor disponible para mostrarlo dentro del visor.</p>';
     echo '<p>En Windows puedes usar cualquiera de estas opciones:</p><ul>';

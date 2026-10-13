@@ -113,8 +113,7 @@ $etiquetaEstado = ['vencido' => 'Vencido', 'por_vencer' => 'Por vencer', 'vigent
                             <p class="text-xs text-gray-600">Empleados activos con contrato Fijo, OPS, SENA u OPS SEMY.
                                 Primero los que vencen antes.</p>
                         </div>
-                        <input id="renBuscar" type="text" autocomplete="off" placeholder="Buscar nombre o cédula..."
-                            class="w-full sm:w-64 h-10 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
+                        <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" id="renBuscar" type="text" autocomplete="off" placeholder="Buscar nombre o cédula..."></div>
                         <select id="renEstado"
                             class="w-full sm:w-64 h-10 border border-gray-200 bg-white rounded-lg px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
                             <option value="">Todos los estados</option>

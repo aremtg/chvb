@@ -74,7 +74,7 @@ function tarjetaPendiente(p, rol) {
   const botonRechazar =
     rol === "jefe" && p.estado === "por_firmar_jefe"
       ? `<button onclick="abrirModalFirma(${p.id}, ${p.version}, '${rol}', 'rechazar')"
-                 class="text-red-600 hover:bg-red-50 border border-red-200 text-sm px-4 py-2.5 rounded-xl font-semibold">Rechazar</button>`
+                 class="btn btn-warning">Rechazar</button>`
       : "";
   return `
     <article class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 md:p-6">

@@ -37,12 +37,19 @@ final class FlujoPermisoTest extends TestCase
         $ins = $pdo->prepare('INSERT INTO empleados (cedula, nombre, cargo, tipo_de_personal, tipo_jornada, celular, estado)
                               VALUES (?, ?, ?, ?, ?, ?, ?)');
         $ins->execute([self::SOLICITANTE, 'Solicitante de Prueba', 'Cargo de prueba (test)', 'Civil', 'Administrativa', '3000000001', 'activo']);
+        // Los avisos a Talento Humano se guardan para cada usuario de TH registrado:
+        // la prueba necesita al menos uno (y lo borra al terminar).
+        $pdo->prepare("DELETE FROM usuarios WHERE username = 'th_flujo_test'")->execute();
+        $pdo->prepare("INSERT INTO usuarios (username, password_hash, rol) VALUES ('th_flujo_test', ?, 'superadmin_talento_humano')")
+            ->execute([password_hash('no-se-usa', PASSWORD_DEFAULT)]);
         $_SESSION = [];
     }
 
     protected function tearDown(): void
     {
         $_SESSION = [];
+        getPDO()->prepare("DELETE FROM notificaciones WHERE usuario_nombre = 'th_flujo_test' OR cedula_empleado IN ('9900000001','9900000002','9900000003','9900000004')")->execute();
+        getPDO()->prepare("DELETE FROM usuarios WHERE username = 'th_flujo_test'")->execute();
         $this->limpiar();
     }
 

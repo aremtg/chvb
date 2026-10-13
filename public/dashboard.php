@@ -107,54 +107,7 @@ $aniosSelector = range((int) date('Y') + 1, (int) date('Y') - 4);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHVB - Dashboard</title>
     <link rel="stylesheet" href="./assets/css/tailwind.css">
-    <style>
-        /* Métricas de ausentismo: estilos propios para no depender de recompilar Tailwind */
-        .aus-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
-        .aus-filtro { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
-        .aus-filtro select { border:1px solid #e5e7eb; border-radius:10px; padding:6px 10px; font-size:13px; font-weight:600; color:#374151; background:#fff; }
-        .aus-filtro select:focus { outline:none; border-color:#fca5a5; box-shadow:0 0 0 3px #fee2e2; }
-        .aus-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:16px; }
-        .aus-dos { display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:16px; }
-        .aus-card { background:#fff; border:1px solid #f3f4f6; border-radius:16px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.04); min-width:0; }
-        .aus-card h3 { font-size:14px; font-weight:700; color:#1f2937; margin:0; }
-        .aus-card .aus-hint { font-size:11px; color:#6b7280; margin-top:2px; }
-        .aus-kpi { display:flex; gap:12px; align-items:flex-start; }
-        .aus-ico { width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-        .aus-ico.rojo { background:#fef2f2; color:#dc2626; } .aus-ico.azul { background:#eff6ff; color:#2563eb; }
-        .aus-ico.ambar { background:#fffbeb; color:#d97706; } .aus-ico.verde { background:#f0fdf4; color:#16a34a; }
-        .aus-label { font-size:12px; font-weight:600; color:#6b7280; }
-        .aus-num { font-size:28px; line-height:1.15; font-weight:800; color:#111827; }
-        .aus-sub { font-size:11px; color:#6b7280; margin-top:2px; }
-        .aus-fila { margin-top:12px; }
-        .aus-fila-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-size:13px; color:#374151; }
-        .aus-fila-top b { font-weight:700; color:#111827; }
-        .aus-fila-top small { color:#9ca3af; font-size:11px; }
-        .aus-track { height:8px; border-radius:999px; background:#f3f4f6; overflow:hidden; margin-top:5px; }
-        .aus-fill { height:100%; border-radius:999px; }
-        .aus-tabla { width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
-        .aus-tabla th { text-align:right; font-size:11px; font-weight:600; color:#6b7280; padding:4px 0; }
-        .aus-tabla th:first-child { text-align:left; }
-        .aus-tabla td { padding:8px 0; border-top:1px solid #f3f4f6; text-align:right; font-weight:700; color:#111827; }
-        .aus-tabla td:first-child { text-align:left; font-weight:500; color:#374151; }
-        .aus-tabla td small { display:block; font-weight:400; font-size:11px; color:#9ca3af; }
-        .aus-apilada { display:flex; height:14px; border-radius:999px; overflow:hidden; background:#f3f4f6; margin-top:12px; }
-        .aus-leyenda { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:6px 12px; margin-top:12px; font-size:12px; color:#374151; }
-        .aus-leyenda span.pto { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; }
-        .aus-barras { display:flex; align-items:flex-end; gap:10px; height:130px; margin-top:14px; }
-        .aus-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; min-width:0; }
-        .aus-col .v { font-size:12px; font-weight:700; color:#374151; margin-bottom:3px; }
-        .aus-col .b { width:100%; max-width:42px; border-radius:8px 8px 3px 3px; }
-        .aus-col .m { font-size:11px; color:#6b7280; margin-top:5px; }
-        .aus-lista { list-style:none; margin:10px 0 0; padding:0; }
-        .aus-lista li { display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid #f3f4f6; }
-        .aus-pos { width:26px; height:26px; border-radius:8px; background:#fef2f2; color:#dc2626; font-weight:800; font-size:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-        .aus-lista .n { min-width:0; flex:1; }
-        .aus-lista .n p { margin:0; font-size:13px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .aus-lista .n small { font-size:11px; color:#6b7280; }
-        .aus-pill { font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px; white-space:nowrap; background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
-        .aus-pill.alerta { background:#fee2e2; color:#991b1b; border-color:#fecaca; }
-        .aus-vacio { background:#f9fafb; border:1px solid #f3f4f6; border-radius:12px; padding:16px; text-align:center; font-size:13px; color:#6b7280; margin-top:10px; }
-    </style>
+    <link rel="stylesheet" href="./assets/css/dashboard.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/dashboard.css') ?>">
 </head>
 
 <body class="bg-gray-100 min-h-screen">

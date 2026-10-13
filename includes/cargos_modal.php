@@ -33,8 +33,7 @@ $__cgCfg = [
         <div class="p-4 sm:p-5 space-y-4 overflow-y-auto">
 
             <div class="flex flex-col sm:flex-row gap-2">
-                <input id="cgBuscar" type="text" autocomplete="off" placeholder="Buscar cargo..."
-                    class="h-10 flex-1 border border-gray-200 bg-white rounded-lg px-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
+                <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" id="cgBuscar" type="text" autocomplete="off" placeholder="Buscar cargo..."></div>
                 <button type="button" id="cgNuevo"
                     class="h-10 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition">+ Nuevo</button>
             </div>

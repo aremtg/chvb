@@ -31,30 +31,20 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
         <main class="p-6">
 
             <!-- BUSCADOR -->
-            <form method="GET" class="mb-5">
+            <form id="formBusquedaUsuarios" method="GET" class="mb-5">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
                     <div class="flex flex-col sm:flex-row gap-2">
                         <div class="relative flex-1">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600">
-                                <?= icon('search', 'w-4 h-4') ?>
-                            </span>
-
-                            <input type="text" name="q" value="<?= htmlspecialchars($busqueda) ?>"
-                                placeholder="Buscar empleado por cédula o nombre..."
-                                class="w-full h-10 pl-9 pr-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition">
+                            <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" type="text" name="q" value="<?= htmlspecialchars($busqueda) ?>"
+                                placeholder="Buscar empleado por cédula o nombre..."></div>
                         </div>
-
-                        <button type="submit"
-                            class="h-10 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold flex items-center justify-center gap-2 transition whitespace-nowrap">
-                            <?= icon('search', 'w-4 h-4') ?>
-                            Buscar
-                        </button>
                     </div>
                 </div>
             </form>
 
 
-            <?php if (empty($empleados)): ?>
+            <div id="listaUsuarios">
+<?php if (empty($empleados)): ?>
 
                 <!-- SIN RESULTADOS -->
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
@@ -198,6 +188,7 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
+</div>
 
         </main>
     </div>
@@ -287,7 +278,15 @@ $empleados = EmpleadoModel::listar($busqueda, 100, 0, ['estado' => 'activo']);
     </div>
 
     <script src="./assets/js/visor_imagen.js?v=<?= (int) @filemtime(__DIR__ . '/assets/js/visor_imagen.js') ?>"></script>
-    <script src="./assets/js/usuarios_empleados.js"></script>
+    <script src="./assets/js/buscador_vivo.js?v=<?= (int) @filemtime(__DIR__ . '/assets/js/buscador_vivo.js') ?>"></script>
+<script>
+    activarBusquedaViva({
+        form: document.getElementById('formBusquedaUsuarios'),
+        input: document.querySelector('#formBusquedaUsuarios input[name="q"]'),
+        destinoId: 'listaUsuarios',
+    });
+</script>
+<script src="./assets/js/usuarios_empleados.js"></script>
 </body>
 
 </html>
