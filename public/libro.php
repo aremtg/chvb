@@ -17,6 +17,9 @@ if (!$empleado) {
 
 $bolsillos = BolsilloModel::listarPorEmpleado($cedula);
 $bolsillosPorSeccion = ['hoja_de_vida' => [], 'documentos_contractuales' => []];
+// Icono de cada bolsillo (Lucide, en assets/icons). Lo que no esté aquí usa 'folder'.
+require_once __DIR__ . '/../src/helpers/BolsilloIconos.php';
+$iconoBolsillo = BolsilloIconos::MAPA;
 foreach ($bolsillos as $b) {
     $b['documentos'] = DocumentoModel::listarPorBolsillo((int) $b['id']);
     $bolsillosPorSeccion[$b['seccion']][] = $b;
@@ -39,113 +42,67 @@ foreach ($bolsillos as $b) {
     <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 
     <div class="md:ml-64 pt-14 md:pt-0">
-        <header class="bg-white shadow px-6 py-4">
-            <a href="./empleados.php" class="text-sm text-red-600 hover:underline">&larr; Volver</a>
-            <h1 class="text-lg font-bold text-gray-800 mt-1">
-                <?= htmlspecialchars($empleado['nombre']) ?>
-                <span class="text-sm font-normal text-gray-600">(CC <?= htmlspecialchars($cedula) ?>)</span>
-            </h1>
+        <header class="bg-white border-b border-gray-100 sticky top-0 z-20">
+            <div class="px-4 md:px-8 py-4 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <a href="./empleados.php" class="libro-volver" aria-label="Volver a Hojas de Vida"><?= icon('chevron-left', 'w-4 h-4') ?></a>
+                    <span class="libro-badge"><?= icon('folder', 'w-5 h-5') ?></span>
+                    <div class="min-w-0">
+                        <h1 class="libro-titulo truncate"><?= htmlspecialchars($empleado['nombre']) ?></h1>
+                        <p class="libro-subtitulo">Cédula <?= htmlspecialchars($cedula) ?> · Libro del empleado</p>
+                    </div>
+                </div>
+            </div>
         </header>
 
-        <main class="p-4 sm:p-6 max-w-6xl mx-auto">
+        <main class="px-4 md:px-8 py-6 max-w-6xl mx-auto space-y-5">
 
-            <!-- TABS DE SECCIÓN -->
-            <div class="flex flex-wrap items-center gap-2 mb-5">
-
-                <button onclick="cambiarSeccion('hoja_de_vida')" id="tab-hoja_de_vida"
-                    class="tab-seccion h-9 px-4 rounded-lg font-semibold text-sm bg-red-600 text-white shadow-sm transition">
-                    Hoja de Vida
+            <!-- PESTAÑAS DE SECCIÓN -->
+            <nav class="libro-tabs" role="tablist" aria-label="Secciones del libro">
+                <button id="tab-hoja_de_vida" role="tab" onclick="cambiarSeccion('hoja_de_vida')"
+                    class="libro-tab libro-tab--activa">
+                    <?= icon('user', 'w-4 h-4') ?> Hoja de vida
                 </button>
-
-                <button onclick="cambiarSeccion('documentos_contractuales')" id="tab-documentos_contractuales"
-                    class="tab-seccion h-9 px-4 rounded-lg font-semibold text-sm bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 transition">
-                    Documentos Contractuales
+                <button id="tab-documentos_contractuales" role="tab" onclick="cambiarSeccion('documentos_contractuales')"
+                    class="libro-tab">
+                    <?= icon('briefcase', 'w-4 h-4') ?> Documentos contractuales
                 </button>
+            </nav>
 
-            </div>
+            <!-- BOLSILLOS -->
+            <?php foreach (['hoja_de_vida', 'documentos_contractuales'] as $seccion): ?>
+                <section id="seccion-<?= $seccion ?>" class="seccion-contenido <?= $seccion !== 'hoja_de_vida' ? 'hidden' : '' ?>">
+                    <div class="libro-grid">
 
-
-            <!-- CONTENEDOR PRINCIPAL -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-
-                <?php foreach (['hoja_de_vida', 'documentos_contractuales'] as $seccion): ?>
-
-                    <div id="seccion-<?= $seccion ?>"
-                        class="seccion-contenido <?= $seccion !== 'hoja_de_vida' ? 'hidden' : '' ?>">
-
-                        <div class="p-4 md:p-5">
-
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-
-                                <?php foreach ($bolsillosPorSeccion[$seccion] as $bolsillo): ?>
-
-                                    <?php
-                                    $totalDocs = count($bolsillo['documentos']);
-                                    $estadoAlarma = BolsilloModel::calcularEstadoAlarma($bolsillo);
-                                    ?>
-
-                                    <button id="bolsilloBtn-<?= $bolsillo['id'] ?>"
-                                        onclick="abrirBolsilloPorId(<?= $bolsillo['id'] ?>)" class="text-left rounded-xl p-4 transition relative border
-                                <?= $estadoAlarma === 'vencida'
-                                    ? 'border-red-200 bg-red-50 hover:bg-red-50'
-                                    : ($estadoAlarma === 'proxima'
-                                        ? 'border-amber-200 bg-amber-50 hover:bg-amber-50'
-                                        : 'border-gray-100 bg-white hover:bg-gray-50') ?>">
-
-                                        <!-- ESTADO DE ALARMA -->
-                                        <span id="bolsilloEstadoLabel-<?= $bolsillo['id'] ?>"
-                                            class="text-[11px] font-semibold block min-h-[17px]">
-
-                                            <?php if ($estadoAlarma === 'vencida'): ?>
-
-                                                <span class="inline-flex items-center gap-1.5 text-red-600">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
-                                                    Alarma vencida
-                                                </span>
-
-                                            <?php elseif ($estadoAlarma === 'proxima'): ?>
-
-                                                <span class="inline-flex items-center gap-1.5 text-amber-800">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
-                                                    Próxima a vencer
-                                                </span>
-
-                                            <?php elseif ($bolsillo['alarma_activa']): ?>
-
-                                                <span class="inline-flex items-center gap-1.5 text-gray-600 font-normal">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                                                    Alarma configurada
-                                                </span>
-
-                                            <?php endif; ?>
-
-                                        </span>
-
-
-                                        <!-- NOMBRE -->
-                                        <p class="text-sm font-semibold text-gray-800 mt-1.5 truncate">
-                                            <?= htmlspecialchars($bolsillo['nombre_completo']) ?>
-                                        </p>
-
-
-                                        <!-- DOCUMENTOS -->
-                                        <p class="text-[11px] text-gray-600 mt-1">
-                                            <?= $totalDocs ?> documento(s)
-                                        </p>
-
-                                    </button>
-
-                                <?php endforeach; ?>
-
-                            </div>
-
-                        </div>
+                        <?php foreach ($bolsillosPorSeccion[$seccion] as $bolsillo): ?>
+                            <?php
+                            $totalDocs = count($bolsillo['documentos']);
+                            $estadoAlarma = BolsilloModel::calcularEstadoAlarma($bolsillo);
+                            $claseEstado = $estadoAlarma === 'vencida' ? 'vencida' : ($estadoAlarma === 'proxima' ? 'proxima' : 'ok');
+                            $icono = $iconoBolsillo[$bolsillo['nombre']] ?? 'folder';
+                            $claseEtiqueta = $estadoAlarma === 'vencida' ? 'libro-pill--vencida'
+                                : ($estadoAlarma === 'proxima' ? 'libro-pill--proxima'
+                                : ($bolsillo['alarma_activa'] ? 'libro-pill--configurada' : ''));
+                            $textoEtiqueta = $estadoAlarma === 'vencida' ? 'Alarma vencida'
+                                : ($estadoAlarma === 'proxima' ? 'Próxima a vencer'
+                                : ($bolsillo['alarma_activa'] ? 'Alarma configurada' : ''));
+                            ?>
+                            <button id="bolsilloBtn-<?= $bolsillo['id'] ?>" onclick="abrirBolsilloPorId(<?= $bolsillo['id'] ?>)"
+                                class="libro-bolsillo libro-bolsillo--<?= $claseEstado ?>">
+                                <span class="libro-bolsillo__cabecera">
+                                    <span class="libro-bolsillo__icono"><?= icon($icono, 'w-5 h-5') ?></span>
+                                    <span id="bolsilloEstadoLabel-<?= $bolsillo['id'] ?>" class="libro-pill <?= $claseEtiqueta ?>"><?= $textoEtiqueta ?></span>
+                                </span>
+                                <span class="libro-bolsillo__texto">
+                                    <span class="libro-bolsillo__titulo"><?= htmlspecialchars($bolsillo['nombre_completo']) ?></span>
+                                    <span class="libro-bolsillo__cuenta"><?= $totalDocs ?> documento<?= $totalDocs === 1 ? '' : 's' ?></span>
+                                </span>
+                            </button>
+                        <?php endforeach; ?>
 
                     </div>
-
-                <?php endforeach; ?>
-
-            </div>
+                </section>
+            <?php endforeach; ?>
 
         </main>
 
@@ -164,28 +121,15 @@ foreach ($bolsillos as $b) {
             class="pagina-bolsillo bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
 
             <!-- HEADER MODAL -->
-            <div
-                class="px-5 py-4 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
-
+            <div class="libro-modal-cabecera">
                 <div class="flex items-center gap-3 min-w-0">
-
-                    <div
-                        class="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
-                        <?= icon('folder', 'w-5 h-5') ?>
-                    </div>
-
-                    <h2 id="tituloBolsillo" class="font-bold text-gray-800 text-sm truncate"></h2>
-
+                    <span class="libro-badge"><?= icon('folder', 'w-5 h-5') ?></span>
+                    <h2 id="tituloBolsillo" class="libro-modal-titulo"></h2>
                 </div>
-
-                <button onclick="cerrarBolsillo()"
-                    class="w-8 h-8 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-700 flex items-center justify-center transition flex-shrink-0"
-                    aria-label="Cerrar">
-                    ✕
+                <button onclick="cerrarBolsillo()" class="libro-cerrar" aria-label="Cerrar">
+                    <?= icon('x', 'w-4 h-4') ?>
                 </button>
-
             </div>
-
 
             <!-- CONTENIDO MODAL -->
             <div class="p-5 space-y-4">
@@ -259,7 +203,7 @@ foreach ($bolsillos as $b) {
                                     class="h-9 border border-gray-200 bg-white rounded-lg px-3 py-1 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
 
                                 <button type="button" onclick="usarFechaHoy()" id="btnDesdeHoy"
-                                    class="h-9 px-3 rounded-lg border border-gray-200 bg-white text-gray-600 text-xs font-semibold hover:bg-gray-50 transition">
+                                    class="btn btn-secondary btn-sm">
                                     Desde hoy
                                 </button>
 
@@ -276,12 +220,12 @@ foreach ($bolsillos as $b) {
                         <div class="flex flex-wrap items-center gap-2 pt-1">
 
                             <button onclick="guardarAlarma()"
-                                class="h-9 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 rounded-lg transition">
+                                class="btn btn-primary btn-sm">
                                 Guardar alarma
                             </button>
 
                             <button onclick="quitarAlarma()"
-                                class="h-9 px-3 rounded-lg text-xs font-semibold text-gray-500 hover:bg-gray-100 hover:text-red-600 transition">
+                                class="btn btn-ghost btn-sm">
                                 Quitar alarma
                             </button>
 
@@ -297,49 +241,19 @@ foreach ($bolsillos as $b) {
 
                 <!-- Subir nuevo PDF -->
                 <?php if (!$esSoloLectura): ?>
-
-                    <div class="bg-gray-50 rounded-xl border border-gray-100 p-4">
-
-                        <div class="flex items-center gap-2 mb-3">
-
-                            <div class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-                                <?= icon('upload', 'w-4 h-4') ?>
-                            </div>
-
-                            <div>
-                                <p class="text-sm font-semibold text-gray-700">
-                                    Adjuntar PDF
-                                </p>
-
-                                <p class="text-[11px] text-gray-600">
-                                    Selecciona un documento en formato PDF.
-                                </p>
-                            </div>
-
-                        </div>
-
-
-                        <form id="formSubirPDF" class="flex flex-col sm:flex-row gap-2">
-
-                            <?= csrfCampoHTML() ?>
-
-                            <input type="file" name="archivo" accept="application/pdf" required
-                                class="flex-1 min-w-0 h-9 text-xs text-gray-500 border border-gray-200 bg-white rounded-lg px-2 py-1.5 file:mr-2 file:border-0 file:bg-gray-50 file:text-gray-600 file:text-xs file:font-semibold">
-
-                            <button type="submit"
-                                class="h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition whitespace-nowrap">
-                                Subir
-                            </button>
-
-                        </form>
-
-
-                        <p id="errorSubida" class="text-xs text-red-600 mt-1.5 hidden"></p>
-
-                    </div>
-
+                    <form id="formSubirPDF" class="libro-dropzone">
+                        <?= csrfCampoHTML() ?>
+                        <span class="libro-dropzone__icono"><?= icon('cloud-upload', 'w-6 h-6') ?></span>
+                        <p class="text-sm font-bold text-gray-900">Adjuntar un PDF</p>
+                        <p class="text-xs text-gray-600">Selecciona el documento en formato PDF.</p>
+                        <input type="file" name="archivo" accept="application/pdf" required
+                            class="block w-full max-w-xs text-xs text-gray-600 file:mr-3 file:h-9 file:px-4 file:rounded-xl file:border-0 file:bg-gray-100 file:text-gray-700 file:font-semibold file:cursor-pointer">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <?= icon('upload', 'w-4 h-4') ?> Subir documento
+                        </button>
+                        <p id="errorSubida" class="text-xs text-red-600 hidden"></p>
+                    </form>
                 <?php endif; ?>
-
 
                 <!-- Lista de documentos -->
                 <div>
@@ -378,11 +292,11 @@ foreach ($bolsillos as $b) {
             </div>
             <div class="px-4 py-3 border-t flex justify-between items-center">
                 <button onclick="visorAnterior()" id="btnVisorAnterior"
-                    class="px-4 py-2 rounded-xl border border-gray-300 text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed">
+                    class="btn btn-secondary disabled:opacity-40 disabled:cursor-not-allowed">
                     ← Anterior
                 </button>
                 <button onclick="visorSiguiente()" id="btnVisorSiguiente"
-                    class="px-4 py-2 rounded-xl border border-gray-300 text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed">
+                    class="btn btn-secondary disabled:opacity-40 disabled:cursor-not-allowed">
                     Siguiente →
                 </button>
             </div>
@@ -406,9 +320,9 @@ foreach ($bolsillos as $b) {
                 </div>
                 <div class="flex gap-2">
                     <button type="button" onclick="cerrarModalRenombrar()"
-                        class="flex-1 border border-gray-300 rounded-xl py-2 text-gray-700">Cancelar</button>
+                        class="btn btn-secondary flex-1">Cancelar</button>
                     <button type="submit"
-                        class="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-xl py-2">Guardar</button>
+                        class="btn btn-primary flex-1">Guardar</button>
                 </div>
             </form>
         </div>
@@ -416,6 +330,16 @@ foreach ($bolsillos as $b) {
 
     <script>
         window.TODOS_LOS_BOLSILLOS = <?= json_encode($bolsillosPorSeccion) ?>;
+    </script>
+    <script>
+        // Iconos Lucide (locales) que usa libro.js al pintar filas de documentos.
+        window.LIBRO_ICONOS = <?= json_encode([
+            'file-text' => icon('file-text', 'w-4 h-4'),
+            'pencil' => icon('pencil', 'w-4 h-4'),
+            'chevron-up' => icon('chevron-up', 'w-4 h-4'),
+            'chevron-down' => icon('chevron-down', 'w-4 h-4'),
+            'x' => icon('x', 'w-4 h-4'),
+        ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
     </script>
     <script src="./assets/js/libro.js"></script>
 </body>

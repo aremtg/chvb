@@ -8,15 +8,13 @@ function cambiarSeccion(seccion) {
     .forEach((s) => s.classList.add("hidden"));
   document.getElementById(`seccion-${seccion}`).classList.remove("hidden");
 
-  const ACTIVA = ["bg-red-600", "text-white", "shadow-sm"];
-  const INACTIVA = ["bg-white", "text-gray-600", "border", "border-gray-200", "hover:bg-gray-50"];
-  document.querySelectorAll(".tab-seccion").forEach((t) => {
-    t.classList.remove(...ACTIVA);
-    t.classList.add(...INACTIVA);
+  document.querySelectorAll(".libro-tab").forEach((t) => {
+    t.classList.remove("libro-tab--activa");
+    t.setAttribute("aria-selected", "false");
   });
   const tabActivo = document.getElementById(`tab-${seccion}`);
-  tabActivo.classList.remove(...INACTIVA);
-  tabActivo.classList.add(...ACTIVA);
+  tabActivo.classList.add("libro-tab--activa");
+  tabActivo.setAttribute("aria-selected", "true");
 }
 
 function escapeHtml(s) {
@@ -51,24 +49,23 @@ function cerrarBolsillo() {
 function renderDocumentos(documentos) {
     const lista = document.getElementById('listaDocumentos');
     lista.innerHTML = '';
+    const iconos = window.LIBRO_ICONOS || {};
 
     if (!documentos || documentos.length === 0) {
-        lista.innerHTML = '<li class="p-3 text-sm text-gray-600">No hay documentos en este bolsillo.</li>';
+        lista.innerHTML = '<li class="p-4 text-sm text-gray-600 text-center">Aún no hay documentos en este bolsillo.</li>';
         return;
     }
 
     documentos.forEach((doc, index) => {
         const li = document.createElement('li');
-        li.className = 'p-3 flex items-center justify-between text-sm';
+        li.className = 'libro-doc';
         const botonEliminar = doc.puede_eliminar_empleado
-            ? `<button onclick="eliminarDocumentoEmpleado(${doc.id})" class="text-red-400 hover:text-red-600 px-2" title="Eliminar dentro de las primeras 24 horas">✕</button>`
+            ? `<button onclick="eliminarDocumentoEmpleado(${doc.id})" class="libro-accion libro-accion--peligro" title="Eliminar (solo dentro de las primeras 24 horas)" aria-label="Eliminar">${iconos['x'] || ''}</button>`
             : '';
         li.innerHTML = `
-            <button onclick="abrirVisorPDF(${index})" class="flex items-center gap-2 text-left flex-1 text-red-600 hover:underline">
-                <span class="text-gray-600 no-underline">${index + 1}.</span>
-                <span>${escapeHtml(doc.nombre_archivo)}</span>
-            </button>
-            ${botonEliminar}
+            <span class="libro-doc__icono">${iconos['file-text'] || ''}</span>
+            <button onclick="abrirVisorPDF(${index})" class="libro-doc__nombre" title="Ver ${escapeHtml(doc.nombre_archivo)}">${escapeHtml(doc.nombre_archivo)}</button>
+            ${botonEliminar ? `<div class="libro-doc__acciones">${botonEliminar}</div>` : ''}
         `;
         lista.appendChild(li);
     });

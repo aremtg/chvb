@@ -1,21 +1,171 @@
-/* libro: estilos de esta pantalla (antes en un bloque <style> dentro de libro.php). */
-.pagina-bolsillo {
-    transform-origin: left center;
-    animation: abrirPagina 0.35s ease-out;
+/*
+ * Libro del empleado. Un solo lugar para los colores de esta pantalla.
+ * Paleta: rojo (acción y marca), ámbar (próximo a vencer), rojo suave (vencido),
+ * verde (al día) y gris (texto y bordes). Coincide con botones.css y formulario_permiso.css.
+ */
+
+:root {
+  --libro-ink: #111827;
+  --libro-ink-2: #374151;
+  --libro-ink-3: #6b7280;
+  --libro-line: #e5e7eb;
+  --libro-surface: #ffffff;
+  --libro-page: #f5f6f7;
+  --libro-brand: #dc2626;
+  --libro-brand-soft: #fef2f2;
+  --libro-warn: #b45309;
+  --libro-warn-soft: #fffbeb;
+  --libro-warn-line: #fde68a;
+  --libro-danger: #b91c1c;
+  --libro-danger-soft: #fef2f2;
+  --libro-danger-line: #fecaca;
+  --libro-ok: #15803d;
+  --libro-ok-soft: #f0fdf4;
+  --libro-radius: 16px;
+  --libro-radius-sm: 12px;
+  --libro-shadow: 0 1px 2px rgba(17, 24, 39, .05), 0 1px 3px rgba(17, 24, 39, .06);
+  --libro-shadow-hover: 0 8px 20px -8px rgba(17, 24, 39, .18);
 }
 
+/* ---------- Página ---------- */
+.libro-page { background: var(--libro-page); min-height: 100vh; }
+
+.libro-titulo { font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; color: var(--libro-ink); }
+.libro-subtitulo { font-size: .875rem; color: var(--libro-ink-3); }
+.libro-badge {
+  display: grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: none;
+  border-radius: var(--libro-radius-sm); background: var(--libro-brand-soft); color: var(--libro-brand);
+}
+.libro-volver {
+  display: inline-grid; place-items: center; width: 2.25rem; height: 2.25rem; flex: none;
+  border-radius: var(--libro-radius-sm); border: 1px solid var(--libro-line); background: #fff; color: var(--libro-ink-2);
+  transition: background-color .15s ease;
+}
+.libro-volver:hover { background: #f9fafb; }
+
+/* ---------- Pestañas de sección ---------- */
+.libro-tabs { display: inline-flex; flex-wrap: wrap; gap: .25rem; padding: .25rem; border-radius: 14px; background: #e9ecef; }
+.libro-tab {
+  display: inline-flex; align-items: center; gap: .5rem; height: 2.25rem; padding: 0 1rem;
+  border-radius: 11px; font-size: .875rem; font-weight: 600; color: var(--libro-ink-3);
+  transition: background-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.libro-tab:hover { color: var(--libro-ink-2); }
+.libro-tab--activa { background: #fff; color: var(--libro-brand); box-shadow: var(--libro-shadow); }
+.libro-tab--activa:hover { color: var(--libro-brand); }
+
+/* ---------- Tarjetas de bolsillo ---------- */
+.libro-grid { display: grid; grid-template-columns: 1fr; gap: .875rem; }
+@media (min-width: 640px) { .libro-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .libro-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.libro-bolsillo {
+  position: relative; display: flex; flex-direction: column; gap: .75rem; width: 100%;
+  padding: 1rem; text-align: left;
+  background: var(--libro-surface); border: 1px solid var(--libro-line); border-radius: var(--libro-radius);
+  box-shadow: var(--libro-shadow);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.libro-bolsillo:hover { transform: translateY(-2px); box-shadow: var(--libro-shadow-hover); }
+.libro-bolsillo:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(220, 38, 38, .25); }
+
+.libro-bolsillo__cabecera { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }
+.libro-bolsillo__icono {
+  display: grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: none;
+  border-radius: var(--libro-radius-sm); background: #f3f4f6; color: var(--libro-ink-2);
+  transition: transform .2s ease, background-color .2s ease;
+}
+.libro-bolsillo:hover .libro-bolsillo__icono { transform: scale(1.08); }
+.libro-bolsillo__titulo { display: block; font-size: .9375rem; font-weight: 700; color: var(--libro-ink); }
+.libro-bolsillo__cuenta { display: block; margin-top: .125rem; font-size: .75rem; color: var(--libro-ink-3); }
+
+.libro-bolsillo--ok { border-color: var(--libro-line); }
+.libro-bolsillo--ok .libro-bolsillo__icono { background: #f3f4f6; color: var(--libro-ink-2); }
+.libro-bolsillo--proxima { border-color: var(--libro-warn-line); background: var(--libro-warn-soft); }
+.libro-bolsillo--proxima .libro-bolsillo__icono { background: #fff; color: var(--libro-warn); }
+.libro-bolsillo--vencida { border-color: var(--libro-danger-line); background: var(--libro-danger-soft); }
+.libro-bolsillo--vencida .libro-bolsillo__icono { background: #fff; color: var(--libro-danger); }
+
+/* ---------- Píldoras de estado ---------- */
+.libro-pill {
+  display: inline-flex; align-items: center; gap: .375rem; white-space: nowrap;
+  padding: .25rem .625rem; border-radius: 999px; font-size: .6875rem; font-weight: 700;
+}
+.libro-pill:empty { display: none; }
+.libro-pill--vencida { background: #fee2e2; color: var(--libro-danger); }
+.libro-pill--proxima { background: #fef3c7; color: var(--libro-warn); }
+.libro-pill--configurada { background: #f3f4f6; color: var(--libro-ink-2); font-weight: 600; }
+
+/* ---------- Modal de bolsillo ---------- */
+.libro-modal-cabecera { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--libro-line); position: sticky; top: 0; z-index: 10; background: #fff; }
+.libro-modal-titulo { font-size: .9375rem; font-weight: 700; color: var(--libro-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.libro-cerrar {
+  display: grid; place-items: center; width: 2.25rem; height: 2.25rem; flex: none;
+  border-radius: var(--libro-radius-sm); color: var(--libro-ink-3); transition: background-color .15s ease, color .15s ease;
+}
+.libro-cerrar:hover { background: #f3f4f6; color: var(--libro-ink); }
+
+/* ---------- Zona de subida ---------- */
+.libro-dropzone {
+  display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: 1.25rem;
+  text-align: center; border: 2px dashed #fecaca; border-radius: var(--libro-radius);
+  background: #fff; transition: border-color .2s ease, background-color .2s ease;
+}
+.libro-dropzone:hover { border-color: #f87171; background: #fffafa; }
+/* Estas reglas no están en capas: sin esto, display:flex ganaría a la clase "hidden" de Tailwind. */
+.libro-dropzone.hidden { display: none; }
+.libro-dropzone__icono {
+  display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 14px;
+  background: var(--libro-brand); color: #fff; box-shadow: 0 6px 14px -6px rgba(220, 38, 38, .6);
+  animation: libro-subir 1.8s ease-in-out infinite;
+}
+@keyframes libro-subir {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* ---------- Documentos ---------- */
+.libro-doc {
+  display: flex; align-items: center; gap: .75rem; padding: .75rem .875rem;
+  transition: background-color .15s ease;
+}
+.libro-doc:hover { background: #fafafa; }
+.libro-doc__icono {
+  display: grid; place-items: center; width: 2.25rem; height: 2.25rem; flex: none;
+  border-radius: 10px; background: var(--libro-brand-soft); color: var(--libro-brand);
+}
+.libro-doc__nombre {
+  flex: 1; min-width: 0; text-align: left; font-size: .875rem; font-weight: 600; color: var(--libro-ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.libro-doc__nombre:hover { color: var(--libro-brand); text-decoration: underline; }
+.libro-doc__acciones { display: flex; align-items: center; gap: .125rem; }
+.libro-accion {
+  display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 9px;
+  color: var(--libro-ink-3); transition: background-color .15s ease, color .15s ease;
+}
+.libro-accion:hover { background: #f3f4f6; color: var(--libro-ink); }
+.libro-accion--peligro:hover { background: var(--libro-danger-soft); color: var(--libro-danger); }
+
+/* ---------- Esqueleto de carga ---------- */
+.libro-esqueleto {
+  height: .75rem; border-radius: 6px; width: 70%;
+  background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
+  background-size: 200% 100%; animation: libro-brillo 1.4s linear infinite;
+}
+@keyframes libro-brillo { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ---------- Movimiento reducido: sin animaciones ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .libro-bolsillo, .libro-bolsillo__icono, .libro-tab, .libro-dropzone, .libro-dropzone__icono, .libro-esqueleto {
+    animation: none !important; transition: none !important; transform: none !important;
+  }
+}
+
+/* ---------- Apertura del modal de bolsillo ---------- */
+.pagina-bolsillo { transform-origin: left center; animation: abrirPagina .35s ease-out; }
 @keyframes abrirPagina {
-    from {
-        transform: rotateY(-15deg);
-        opacity: 0;
-    }
-
-    to {
-        transform: rotateY(0deg);
-        opacity: 1;
-    }
+  from { transform: rotateY(-15deg); opacity: 0; }
+  to { transform: rotateY(0deg); opacity: 1; }
 }
-
-.libro-sombra {
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
-}
+.libro-sombra { box-shadow: 0 10px 30px -10px rgba(0, 0, 0, .3); }

@@ -64,6 +64,7 @@
     --color-black: #000;
     --color-white: #fff;
     --spacing: 0.25rem;
+    --container-xs: 20rem;
     --container-sm: 24rem;
     --container-md: 28rem;
     --container-lg: 32rem;
@@ -101,6 +102,7 @@
     --radius-lg: 0.5rem;
     --radius-xl: 0.75rem;
     --radius-2xl: 1rem;
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     --default-transition-duration: 150ms;
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -635,9 +637,6 @@
   .min-h-11 {
     min-height: calc(var(--spacing) * 11);
   }
-  .min-h-\[17px\] {
-    min-height: 17px;
-  }
   .min-h-\[20px\] {
     min-height: 20px;
   }
@@ -754,6 +753,9 @@
   }
   .max-w-sm {
     max-width: var(--container-sm);
+  }
+  .max-w-xs {
+    max-width: var(--container-xs);
   }
   .min-w-0 {
     min-width: 0px;
@@ -1630,21 +1632,27 @@
   .peer-checked\:text-red-700:is(:where(.peer):checked ~ *) {
     color: var(--color-red-700);
   }
-  .file\:mr-2::file-selector-button {
-    margin-right: calc(var(--spacing) * 2);
-  }
   .file\:mr-3::file-selector-button {
     margin-right: calc(var(--spacing) * 3);
   }
+  .file\:h-9::file-selector-button {
+    height: calc(var(--spacing) * 9);
+  }
+  .file\:cursor-pointer::file-selector-button {
+    cursor: pointer;
+  }
   .file\:rounded-lg::file-selector-button {
     border-radius: var(--radius-lg);
+  }
+  .file\:rounded-xl::file-selector-button {
+    border-radius: var(--radius-xl);
   }
   .file\:border-0::file-selector-button {
     border-style: var(--tw-border-style);
     border-width: 0px;
   }
-  .file\:bg-gray-50::file-selector-button {
-    background-color: var(--color-gray-50);
+  .file\:bg-gray-100::file-selector-button {
+    background-color: var(--color-gray-100);
   }
   .file\:bg-gray-900::file-selector-button {
     background-color: var(--color-gray-900);
@@ -1652,19 +1660,18 @@
   .file\:px-3::file-selector-button {
     padding-inline: calc(var(--spacing) * 3);
   }
+  .file\:px-4::file-selector-button {
+    padding-inline: calc(var(--spacing) * 4);
+  }
   .file\:py-1::file-selector-button {
     padding-block: var(--spacing);
-  }
-  .file\:text-xs::file-selector-button {
-    font-size: var(--text-xs);
-    line-height: var(--tw-leading, var(--text-xs--line-height));
   }
   .file\:font-semibold::file-selector-button {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
   }
-  .file\:text-gray-600::file-selector-button {
-    color: var(--color-gray-600);
+  .file\:text-gray-700::file-selector-button {
+    color: var(--color-gray-700);
   }
   .file\:text-white::file-selector-button {
     color: var(--color-white);
@@ -1682,9 +1689,6 @@
     }
     .hover\:border-red-400:hover {
       border-color: var(--color-red-400);
-    }
-    .hover\:bg-amber-50:hover {
-      background-color: var(--color-amber-50);
     }
     .hover\:bg-black:hover {
       background-color: var(--color-black);
