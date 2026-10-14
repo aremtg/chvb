@@ -134,31 +134,45 @@ foreach ($bolsillos as $b) {
             <!-- CONTENIDO MODAL -->
             <div class="p-5 space-y-4">
 
-                <!-- Configuración de alarma -->
+                <!-- Documentos (lo principal) -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm font-semibold text-gray-700">Documentos</p>
+                        <span id="contadorDocumentos" class="text-xs text-gray-500"></span>
+                    </div>
+                    <ul id="listaDocumentos"
+                        class="divide-y divide-gray-100 border border-gray-100 rounded-xl overflow-hidden"></ul>
+                </div>
+
+                <!-- Subir PDF (compacto) -->
                 <?php if (!$esSoloLectura): ?>
+                    <form id="formSubirPDF" class="flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-gray-200 px-3 py-2">
+                        <?= csrfCampoHTML() ?>
+                        <span class="text-gray-600"><?= icon('cloud-upload', 'w-4 h-4') ?></span>
+                        <input type="file" name="archivo" accept="application/pdf" required
+                            class="flex-1 min-w-0 text-xs text-gray-600 file:mr-2 file:h-8 file:px-3 file:rounded-lg file:border-0 file:bg-gray-100 file:text-gray-700 file:font-semibold">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <?= icon('upload', 'w-4 h-4') ?> Subir
+                        </button>
+                        <p id="errorSubida" class="w-full text-xs text-red-600 hidden"></p>
+                    </form>
+                <?php endif; ?>
 
-                    <div class="bg-gray-50 rounded-xl border border-gray-100 p-4 space-y-3">
-
-                        <div class="flex items-center gap-2">
-
-                            <div class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-                                <?= icon('bell', 'w-4 h-4') ?>
+                <!-- Alarma (resumen; el formulario se despliega) -->
+                <?php if (!$esSoloLectura): ?>
+                    <div class="rounded-xl border border-gray-100 bg-gray-50">
+                        <div class="flex items-center justify-between gap-3 px-4 py-2.5">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="text-red-600"><?= icon('bell', 'w-4 h-4') ?></span>
+                                <p id="infoAlarma" class="text-xs font-medium text-gray-600 truncate">Sin alarma activa.</p>
                             </div>
-
-                            <div>
-                                <p class="text-sm font-semibold text-gray-700">
-                                    Alarma de revisión
-                                </p>
-
-                                <p class="text-[11px] text-gray-600">
-                                    Configura el próximo recordatorio.
-                                </p>
-                            </div>
-
+                            <button type="button" id="btnToggleAlarma" aria-expanded="false" aria-controls="panelAlarma"
+                                class="btn btn-secondary btn-sm shrink-0">
+                                Configurar
+                            </button>
                         </div>
-
-
-                        <div>
+                        <div id="panelAlarma" class="hidden border-t border-gray-100 p-4 space-y-3">
+<div>
 
                             <label class="block text-xs font-semibold text-gray-600 mb-1.5">
                                 Plazo
@@ -175,7 +189,6 @@ foreach ($bolsillos as $b) {
 
                         </div>
 
-
                         <div id="cajaPersonalizado" class="hidden flex gap-2 items-center">
 
                             <input type="number" id="inputValorCustom" min="1" placeholder="Cantidad"
@@ -189,7 +202,6 @@ foreach ($bolsillos as $b) {
                             </select>
 
                         </div>
-
 
                         <div>
 
@@ -216,7 +228,6 @@ foreach ($bolsillos as $b) {
 
                         </div>
 
-
                         <div class="flex flex-wrap items-center gap-2 pt-1">
 
                             <button onclick="guardarAlarma()"
@@ -230,46 +241,9 @@ foreach ($bolsillos as $b) {
                             </button>
 
                         </div>
-
-
-                        <p id="infoAlarma" class="text-xs font-medium mt-1"></p>
-
+                        </div>
                     </div>
-
                 <?php endif; ?>
-
-
-                <!-- Subir nuevo PDF -->
-                <?php if (!$esSoloLectura): ?>
-                    <form id="formSubirPDF" class="libro-dropzone">
-                        <?= csrfCampoHTML() ?>
-                        <span class="libro-dropzone__icono"><?= icon('cloud-upload', 'w-6 h-6') ?></span>
-                        <p class="text-sm font-bold text-gray-900">Adjuntar un PDF</p>
-                        <p class="text-xs text-gray-600">Selecciona el documento en formato PDF.</p>
-                        <input type="file" name="archivo" accept="application/pdf" required
-                            class="block w-full max-w-xs text-xs text-gray-600 file:mr-3 file:h-9 file:px-4 file:rounded-xl file:border-0 file:bg-gray-100 file:text-gray-700 file:font-semibold file:cursor-pointer">
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            <?= icon('upload', 'w-4 h-4') ?> Subir documento
-                        </button>
-                        <p id="errorSubida" class="text-xs text-red-600 hidden"></p>
-                    </form>
-                <?php endif; ?>
-
-                <!-- Lista de documentos -->
-                <div>
-
-                    <div class="flex items-center justify-between mb-2">
-
-                        <p class="text-sm font-semibold text-gray-700">
-                            Documentos
-                        </p>
-
-                    </div>
-
-                    <ul id="listaDocumentos"
-                        class="divide-y divide-gray-100 border border-gray-100 rounded-xl overflow-hidden"></ul>
-
-                </div>
 
             </div>
 

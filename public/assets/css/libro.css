@@ -108,23 +108,7 @@
 .libro-cerrar:hover { background: #f3f4f6; color: var(--libro-ink); }
 
 /* ---------- Zona de subida ---------- */
-.libro-dropzone {
-  display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: 1.25rem;
-  text-align: center; border: 2px dashed #fecaca; border-radius: var(--libro-radius);
-  background: #fff; transition: border-color .2s ease, background-color .2s ease;
-}
-.libro-dropzone:hover { border-color: #f87171; background: #fffafa; }
-/* Estas reglas no están en capas: sin esto, display:flex ganaría a la clase "hidden" de Tailwind. */
-.libro-dropzone.hidden { display: none; }
-.libro-dropzone__icono {
-  display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 14px;
-  background: var(--libro-brand); color: #fff; box-shadow: 0 6px 14px -6px rgba(220, 38, 38, .6);
-  animation: libro-subir 1.8s ease-in-out infinite;
-}
-@keyframes libro-subir {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
+
 
 /* ---------- Documentos ---------- */
 .libro-doc {
@@ -159,7 +143,7 @@
 
 /* ---------- Movimiento reducido: sin animaciones ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .libro-bolsillo, .libro-bolsillo__icono, .libro-tab, .libro-dropzone, .libro-dropzone__icono, .libro-esqueleto {
+  .libro-bolsillo, .libro-bolsillo__icono, .libro-tab, .libro-esqueleto {
     animation: none !important; transition: none !important; transform: none !important;
   }
 }
@@ -171,3 +155,6 @@
   to { transform: rotateY(0deg); opacity: 1; }
 }
 .libro-sombra { box-shadow: 0 10px 30px -10px rgba(0, 0, 0, .3); }
+
+/* Lista de documentos del modal: se desplaza dentro del modal, así el formulario de alarma no la empuja. */
+#listaDocumentos { max-height: 52vh; overflow-y: auto; }

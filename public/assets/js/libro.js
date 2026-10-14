@@ -199,6 +199,16 @@ function actualizarTarjetaBolsillo(bolsillo) {
   }
 }
 
+const btnToggleAlarmaEl = document.getElementById("btnToggleAlarma");
+if (btnToggleAlarmaEl) {
+  btnToggleAlarmaEl.addEventListener("click", () => {
+    const panel = document.getElementById("panelAlarma");
+    const oculto = panel.classList.toggle("hidden");
+    btnToggleAlarmaEl.setAttribute("aria-expanded", String(!oculto));
+    btnToggleAlarmaEl.textContent = oculto ? "Configurar" : "Cerrar";
+  });
+}
+
 const selectAlarmaEl = document.getElementById("selectAlarma");
 if (selectAlarmaEl) {
   selectAlarmaEl.addEventListener("change", (e) => {
@@ -211,6 +221,11 @@ if (selectAlarmaEl) {
 function renderDocumentos(documentos) {
   const lista = document.getElementById("listaDocumentos");
   lista.innerHTML = "";
+  const contador = document.getElementById("contadorDocumentos");
+  if (contador) {
+    const n = documentos ? documentos.length : 0;
+    contador.textContent = n === 1 ? "1 documento" : `${n} documentos`;
+  }
   const soloLectura = document.body.dataset.soloLectura === "1";
   const iconos = window.LIBRO_ICONOS || {};
 
@@ -310,6 +325,8 @@ async function refrescarBolsilloActual() {
     const data = await res.json();
     if (data.ok) {
       bolsilloActual = data.bolsillo;
+      // Sincroniza la copia global: si no, la siguiente apertura mostraría los nombres anteriores.
+      actualizarTarjetaBolsillo(bolsilloActual);
       renderDocumentos(bolsilloActual.documentos);
       document.getElementById("modalBolsillo").classList.remove("hidden");
     }

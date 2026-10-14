@@ -133,10 +133,8 @@ foreach ($bolsillosPorSeccion as $lista) {
 
             <div class="p-5 space-y-4">
 
-                <div id="cajaSubirCertificado" class="hidden libro-dropzone">
-                    <span class="libro-dropzone__icono"><?= icon('cloud-upload', 'w-6 h-6') ?></span>
-                    <p class="text-sm font-bold text-gray-900">Adjuntar certificado (PDF)</p>
-                    <p class="text-xs text-gray-600">Se enviará automáticamente a Talento Humano y al auxiliar.</p>
+                <div id="cajaSubirCertificado" class="hidden ">
+                    <p class="text-sm font-bold text-gray-900 text-center">Adjuntar certificado (PDF)</p>
                     <form id="formSubirPDF" class="flex flex-col sm:flex-row gap-2 w-full justify-center mt-2">
                         <?= csrfCampoHTML() ?>
                         <input type="file" name="archivo" accept="application/pdf" required
