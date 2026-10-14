@@ -36,4 +36,6 @@ $mimeMap = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png',
 
 if (ob_get_level()) ob_end_clean(); // evita corrupción de imagen si algo emitió salida antes
 header('Content-Type: ' . ($mimeMap[$extension] ?? 'application/octet-stream'));
+header('Content-Disposition: inline; filename="' . basename($rutaCompleta) . '"');
+header('Content-Length: ' . filesize($rutaCompleta));
 readfile($rutaCompleta);

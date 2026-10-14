@@ -296,10 +296,16 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
                             </div>
                         </div>
 
-                        <div>
+                        <div id="bloqueEvidencia"
+                            data-actual-url="<?= ($editarId && !empty($permisoEditar['evidencia_archivo'])) ? htmlspecialchars('./api/permiso_imagen.php?id=' . $editarId . '&campo=evidencia_archivo', ENT_QUOTES) : '' ?>"
+                            data-actual-tipo="<?= ($editarId && !empty($permisoEditar['evidencia_archivo'])) ? (preg_match('/\.pdf$/i', $permisoEditar['evidencia_archivo']) ? 'pdf' : 'imagen') : '' ?>"
+                            data-actual-nombre="<?= ($editarId && !empty($permisoEditar['evidencia_archivo'])) ? htmlspecialchars(basename($permisoEditar['evidencia_archivo']), ENT_QUOTES) : '' ?>">
                             <label class="fx-label">Evidencia (opcional)</label>
-                            <input type="file" name="evidencia"
-                                class="fx-input">
+                            <input type="hidden" name="eliminar_evidencia" id="eliminarEvidencia" value="0">
+                            <input type="file" name="evidencia" id="inputEvidencia" class="hidden"
+                                accept="image/jpeg,image/png,image/webp,application/pdf">
+                            <div id="evidenciaUI"></div>
+                            <p id="evidenciaError" class="hidden text-xs text-red-600 mt-1"></p>
                         </div>
                     </div>
 
@@ -323,8 +329,10 @@ $datosCompletos = $empleado && PermisoController::empleadoTieneDatosCompletos($e
     <?php if ($datosCompletos): ?>
     <script>window.JORNADA_EMPLEADO = <?= json_encode(JornadaHelper::reglas($empleado) + ['tipo_calculo' => JornadaHelper::tipoParaCalculo($empleado) ?? 'Civil'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;</script>
     <script>window.PERMISO_EDITAR = <?= $editarId ? json_encode(['id'=>$editarId,'version'=>(int)$permisoEditar['version'],'permiso'=>$permisoEditar,'dias'=>PermisoModel::obtenerDias($editarId),'devoluciones'=>PermisoModel::obtenerDevoluciones($editarId)], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) : 'null' ?>;</script>
+    <script src="./assets/js/visor_imagen.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/visor_imagen.js') ?>"></script>
     <script src="./assets/js/camera_capture.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/camera_capture.js') ?>"></script>
     <script src="./assets/js/firma_canvas.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/firma_canvas.js') ?>"></script>
+    <script src="./assets/js/evidencia_permiso.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/evidencia_permiso.js') ?>"></script>
     <script src="./assets/js/permiso_nuevo.js?v=<?= (int)@filemtime(__DIR__ . '/assets/js/permiso_nuevo.js') ?>"></script>
     <?php endif; ?>
 </body>

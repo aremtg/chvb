@@ -200,6 +200,15 @@ function render() {
   function imgUrl(campo) {
     return `./api/permiso_imagen.php?id=${p.id}&campo=${campo}`;
   }
+  function bloqueEvidencia() {
+    if (!p.evidencia_archivo) return "";
+    const url = imgUrl("evidencia_archivo");
+    const esPdf = /\.pdf$/i.test(p.evidencia_archivo);
+    const visor = esPdf
+      ? `<button type="button" data-visor-pdf="${url}" data-visor-titulo="Evidencia del permiso" class="mt-2 inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-800"><span class="text-xl" aria-hidden="true">📄</span> Ver evidencia (PDF)</button>`
+      : `<img src="${url}" data-visor-img="${url}" alt="Evidencia del permiso" role="button" tabindex="0" class="mt-2 h-28 rounded-xl border border-gray-200 object-cover cursor-zoom-in">`;
+    return `<div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5"><p class="text-xs font-bold uppercase text-gray-600">Evidencia</p>${visor}</div>`;
+  }
   function bloqueFirmante(titulo, nombre, cedula, campoFoto, campoFirma) {
     if (!cedula && titulo === "Reemplazo") return "";
     const firmado = !!p[campoFirma];
@@ -296,7 +305,7 @@ function render() {
 
     ${notaHtml}
 
-    ${p.evidencia_archivo ? `<div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5"><p class="text-xs font-bold uppercase  text-gray-600">Evidencia</p><a href="${imgUrl("evidencia_archivo")}" target="_blank" class="inline-block mt-2 text-sm font-semibold text-red-600 hover:underline">Ver archivo de evidencia</a></div>` : ""}
+    ${bloqueEvidencia()}
 
     ${acciones ? `<div class="flex flex-wrap gap-2 pt-1">${acciones}</div>` : ""}
 
@@ -440,56 +449,3 @@ document
   });
 
 cargarPermiso();
-
-// =====================================================================
-// Visor de foto: al tocar una foto se abre un modal solo con la imagen.
-// Se cierra con la X, tocando fuera de la imagen o con Escape.
-// =====================================================================
-function abrirVisorImagen(src, alt) {
-  if (document.getElementById("visorImagenModal")) return;
-
-  const modal = document.createElement("div");
-  modal.id = "visorImagenModal";
-  modal.className =
-    "fixed inset-0 modal-fondo z-[100] flex items-center justify-center p-4 bg-black/75";
-  modal.setAttribute("role", "dialog");
-  modal.setAttribute("aria-modal", "true");
-  modal.innerHTML = `
-    <div class="relative" style="max-width:min(92vw,480px)">
-      <button type="button" data-cerrar-visor aria-label="Cerrar"
-        class="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white text-gray-700 shadow flex items-center justify-center text-lg leading-none">&times;</button>
-      <img alt="" class="block rounded-xl bg-white object-contain" style="max-width:100%;max-height:80vh">
-    </div>`;
-  const img = modal.querySelector("img");
-  img.alt = alt || "Foto";
-  img.src = src;
-
-  function cerrar() {
-    document.removeEventListener("keydown", onKey);
-    modal.remove();
-  }
-  function onKey(e) {
-    if (e.key === "Escape") cerrar();
-  }
-
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal || e.target.closest("[data-cerrar-visor]")) cerrar();
-  });
-  document.addEventListener("keydown", onKey);
-  document.body.appendChild(modal);
-}
-
-document.addEventListener("click", (e) => {
-  const el = e.target.closest("[data-visor-img]");
-  if (el) abrirVisorImagen(el.dataset.visorImg, el.getAttribute("alt"));
-});
-document.addEventListener("keydown", (e) => {
-  if (
-    (e.key === "Enter" || e.key === " ") &&
-    e.target.matches &&
-    e.target.matches("[data-visor-img]")
-  ) {
-    e.preventDefault();
-    abrirVisorImagen(e.target.dataset.visorImg, e.target.getAttribute("alt"));
-  }
-});

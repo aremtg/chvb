@@ -25,9 +25,6 @@ try {
     if($motivo==='') $errores[]='El motivo es obligatorio.';
     if($jefe===''||$jefe===$cedula) $errores[]='Debes seleccionar un jefe inmediato válido.';
     if($tiene && (!$reemplazo||$reemplazo===$cedula)) $errores[]='Debes seleccionar un reemplazo válido.';
-    // El jefe y el reemplazo deben existir y estar activos (un empleado "no activo" no puede firmar).
-    if($jefe!=='' && $jefe!==$cedula && !EmpleadoModel::estaActivo($jefe)) $errores[]='El jefe inmediato seleccionado no existe o no está activo. Elige otra persona.';
-    if($tiene && $reemplazo && $reemplazo!==$cedula && !EmpleadoModel::estaActivo($reemplazo)) $errores[]='El reemplazo seleccionado no existe o no está activo. Elige otra persona.';
     if($especial && (empty($_POST['fecha_inicio'])||empty($_POST['hora_inicio']))) $errores[]='Indica fecha y hora de salida.';
     if(!$especial && empty($_POST['dias_confirmados'])) $errores[]='Debes indicar los días y horarios del permiso.';
     $esCompE=(($_POST['es_compensatorio']??'0')==='1'); $esDevE=(($_POST['es_devolucion']??'0')==='1');
@@ -67,11 +64,27 @@ try {
     if(isset($_POST['usar_firma_guardada'])){ $f=FirmaModel::obtenerPorCedula($cedula); if(!$f) throw new Exception('No tienes firma guardada.'); $campos['firma_solicitante']=$f['ruta_imagen']; }
     elseif(!empty($_POST['firma_solicitante_base64'])){ $f=FirmaController::guardarFirmaBase64($cedula,$_POST['firma_solicitante_base64']); if(!$f['ok']) throw new Exception($f['error']); $campos['firma_solicitante']=$f['ruta']; }
     elseif(!empty($_FILES['firma_solicitante_archivo'])){ $f=FirmaController::guardarFirmaArchivo($cedula,$_FILES['firma_solicitante_archivo']); if(!$f['ok']) throw new Exception($f['error']); $campos['firma_solicitante']=$f['ruta']; }
-    if(!empty($_FILES['evidencia']) && $_FILES['evidencia']['error']===UPLOAD_ERR_OK){ $f=FileManager::guardarEvidenciaPermiso($cedula,$_FILES['evidencia']); if($f['ok']) $campos['evidencia_archivo']=$f['ruta']; }
+    // Evidencia: conservar (por defecto), reemplazar por un archivo nuevo o eliminar la actual.
+    $evidenciaAnterior=$p['evidencia_archivo']??null; $evidenciaNuevaRuta=null;
+    if(!empty($_FILES['evidencia']) && $_FILES['evidencia']['error']!==UPLOAD_ERR_NO_FILE){
+      if($_FILES['evidencia']['error']!==UPLOAD_ERR_OK){ echo json_encode(['ok'=>false,'error'=>'No se pudo recibir el archivo de evidencia. Inténtalo de nuevo.']); exit; }
+      $f=FileManager::guardarEvidenciaPermiso($cedula,$_FILES['evidencia']);
+      if(!$f['ok']){ echo json_encode(['ok'=>false,'error'=>$f['error']]); exit; }
+      $evidenciaNuevaRuta=$f['ruta']; $campos['evidencia_archivo']=$evidenciaNuevaRuta;
+    } elseif(($_POST['eliminar_evidencia']??'0')==='1'){
+      $campos['evidencia_archivo']=null;
+    }
 
     $nuevoReemplazo=$campos['cedula_reemplazo']; $anteriorReemplazo=$p['cedula_reemplazo'];
     $campos['estado']=$tiene?'por_firmar_reemplazo':'por_firmar_jefe';
-    if(!PermisoModel::actualizarConVersion($id,$version,$campos)){ echo json_encode(['ok'=>false,'error'=>'conflicto_version']); exit; }
+    if(!PermisoModel::actualizarConVersion($id,$version,$campos)){
+      if($evidenciaNuevaRuta){ $abs=FileManager::rutaAbsolutaDesdeRelativa($evidenciaNuevaRuta); if($abs) @unlink($abs); } // no dejar huérfano el archivo recién subido
+      echo json_encode(['ok'=>false,'error'=>'conflicto_version']); exit;
+    }
+    // Ya guardado en BD: borrar del disco la evidencia anterior si fue reemplazada o eliminada.
+    if($evidenciaAnterior && array_key_exists('evidencia_archivo',$campos) && $campos['evidencia_archivo']!==$evidenciaAnterior){
+      $abs=FileManager::rutaAbsolutaDesdeRelativa($evidenciaAnterior); if($abs && is_file($abs)) @unlink($abs);
+    }
     if(!$especial) PermisoModel::reemplazarDias($id,$diasFinal); else PermisoModel::reemplazarDias($id,[]);
     $pdo=getPDO(); $pdo->prepare('DELETE FROM permisos_devoluciones WHERE permiso_id=:b1')->execute(['b1'=>$id]);
     if(!empty($devsFinal)) PermisoModel::crearDevoluciones($id,$devsFinal);
