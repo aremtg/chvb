@@ -133,6 +133,14 @@ class EmpleadoModel
         return $r ?: null;
     }
 
+    /** ¿Existe el empleado y está en estado 'activo'? (jefe y reemplazo de un permiso solo pueden ser activos). */
+    public static function estaActivo(string $cedula): bool
+    {
+        $stmt = getPDO()->prepare("SELECT 1 FROM empleados WHERE cedula = :cedula AND estado = 'activo' LIMIT 1");
+        $stmt->execute(['cedula' => $cedula]);
+        return (bool) $stmt->fetchColumn();
+    }
+
     public static function eliminar(string $cedula): void
     {
         $pdo = getPDO();

@@ -25,6 +25,9 @@ try {
     if($motivo==='') $errores[]='El motivo es obligatorio.';
     if($jefe===''||$jefe===$cedula) $errores[]='Debes seleccionar un jefe inmediato válido.';
     if($tiene && (!$reemplazo||$reemplazo===$cedula)) $errores[]='Debes seleccionar un reemplazo válido.';
+    // El jefe y el reemplazo deben existir y estar activos (un empleado "no activo" no puede firmar).
+    if($jefe!=='' && $jefe!==$cedula && !EmpleadoModel::estaActivo($jefe)) $errores[]='El jefe inmediato seleccionado no existe o no está activo. Elige otra persona.';
+    if($tiene && $reemplazo && $reemplazo!==$cedula && !EmpleadoModel::estaActivo($reemplazo)) $errores[]='El reemplazo seleccionado no existe o no está activo. Elige otra persona.';
     if($especial && (empty($_POST['fecha_inicio'])||empty($_POST['hora_inicio']))) $errores[]='Indica fecha y hora de salida.';
     if(!$especial && empty($_POST['dias_confirmados'])) $errores[]='Debes indicar los días y horarios del permiso.';
     $esCompE=(($_POST['es_compensatorio']??'0')==='1'); $esDevE=(($_POST['es_devolucion']??'0')==='1');

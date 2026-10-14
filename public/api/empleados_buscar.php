@@ -21,7 +21,9 @@ if (strlen($q) < 2) {
 
 $cedulaPropia = $_SESSION['empleado_cedula'] ?? null;
 
-$resultados = EmpleadoModel::listar($q);
+// Solo empleados ACTIVOS: esta búsqueda alimenta la elección de jefe y de reemplazo en los permisos.
+// Se piden 11 porque, si aparece el propio solicitante, se descarta y aún quedan 10.
+$resultados = EmpleadoModel::listar($q, 11, 0, ['estado' => 'activo']);
 $simplificado = [];
 foreach ($resultados as $e) {
     if ($cedulaPropia && $e['cedula'] === $cedulaPropia) continue; // no puedes elegirte a ti mismo

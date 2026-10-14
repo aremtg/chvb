@@ -59,6 +59,11 @@ try {
         $errores[] = 'Debes seleccionar el empleado de reemplazo.';
     if ($tieneReemplazo && $cedulaReemplazo === $cedula)
         $errores[] = 'No puedes seleccionarte a ti mismo como reemplazo.';
+    // El jefe y el reemplazo deben existir y estar activos (un empleado "no activo" no puede firmar).
+    if ($cedulaJefe !== '' && $cedulaJefe !== $cedula && !EmpleadoModel::estaActivo($cedulaJefe))
+        $errores[] = 'El jefe inmediato seleccionado no existe o no está activo. Elige otra persona.';
+    if ($tieneReemplazo && $cedulaReemplazo !== '' && $cedulaReemplazo !== $cedula && !EmpleadoModel::estaActivo($cedulaReemplazo))
+        $errores[] = 'El reemplazo seleccionado no existe o no está activo. Elige otra persona.';
     if ($esCompensatorio && $esDevolucion)
         $errores[] = 'No puedes marcar compensatorio y devolución al mismo tiempo.';
     if ($esCompensatorio && !$fechaHorasExtra)

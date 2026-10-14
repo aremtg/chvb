@@ -38,6 +38,10 @@ $idsSeleccionados = array_values(array_unique(array_filter(
     array_map('intval', (array)($_POST['ids'] ?? [])),
     static fn(int $v): bool => $v > 0
 )));
+// Tope antes de consultar: evita armar un IN (...) gigante con miles de ids.
+if (count($idsSeleccionados) > PermisoPdf::MAX_PERMISOS) {
+    pdfError(422, 'Marcaste ' . count($idsSeleccionados) . ' permisos; el máximo por descarga es ' . PermisoPdf::MAX_PERMISOS . '.');
+}
 
 $filtros = [
     'permiso_id'      => (int)($_POST['id'] ?? 0),
@@ -52,7 +56,7 @@ $dosPorHoja = ($_POST['dos_por_hoja'] ?? '') === '1';
 $permisos = PermisoModel::listarParaTalentoHumano($filtros);
 if (!$permisos) pdfError(404, 'No hay permisos que coincidan para exportar.');
 if (count($permisos) > PermisoPdf::MAX_PERMISOS) {
-    pdfError(422, 'Son ' . count($permisos) . ' permisos; el máximo por descarga es ' . PermisoPdf::MAX_PERMISOS . '. Acota el rango de fechas u otro filtro e inténtalo de nuevo.');
+    pdfError(422, 'Son ' . count($permisos) . ' permisos; el máximo por descarga es ' . PermisoPdf::MAX_PERMISOS . '. Acota con los filtros (solicitante, jefe, tipo o estado) o marca menos permisos e inténtalo de nuevo.');
 }
 $permisos = PermisoModel::enriquecerParaPdf($permisos);
 
