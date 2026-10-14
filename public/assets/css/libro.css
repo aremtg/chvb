@@ -10,7 +10,6 @@
   --libro-ink-3: #6b7280;
   --libro-line: #e5e7eb;
   --libro-surface: #ffffff;
-  --libro-page: #f5f6f7;
   --libro-brand: #dc2626;
   --libro-brand-soft: #fef2f2;
   --libro-warn: #b45309;
@@ -26,9 +25,6 @@
   --libro-shadow: 0 1px 2px rgba(17, 24, 39, .05), 0 1px 3px rgba(17, 24, 39, .06);
   --libro-shadow-hover: 0 8px 20px -8px rgba(17, 24, 39, .18);
 }
-
-/* ---------- Página ---------- */
-.libro-page { background: var(--libro-page); min-height: 100vh; }
 
 .libro-titulo { font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; color: var(--libro-ink); }
 .libro-subtitulo { font-size: .875rem; color: var(--libro-ink-3); }
@@ -133,17 +129,9 @@
 .libro-accion:hover { background: #f3f4f6; color: var(--libro-ink); }
 .libro-accion--peligro:hover { background: var(--libro-danger-soft); color: var(--libro-danger); }
 
-/* ---------- Esqueleto de carga ---------- */
-.libro-esqueleto {
-  height: .75rem; border-radius: 6px; width: 70%;
-  background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
-  background-size: 200% 100%; animation: libro-brillo 1.4s linear infinite;
-}
-@keyframes libro-brillo { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
 /* ---------- Movimiento reducido: sin animaciones ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .libro-bolsillo, .libro-bolsillo__icono, .libro-tab, .libro-esqueleto {
+  .libro-bolsillo, .libro-bolsillo__icono, .libro-tab {
     animation: none !important; transition: none !important; transform: none !important;
   }
 }
@@ -154,7 +142,6 @@
   from { transform: rotateY(-15deg); opacity: 0; }
   to { transform: rotateY(0deg); opacity: 1; }
 }
-.libro-sombra { box-shadow: 0 10px 30px -10px rgba(0, 0, 0, .3); }
 
 /* Lista de documentos del modal: se desplaza dentro del modal, así el formulario de alarma no la empuja. */
 #listaDocumentos { max-height: 52vh; overflow-y: auto; }

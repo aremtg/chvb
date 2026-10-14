@@ -421,8 +421,8 @@ class PermisoModel {
 
         /**
      * Listado para Talento Humano (solo lectura) con todos los filtros del punto 4.
-     * $filtros: fecha_desde, fecha_hasta, cedula_jefe, cedula_empleado, tipo_permiso,
-     * estado ('rechazado'|'firmado'|'en_proceso'), orden_horas ('asc'|'desc').
+     * $filtros: cedula_jefe, cedula_empleado, tipo_permiso,
+     * estado ('rechazado'|'firmado'|'en_proceso').
      */
     public static function listarParaTalentoHumano(array $filtros): array {
         $pdo = getPDO();
@@ -436,11 +436,13 @@ class PermisoModel {
         if (!empty($filtros['permiso_id'])) {
             $sql .= " AND p.id = :b{$i}"; $params["b{$i}"] = (int)$filtros['permiso_id']; $i++;
         }
-        if (!empty($filtros['fecha_desde'])) {
-            $sql .= " AND DATE(p.fecha_solicitud) >= :b{$i}"; $params["b{$i}"] = $filtros['fecha_desde']; $i++;
-        }
-        if (!empty($filtros['fecha_hasta'])) {
-            $sql .= " AND DATE(p.fecha_solicitud) <= :b{$i}"; $params["b{$i}"] = $filtros['fecha_hasta']; $i++;
+        // Selección manual: solo los permisos cuyos ids se pidan (uno a uno desde la pantalla).
+        if (!empty($filtros['permiso_ids']) && is_array($filtros['permiso_ids'])) {
+            $marcas = [];
+            foreach ($filtros['permiso_ids'] as $idSel) {
+                $marcas[] = ":b{$i}"; $params["b{$i}"] = (int)$idSel; $i++;
+            }
+            $sql .= " AND p.id IN (" . implode(',', $marcas) . ")";
         }
         // Empleado y jefe: cédula con o sin puntos, o nombre (todas las palabras deben aparecer).
         if (!empty($filtros['cedula_empleado'])) {
@@ -464,12 +466,7 @@ class PermisoModel {
             }
         }
 
-        if (!empty($filtros['orden_horas'])) {
-            $direccion = $filtros['orden_horas'] === 'asc' ? 'ASC' : 'DESC';
-            $sql .= " ORDER BY p.total_horas {$direccion}";
-        } else {
-            $sql .= " ORDER BY p.fecha_solicitud DESC";
-        }
+        $sql .= " ORDER BY p.fecha_solicitud DESC";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);

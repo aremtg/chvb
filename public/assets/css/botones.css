@@ -10,7 +10,6 @@
  *   btn-danger     eliminar algo (rojo sólido, sin borde): Eliminar
  *   btn-warning    rechazar una solicitud (naranja): Rechazar
  *   btn-success    exportar o descargar: Exportar a Excel, Descargar PDF
- *   btn-info       registrar o confirmar algo informativo: Registrar llegada
  *   btn-dark       filtrar o aplicar: Filtrar
  *   btn-ghost      acción menor o sin peso visual: Limpiar, Ver detalle
  *
@@ -28,7 +27,6 @@
 
   --btn-primary: #dc2626;        --btn-primary-hover: #b91c1c;
   --btn-success: #16a34a;        --btn-success-hover: #15803d;
-  --btn-info: #2563eb;           --btn-info-hover: #1d4ed8;
   --btn-dark: #1f2937;           --btn-dark-hover: #111827;
 
   --btn-text: #374151;           --btn-border: #d1d5db;   --btn-surface-hover: #f9fafb;
@@ -75,8 +73,6 @@
 .btn-success { background: var(--btn-success); color: #fff; }
 .btn-success:hover { background: var(--btn-success-hover); }
 
-.btn-info { background: var(--btn-info); color: #fff; }
-.btn-info:hover { background: var(--btn-info-hover); }
 
 .btn-dark { background: var(--btn-dark); color: #fff; }
 .btn-dark:hover { background: var(--btn-dark-hover); }

@@ -165,6 +165,11 @@ function calcularEstadoAlarmaJS(bolsillo) {
 }
 
 function actualizarTarjetaBolsillo(bolsillo) {
+  const cuenta = document.getElementById(`bolsilloCuenta-${bolsillo.id}`);
+  if (cuenta) {
+    const n = (bolsillo.documentos || []).length;
+    cuenta.textContent = `${n} documento${n === 1 ? "" : "s"}`;
+  }
   const btn = document.getElementById(`bolsilloBtn-${bolsillo.id}`);
   const label = document.getElementById(`bolsilloEstadoLabel-${bolsillo.id}`);
   if (!btn || !label) return;
@@ -330,6 +335,8 @@ async function refrescarBolsilloActual() {
       renderDocumentos(bolsilloActual.documentos);
       document.getElementById("modalBolsillo").classList.remove("hidden");
     }
+  } catch (_) {
+    /* el cambio ya se guardó en el servidor; no lo presentamos como error de la acción */
   } finally {
     Loading.section("listaDocumentos", false);
   }
@@ -357,8 +364,10 @@ if (formSubirPDFEl) {
       const data = await res.json();
 
       if (data.ok) {
-        recargarBolsillo(); // recarga la página: el spinner queda hasta entonces
         e.target.reset();
+        // Trae los datos frescos y repinta la lista SIN recargar la página: el modal sigue abierto.
+        await refrescarBolsilloActual();
+        Loading.stop(btn);
       } else {
         Loading.stop(btn);
         errorSubida.textContent = data.error;
@@ -391,7 +400,8 @@ async function eliminarDocumento(documentoId) {
     const data = await res.json();
 
     if (data.ok) {
-      recargarBolsillo(); // recarga la página: el overlay queda hasta entonces
+      await refrescarBolsilloActual(); // el modal del bolsillo sigue abierto
+      Loading.hide();
     } else {
       Loading.hide();
       alert(data.error || "Error al eliminar.");
@@ -497,12 +507,6 @@ async function quitarAlarma() {
     actualizarInfoAlarma(bolsilloActual);
     actualizarTarjetaBolsillo(bolsilloActual);
   }
-}
-
-// --- Recargar el bolsillo actual sin cerrar el modal (trae datos frescos) ---
-async function recargarBolsillo() {
-  // Recarga toda la página para simplicidad; en un futuro podemos optimizar con un endpoint dedicado
-  window.location.reload();
 }
 
 // --- Visor de PDF tipo "pasar páginas" entre documentos del bolsillo ---

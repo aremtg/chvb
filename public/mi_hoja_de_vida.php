@@ -103,7 +103,7 @@ foreach ($bolsillosPorSeccion as $lista) {
                                         </span>
                                         <span class="libro-bolsillo__texto">
                                             <span class="libro-bolsillo__titulo"><?= htmlspecialchars($bolsillo['nombre_completo']) ?></span>
-                                            <span class="libro-bolsillo__cuenta"><?= count($bolsillo['documentos']) ?> documento<?= count($bolsillo['documentos']) === 1 ? '' : 's' ?></span>
+                                            <span id="bolsilloCuenta-<?= (int) $bolsillo['id'] ?>" class="libro-bolsillo__cuenta"><?= count($bolsillo['documentos']) ?> documento<?= count($bolsillo['documentos']) === 1 ? '' : 's' ?></span>
                                         </span>
                                     </button>
                                 <?php endforeach; ?>

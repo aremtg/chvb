@@ -334,3 +334,39 @@ a.pm-card:hover .pm-card__cta .pm-ico:last-child { transform: translateX(3px); }
 .pm-check { display: inline-flex; align-items: center; gap: .4rem; font-size: .85rem; cursor: pointer; }
 .pm-check[hidden] { display: none; }
 
+/* ---------- Selección uno a uno (permisos_th.php) ---------- */
+.pm-pdfbar__sel { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; min-width: 0; }
+.pm-pdfbar__sel .pm-count { padding: 0; min-height: 0; }
+.pm-sel { width: 1.125rem; height: 1.125rem; margin: 0; flex-shrink: 0; cursor: pointer; accent-color: var(--pm-brand-700); }
+.pm-sel:disabled { cursor: not-allowed; opacity: .5; }
+.pm-sel:focus-visible { outline: 2px solid var(--pm-brand-700); outline-offset: 2px; }
+.pm-row--sel { border-color: var(--pm-brand); background: var(--pm-brand-50); }
+.pm-row--sel .pm-avatar { background: #fff; }
+
+/* ---------- Menú "más acciones" (⋮) ---------- */
+.pm-kebab {
+  display: inline-grid; place-items: center; flex-shrink: 0;
+  width: 2.125rem; height: 2.125rem; padding: 0;
+  background: transparent; color: var(--pm-ink-3);
+  border: 1px solid transparent; border-radius: var(--pm-radius-sm); cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+}
+.pm-kebab:hover, .pm-kebab[aria-expanded="true"] { background: #f3f4f6; color: var(--pm-ink); }
+.pm-kebab:focus-visible { outline: none; box-shadow: var(--pm-ring); }
+.pm-kebab[hidden] { display: none; }
+
+.pm-menu {
+  position: fixed; z-index: 70; min-width: 11rem; padding: .25rem;
+  background: var(--pm-surface); border: 1px solid var(--pm-line); border-radius: var(--pm-radius-sm);
+  box-shadow: var(--pm-shadow-2);
+}
+.pm-menu[hidden] { display: none; }
+.pm-menu__item {
+  display: block; width: 100%; padding: .5rem .75rem; text-align: left;
+  font: inherit; font-size: .875rem; color: var(--pm-ink); background: transparent;
+  border: 0; border-radius: calc(var(--pm-radius-sm) - 4px); cursor: pointer;
+}
+.pm-menu__item:hover:not(:disabled), .pm-menu__item:focus-visible { background: #f3f4f6; outline: none; }
+.pm-menu__item--danger { color: var(--pm-brand-700); }
+.pm-menu__item--danger:hover:not(:disabled), .pm-menu__item--danger:focus-visible { background: var(--pm-brand-50); }
+.pm-menu__item:disabled { opacity: .5; cursor: not-allowed; }

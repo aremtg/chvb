@@ -87,16 +87,11 @@
 .fx-btn:focus-visible { outline: none; box-shadow: var(--fx-ring); }
 .fx-btn--primary { background: var(--fx-primary); color: #fff; box-shadow: 0 1px 2px rgba(185, 28, 28, .35); }
 .fx-btn--primary:hover { background: var(--fx-primary-hover); }
-.fx-btn--ghost { background: #fff; color: var(--fx-ink-2); border-color: var(--fx-line-strong); }
-.fx-btn--ghost:hover { background: #f9fafb; color: var(--fx-ink); }
 
 /* ---------- Avisos ---------- */
 .fx-alert { border-radius: var(--fx-radius-sm); border: 1px solid; padding: .75rem 1rem; font-size: .875rem; }
 .fx-alert--info { background: var(--fx-info-bg); border-color: var(--fx-info-line); color: var(--fx-info-ink); }
 .fx-alert--danger { background: var(--fx-danger-bg); border-color: var(--fx-danger-line); color: var(--fx-danger-ink); }
-
-/* ---------- Opciones Sí / No (radios) ---------- */
-.fx-radio input { accent-color: var(--fx-primary); width: 1rem; height: 1rem; }
 
 /* ---------- Interruptor deslizante ---------- */
 .fx-switch-row {

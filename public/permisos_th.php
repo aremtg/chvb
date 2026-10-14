@@ -112,12 +112,12 @@ $enfocadoEnUno = !empty($_GET['id']);
             </div>
             <div class="pm-filters__body pm-cols-4" id="pmFiltrosBody">
                 <div class="pm-field">
-                    <label for="fEmpleado">Empleado (creador)</label>
-                    <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" type="text" id="fEmpleado" placeholder="Cédula" inputmode="numeric" autocomplete="off"></div>
+                    <label for="fEmpleado">Solicitante</label>
+                    <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" type="text" id="fEmpleado" placeholder="Nombre o cédula" autocomplete="off"></div>
                 </div>
                 <div class="pm-field">
                     <label for="fJefe">Jefe inmediato</label>
-                    <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" type="text" id="fJefe" placeholder="Cédula" inputmode="numeric" autocomplete="off"></div>
+                    <div class="campo-buscar"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" type="text" id="fJefe" placeholder="Nombre o cédula" autocomplete="off"></div>
                 </div>
                 <div class="pm-field">
                     <label for="fTipo">Tipo</label>
@@ -140,29 +140,26 @@ $enfocadoEnUno = !empty($_GET['id']);
                         <option value="anulado">Anulados</option>
                     </select>
                 </div>
-                <div class="pm-field">
-                    <label for="fDesde">Desde</label>
-                    <input type="date" id="fDesde" class="pm-input">
-                </div>
-                <div class="pm-field">
-                    <label for="fHasta">Hasta</label>
-                    <input type="date" id="fHasta" class="pm-input">
-                </div>
-                <div class="pm-field">
-                    <label for="fOrdenHoras">Ordenar por horas</label>
-                    <select id="fOrdenHoras" class="pm-select">
-                        <option value="">Sin orden</option>
-                        <option value="desc">Mayor a menor</option>
-                        <option value="asc">Menor a mayor</option>
-                    </select>
-                </div>
             </div>
         </section>
 
         <!-- Exportar a PDF (admin, auxiliar y teniente). Se descarga en el dispositivo; no se guarda en la BD. -->
         <div class="pm-pdfbar">
-            <div class="pm-count" aria-live="polite" id="pmContador"></div>
+            <div class="pm-pdfbar__sel">
+                <?php if (!$enfocadoEnUno): ?>
+                <label class="pm-check" title="Marca o desmarca todos los permisos que se ven ahora">
+                    <input type="checkbox" id="pmSelTodos" class="pm-sel" disabled>
+                    Seleccionar todos
+                </label>
+                <?php endif; ?>
+                <div class="pm-count" aria-live="polite" id="pmContador"></div>
+                <button type="button" id="pmSelLimpiar" class="pm-btn pm-btn--ghost pm-btn--sm" hidden>Quitar selección</button>
+            </div>
             <div class="pm-pdfbar__acciones">
+                <?php if ($puedeAnular && !$enfocadoEnUno): ?>
+                <button type="button" id="pmMasSel" class="pm-kebab" hidden aria-haspopup="menu" aria-expanded="false"
+                    aria-label="Más acciones para los permisos seleccionados" title="Más acciones"><?= icon('more-vertical', 'pm-ico') ?></button>
+                <?php endif; ?>
                 <label id="pmPdfDosWrap" hidden class="pm-check">
                     <input type="checkbox" id="pmPdfDos" checked>
                     2 permisos por hoja oficio

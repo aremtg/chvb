@@ -6,7 +6,8 @@
 // POST:
 //   csrf_token
 //   id            (opcional) un solo permiso
-//   cedula_empleado, cedula_jefe, tipo_permiso, estado, fecha_desde, fecha_hasta, orden_horas
+//   ids[]         (opcional) selección manual de permisos (varios ids); tiene prioridad sobre los filtros
+//   cedula_empleado, cedula_jefe (nombre o cédula), tipo_permiso, estado
 //                 (opcionales) los MISMOS filtros de la pantalla; sin filtros = todos
 //   dos_por_hoja  (opcional) 1 = dos permisos por hoja oficio
 //
@@ -30,17 +31,21 @@ if (!class_exists(\Dompdf\Dompdf::class)) {
     pdfError(500, 'Falta instalar la librería de PDF (composer require dompdf/dompdf).');
 }
 
-$soloDigitos = static fn($v): string => preg_replace('/\D+/', '', (string)$v) ?? '';
+// Solicitante y jefe: texto tal cual (nombre con varias palabras o cédula con/sin puntos); lo interpreta Busqueda en el modelo.
+$textoFiltro = static fn($v): string => trim((string)$v);
+
+$idsSeleccionados = array_values(array_unique(array_filter(
+    array_map('intval', (array)($_POST['ids'] ?? [])),
+    static fn(int $v): bool => $v > 0
+)));
 
 $filtros = [
     'permiso_id'      => (int)($_POST['id'] ?? 0),
-    'fecha_desde'     => trim((string)($_POST['fecha_desde'] ?? '')),
-    'fecha_hasta'     => trim((string)($_POST['fecha_hasta'] ?? '')),
-    'cedula_jefe'     => $soloDigitos($_POST['cedula_jefe'] ?? ''),
-    'cedula_empleado' => $soloDigitos($_POST['cedula_empleado'] ?? ''),
+    'permiso_ids'     => $idsSeleccionados,
+    'cedula_jefe'     => $textoFiltro($_POST['cedula_jefe'] ?? ''),
+    'cedula_empleado' => $textoFiltro($_POST['cedula_empleado'] ?? ''),
     'tipo_permiso'    => trim((string)($_POST['tipo_permiso'] ?? '')),
     'estado'          => trim((string)($_POST['estado'] ?? '')),
-    'orden_horas'     => trim((string)($_POST['orden_horas'] ?? '')),
 ];
 $dosPorHoja = ($_POST['dos_por_hoja'] ?? '') === '1';
 

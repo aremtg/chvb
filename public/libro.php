@@ -95,7 +95,7 @@ foreach ($bolsillos as $b) {
                                 </span>
                                 <span class="libro-bolsillo__texto">
                                     <span class="libro-bolsillo__titulo"><?= htmlspecialchars($bolsillo['nombre_completo']) ?></span>
-                                    <span class="libro-bolsillo__cuenta"><?= $totalDocs ?> documento<?= $totalDocs === 1 ? '' : 's' ?></span>
+                                    <span id="bolsilloCuenta-<?= $bolsillo['id'] ?>" class="libro-bolsillo__cuenta"><?= $totalDocs ?> documento<?= $totalDocs === 1 ? '' : 's' ?></span>
                                 </span>
                             </button>
                         <?php endforeach; ?>

@@ -1,8 +1,6 @@
 /* formatos_otrosi_salario: estilos de esta pantalla (antes en un bloque <style> dentro de formatos_otrosi_salario.php). */
 .salario-card { overflow: visible !important; }
 .salario-resultado { border: 1px solid #f3f4f6; background: #f9fafb; }
-.salario-empleado-option { border: 1px solid #e5e7eb; background: #fff; }
-.salario-empleado-option:hover { border-color: #fecaca; background: #fffafa; }
 .salario-generado { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
 .salario-generado-contenido { min-width:0; flex:1 1 240px; }
 .salario-generado-acciones { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; width:100%; }

@@ -71,6 +71,26 @@ function renderDocumentos(documentos) {
     });
 }
 
+// Trae el bolsillo abierto con datos frescos y repinta lista y contador, sin recargar la página.
+async function refrescarBolsilloActual() {
+  if (!bolsilloActual) return;
+  try {
+    const res = await fetch(`./api/empleado_bolsillo_obtener.php?id=${bolsilloActual.id}`);
+    const data = await res.json();
+    if (!data.ok) return;
+    bolsilloActual = data.bolsillo;
+    if (typeof BOLSILLOS_DATA !== "undefined") BOLSILLOS_DATA[bolsilloActual.id] = bolsilloActual;
+    renderDocumentos(bolsilloActual.documentos);
+    const cuenta = document.getElementById(`bolsilloCuenta-${bolsilloActual.id}`);
+    if (cuenta) {
+      const n = bolsilloActual.documentos.length;
+      cuenta.textContent = `${n} documento${n === 1 ? "" : "s"}`;
+    }
+  } catch (_) {
+    /* el archivo ya se procesó; si falla el refresco, la lista se actualiza al reabrir */
+  }
+}
+
 document
   .getElementById("formSubirPDF")
   .addEventListener("submit", async (e) => {
@@ -90,7 +110,10 @@ document
       const data = await res.json();
 
       if (data.ok) {
-        window.location.reload();
+        e.target.reset();
+        // Repinta la lista sin recargar la página: el modal del bolsillo sigue abierto.
+        await refrescarBolsilloActual();
+        Loading.stop(btn);
       } else {
         Loading.stop(btn);
         errorSubida.textContent = data.error;
@@ -152,6 +175,7 @@ async function eliminarDocumentoEmpleado(documentoId) {
         const res = await fetch('./api/empleado_eliminar_documento.php', { method: 'POST', body: formData });
         const data = await res.json();
         if (!data.ok) { Loading.hide(); alert(data.error || 'No se pudo eliminar el PDF.'); return; }
-        window.location.reload();
+        await refrescarBolsilloActual(); // el modal del bolsillo sigue abierto
+        Loading.hide();
     } catch (e) { Loading.hide(); alert('Error de conexión con el servidor.'); }
 }
