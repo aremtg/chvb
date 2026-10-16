@@ -11,3 +11,4 @@ if (is_file($autoload)) {
 }
 
 require_once dirname(__DIR__) . '/src/helpers/JornadaHelper.php';
+require_once dirname(__DIR__) . '/src/helpers/PasswordPolicy.php';

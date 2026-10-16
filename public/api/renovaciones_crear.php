@@ -48,7 +48,7 @@ try {
             'renovacion',
             "\"{$actorNombre}\" registró la RNV{$r['numero']} de \"{$nombre}\": {$inicio} a {$fin}"
                 . (($_POST['segun_historico'] ?? '') === '1' ? ' (según histórico)' : ''),
-            '/chvb/public/renovaciones_empleado.php?cedula=' . urlencode($cedula)
+            CHVB_PUBLIC_URL . '/renovaciones_empleado.php?cedula=' . urlencode($cedula)
         );
     } catch (Throwable $e) {
         error_log('renovaciones_crear (notificación): ' . $e->getMessage());

@@ -5,30 +5,36 @@ $rolActual = $_SESSION['superadmin_rol'] ?? '';
 
 if ($rolActual === 'teniente') {
     $linksSidebar = [
-        ['url' => '/chvb/public/dashboard.php', 'label' => 'Inicio', 'icon' => 'home'],
-        ['url' => '/chvb/public/empleados.php', 'label' => 'Hojas de Vida', 'icon' => 'folder'],
-        ['url' => '/chvb/public/permisos_th.php', 'label' => 'Permisos', 'icon' => 'file-text'],
+        ['url' => CHVB_PUBLIC_URL . '/dashboard.php', 'label' => 'Inicio', 'icon' => 'home'],
+        ['url' => CHVB_PUBLIC_URL . '/empleados.php', 'label' => 'Hojas de Vida', 'icon' => 'folder'],
+        ['url' => CHVB_PUBLIC_URL . '/permisos_th.php', 'label' => 'Permisos', 'icon' => 'file-text'],
     ];
 } else {
     $linksSidebar = [
-        ['url' => '/chvb/public/dashboard.php', 'label' => 'Inicio', 'icon' => 'home'],
-        ['url' => '/chvb/public/empleados.php', 'label' => 'Hojas de Vida', 'icon' => 'folder'],
-        ['url' => '/chvb/public/alarmas.php', 'label' => 'Alarmas', 'icon' => 'alarm-clock'],
-        ['url' => '/chvb/public/usuarios_empleados.php', 'label' => 'Usuarios Empleados', 'icon' => 'key'],
+        ['url' => CHVB_PUBLIC_URL . '/dashboard.php', 'label' => 'Inicio', 'icon' => 'home'],
+        ['url' => CHVB_PUBLIC_URL . '/empleados.php', 'label' => 'Hojas de Vida', 'icon' => 'folder'],
+        ['url' => CHVB_PUBLIC_URL . '/alarmas.php', 'label' => 'Alarmas', 'icon' => 'alarm-clock'],
+        ['url' => CHVB_PUBLIC_URL . '/usuarios_empleados.php', 'label' => 'Usuarios Empleados', 'icon' => 'key'],
     ];
 
     if (in_array($rolActual, ROLES_TALENTO_HUMANO, true)) {
-        $linksSidebar[] = ['url' => '/chvb/public/permisos_th.php', 'label' => 'Permisos', 'icon' => 'file-text'];
-        $linksSidebar[] = ['url' => '/chvb/public/renovaciones.php', 'label' => 'Renovaciones', 'icon' => 'clipboard-list'];
-        $linksSidebar[] = ['url' => '/chvb/public/formatos.php', 'label' => 'Formatos', 'icon' => 'layout-grid'];
+        $linksSidebar[] = ['url' => CHVB_PUBLIC_URL . '/permisos_th.php', 'label' => 'Permisos', 'icon' => 'file-text'];
+        $linksSidebar[] = ['url' => CHVB_PUBLIC_URL . '/renovaciones.php', 'label' => 'Renovaciones', 'icon' => 'clipboard-list'];
+        $linksSidebar[] = ['url' => CHVB_PUBLIC_URL . '/formatos.php', 'label' => 'Formatos', 'icon' => 'layout-grid'];
         $linksSidebar[] = [
-            'url' => '/chvb/public/notificaciones.php',
+            'url' => CHVB_PUBLIC_URL . '/notificaciones.php',
             'label' => 'Notificaciones',
             'icon' => 'bell',
             'esNotificaciones' => true,
         ];
     }
 }
+
+// Configuración (administrar cuentas): solo superadmin. "Mi contraseña": todos los roles.
+if ($rolActual === ROL_SUPERADMIN_TH) {
+    $linksSidebar[] = ['url' => CHVB_PUBLIC_URL . '/configuracion_usuarios.php', 'label' => 'Configuración', 'icon' => 'settings'];
+}
+$linksSidebar[] = ['url' => CHVB_PUBLIC_URL . '/cambiar_password.php', 'label' => 'Mi contraseña', 'icon' => 'lock'];
 
 $totalNoLeidasInicial = in_array($rolActual, ROLES_TALENTO_HUMANO, true) ? NotificacionModel::contarNoLeidas() : 0;
 ?>
@@ -45,7 +51,7 @@ $totalNoLeidasInicial = in_array($rolActual, ROLES_TALENTO_HUMANO, true) ? Notif
     <div class="flex items-center justify-between mb-4 px-2">
         <div>
             <div>
-                <img src="/chvb/public/assets/img/logo_chv_svg.svg" alt="Logo" class="w-100">
+                <img src="<?= CHVB_PUBLIC_URL ?>/assets/img/logo_chv_svg.svg" alt="Logo" class="w-100">
             </div>
             <p class="text-sm text-center pt-2 text-gray-600">Panel Talento Humano</p>
         </div>
@@ -81,7 +87,7 @@ $totalNoLeidasInicial = in_array($rolActual, ROLES_TALENTO_HUMANO, true) ? Notif
         </p>
     </div>
 
-    <form method="post" action="/chvb/public/logout.php" class="mt-3">
+    <form method="post" action="<?= CHVB_PUBLIC_URL ?>/logout.php" class="mt-3">
         <?= csrfCampoHTML() ?>
         <button type="submit"
             class="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition">
@@ -156,7 +162,7 @@ $totalNoLeidasInicial = in_array($rolActual, ROLES_TALENTO_HUMANO, true) ? Notif
 
         window.actualizarBadgeSidebar = async function () {
             try {
-                const res = await fetch('/chvb/public/api/notificaciones_contar.php');
+                const res = await fetch('<?= CHVB_PUBLIC_URL ?>/api/notificaciones_contar.php');
                 const data = await res.json();
                 if (!data.ok) return;
 

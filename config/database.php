@@ -1,6 +1,7 @@
 <?php
 // config/database.php
 
+require_once __DIR__ . '/../includes/rutas.php';
 require_once __DIR__ . '/../includes/reloj.php';   // hora única de la app
 require_once __DIR__ . '/../vendor/autoload.php';
 

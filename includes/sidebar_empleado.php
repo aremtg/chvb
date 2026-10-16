@@ -5,10 +5,10 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 $cedulaSesion = $_SESSION['empleado_cedula'] ?? '';
 
 $linksSidebarEmpleado = [
-    ['url' => '/chvb/public/mi_hoja_de_vida.php', 'label' => 'Mi hoja de vida', 'icon' => 'user'],
-    ['url' => '/chvb/public/permiso_nuevo.php', 'label' => 'Crear permiso', 'icon' => 'plus'],
-    ['url' => '/chvb/public/permisos.php', 'label' => 'Todos mis permisos', 'icon' => 'file-text', 'esPermisos' => true],
-    ['url' => '/chvb/public/permisos_reemplazo_jefe.php', 'label' => 'Por firmar', 'icon' => 'alarm-clock', 'esPorFirmar' => true],
+    ['url' => CHVB_PUBLIC_URL . '/mi_hoja_de_vida.php', 'label' => 'Mi hoja de vida', 'icon' => 'user'],
+    ['url' => CHVB_PUBLIC_URL . '/permiso_nuevo.php', 'label' => 'Crear permiso', 'icon' => 'plus'],
+    ['url' => CHVB_PUBLIC_URL . '/permisos.php', 'label' => 'Todos mis permisos', 'icon' => 'file-text', 'esPermisos' => true],
+    ['url' => CHVB_PUBLIC_URL . '/permisos_reemplazo_jefe.php', 'label' => 'Por firmar', 'icon' => 'alarm-clock', 'esPorFirmar' => true],
 ];
 
 $contadoresPermisos = $cedulaSesion ? NotificacionModel::contarPermisosEmpleadoPorSeccion($cedulaSesion) : ['por_firmar'=>0,'mis_permisos'=>0];
@@ -29,7 +29,7 @@ $totalPorFirmarInicial = (int)$contadoresPermisos['por_firmar'];
     <div class="flex items-center justify-between mb-4 px-2">
         <div>
             <div>
-                <img src="/chvb/public/assets/img/logo_chv_svg.svg" alt="Logo" class="w-100">
+                <img src="<?= CHVB_PUBLIC_URL ?>/assets/img/logo_chv_svg.svg" alt="Logo" class="w-100">
             </div>
             <p class="text-xs text-gray-600">Portal del Empleado</p>
         </div>
@@ -64,7 +64,7 @@ $totalPorFirmarInicial = (int)$contadoresPermisos['por_firmar'];
     <div class="mt-8 pt-4 border-t border-gray-100 px-2">
         <p class="text-xs text-gray-600">Sesión</p>
         <p class="text-sm text-gray-700 font-medium truncate"><?= htmlspecialchars($cedulaSesion) ?></p>
-        <form method="post" action="/chvb/public/logout_empleado.php">
+        <form method="post" action="<?= CHVB_PUBLIC_URL ?>/logout_empleado.php">
             <?= csrfCampoHTML() ?>
             <button type="submit" class="text-xs text-red-600 hover:underline flex items-center gap-1 mt-1">
                 <?= icon('log-out', 'w-3.5 h-3.5') ?> Cerrar sesión
@@ -94,7 +94,7 @@ $totalPorFirmarInicial = (int)$contadoresPermisos['por_firmar'];
 
     window.actualizarBadgeSidebarEmpleado = async function () {
         try {
-            const res = await fetch('/chvb/public/api/permisos_notificaciones_contar.php');
+            const res = await fetch('<?= CHVB_PUBLIC_URL ?>/api/permisos_notificaciones_contar.php');
             const data = await res.json();
             if (!data.ok) return;
             const badgeMis = document.getElementById('badgeMisPermisosEmpleado');

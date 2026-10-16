@@ -369,7 +369,31 @@ CREATE TABLE `usuarios` (
   `rol` enum('superadmin_talento_humano','auxiliar_talento_humano','teniente') NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `intentos_fallidos` int(11) DEFAULT 0,
-  `bloqueado_hasta` datetime DEFAULT NULL
+  `bloqueado_hasta` datetime DEFAULT NULL,
+  `nombre_completo` varchar(100) DEFAULT NULL,
+  `activo` tinyint(1) NOT NULL DEFAULT 1,
+  `debe_cambiar_password` tinyint(1) NOT NULL DEFAULT 0,
+  `password_cambiada_at` datetime DEFAULT NULL,
+  `ultimo_acceso` datetime DEFAULT NULL,
+  `creado_por` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuarios_auditoria`
+--
+
+CREATE TABLE `usuarios_auditoria` (
+  `id` int(11) NOT NULL,
+  `actor_id` int(11) DEFAULT NULL,
+  `actor_username` varchar(50) NOT NULL,
+  `objetivo_id` int(11) DEFAULT NULL,
+  `objetivo_username` varchar(50) DEFAULT NULL,
+  `accion` varchar(40) NOT NULL,
+  `detalle` varchar(255) DEFAULT NULL,
+  `ip` varchar(45) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -524,6 +548,14 @@ ALTER TABLE `usuarios`
   ADD UNIQUE KEY `username` (`username`);
 
 --
+-- Indices de la tabla `usuarios_auditoria`
+--
+ALTER TABLE `usuarios_auditoria`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_objetivo` (`objetivo_id`),
+  ADD KEY `idx_created` (`created_at`);
+
+--
 -- Indices de la tabla `usuarios_empleados`
 --
 ALTER TABLE `usuarios_empleados`
@@ -616,6 +648,12 @@ ALTER TABLE `renovaciones_historial`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `usuarios_auditoria`
+--
+ALTER TABLE `usuarios_auditoria`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

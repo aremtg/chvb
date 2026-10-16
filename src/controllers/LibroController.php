@@ -1,5 +1,6 @@
 <?php
 // src/controllers/LibroController.php
+require_once __DIR__ . '/../../includes/rutas.php';
 require_once __DIR__ . '/../models/BolsilloModel.php';
 require_once __DIR__ . '/../models/DocumentoModel.php';
 require_once __DIR__ . '/../helpers/FileManager.php';
@@ -62,7 +63,7 @@ class LibroController
         if ($subidoPorTipo === 'empleado') {
             $empleado = EmpleadoModel::obtenerPorCedula($cedula);
             $nombreEmpleado = $empleado['nombre'] ?? $cedula;
-            $enlacePdf = "/chvb/public/api/documentos_ver.php?id=" . $id;
+            $enlacePdf = CHVB_PUBLIC_URL . "/api/documentos_ver.php?id=" . $id;
             NotificacionModel::crearParaRolesTalentoHumano(
                 $cedula,
                 'documento',
@@ -77,7 +78,7 @@ class LibroController
                 $cedula,
                 'documento',
                 "\"{$usuarioNombre}\" subió un nuevo PDF \"{$archivo['name']}\" en la hoja de vida de \"{$nombreEmpleado}\"",
-                "/chvb/public/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . $bolsilloId
+                CHVB_PUBLIC_URL . "/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . $bolsilloId
             );
         }
 
@@ -113,7 +114,7 @@ class LibroController
                 $cedula,
                 'documento_eliminado',
                 "\"" . ($_SESSION['superadmin_username'] ?? 'Auxiliar') . "\" eliminó el PDF \"{$doc['nombre_archivo']}\" del bolsillo \"{$bolsillo['nombre_completo']}\" de \"{$nombreEmpleado}\"",
-                "/chvb/public/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . (int)$bolsillo['id']
+                CHVB_PUBLIC_URL . "/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . (int)$bolsillo['id']
             );
         }
 
@@ -124,7 +125,7 @@ class LibroController
                 $cedula,
                 'documento_eliminado',
                 "El empleado \"{$nombreEmpleado}\" eliminó \"{$doc['nombre_archivo']}\" del bolsillo \"{$bolsillo['nombre_completo']}\"",
-                "/chvb/public/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . (int)$bolsillo['id']
+                CHVB_PUBLIC_URL . "/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . (int)$bolsillo['id']
             );
         }
 
@@ -184,7 +185,7 @@ class LibroController
                 $cedula,
                 'documento',
                 "\"{$usuarioNombre}\" editó un pdf del bolsillo \"{$bolsillo['nombre_completo']}\"",
-                "/chvb/public/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . $bolsillo['id']
+                CHVB_PUBLIC_URL . "/libro.php?cedula=" . urlencode($cedula) . "&bolsillo=" . $bolsillo['id']
             );
         }
 
@@ -216,7 +217,7 @@ class LibroController
                 $cedulaEmpleado,
                 'documento_orden',
                 "\"" . ($_SESSION['superadmin_username'] ?? 'Auxiliar') . "\" cambió el orden del PDF \"{$doc['nombre_archivo']}\"",
-                "/chvb/public/libro.php?cedula=" . urlencode($cedulaEmpleado) . "&bolsillo=" . (int)$doc['bolsillo_id']
+                CHVB_PUBLIC_URL . "/libro.php?cedula=" . urlencode($cedulaEmpleado) . "&bolsillo=" . (int)$doc['bolsillo_id']
             );
         }
 
@@ -294,7 +295,7 @@ class LibroController
                 $cedulaEmpleado,
                 'alarma',
                 "\"" . ($_SESSION['superadmin_username'] ?? 'Auxiliar') . "\" configuró una alarma en el bolsillo \"" . ($bolsillo['nombre_completo'] ?? $bolsilloId) . "\"",
-                "/chvb/public/libro.php?cedula=" . urlencode($cedulaEmpleado) . "&bolsillo=" . $bolsilloId
+                CHVB_PUBLIC_URL . "/libro.php?cedula=" . urlencode($cedulaEmpleado) . "&bolsillo=" . $bolsilloId
             );
         }
 
@@ -316,7 +317,7 @@ class LibroController
                 $cedulaEmpleado,
                 'alarma',
                 "\"" . ($_SESSION['superadmin_username'] ?? 'Auxiliar') . "\" desactivó la alarma del bolsillo \"" . ($bolsillo['nombre_completo'] ?? $bolsilloId) . "\"",
-                "/chvb/public/libro.php?cedula=" . urlencode($cedulaEmpleado) . "&bolsillo=" . $bolsilloId
+                CHVB_PUBLIC_URL . "/libro.php?cedula=" . urlencode($cedulaEmpleado) . "&bolsillo=" . $bolsilloId
             );
         }
         return ['ok' => true];

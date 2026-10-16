@@ -37,7 +37,7 @@ if (($_SESSION['superadmin_rol'] ?? '') === 'auxiliar_talento_humano') {
         $cedula,
         'usuario_empleado',
         "\"{$actor}\" creó o cambió el PIN de acceso del empleado \"{$nombre}\"",
-        "/chvb/public/usuarios_empleados.php?q=" . urlencode($cedula)
+        CHVB_PUBLIC_URL . "/usuarios_empleados.php?q=" . urlencode($cedula)
     );
 }
 echo json_encode(['ok' => true]);

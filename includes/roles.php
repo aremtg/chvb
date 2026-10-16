@@ -7,3 +7,6 @@
 const ROL_SUPERADMIN_TH = 'superadmin_talento_humano';
 const ROL_AUXILIAR_TH = 'auxiliar_talento_humano';
 const ROLES_TALENTO_HUMANO = [ROL_SUPERADMIN_TH, ROL_AUXILIAR_TH];
+const ROL_TENIENTE = 'teniente';   // solo lectura
+// Roles que se pueden asignar desde Configuración -> Usuarios (orden = orden en que se listan).
+const ROLES_PANEL = [ROL_SUPERADMIN_TH, ROL_AUXILIAR_TH, ROL_TENIENTE];

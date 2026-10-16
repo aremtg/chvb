@@ -70,7 +70,7 @@ if (!function_exists('registrarManejoErrores')) {
         if (ob_get_level() > 0) {
             @ob_end_clean();
         }
-        $debug = getenv('APP_DEBUG') === '1';
+        $debug = ($_ENV['APP_DEBUG'] ?? getenv('APP_DEBUG')) === '1';   // Dotenv (createImmutable) llena $_ENV, no getenv()
         $mensaje = 'Ocurrió un error inesperado. Intenta de nuevo; si continúa, informa a Talento Humano con el código ' . $ref . '.';
         if ($debug) {
             $mensaje .= ' Detalle (solo desarrollo): ' . $detalle;

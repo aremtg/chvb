@@ -10,9 +10,12 @@ if (!empty($_SESSION['superadmin_id'])) {
 
 $error = '';
 
-if (($_GET['motivo'] ?? '') === 'sesion_invalida') {
-    $error = 'Tu sesión ya no es válida (el usuario fue eliminado o modificado). Inicia sesión de nuevo.';
-}
+$motivosSesion = [
+    'sesion_invalida'    => 'Tu sesión ya no es válida (el usuario fue eliminado o modificado). Inicia sesión de nuevo.',
+    'cuenta_desactivada' => 'Tu cuenta fue desactivada. Contacta al superadministrador.',
+    'password_cambiada'  => 'Tu contraseña cambió. Inicia sesión de nuevo con la nueva.',
+];
+$error = $motivosSesion[$_GET['motivo'] ?? ''] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/errores.php';  // manejo central de errores (sin detalles al usuario, todo al log)
 registrarManejoErrores();
 // includes/session.php
+require_once __DIR__ . '/rutas.php';   // CHVB_PUBLIC_URL: ruta URL de /public (APP_PUBLIC_PATH en .env)
 require_once __DIR__ . '/reloj.php';   // hora única de la app (fija la zona horaria de PHP)
 require_once __DIR__ . '/roles.php';   // roles de Talento Humano (única fuente)
 if (session_status() === PHP_SESSION_NONE) {
@@ -29,28 +30,55 @@ if (session_status() === PHP_SESSION_NONE) {
  */
 function requireSuperAdmin(): void {
     if (($_SESSION['auth_type'] ?? '') !== 'admin' || empty($_SESSION['superadmin_id'])) {
-        header('Location: /chvb/public/login.php');
+        header('Location: ' . CHVB_PUBLIC_URL . '/login.php');
         exit;
     }
 
     require_once __DIR__ . '/../config/database.php';
     $pdo = getPDO();
-    $stmt = $pdo->prepare("SELECT username, rol FROM usuarios WHERE id = :b1");
+    $stmt = $pdo->prepare("SELECT username, rol, activo, debe_cambiar_password, password_cambiada_at FROM usuarios WHERE id = :b1");
     $stmt->execute(['b1' => $_SESSION['superadmin_id']]);
     $usuario = $stmt->fetch();
 
-    // Si el usuario ya no existe, o el username no coincide (ej. el id fue
-    // reciclado por AUTO_INCREMENT y ahora pertenece a otra persona), la
-    // sesión queda invalidada de inmediato, sin importar cuánto tiempo llevaba activa.
+    // La sesión queda invalidada de inmediato (sin importar cuánto llevara activa) si:
+    //  - el usuario ya no existe, o el username no coincide (id reciclado por AUTO_INCREMENT);
+    //  - la cuenta fue desactivada desde Configuración -> Usuarios;
+    //  - la contraseña cambió DESPUÉS de que se inició esta sesión (cambio propio en otro equipo o reseteo del superadmin).
+    $motivo = null;
     if (!$usuario || $usuario['username'] !== ($_SESSION['superadmin_username'] ?? null)) {
-        unset($_SESSION['superadmin_id'], $_SESSION['superadmin_username'], $_SESSION['superadmin_rol'], $_SESSION['auth_type']);
-        header('Location: /chvb/public/login.php?motivo=sesion_invalida');
+        $motivo = 'sesion_invalida';
+    } elseif (!(int) $usuario['activo']) {
+        $motivo = 'cuenta_desactivada';
+    } elseif (!empty($usuario['password_cambiada_at'])
+        && strtotime($usuario['password_cambiada_at']) > (int) ($_SESSION['login_at'] ?? 0)) {
+        $motivo = 'password_cambiada';
+    }
+    if ($motivo !== null) {
+        unset($_SESSION['superadmin_id'], $_SESSION['superadmin_username'], $_SESSION['superadmin_rol'], $_SESSION['auth_type'], $_SESSION['login_at'], $_SESSION['debe_cambiar_password']);
+        header('Location: ' . CHVB_PUBLIC_URL . '/login.php?motivo=' . $motivo);
         exit;
     }
 
     // Autocorrección: si el rol cambió en BD (ej. Talento Humano reclasificó
     // a alguien de auxiliar a superadmin), la sesión lo refleja sin exigir un nuevo login.
     $_SESSION['superadmin_rol'] = $usuario['rol'];
+    $_SESSION['debe_cambiar_password'] = (int) $usuario['debe_cambiar_password'];
+
+    // Contraseña temporal (cuenta nueva o reseteada): mientras no la cambie, solo puede usar
+    // la pantalla de cambio de contraseña y cerrar sesión.
+    if ($_SESSION['debe_cambiar_password'] === 1) {
+        $script = $_SERVER['SCRIPT_NAME'] ?? '';
+        if (!in_array(basename($script), ['cambiar_password.php', 'usuario_cambiar_password.php', 'logout.php'], true)) {
+            if (str_contains($script, '/api/')) {
+                header('Content-Type: application/json; charset=utf-8');
+                http_response_code(403);
+                echo json_encode(['ok' => false, 'codigo' => 'cambiar_password', 'error' => 'Debes cambiar tu contraseña temporal antes de continuar.']);
+            } else {
+                header('Location: ' . CHVB_PUBLIC_URL . '/cambiar_password.php');
+            }
+            exit;
+        }
+    }
 }
 /**
  * Bloquea el acceso si no hay sesión activa de empleado.
@@ -58,7 +86,7 @@ function requireSuperAdmin(): void {
  */
 function requireEmpleado(): void {
     if (($_SESSION['auth_type'] ?? '') !== 'empleado' || empty($_SESSION['empleado_cedula'])) {
-        header('Location: /chvb/public/login_empleado.php');
+        header('Location: ' . CHVB_PUBLIC_URL . '/login_empleado.php');
         exit;
     }
 
@@ -76,7 +104,7 @@ function requireEmpleado(): void {
 
     if (!$empleadoExiste || !$acceso || !$acceso['activo']) {
         unset($_SESSION['empleado_cedula'], $_SESSION['auth_type']);
-        header('Location: /chvb/public/login_empleado.php?motivo=sesion_invalida');
+        header('Location: ' . CHVB_PUBLIC_URL . '/login_empleado.php?motivo=sesion_invalida');
         exit;
     }
 }

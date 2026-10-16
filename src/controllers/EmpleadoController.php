@@ -1,5 +1,6 @@
 <?php
 // src/controllers/EmpleadoController.php
+require_once __DIR__ . '/../../includes/rutas.php';
 require_once __DIR__ . '/../models/EmpleadoModel.php';
 require_once __DIR__ . '/../models/UsuarioEmpleadoModel.php';
 require_once __DIR__ . '/../helpers/FileManager.php';
@@ -263,7 +264,7 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
             $cedula,
             'creacion',
             "\"{$usuarioNombre}\" creó un nuevo empleado llamado \"{$nombreEmpleado}\", con CC {$cedula}",
-            "/chvb/public/empleados.php?q=" . urlencode($cedula)
+            CHVB_PUBLIC_URL . "/empleados.php?q=" . urlencode($cedula)
         );
 
         return ['ok' => true];
@@ -380,7 +381,7 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
                         $cedulaFinal,
                         'foto',
                         "\"{$usuarioNombre}\" cambió la foto de perfil de \"{$datosNuevos['nombre']}\"",
-                        "/chvb/public/empleados.php?q=" . urlencode($cedulaFinal)
+                        CHVB_PUBLIC_URL . "/empleados.php?q=" . urlencode($cedulaFinal)
                     );
                 }
             }
@@ -398,7 +399,7 @@ public static function crear(array $datos, ?array $archivoFoto = null): array
         $usuarioId = $_SESSION['superadmin_id'];
         $usuarioNombre = $_SESSION['superadmin_username'];
         $nombreEmpleadoActual = $anterior['nombre'] ?? $cedula;
-        $enlace = "/chvb/public/empleados.php?q=" . urlencode($cedula);
+        $enlace = CHVB_PUBLIC_URL . "/empleados.php?q=" . urlencode($cedula);
 
         $campos = [
             'nombre' => ['etiqueta' => 'el nombre', 'formato' => fn($v) => $v],
