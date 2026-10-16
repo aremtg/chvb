@@ -3,5 +3,4 @@
 /uploads/*
 !/uploads/.gitkeep
 .env
-# Respaldos locales
-/respaldos/
+
