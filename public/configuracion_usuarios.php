@@ -8,6 +8,13 @@ require_once __DIR__ . '/../src/models/UsuarioAuditoriaModel.php';
 requireGestionUsuarios();
 
 $usuarios  = UsuarioModel::listar();
+// Las cuentas desactivadas se conservan siempre (historial), pero se ocultan por defecto
+// para que la lista no crezca con los años. Se ven con ?ver=desactivadas.
+$verDesactivadas   = ($_GET['ver'] ?? '') === 'desactivadas';
+$totalDesactivadas = count(array_filter($usuarios, static fn(array $u): bool => !(int) $u['activo']));
+if (!$verDesactivadas) {
+    $usuarios = array_values(array_filter($usuarios, static fn(array $u): bool => (int) $u['activo'] === 1));
+}
 $auditoria = UsuarioAuditoriaModel::recientes(15);
 $yo        = (int) $_SESSION['superadmin_id'];
 
@@ -45,6 +52,16 @@ $fecha = static fn(?string $f): string => $f ? date('d/m/Y H:i', strtotime($f)) 
         </header>
 
         <main class="p-6 space-y-6">
+
+            <?php if ($totalDesactivadas > 0): ?>
+                <div class="flex justify-end">
+                    <?php if ($verDesactivadas): ?>
+                        <a href="configuracion_usuarios.php" class="text-xs font-semibold text-gray-600 hover:text-gray-800 underline">Ocultar cuentas desactivadas</a>
+                    <?php else: ?>
+                        <a href="configuracion_usuarios.php?ver=desactivadas" class="text-xs font-semibold text-gray-600 hover:text-gray-800 underline">Ver cuentas desactivadas (<?= $totalDesactivadas ?>)</a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
 
             <!-- LISTA DE CUENTAS -->
             <section id="listaUsuarios" class="space-y-3">
@@ -89,16 +106,21 @@ $fecha = static fn(?string $f): string => $f ? date('d/m/Y H:i', strtotime($f)) 
 
                                 <p class="text-[11px] text-gray-500 mt-2">
                                     <?= $u['ultimo_acceso'] ? 'Último acceso: ' . $fecha($u['ultimo_acceso']) : 'Aún no ha ingresado' ?>
+                                    <?php if (!$activo && !empty($u['desactivado_at'])): ?>
+                                        · Desactivada el <?= date('d/m/Y', strtotime($u['desactivado_at'])) ?>
+                                    <?php endif; ?>
                                 </p>
                             </div>
                         </div>
 
-                        <?php if (!$esYo): ?>
-                            <div class="flex flex-wrap gap-2">
-                                <?php
-                                $datos = 'data-id="' . (int) $u['id'] . '" data-username="' . htmlspecialchars($u['username'], ENT_QUOTES) . '"'
-                                    . ' data-nombre="' . htmlspecialchars($nombre, ENT_QUOTES) . '" data-rol="' . htmlspecialchars($u['rol'], ENT_QUOTES) . '"';
-                                ?>
+                        <div class="flex flex-wrap gap-2">
+                            <?php
+                            $datos = 'data-id="' . (int) $u['id'] . '" data-username="' . htmlspecialchars($u['username'], ENT_QUOTES) . '"'
+                                . ' data-nombre="' . htmlspecialchars($nombre, ENT_QUOTES) . '" data-rol="' . htmlspecialchars($u['rol'], ENT_QUOTES) . '"'
+                                . ($esYo ? ' data-yo="1"' : '');
+                            ?>
+                            <button type="button" class="btn btn-secondary btn-sm" data-accion="editar" <?= $datos ?>>Editar datos</button>
+                            <?php if (!$esYo): ?>
                                 <button type="button" class="btn btn-secondary btn-sm" data-accion="rol" <?= $datos ?>>Cambiar rol</button>
                                 <button type="button" class="btn btn-secondary btn-sm" data-accion="resetear" <?= $datos ?>>Resetear contraseña</button>
                                 <?php if ($activo): ?>
@@ -106,8 +128,8 @@ $fecha = static fn(?string $f): string => $f ? date('d/m/Y H:i', strtotime($f)) 
                                 <?php else: ?>
                                     <button type="button" class="btn btn-primary btn-sm" data-accion="reactivar" <?= $datos ?>>Reactivar</button>
                                 <?php endif; ?>
-                            </div>
-                        <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </article>
                 <?php endforeach; ?>
             </section>
@@ -195,6 +217,17 @@ $fecha = static fn(?string $f): string => $f ? date('d/m/Y H:i', strtotime($f)) 
                         <option value="<?= ROL_AUXILIAR_TH ?>">Auxiliar de Talento Humano</option>
                         <option value="<?= ROL_TENIENTE ?>">Teniente (solo lectura)</option>
                     </select>
+                </div>
+                <div id="campoDatos" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5" for="accionNombre">Nombre completo</label>
+                        <input type="text" id="accionNombre" maxlength="100" class="w-full h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5" for="accionUsername">Nombre de usuario</label>
+                        <input type="text" id="accionUsername" maxlength="50" autocapitalize="none" spellcheck="false" class="w-full h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 read-only:bg-gray-50 read-only:text-gray-500">
+                        <p class="text-[11px] text-gray-600 mt-1" id="accionUsernameAyuda">3 a 50 caracteres: letras, números, punto, guion o guion bajo.</p>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1.5" for="accionConfirma">Tu contraseña (para confirmar)</label>

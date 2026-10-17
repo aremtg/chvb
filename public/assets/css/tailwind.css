@@ -1722,6 +1722,12 @@
     border-style: var(--tw-border-style);
     border-width: 0px;
   }
+  .read-only\:bg-gray-50:read-only {
+    background-color: var(--color-gray-50);
+  }
+  .read-only\:text-gray-500:read-only {
+    color: var(--color-gray-500);
+  }
   @media (hover: hover) {
     .hover\:border-gray-200:hover {
       border-color: var(--color-gray-200);
@@ -2217,6 +2223,27 @@
     outline: none;
     border-color: #dc2626;
     box-shadow: 0 0 0 3px rgba(220, 38, 38, .18);
+  }
+  .barra-filtros__panel {
+    margin-top: .75rem;
+  }
+  @media (min-width: 1366px) {
+    .barra-filtros {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .barra-filtros__buscar {
+      flex: 1 1 0%;
+      min-width: 12rem;
+    }
+    .barra-filtros__panel {
+      flex: 0 0 auto;
+      margin-top: 0;
+    }
+    .barra-filtros__panel select {
+      max-width: 13.75rem;
+    }
   }
 }
 @layer base {

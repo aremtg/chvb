@@ -11,7 +11,7 @@ class UsuarioModel
     public const MINUTOS_BLOQUEO = 5;
 
     private const COLUMNAS_LISTA = 'id, username, nombre_completo, rol, activo, debe_cambiar_password,
-        ultimo_acceso, created_at, bloqueado_hasta, creado_por';
+        ultimo_acceso, created_at, bloqueado_hasta, creado_por, desactivado_at';
 
     public static function listar(): array
     {
@@ -67,9 +67,10 @@ class UsuarioModel
     /** Activa o desactiva la cuenta (sin borrarla). Nunca deja al sistema sin superadmin activo. */
     public static function establecerActivo(int $id, bool $activo): ?string
     {
+        // desactivado_at = cuándo se dio de baja (NULL si está activa): sirve para saber cuáles llevan años inactivas.
         $sql = $activo
-            ? 'UPDATE usuarios SET activo = :v, intentos_fallidos = 0, bloqueado_hasta = NULL WHERE id = :id'
-            : 'UPDATE usuarios SET activo = :v WHERE id = :id';
+            ? 'UPDATE usuarios SET activo = :v, desactivado_at = NULL, intentos_fallidos = 0, bloqueado_hasta = NULL WHERE id = :id'
+            : 'UPDATE usuarios SET activo = :v, desactivado_at = NOW() WHERE id = :id';
         return self::modificarProtegiendoSuperadmin($id, fn(array $o): bool => !$activo, $sql, $activo ? 1 : 0);
     }
 
@@ -115,6 +116,24 @@ class UsuarioModel
             }
             throw $e;
         }
+    }
+
+    /**
+     * Corrige username y nombre completo. Devuelve null si salió bien o el mensaje de error.
+     * El UNIQUE de username es la garantía final contra duplicados (aunque dos superadmins lo intenten a la vez).
+     */
+    public static function actualizarDatos(int $id, string $username, string $nombre): ?string
+    {
+        try {
+            getPDO()->prepare('UPDATE usuarios SET username = :u, nombre_completo = :n WHERE id = :id')
+                ->execute(['u' => $username, 'n' => $nombre, 'id' => $id]);
+        } catch (PDOException $e) {
+            if ($e->getCode() === '23000') {
+                return 'Ese nombre de usuario ya existe.';
+            }
+            throw $e;
+        }
+        return null;
     }
 
     /** Contraseña temporal puesta por un superadmin: obliga a cambiarla y cierra las sesiones abiertas de esa cuenta. */

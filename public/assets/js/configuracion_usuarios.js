@@ -1,5 +1,5 @@
 // public/assets/js/configuracion_usuarios.js
-// Panel Configuración -> Usuarios: crear cuenta, cambiar rol, resetear contraseña, desactivar/reactivar.
+// Panel Configuración -> Usuarios: crear cuenta, editar datos, cambiar rol, resetear contraseña, desactivar/reactivar.
 // Toda acción pide la contraseña del superadmin; el servidor es quien valida (esto es solo la interfaz).
 (function () {
   const $ = (id) => document.getElementById(id);
@@ -97,6 +97,15 @@
 
   // ---------- Acciones sobre una cuenta ----------
   const ACCIONES = {
+    editar: {
+      titulo: "Editar datos",
+      texto: () =>
+        "Corrige el nombre o el usuario. El historial ya registrado conserva el usuario con el que se guardó. Si cambias el usuario, su sesión abierta se cerrará y deberá entrar con el nuevo.",
+      boton: "Guardar cambios",
+      url: "./api/usuarios_panel_editar.php",
+      carga: "Guardando...",
+      peligro: false,
+    },
     rol: {
       titulo: "Cambiar rol",
       texto: (n) => "Elige el nuevo rol de " + n + ". El cambio aplica de inmediato, también si tiene la sesión abierta.",
@@ -136,7 +145,7 @@
   $("listaUsuarios").addEventListener("click", (e) => {
     const b = e.target.closest("[data-accion]");
     if (!b) return;
-    actual = { accion: b.dataset.accion, id: b.dataset.id, username: b.dataset.username, nombre: b.dataset.nombre, rol: b.dataset.rol };
+    actual = { accion: b.dataset.accion, id: b.dataset.id, username: b.dataset.username, nombre: b.dataset.nombre, rol: b.dataset.rol, yo: b.dataset.yo === "1" };
     const cfg = ACCIONES[actual.accion];
 
     $("accionTitulo").textContent = cfg.titulo;
@@ -146,6 +155,16 @@
     $("accionBoton").className =
       "flex-1 h-10 rounded-lg text-white text-sm font-semibold transition " + (cfg.peligro ? "bg-red-700 hover:bg-red-800" : "bg-red-600 hover:bg-red-700");
     $("campoRol").classList.toggle("hidden", actual.accion !== "rol");
+    $("campoDatos").classList.toggle("hidden", actual.accion !== "editar");
+    if (actual.accion === "editar") {
+      $("accionNombre").value = actual.nombre;
+      $("accionUsername").value = actual.username;
+      // Cambiarse el usuario a uno mismo cerraría su propia sesión: solo se puede corregir el nombre.
+      $("accionUsername").readOnly = actual.yo;
+      $("accionUsernameAyuda").textContent = actual.yo
+        ? "No puedes cambiar tu propio usuario; pídeselo a otro superadmin."
+        : "3 a 50 caracteres: letras, números, punto, guion o guion bajo.";
+    }
     if (actual.accion === "rol") {
       // Preselecciona un rol distinto al actual para que "Cambiar" tenga sentido.
       const otros = [...$("accionRol").options].filter((o) => o.value !== actual.rol);
@@ -154,7 +173,7 @@
     $("accionConfirma").value = "";
     $("errorAccion").classList.add("hidden");
     abrir("modalAccion");
-    $("accionConfirma").focus();
+    (actual.accion === "editar" ? $("accionNombre") : $("accionConfirma")).focus();
   });
 
   $("formAccion").addEventListener("submit", async (e) => {
@@ -165,6 +184,10 @@
     fd.append("id", actual.id);
     fd.append("password_actual", $("accionConfirma").value);
     if (actual.accion === "rol") fd.append("rol", $("accionRol").value);
+    if (actual.accion === "editar") {
+      fd.append("username", $("accionUsername").value);
+      fd.append("nombre_completo", $("accionNombre").value);
+    }
     if (actual.accion === "desactivar") fd.append("activo", "0");
     if (actual.accion === "reactivar") fd.append("activo", "1");
 

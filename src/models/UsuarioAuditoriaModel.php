@@ -12,6 +12,7 @@ class UsuarioAuditoriaModel
         'desactivar'              => 'desactivó la cuenta de',
         'reactivar'               => 'reactivó la cuenta de',
         'cambiar_rol'             => 'cambió el rol de',
+        'editar_datos'            => 'corrigió los datos de',
         'resetear_password'       => 'reseteó la contraseña de',
         'cambiar_password_propio' => 'cambió su propia contraseña',
         'cli_crear_usuario'       => 'creó por terminal la cuenta de',

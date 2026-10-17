@@ -78,8 +78,8 @@ if ($filtrosActivos) {
                 // Cuántos filtros están activos (para el contador del botón "Filtros" en móvil).
                 $filtrosAplicados = (int) ($busqueda !== '') + count(array_filter($filtros, fn($v) => $v !== ''));
             ?>
-            <form method="GET" class="mb-4">
-                <div class="flex items-center gap-2">
+            <form method="GET" class="barra-filtros mb-4">
+                <div class="barra-filtros__buscar flex items-center gap-2">
                     <div class="campo-buscar flex-1 min-w-0"><?= icon('search', 'campo-buscar__icono') ?><input class="campo-buscar__input" type="text" name="q" value="<?= htmlspecialchars($busqueda) ?>"
                         placeholder="Buscar por cédula, nombre, cargo, celular o correo..."></div>
                     <button type="button" id="btnToggleFiltros" aria-expanded="<?= $filtrosActivos ? 'true' : 'false' ?>" aria-controls="panelFiltros"
@@ -91,7 +91,7 @@ if ($filtrosActivos) {
                     </button>
                 </div>
 
-                <div id="panelFiltros" class="<?= $filtrosActivos ? '' : 'hidden' ?> md:flex mt-3 flex-col md:flex-row md:flex-wrap md:items-end gap-3 bg-white md:bg-transparent rounded-xl border border-gray-200 md:border-0 p-3 md:p-0">
+                <div id="panelFiltros" class="barra-filtros__panel <?= $filtrosActivos ? '' : 'hidden' ?> md:flex flex-col md:flex-row md:flex-wrap md:items-end gap-3 bg-white md:bg-transparent rounded-xl border border-gray-200 md:border-0 p-3 md:p-0">
                     <select name="contrato" class="w-full md:w-auto border border-gray-300 rounded-xl px-3 py-2.5 bg-white text-sm">                     <option value="">Todos los contratos</option>                     <?php foreach (EmpleadoController::$tiposDeContrato as $tc): ?>                         <option value="<?= htmlspecialchars($tc) ?>" <?= $filtros['contrato'] === $tc ? 'selected' : '' ?>>                             <?= htmlspecialchars($tc) ?></option>                     <?php endforeach; ?>                 </select>
                     <select name="cargo" class="w-full md:w-auto border border-gray-300 rounded-xl px-3 py-2.5 bg-white text-sm md:max-w-[220px]">                     <option value="">Todos los cargos</option>                     <?php foreach ($cargosLista as $c): ?>                         <option value="<?= htmlspecialchars($c) ?>" <?= $filtros['cargo'] === $c ? 'selected' : '' ?>>                             <?= htmlspecialchars($c) ?></option>                     <?php endforeach; ?>                 </select>
                     <select name="estado" class="w-full md:w-auto border border-gray-300 rounded-xl px-3 py-2.5 bg-white text-sm">                     <option value="">Todos los estados</option>                     <?php foreach (EmpleadoController::$estadosValidos as $e): ?>                         <option value="<?= $e ?>" <?= $filtros['estado'] === $e ? 'selected' : '' ?>><?= ucfirst($e) ?></option>                     <?php endforeach; ?>                 </select>

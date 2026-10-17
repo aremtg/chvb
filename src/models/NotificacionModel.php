@@ -90,7 +90,7 @@ class NotificacionModel
         $compartidas = $pdo->query("SELECT * FROM notificaciones WHERE destinatario_tipo = 'talento_humano' AND usuario_id IS NULL ORDER BY id ASC")->fetchAll();
         if (!$compartidas) return;
 
-        $usuarios = $pdo->query("SELECT id FROM usuarios WHERE rol IN ('superadmin_talento_humano','auxiliar_talento_humano')")->fetchAll();
+        $usuarios = $pdo->query("SELECT id FROM usuarios WHERE activo = 1 AND rol IN ('superadmin_talento_humano','auxiliar_talento_humano')")->fetchAll();
         if (!$usuarios) return;
 
         $insert = $pdo->prepare("INSERT INTO notificaciones (usuario_id, destinatario_tipo, usuario_nombre, cedula_empleado, campo, mensaje, enlace, leida, created_at) VALUES (:usuario_id, 'talento_humano', :usuario_nombre, :cedula, :campo, :mensaje, :enlace, :leida, :created_at)");
@@ -162,7 +162,7 @@ class NotificacionModel
     ): void {
         $pdo = getPDO();
         $actorId = (int)($_SESSION['superadmin_id'] ?? 0);
-        $sql = "SELECT id, username FROM usuarios WHERE rol = 'superadmin_talento_humano'";
+        $sql = "SELECT id, username FROM usuarios WHERE activo = 1 AND rol = 'superadmin_talento_humano'";
         if ($actorId > 0 && (($_SESSION['superadmin_rol'] ?? '') === 'superadmin_talento_humano')) {
             $sql .= " AND id <> :actor_id";
         }
@@ -201,7 +201,7 @@ class NotificacionModel
     public static function crearParaRolesTalentoHumano(string $cedulaEmpleado, string $campo, string $mensaje, ?string $enlace = null): void
     {
         $pdo = getPDO();
-        $stmtUsuarios = $pdo->query("SELECT id, username FROM usuarios WHERE rol IN ('superadmin_talento_humano','auxiliar_talento_humano')");
+        $stmtUsuarios = $pdo->query("SELECT id, username FROM usuarios WHERE activo = 1 AND rol IN ('superadmin_talento_humano','auxiliar_talento_humano')");
         $usuarios = $stmtUsuarios->fetchAll();
         $stmt = $pdo->prepare("INSERT INTO notificaciones (usuario_id, destinatario_tipo, usuario_nombre, cedula_empleado, campo, mensaje, enlace) VALUES (:usuario_id, 'talento_humano', :usuario_nombre, :cedula, :campo, :mensaje, :enlace)");
         foreach ($usuarios as $u) {
@@ -338,7 +338,7 @@ class NotificacionModel
             return;
         }
 
-        $usuarios = $pdo->query("SELECT id FROM usuarios WHERE rol IN ('superadmin_talento_humano','auxiliar_talento_humano')")->fetchAll();
+        $usuarios = $pdo->query("SELECT id FROM usuarios WHERE activo = 1 AND rol IN ('superadmin_talento_humano','auxiliar_talento_humano')")->fetchAll();
         foreach ($usuarios as $usuario) {
             $stmt->execute([
                 'usuario_id' => (int)$usuario['id'],

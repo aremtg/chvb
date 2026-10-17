@@ -87,7 +87,7 @@ $hash = password_hash($password, PASSWORD_DEFAULT);
 
 if ($existente) {
     $pdo->prepare(
-        'UPDATE usuarios SET password_hash = :h, activo = 1, debe_cambiar_password = 0, password_cambiada_at = NOW(),
+        'UPDATE usuarios SET password_hash = :h, activo = 1, desactivado_at = NULL, debe_cambiar_password = 0, password_cambiada_at = NOW(),
                 intentos_fallidos = 0, bloqueado_hasta = NULL WHERE id = :id'
     )->execute(['h' => $hash, 'id' => $existente['id']]);
     UsuarioAuditoriaModel::registrar(null, 'CLI', (int) $existente['id'], $username, 'cli_resetear_password',

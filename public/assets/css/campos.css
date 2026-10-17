@@ -42,3 +42,20 @@
   border-color: #dc2626;
   box-shadow: 0 0 0 3px rgba(220, 38, 38, .18);
 }
+
+/*
+ * Barra de búsqueda + filtros en UNA sola línea (pantallas anchas).
+ *   <form class="barra-filtros">
+ *     <div class="barra-filtros__buscar"> ...campo-buscar... </div>
+ *     <div class="barra-filtros__panel"> ...selects y botones... </div>
+ *   </form>
+ * Debajo de 1366px (tablet / laptop angosta) queda apilada: buscador arriba y filtros abajo,
+ * porque en una línea ya no caben sin aplastar el buscador. En móvil el panel se despliega con "Filtros".
+ */
+.barra-filtros__panel { margin-top: .75rem; }
+@media (min-width: 1366px) {
+  .barra-filtros { display: flex; align-items: center; gap: .75rem; }
+  .barra-filtros__buscar { flex: 1 1 0%; min-width: 12rem; }
+  .barra-filtros__panel { flex: 0 0 auto; margin-top: 0; }
+  .barra-filtros__panel select { max-width: 13.75rem; }
+}
