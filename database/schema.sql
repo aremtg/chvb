@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 17-10-2026 a las 00:26:52
+-- Tiempo de generación: 17-10-2026 a las 17:43:36
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -2134,7 +2134,7 @@ CREATE TABLE `empleados` (
 --
 
 INSERT INTO `empleados` (`cedula`, `lugar_expedicion`, `nombre`, `sexo`, `cargo`, `tipo_de_personal`, `eps`, `pension`, `arl`, `salario_basico`, `es_bombero_integral`, `tipo_jornada`, `jornada_hora_entrada`, `jornada_hora_salida`, `tipo_de_contrato`, `fecha_inicio_contrato`, `fecha_fin_contrato`, `estado`, `celular`, `correo`, `fecha_nacimiento`, `created_at`, `foto`) VALUES
-('1005719736', 'Yopal, Casanare', 'Carlos Augusto Triana Lozano', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'OPS', NULL, '2026-10-06', 'activo', NULL, NULL, NULL, '2026-09-29 23:30:02', NULL),
+('1005719736', 'Yopal, Casanare', 'Carlos Augusto Triana Lozano', 'M', 'Tecnico en soporte sistemas', 'Civil', 'Sanitas', NULL, 'Positiva', NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', '2026-10-07', '2027-04-06', 'activo', NULL, NULL, NULL, '2026-09-29 23:30:02', NULL),
 ('1006554686', 'Yopal, Casanare', 'Camila Jula Gonzalez', 'F', 'Jefe de prensa', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Fijo', NULL, NULL, 'activo', NULL, NULL, '2002-10-18', '2026-10-09 12:20:45', NULL),
 ('1006555204', 'Maní, Casanare', 'Usuario Prueba', 'M', 'Tecnico en soporte sistemas', 'Civil', NULL, NULL, NULL, NULL, 0, 'Administrativa', NULL, NULL, 'Indefinido', NULL, NULL, 'activo', '3216548975', NULL, NULL, '2026-10-07 00:28:58', NULL),
 ('1006555838', 'Yopal, Casanare', 'Lourdes Ester Guarin Garcia', 'F', 'Bombero integral', 'Bombero', NULL, NULL, NULL, NULL, 0, 'Turnos', NULL, NULL, 'Fijo', '2025-05-05', '2025-11-04', 'activo', NULL, NULL, '2003-02-10', '2026-09-23 03:32:54', NULL),
@@ -2301,7 +2301,10 @@ INSERT INTO `notificaciones` (`id`, `usuario_id`, `destinatario_tipo`, `usuario_
 (15, NULL, 'empleado', '1124989349', '1124989349', 'permiso', 'Tu permiso de \"Permiso\" fue devuelto: Repito lo mismo: la evidencia no es la foto del pie, sino el soporte del hospital. Y debe adjuntarlo cuando vuelva y agregar la hora de llegada.', '/chvb/public/permiso_ver.php?id=2', 1, '2026-10-14 14:24:16'),
 (16, NULL, 'empleado', '47441979', '47441979', 'permiso', '\"Usuario Prueba\" te pidió un permiso de \"Permiso\"', '/chvb/public/permiso_ver.php?id=3', 0, '2026-10-14 14:47:52'),
 (17, 5, 'talento_humano', 'Usuario Prueba', '1006555204', 'permiso_nuevo', '\"Usuario Prueba\" creó un permiso de \"Permiso\" (\"GH-FT-10-2026-0003\")', './permiso_ver.php?id=3', 1, '2026-10-14 14:47:52'),
-(18, 6, 'talento_humano', 'Usuario Prueba', '1006555204', 'permiso_nuevo', '\"Usuario Prueba\" creó un permiso de \"Permiso\" (\"GH-FT-10-2026-0003\")', './permiso_ver.php?id=3', 0, '2026-10-14 14:47:52');
+(18, 6, 'talento_humano', 'Usuario Prueba', '1006555204', 'permiso_nuevo', '\"Usuario Prueba\" creó un permiso de \"Permiso\" (\"GH-FT-10-2026-0003\")', './permiso_ver.php?id=3', 0, '2026-10-14 14:47:52'),
+(19, NULL, 'empleado', '1006555204', '1006555204', 'permiso', 'Tu permiso de \"Permiso\" fue firmado y aprobado.', '/chvb/public/permiso_ver.php?id=3', 0, '2026-10-16 23:19:32'),
+(20, 5, 'talento_humano', 'talento', '1006555204', 'permiso_anulado', '\"TATIS\" anuló el permiso \"GH-FT-10-2026-0003\" del empleado \"Usuario Prueba\". Motivo: iojiuhyu', '/chvb/public/permiso_ver.php?id=3', 1, '2026-10-16 23:20:05'),
+(21, NULL, 'empleado', '1006555204', '1006555204', 'permiso', 'Tu permiso \"GH-FT-10-2026-0003\" fue anulado: iojiuhyu', '/chvb/public/permiso_ver.php?id=3', 0, '2026-10-16 23:20:05');
 
 -- --------------------------------------------------------
 
@@ -2369,7 +2372,7 @@ CREATE TABLE `permisos` (
 INSERT INTO `permisos` (`id`, `consecutivo`, `formato_codigo`, `formato_version`, `formato_fecha`, `cedula_empleado`, `nombre_empleado_snapshot`, `cargo_empleado_snapshot`, `celular_empleado_snapshot`, `tipo_permiso`, `motivo`, `fecha_inicio`, `hora_inicio`, `fecha_fin`, `hora_fin`, `total_horas`, `incluye_festivo`, `festivo_confirmado`, `remunerado`, `es_compensatorio`, `fecha_horas_extra`, `compensatorio_origen`, `compensatorio_origen_detalle`, `es_devolucion`, `es_salida_pendiente_regreso`, `devolucion_fecha`, `devolucion_hora_inicio`, `devolucion_hora_fin`, `devolucion_total_horas`, `tiene_reemplazo`, `cedula_reemplazo`, `cedula_jefe`, `foto_solicitante`, `firma_solicitante`, `foto_reemplazo`, `firma_reemplazo`, `foto_jefe`, `firma_jefe`, `foto_jefe_prefirmado`, `firma_jefe_prefirmado`, `evidencia_archivo`, `estado`, `motivo_devolucion`, `motivo_rechazo`, `motivo_anulacion`, `anulado_por`, `fecha_anulacion`, `version`, `fecha_solicitud`, `fecha_actualizacion`) VALUES
 (1, 'GH-FT-10-2026-0001', 'GH-FT-10', 1, '2026-02-10', '1124989349', 'Tatiana Andrea Guzman Galindo', 'Practicante Fundetec', '3229496595', 'Permiso', 'Cita odontólogo', '2026-10-14', '07:00:00', '2026-10-14', '17:24:00', 8.40, 0, 0, 1, 0, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, NULL, 0, NULL, '47441979', 'hv_1124989349/permisos/fotos/foto_1791906180.jpg', 'hv_1124989349/firma/firma_1791906180.png', NULL, NULL, 'hv_47441979/permisos/fotos/foto_1791908736.jpg', 'hv_47441979/firma/firma_1791908736.png', NULL, NULL, NULL, 'anulado', NULL, NULL, 'jjj', 'Angela Maria Moreno', '2026-10-13 16:25:50', 4, '2026-10-13 15:43:00', '2026-10-13 16:25:50'),
 (2, 'GH-FT-10-2026-0002', 'GH-FT-10', 1, '2026-02-10', '1124989349', 'Tatiana Andrea Guzman Galindo', 'Practicante Fundetec', '3229496595', 'Permiso', 'Dolor intenso de pierna, me dirijo al hospital', '2026-10-14', '09:09:00', NULL, NULL, NULL, 0, 0, 1, 0, NULL, NULL, NULL, 0, 1, NULL, NULL, NULL, NULL, 0, NULL, '74861664', 'hv_1124989349/permisos/fotos/foto_1791987209.jpg', 'hv_1124989349/firma/firma_1791906180.png', NULL, NULL, NULL, NULL, NULL, NULL, 'hv_1124989349/permisos/evidencias/evidencia_1791987209.jpg', 'devuelto', 'Repito lo mismo: la evidencia no es la foto del pie, sino el soporte del hospital. Y debe adjuntarlo cuando vuelva y agregar la hora de llegada.', NULL, NULL, NULL, NULL, 5, '2026-10-14 14:13:30', '2026-10-14 14:24:16'),
-(3, 'GH-FT-10-2026-0003', 'GH-FT-10', 1, '2026-02-10', '1006555204', 'Usuario Prueba', 'Tecnico en soporte sistemas', '3216548975', 'Permiso', 'reunion de padrs de familia', '2026-10-15', '07:00:00', '2026-10-15', '12:59:00', 5.00, 0, 0, 1, 0, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, NULL, 0, NULL, '47441979', 'hv_1006555204/permisos/fotos/foto_1791989272.jpg', 'hv_1006555204/firma/firma_1791989272.png', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'por_firmar_jefe', NULL, NULL, NULL, NULL, NULL, 2, '2026-10-14 14:47:52', '2026-10-14 14:47:52');
+(3, 'GH-FT-10-2026-0003', 'GH-FT-10', 1, '2026-02-10', '1006555204', 'Usuario Prueba', 'Tecnico en soporte sistemas', '3216548975', 'Permiso', 'reunion de padrs de familia', '2026-10-15', '07:00:00', '2026-10-15', '12:59:00', 5.00, 0, 0, 1, 0, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, NULL, 0, NULL, '47441979', 'hv_1006555204/permisos/fotos/foto_1791989272.jpg', 'hv_1006555204/firma/firma_1791989272.png', NULL, NULL, 'hv_47441979/permisos/fotos/foto_1792192772.jpg', 'hv_47441979/firma/firma_1791908736.png', NULL, NULL, NULL, 'anulado', NULL, NULL, 'iojiuhyu', 'TATIS', '2026-10-16 23:20:05', 4, '2026-10-14 14:47:52', '2026-10-16 23:20:05');
 
 -- --------------------------------------------------------
 
@@ -2477,7 +2480,9 @@ INSERT INTO `permisos_historial` (`id`, `permiso_id`, `version_anterior`, `estad
 (5, 2, 2, 'por_firmar_jefe', 'devuelto', 'jefe', '74861664', 'Por favor tatiana la evidencia no es de la foto del pie, por favor adjunta el documento o boeta que te dieron en el hospital.', '2026-10-14 14:19:30'),
 (6, 2, 3, 'devuelto', 'por_firmar_jefe', 'empleado', '1124989349', 'Permiso enviado', '2026-10-14 14:21:24'),
 (7, 2, 4, 'por_firmar_jefe', 'devuelto', 'jefe', '74861664', 'Repito lo mismo: la evidencia no es la foto del pie, sino el soporte del hospital. Y debe adjuntarlo cuando vuelva y agregar la hora de llegada.', '2026-10-14 14:24:16'),
-(8, 3, 1, 'en_proceso', 'por_firmar_jefe', 'empleado', '1006555204', 'Permiso creado y enviado', '2026-10-14 14:47:52');
+(8, 3, 1, 'en_proceso', 'por_firmar_jefe', 'empleado', '1006555204', 'Permiso creado y enviado', '2026-10-14 14:47:52'),
+(9, 3, 2, 'por_firmar_jefe', 'firmado', 'jefe', '47441979', 'Jefe firmó, permiso finalizado', '2026-10-16 23:19:32'),
+(10, 3, 3, 'firmado', 'anulado', 'talento_humano', 'TATIS', 'iojiuhyu', '2026-10-16 23:20:05');
 
 -- --------------------------------------------------------
 
@@ -2588,6 +2593,7 @@ CREATE TABLE `usuarios` (
   `bloqueado_hasta` datetime DEFAULT NULL,
   `nombre_completo` varchar(100) DEFAULT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT 1,
+  `desactivado_at` datetime DEFAULT NULL,
   `debe_cambiar_password` tinyint(1) NOT NULL DEFAULT 0,
   `password_cambiada_at` datetime DEFAULT NULL,
   `ultimo_acceso` datetime DEFAULT NULL,
@@ -2598,10 +2604,11 @@ CREATE TABLE `usuarios` (
 -- Volcado de datos para la tabla `usuarios`
 --
 
-INSERT INTO `usuarios` (`id`, `username`, `password_hash`, `rol`, `created_at`, `intentos_fallidos`, `bloqueado_hasta`, `nombre_completo`, `activo`, `debe_cambiar_password`, `password_cambiada_at`, `ultimo_acceso`, `creado_por`) VALUES
-(5, 'talento', '$2y$10$Otls3lcR1hk6J.wHX/gZZOUr0dvlSQFRE1HrNbhfi8ntNex29H92K', 'superadmin_talento_humano', '2026-10-13 15:18:35', 0, NULL, NULL, 1, 0, '2026-10-16 16:48:22', '2026-10-16 16:51:41', NULL),
-(6, 'tatiana', '$2y$10$Nckykk7Y0mJUPts3U8psV.S.AS/dtCmhnA00acoP6FXnYxf40vk7C', 'auxiliar_talento_humano', '2026-10-13 15:19:23', 0, NULL, NULL, 1, 0, NULL, '2026-10-16 16:51:11', NULL),
-(7, 'angela.moreno', '$2y$10$cLzl6BbTa61LuzLN.LqFSuT1UtM7bwX4he.UDkeIsx/ntZyloKk1S', 'teniente', '2026-10-13 15:20:42', 0, NULL, NULL, 1, 0, NULL, NULL, NULL);
+INSERT INTO `usuarios` (`id`, `username`, `password_hash`, `rol`, `created_at`, `intentos_fallidos`, `bloqueado_hasta`, `nombre_completo`, `activo`, `desactivado_at`, `debe_cambiar_password`, `password_cambiada_at`, `ultimo_acceso`, `creado_por`) VALUES
+(5, 'talento', '$2y$10$Otls3lcR1hk6J.wHX/gZZOUr0dvlSQFRE1HrNbhfi8ntNex29H92K', 'superadmin_talento_humano', '2026-10-13 15:18:35', 0, NULL, NULL, 1, NULL, 0, '2026-10-16 16:48:22', '2026-10-17 09:20:51', NULL),
+(6, 'tatiana', '$2y$10$Nckykk7Y0mJUPts3U8psV.S.AS/dtCmhnA00acoP6FXnYxf40vk7C', 'auxiliar_talento_humano', '2026-10-13 15:19:23', 0, NULL, NULL, 0, '2026-10-16 18:35:01', 0, NULL, '2026-10-16 16:51:11', NULL),
+(7, 'angela.moreno', '$2y$10$cLzl6BbTa61LuzLN.LqFSuT1UtM7bwX4he.UDkeIsx/ntZyloKk1S', 'teniente', '2026-10-13 15:20:42', 0, NULL, NULL, 1, NULL, 0, NULL, NULL, NULL),
+(8, 'tatianaguzman', '$2y$10$FeAVohLGjO.Ho.cp.edlhuo6dqpg56TqCnTodjSHmw.XTJ86M8dyK', 'auxiliar_talento_humano', '2026-10-16 23:00:41', 0, NULL, 'Tatiana Guzman', 1, NULL, 0, '2026-10-16 18:05:41', '2026-10-16 18:19:49', 5);
 
 -- --------------------------------------------------------
 
@@ -2626,7 +2633,13 @@ CREATE TABLE `usuarios_auditoria` (
 --
 
 INSERT INTO `usuarios_auditoria` (`id`, `actor_id`, `actor_username`, `objetivo_id`, `objetivo_username`, `accion`, `detalle`, `ip`, `created_at`) VALUES
-(1, 5, 'talento', 5, 'talento', 'cambiar_password_propio', NULL, '::1', '2026-10-16 21:48:22');
+(1, 5, 'talento', 5, 'talento', 'cambiar_password_propio', NULL, '::1', '2026-10-16 21:48:22'),
+(2, 5, 'talento', 8, 'TATIS', 'crear_usuario', 'rol=auxiliar_talento_humano', '::1', '2026-10-16 23:00:41'),
+(3, 8, 'TATIS', 8, 'TATIS', 'cambiar_password_propio', NULL, '::1', '2026-10-16 23:03:22'),
+(4, 5, 'talento', 8, 'TATIS', 'resetear_password', NULL, '::1', '2026-10-16 23:04:46'),
+(5, 8, 'TATIS', 8, 'TATIS', 'cambiar_password_propio', NULL, '::1', '2026-10-16 23:05:41'),
+(6, 5, 'talento', 6, 'tatiana', 'desactivar', NULL, '::1', '2026-10-16 23:35:01'),
+(7, 5, 'talento', 8, 'tatianaguzman', 'editar_datos', 'usuario: TATIS -> tatianaguzman; nombre: TATIANANDREA GUZMAN GALINDO -> Tatiana Guzman', '::1', '2026-10-17 15:21:32');
 
 -- --------------------------------------------------------
 
@@ -2653,7 +2666,7 @@ INSERT INTO `usuarios_empleados` (`id`, `cedula`, `password_hash`, `activo`, `in
 (2, '47441979', '$2y$10$K8UbMvCG3OL.BDJLA4zahuXhCHH5fRkzkHZ6XzmyiDeJxCu1P81qW', 1, 0, NULL, '0qng9cvhQVEGzkPyw2Gm9t62vfFQQ+hrJgMjcXhxWsM='),
 (3, '1121898640', '$2y$10$4wzJ6I9jiM25fCrXntHx2eY/10W1qhMwEVtM7igSOGKpQFIlPzyVm', 1, 0, NULL, '0TC//0tqaB0Mox4Sn0cmzb0VU0nwECgsgOzF4zJnBFI='),
 (4, '74861664', '$2y$10$tMvZsCu5JDagEntZcrceseBn.2RhcxUE5gAYXG0/RrU85bL7McyEO', 1, 0, NULL, 'ZBWk0isiURdat7UapGWKv6jcagtLd68GBZG3R6H1uGM='),
-(5, '1118575006', '$2y$10$qxHcHfXaY46vBoB4VqO00uhMhTqdw9sFxtpAeApqwlRUz45uMZFpa', 1, 0, NULL, 'mT4nB5+heTXOHcmYLt+fRHGFiXzmnX/CfLPsJgOMo10='),
+(5, '1118575006', '$2y$10$qxHcHfXaY46vBoB4VqO00uhMhTqdw9sFxtpAeApqwlRUz45uMZFpa', 0, 0, NULL, 'mT4nB5+heTXOHcmYLt+fRHGFiXzmnX/CfLPsJgOMo10='),
 (6, '1006555204', '$2y$10$DxLcLVzIoJq80kuqYkPoDOxG5pWqFNwNXbDTcMI9CxA9oasJ6Mtpq', 1, 0, NULL, 'KziQh7d4iPtIYRgTvGQySirqpLsxF5bPblCLWp1i4D0='),
 (7, '1118555586', '$2y$10$qg/u3pzAbFu7D4wNhVk65OuKiks32Z0od6CrKgGAoDM.Jyzoci3oS', 1, 0, NULL, 'dC/vPAi/XHuxETIewkxUhaM1qeQQ+VwFYgoY1oEPWMs=');
 
@@ -2851,7 +2864,7 @@ ALTER TABLE `funciones_contratos`
 -- AUTO_INCREMENT de la tabla `notificaciones`
 --
 ALTER TABLE `notificaciones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT de la tabla `permisos`
@@ -2875,7 +2888,7 @@ ALTER TABLE `permisos_dias`
 -- AUTO_INCREMENT de la tabla `permisos_historial`
 --
 ALTER TABLE `permisos_historial`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `renovaciones_contrato`
@@ -2893,13 +2906,13 @@ ALTER TABLE `renovaciones_historial`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios_auditoria`
 --
 ALTER TABLE `usuarios_auditoria`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios_empleados`
