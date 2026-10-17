@@ -6,36 +6,24 @@ require_once __DIR__ . '/../src/models/BolsilloModel.php';
 require_once __DIR__ . '/../src/models/PermisoModel.php';
 requireSuperAdmin();
 
-$cumpleanosProximos = EmpleadoModel::proximosCumpleanos(15);
+// ---------------------------------------------------------------------------
+// ENCABEZADO: saludo y fecha de hoy
+// ---------------------------------------------------------------------------
+$stmtYo = getPDO()->prepare('SELECT username, nombre_completo FROM usuarios WHERE id = :id');
+$stmtYo->execute(['id' => (int) ($_SESSION['superadmin_id'] ?? 0)]);
+$yo = $stmtYo->fetch() ?: [];
+$nombreBase = trim((string) ($yo['nombre_completo'] ?? '')) !== ''
+    ? (string) $yo['nombre_completo']
+    : (string) ($yo['username'] ?? ($_SESSION['superadmin_username'] ?? ''));
+$partesNombre = preg_split('/[\s._-]+/', trim($nombreBase), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+$primerNombre = $partesNombre ? mb_convert_case($partesNombre[0], MB_CASE_TITLE, 'UTF-8') : '';
 
-// Mes que se está mostrando en el calendario. Por defecto, el mes actual.
-$anioCalendario = (int) ($_GET['anio'] ?? date('Y'));
-$mesCalendario = (int) ($_GET['mes'] ?? date('n'));
-
-if ($anioCalendario < 2000 || $anioCalendario > 2100) {
-    $anioCalendario = (int) date('Y');
-}
-if ($mesCalendario < 1 || $mesCalendario > 12) {
-    $mesCalendario = (int) date('n');
-}
-
-$inicioMes = new DateTime(sprintf('%04d-%02d-01', $anioCalendario, $mesCalendario));
-$diasEnMes = (int) $inicioMes->format('t');
-$diaInicioSemana = (int) $inicioMes->format('N'); // 1=lunes ... 7=domingo
-
-$cumpleanosMes = EmpleadoModel::cumpleanosDelMes($anioCalendario, $mesCalendario);
-$cumpleanosPorDia = [];
-foreach ($cumpleanosMes as $emp) {
-    $cumpleanosPorDia[$emp['dia_cumpleanos']][] = $emp;
-}
-
-$mesAnterior = (clone $inicioMes)->modify('-1 month');
-$mesSiguiente = (clone $inicioMes)->modify('+1 month');
-$nombreMesCalendario = EmpleadoModel::mesEnEspanol($mesCalendario);
-$alarmas = BolsilloModel::alarmasProximas();
+$diasSemanaTxt = [1 => 'lunes', 2 => 'martes', 3 => 'miércoles', 4 => 'jueves', 5 => 'viernes', 6 => 'sábado', 7 => 'domingo'];
+$fechaHoyTxt = ucfirst($diasSemanaTxt[(int) date('N')]) . ', ' . (int) date('j') . ' de '
+    . mb_strtolower(EmpleadoModel::mesEnEspanol((int) date('n')), 'UTF-8') . ' de ' . date('Y');
 
 // ---------------------------------------------------------------------------
-// MÉTRICAS DE AUSENTISMO
+// PERÍODO DE LAS MÉTRICAS
 // mm = mes a analizar (1-12) o "todos"; ma = año. Por defecto, el mes actual.
 // El mes se filtra por la fecha de inicio del permiso.
 // ---------------------------------------------------------------------------
@@ -57,9 +45,48 @@ $etiquetaPeriodo = $periodoTodos
     ? 'Todo el historial'
     : EmpleadoModel::mesEnEspanol($mesMetricas) . ' ' . $anioMetricas;
 
-// Para que al navegar el calendario no se pierda el filtro de métricas (y al revés).
-$qsMetricas = '&amp;mm=' . ($periodoTodos ? 'todos' : $mesMetricas) . '&amp;ma=' . $anioMetricas;
+// ---------------------------------------------------------------------------
+// CALENDARIO DE CUMPLEAÑOS
+// Si no se navega el calendario a mano (anio/mes), sigue al período elegido arriba.
+// ---------------------------------------------------------------------------
+$anioCalendario = (int) ($_GET['anio'] ?? ($periodoTodos ? date('Y') : $anioMetricas));
+$mesCalendario = (int) ($_GET['mes'] ?? ($periodoTodos ? date('n') : $mesMetricas));
+if ($anioCalendario < 2000 || $anioCalendario > 2100) {
+    $anioCalendario = (int) date('Y');
+}
+if ($mesCalendario < 1 || $mesCalendario > 12) {
+    $mesCalendario = (int) date('n');
+}
 
+$cumpleanosProximos = EmpleadoModel::proximosCumpleanos(15);
+
+$inicioMes = new DateTime(sprintf('%04d-%02d-01', $anioCalendario, $mesCalendario));
+$diasEnMes = (int) $inicioMes->format('t');
+$diaInicioSemana = (int) $inicioMes->format('N'); // 1=lunes ... 7=domingo
+
+$cumpleanosMes = EmpleadoModel::cumpleanosDelMes($anioCalendario, $mesCalendario);
+$cumpleanosPorDia = [];
+foreach ($cumpleanosMes as $emp) {
+    $cumpleanosPorDia[$emp['dia_cumpleanos']][] = $emp;
+}
+
+$mesAnterior = (clone $inicioMes)->modify('-1 month');
+$mesSiguiente = (clone $inicioMes)->modify('+1 month');
+$nombreMesCalendario = EmpleadoModel::mesEnEspanol($mesCalendario);
+
+// Enlaces del calendario: conservan el período de las métricas y vuelven a la tarjeta de cumpleaños.
+$urlCalendario = function (int $anio, int $mes) use ($periodoTodos, $mesMetricas, $anioMetricas): string {
+    return 'dashboard.php?' . htmlspecialchars(http_build_query([
+        'anio' => $anio,
+        'mes' => $mes,
+        'mm' => $periodoTodos ? 'todos' : $mesMetricas,
+        'ma' => $anioMetricas,
+    ]), ENT_QUOTES) . '#cumpleanos';
+};
+
+// ---------------------------------------------------------------------------
+// MÉTRICAS DE AUSENTISMO
+// ---------------------------------------------------------------------------
 $resPeriodo = PermisoModel::resumenAusentismo($desdeMetricas, $hastaMetricas);
 $resTotal = $periodoTodos ? $resPeriodo : PermisoModel::resumenAusentismo();
 $tiposPeriodo = PermisoModel::ausentismoPorTipo($desdeMetricas, $hastaMetricas);
@@ -81,7 +108,6 @@ $fmtHoras = function (float $h): string {
 };
 
 $pendFirmasPeriodo = $resPeriodo['pend_reemplazo'] + $resPeriodo['pend_jefe'];
-$pendFirmasTotal = $resTotal['pend_reemplazo'] + $resTotal['pend_jefe'];
 $pendFirmasActuales = $estadosActuales['firmas_pendientes'];
 $decididos = $resPeriodo['firmados'] + $resPeriodo['rechazados'];
 $tasaAprobacion = $decididos > 0 ? $pct($resPeriodo['firmados'], $decididos) : null;
@@ -97,304 +123,166 @@ $etiquetasTipo = ['Mision institucional' => 'Misión institucional'];
 
 $maxTendencia = max(1, ...array_column($tendencia, 'total'));
 $aniosSelector = range((int) date('Y') + 1, (int) date('Y') - 4);
+
+// Tarjetas de "Requiere atención": lo primero que Talento Humano necesita ver.
+// [título, cantidad, descripción, tono si hay pendientes, ícono]
+$tarjetasAtencion = [
+    ['Firma del reemplazo', (int) $estadosActuales['pend_reemplazo'], 'Esperan que el reemplazo firme', 'warn', 'user'],
+    ['Firma del jefe', (int) $estadosActuales['pend_jefe'], 'Esperan la firma del jefe inmediato', 'warn', 'file-signature'],
+    ['Esperando regreso', (int) $estadosActuales['esperando_regreso'], 'Falta la llegada y la firma final', 'info', 'alarm-clock'],
+    ['Devueltos al empleado', (int) $estadosActuales['devueltos'], 'Deben corregir y reenviar', 'alert', 'circle-alert'],
+];
+
+// El botón de menú se imprime dentro del encabezado (sin saltos de diseño al cargar).
+$chvBotonEnCabecera = true;
 ?>
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
-    <?php require __DIR__ . '/../includes/head.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHVB - Dashboard</title>
+    <meta name="theme-color" content="#dc2626">
+    <title>CHVB - Inicio</title>
+    <?php require __DIR__ . '/../includes/head.php'; ?>
     <link rel="stylesheet" href="./assets/css/tailwind.css">
     <link rel="stylesheet" href="./assets/css/dashboard.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/dashboard.css') ?>">
 </head>
 
 <body class="bg-gray-100 min-h-screen">
+    <a href="#contenido" class="app-skip">Saltar al contenido</a>
     <?php require __DIR__ . '/../includes/sidebar.php'; ?>
 
     <div class="md:ml-64 pt-14 md:pt-0">
-        <header class="bg-white shadow px-4 md:px-6 py-4">
-            <h1 class="text-lg font-bold text-gray-800">Dashboard/Inicio</h1>
+        <header class="app-topbar">
+            <?= chvBotonMenu() ?>
+            <div class="app-topbar__txt">
+                <h1>Inicio</h1>
+                <p><?= $primerNombre !== '' ? 'Hola, ' . htmlspecialchars($primerNombre) . ' · ' : '' ?><?= htmlspecialchars($fechaHoyTxt) ?></p>
+            </div>
+
+            <!-- Período: mueve los indicadores y, al elegir un mes, también el calendario de cumpleaños -->
+            <form method="get" action="dashboard.php" class="dash-filtro" aria-label="Período del tablero">
+                <label class="sr-only" for="filtroMes">Mes</label>
+                <select id="filtroMes" name="mm" onchange="this.form.submit()">
+                    <option value="todos" <?= $periodoTodos ? 'selected' : '' ?>>Todo el historial</option>
+                    <?php for ($m = 1; $m <= 12; $m++): ?>
+                        <option value="<?= $m ?>" <?= (!$periodoTodos && $m === $mesMetricas) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(EmpleadoModel::mesEnEspanol($m)) ?>
+                        </option>
+                    <?php endfor; ?>
+                </select>
+                <label class="sr-only" for="filtroAnio">Año</label>
+                <select id="filtroAnio" name="ma" onchange="this.form.submit()">
+                    <?php foreach ($aniosSelector as $a): ?>
+                        <option value="<?= $a ?>" <?= $a === $anioMetricas ? 'selected' : '' ?>><?= $a ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <noscript><button type="submit" class="dash-btn">Aplicar</button></noscript>
+                <a href="dashboard.php" class="dash-btn">Mes actual</a>
+            </form>
         </header>
-        <main class="p-6 max-w-6xl mx-auto space-y-6">
-            <!-- CALENDARIO DE CUMPLEAÑOS -->
-            <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
-                                <?= icon('cake', 'w-5 h-5') ?>
+
+        <main id="contenido" class="dash-main" tabindex="-1">
+            <div class="dash-layout">
+
+                <!-- ============ COLUMNA PRINCIPAL: operación y métricas ============ -->
+                <div class="dash-col">
+
+                    <!-- 1. REQUIERE ATENCIÓN -->
+                    <section class="dash-atencion" aria-labelledby="tAtencion">
+                        <div class="dash-sec-head">
+                            <span class="dash-ico <?= $pendFirmasActuales > 0 ? 'ambar' : 'verde' ?>">
+                                <?= icon($pendFirmasActuales > 0 ? 'alarm-clock' : 'check', 'w-5 h-5') ?>
                             </span>
                             <div>
-                                <h2 class="font-bold text-gray-800">Cumpleaños</h2>
-                                <p class="text-xs text-gray-600">Recordatorio con 15 días de anticipación</p>
+                                <h2 id="tAtencion">Requiere atención</h2>
+                                <p>
+                                    <?= $pendFirmasActuales > 0
+                                        ? '<strong>' . (int) $pendFirmasActuales . '</strong> permiso(s) esperando firma ahora · estado actual, sin importar el mes'
+                                        : 'Nada esperando firma ahora · estado actual, sin importar el mes' ?>
+                                </p>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="flex items-center gap-1 self-start sm:self-auto">
-                        <a href="?anio=<?= date('Y')?>&mes=<?= date('n')?><?= $qsMetricas ?>"
-   class="ml-1.5 px-3 h-8 rounded-lg border border-gray-200 bg-white text-sm font-semibold text-gray-700 flex items-center justify-center">
-   Este mes
-</a>
-                        <a href="?anio=<?= $mesAnterior->format('Y') ?>&mes=<?= $mesAnterior->format('n') ?><?= $qsMetricas ?>"
-                            class="w-8 h-8 rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 flex items-center justify-center transition"
-                            aria-label="Mes anterior">
-                            <?= icon('chevron-left', 'w-5 h-5') ?>
-                        </a>
-                        <div class="min-w-[130px] text-center text-sm font-semibold text-gray-700">
-                            <?= htmlspecialchars($nombreMesCalendario . ' ' . $anioCalendario) ?>
-                        </div>
-                        <a href="?anio=<?= $mesSiguiente->format('Y') ?>&mes=<?= $mesSiguiente->format('n') ?><?= $qsMetricas ?>"
-                            class="w-8 h-8 rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 flex items-center justify-center transition"
-                            aria-label="Mes siguiente">
-                            <?= icon('chevron-right', 'w-5 h-5') ?>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="p-4 md:p-5 grid grid-cols-1 lg:grid-cols-[minmax(0,1.05fr)_minmax(280px,.95fr)] gap-5">
-                    <!-- Calendario compacto -->
-                    <div>
-                        <div class="grid grid-cols-7 gap-1 mb-1">
-                            <?php foreach (['L', 'Ma', 'Mi', 'J', 'V', 'S', 'D'] as $diaSemana): ?>
-                                <div class="text-center text-[10px] sm:text-xs font-semibold text-gray-600 py-1">
-                                    <?= $diaSemana ?>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-
-                        <div class="grid grid-cols-7 gap-1">
-                            <?php for ($espacio = 1; $espacio < $diaInicioSemana; $espacio++): ?>
-                                <div class="min-h-[38px] sm:min-h-[42px]"></div>
-                            <?php endfor; ?>
-
-                            <?php for ($dia = 1; $dia <= $diasEnMes; $dia++): ?>
-                                <?php
-                                $tieneCumpleanos = !empty($cumpleanosPorDia[$dia]);
-                                $esHoy = ((int) date('Y') === $anioCalendario
-                                    && (int) date('n') === $mesCalendario
-                                    && (int) date('j') === $dia);
-                                ?>
-                                <div class="min-h-[38px] sm:min-h-[42px] rounded-lg flex flex-col items-center justify-center border <?= $tieneCumpleanos ? ' border-red-200 bg-red-50' : 'border-gray-50 bg-gray-50/40' ?> <?= $esHoy ? 'ring-2 ring-red-400' : '' ?>">
-                                    <span class="text-xs sm:text-sm font-semibold <?= $tieneCumpleanos ? 'text-red-600' : 'text-gray-600' ?>">
-                                        <?= $dia ?>
+                        <div class="dash-atencion__grid">
+                            <?php foreach ($tarjetasAtencion as [$titulo, $cantidad, $descripcion, $tono, $iconoTarjeta]): ?>
+                                <a href="permisos_th.php" class="dash-tile <?= $cantidad > 0 ? 'is-' . $tono : 'is-ok' ?>">
+                                    <span class="dash-ico <?= $cantidad > 0 ? ['warn' => 'ambar', 'info' => 'azul', 'alert' => 'naranja'][$tono] : 'verde' ?>">
+                                        <?= icon($cantidad > 0 ? $iconoTarjeta : 'check', 'w-5 h-5') ?>
                                     </span>
-                                    <?php if ($tieneCumpleanos): ?>
-                                        <span class="mt-0.5 w-1.5 h-1.5 rounded-full bg-red-600"></span>
-                                    <?php endif; ?>
-                                    
-                                </div>
-                            <?php endfor; ?>
-                        </div>
-
-                        <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] sm:text-xs text-gray-600">
-                            <span class="inline-flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-red-600"></span> Hay cumpleaños
-                            </span>
-                           
-                        </div>
-                    </div>
-
-                    <!-- Lista del mes -->
-                    <div class="border-t lg:border-t-0 lg:border-l border-gray-100 pt-4 lg:pt-0 lg:pl-5">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-sm font-semibold text-gray-700">Personas que cumplen</h3>
-                            <span class="text-xs text-gray-600"><?= count($cumpleanosMes) ?> persona(s)</span>
-                        </div>
-
-                        <div class="max-h-[260px] overflow-y-auto pr-1 space-y-1.5">
-                            <?php if (empty($cumpleanosMes)): ?>
-                                <div class="rounded-xl bg-gray-50 border border-gray-100 p-4 text-center">
-                                    <p class="text-sm text-gray-600">No hay cumpleaños registrados este mes.</p>
-                                </div>
-                            <?php else: ?>
-                                <?php foreach ($cumpleanosMes as $emp): ?>
-                                    <?php
-                                    $infoCumple = EmpleadoModel::infoCumpleanos($emp['fecha_nacimiento'], 15);
-                                    $estaEnRecordatorio = $infoCumple['cumple'];
-                                    ?>
-                                    <div class="flex items-center gap-3 rounded-xl border border-gray-100 bg-white px-3 py-2 hover:bg-gray-50 transition">
-                                        <div class="w-9 h-9 rounded-lg bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0 font-bold text-sm">
-                                            <?= str_pad((string) $emp['dia_cumpleanos'], 2, '0', STR_PAD_LEFT) ?>
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <p class="text-sm font-semibold text-gray-800 truncate"><?= htmlspecialchars($emp['nombre']) ?></p>
-                                            <p class="text-[11px] text-gray-600 truncate">CC <?= htmlspecialchars($emp['cedula']) ?></p>
-                                        </div>
-                                        <?php
-    // Edad que va a cumplir en el año del calendario que estás viendo
-    $anioNacimiento = (int) date('Y', strtotime($emp['fecha_nacimiento']));
-    $edadVaCumplir = $anioCalendario - $anioNacimiento;
-?>
-<span class="text-sm font-bold text-amber-800 bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-full whitespace-nowrap">
-    <?= $edadVaCumplir?> años
-</span>
+                                    <div>
+                                        <div class="dash-tile__num"><?= $cantidad ?></div>
+                                        <div class="dash-tile__lbl"><?= htmlspecialchars($titulo) ?></div>
+                                        <div class="dash-tile__sub"><?= $cantidad > 0 ? htmlspecialchars($descripcion) : 'Todo al día' ?></div>
                                     </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-
-                <?php if (!empty($cumpleanosProximos)): ?>
-                    <div class="px-5 py-3 border-t border-gray-100 bg-red-50/40">
-                        <p class="text-xs text-gray-500">
-                            <span class="font-semibold text-red-600">Próximos 15 días:</span>
-                            <?= count($cumpleanosProximos) ?> cumpleañeros.
-                        </p>
-                    </div>
-                <?php endif; ?>
-            </section>
-
-            <!-- MÉTRICAS DE AUSENTISMO -->
-            <section id="ausentismo" class="space-y-4">
-                <div class="aus-head">
-                    <div class="flex items-center gap-2">
-                        <span class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
-                            <?= icon('clipboard-list', 'w-5 h-5') ?>
-                        </span>
-                        <div>
-                            <h2 class="font-bold text-gray-800">Ausentismo y permisos</h2>
-                            <p class="text-xs text-gray-600">Mostrando: <strong><?= htmlspecialchars($etiquetaPeriodo) ?></strong> · según la fecha de inicio del permiso, sin contar borradores</p>
-                        </div>
-                    </div>
-
-                    <form method="get" action="dashboard.php#ausentismo" class="aus-filtro">
-                        <input type="hidden" name="anio" value="<?= $anioCalendario ?>">
-                        <input type="hidden" name="mes" value="<?= $mesCalendario ?>">
-                        <select name="mm" aria-label="Mes de las métricas" onchange="this.form.submit()">
-                            <option value="todos" <?= $periodoTodos ? 'selected' : '' ?>>Todo el historial</option>
-                            <?php for ($m = 1; $m <= 12; $m++): ?>
-                                <option value="<?= $m ?>" <?= (!$periodoTodos && $m === $mesMetricas) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars(EmpleadoModel::mesEnEspanol($m)) ?>
-                                </option>
-                            <?php endfor; ?>
-                        </select>
-                        <select name="ma" aria-label="Año de las métricas" onchange="this.form.submit()">
-                            <?php foreach ($aniosSelector as $a): ?>
-                                <option value="<?= $a ?>" <?= $a === $anioMetricas ? 'selected' : '' ?>><?= $a ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <a href="dashboard.php?anio=<?= $anioCalendario ?>&amp;mes=<?= $mesCalendario ?>#ausentismo"
-                            class="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700">Mes actual</a>
-                    </form>
-                </div>
-
-                <?php if ($resTotal['total'] === 0): ?>
-                    <div class="aus-card"><div class="aus-vacio" style="margin-top:0">Aún no hay permisos registrados para mostrar métricas.</div></div>
-                <?php else: ?>
-
-                    <!-- KPIs principales -->
-                    <div class="aus-kpis">
-                        <div class="aus-card aus-kpi">
-                            <span class="aus-ico rojo"><?= icon('user', 'w-5 h-5') ?></span>
-                            <div>
-                                <div class="aus-label">Personas que pidieron permiso</div>
-                                <div class="aus-num"><?= $resPeriodo['personas'] ?></div>
-                                <?php if (!$periodoTodos): ?>
-                                    <div class="aus-sub">Histórico: <?= $resTotal['personas'] ?> persona(s)</div>
-                                <?php else: ?>
-                                    <div class="aus-sub">Empleados distintos</div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-
-                        <div class="aus-card aus-kpi">
-                            <span class="aus-ico azul"><?= icon('file-text', 'w-5 h-5') ?></span>
-                            <div>
-                                <div class="aus-label">Permisos solicitados</div>
-                                <div class="aus-num"><?= $resPeriodo['total'] ?></div>
-                                <?php if (!$periodoTodos): ?>
-                                    <div class="aus-sub">Total en la base de datos: <?= $resTotal['total'] ?></div>
-                                <?php else: ?>
-                                    <div class="aus-sub">Todos los registros</div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-
-                        <div class="aus-card aus-kpi">
-                            <span class="aus-ico ambar"><?= icon('alarm-clock', 'w-5 h-5') ?></span>
-                            <div>
-                                <div class="aus-label">Tiempo de ausencia aprobado</div>
-                                <div class="aus-num"><?= htmlspecialchars($fmtHoras($resPeriodo['horas_firmadas'])) ?></div>
-                                <div class="aus-sub">
-                                    <?= $resPeriodo['firmados'] > 0
-                                        ? 'Promedio ' . htmlspecialchars($fmtHoras($promedioHoras)) . ' por permiso firmado'
-                                        : 'Solo permisos ya firmados' ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="aus-card aus-kpi">
-                            <span class="aus-ico verde"><?= icon('check', 'w-5 h-5') ?></span>
-                            <div>
-                                <div class="aus-label">Tasa de aprobación</div>
-                                <div class="aus-num"><?= $tasaAprobacion === null ? '—' : $tasaAprobacion . '%' ?></div>
-                                <div class="aus-sub"><?= $resPeriodo['firmados'] ?> firmado(s) · <?= $resPeriodo['rechazados'] ?> rechazado(s)</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Por tipo + firmas pendientes -->
-                    <div class="aus-dos">
-                        <div class="aus-card">
-                            <h3>Permisos por tipo</h3>
-                            <p class="aus-hint"><?= htmlspecialchars($etiquetaPeriodo) ?><?= $periodoTodos ? '' : ' · entre paréntesis, el total histórico' ?></p>
-                            <?php foreach ($tiposPeriodo as $tipo => $cantidad): ?>
-                                <?php $ancho = $pct($cantidad, $resPeriodo['total']); ?>
-                                <div class="aus-fila">
-                                    <div class="aus-fila-top">
-                                        <span><?= htmlspecialchars($etiquetasTipo[$tipo] ?? $tipo) ?></span>
-                                        <span><b><?= $cantidad ?></b> <small><?= $ancho ?>%<?= $periodoTodos ? '' : ' (' . $tiposTotal[$tipo] . ')' ?></small></span>
-                                    </div>
-                                    <div class="aus-track"><div class="aus-fill" style="width:<?= $ancho ?>%;background:<?= $coloresTipo[$tipo] ?? '#6b7280' ?>"></div></div>
-                                </div>
+                                </a>
                             <?php endforeach; ?>
                         </div>
+                    </section>
 
-                        <div class="aus-card">
-                            <h3>Estados pendientes actuales</h3>
-                            <p class="aus-hint">Estado actual, sin importar cuándo inició el permiso</p>
-                            <div class="aus-num" style="margin-top:8px"><?= $pendFirmasActuales ?>
-                                <span style="font-size:13px;font-weight:600;color:#6b7280">esperando firmas ahora</span>
+                    <!-- 2 a 4. AUSENTISMO Y PERMISOS -->
+                    <section id="ausentismo" class="dash-col" aria-labelledby="tAusentismo">
+                        <div class="dash-sec-head">
+                            <span class="dash-ico rojo"><?= icon('clipboard-list', 'w-5 h-5') ?></span>
+                            <div>
+                                <h2 id="tAusentismo">Ausentismo y permisos</h2>
+                                <p>Mostrando <strong><?= htmlspecialchars($etiquetaPeriodo) ?></strong> · según la fecha de inicio del permiso, sin contar borradores</p>
+                            </div>
+                        </div>
+
+                        <?php if ($resTotal['total'] === 0): ?>
+                            <div class="dash-card"><div class="dash-vacio" style="margin-top:0">Aún no hay permisos registrados para mostrar métricas.</div></div>
+                        <?php else: ?>
+
+                            <!-- 2. Indicadores -->
+                            <div class="dash-kpis">
+                                <div class="dash-card dash-kpi">
+                                    <div class="dash-kpi__top">
+                                        <span class="dash-ico rojo"><?= icon('user', 'w-5 h-5') ?></span>
+                                        <div class="dash-label">Personas que pidieron permiso</div>
+                                    </div>
+                                    <div class="dash-num"><?= $resPeriodo['personas'] ?></div>
+                                    <div class="dash-sub">
+                                        <?= $periodoTodos ? 'Empleados distintos' : 'Histórico: ' . $resTotal['personas'] . ' persona(s)' ?>
+                                    </div>
+                                </div>
+
+                                <div class="dash-card dash-kpi">
+                                    <div class="dash-kpi__top">
+                                        <span class="dash-ico azul"><?= icon('file-text', 'w-5 h-5') ?></span>
+                                        <div class="dash-label">Permisos solicitados</div>
+                                    </div>
+                                    <div class="dash-num"><?= $resPeriodo['total'] ?></div>
+                                    <div class="dash-sub">
+                                        <?= $periodoTodos ? 'Todos los registros' : 'Total en la base de datos: ' . $resTotal['total'] ?>
+                                    </div>
+                                </div>
+
+                                <div class="dash-card dash-kpi">
+                                    <div class="dash-kpi__top">
+                                        <span class="dash-ico ambar"><?= icon('alarm-clock', 'w-5 h-5') ?></span>
+                                        <div class="dash-label">Tiempo de ausencia aprobado</div>
+                                    </div>
+                                    <div class="dash-num dash-num--txt"><?= htmlspecialchars($fmtHoras($resPeriodo['horas_firmadas'])) ?></div>
+                                    <div class="dash-sub">
+                                        <?= $resPeriodo['firmados'] > 0
+                                            ? 'Promedio ' . htmlspecialchars($fmtHoras($promedioHoras)) . ' por permiso firmado'
+                                            : 'Solo permisos ya firmados' ?>
+                                    </div>
+                                </div>
+
+                                <div class="dash-card dash-kpi">
+                                    <div class="dash-kpi__top">
+                                        <span class="dash-ico verde"><?= icon('check', 'w-5 h-5') ?></span>
+                                        <div class="dash-label">Tasa de aprobación</div>
+                                    </div>
+                                    <div class="dash-num"><?= $tasaAprobacion === null ? '—' : $tasaAprobacion . '%' ?></div>
+                                    <div class="dash-sub"><?= $resPeriodo['firmados'] ?> firmado(s) · <?= $resPeriodo['rechazados'] ?> rechazado(s)</div>
+                                </div>
                             </div>
 
-                            <table class="aus-tabla">
-                                <thead>
-                                    <tr>
-                                        <th>Estado actual</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Firma del reemplazo</td>
-                                        <td><?= $estadosActuales['pend_reemplazo'] ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Firma del jefe</td>
-                                        <td><?= $estadosActuales['pend_jefe'] ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Esperando regreso <small>falta llegada y firma final</small></td>
-                                        <td><?= $estadosActuales['esperando_regreso'] ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Devueltos al empleado <small>debe corregir y reenviar</small></td>
-                                        <td><strong><?= $estadosActuales['devueltos'] ?></strong></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Estado histórico del período + tendencia -->
-                    <div class="aus-dos">
-                        <div class="aus-card">
-                            <h3>Estado de las solicitudes del período</h3>
-                            <p class="aus-hint"><?= htmlspecialchars($etiquetaPeriodo) ?> · <?= $resPeriodo['total'] ?> permiso(s) según fecha de inicio</p>
+                            <!-- 3. Gráficos: tendencia + estado del período -->
                             <?php
                             $enTramite = $pendFirmasPeriodo + $resPeriodo['esperando_regreso'];
                             $segmentos = [
@@ -402,94 +290,232 @@ $aniosSelector = range((int) date('Y') + 1, (int) date('Y') - 4);
                                 ['En trámite de firma', $enTramite, '#d97706'],
                                 ['Devueltos', $resPeriodo['devueltos'], '#ea580c'],
                                 ['Rechazados', $resPeriodo['rechazados'], '#dc2626'],
-                                ['Anulados', $resPeriodo['anulados'], '#9ca3af'],
+                                ['Anulados', $resPeriodo['anulados'], '#6b7280'],
                             ];
+                            $resumenSegmentos = implode(', ', array_map(
+                                fn($s) => $s[0] . ': ' . $s[1],
+                                $segmentos
+                            ));
+                            $resumenTendencia = implode(', ', array_map(
+                                fn($p) => EmpleadoModel::mesEnEspanol($p['mes']) . ': ' . $p['total'],
+                                $tendencia
+                            ));
                             ?>
-                            <div class="aus-apilada">
-                                <?php foreach ($segmentos as [$nombre, $valor, $color]): ?>
-                                    <?php if ($valor > 0): ?>
-                                        <div title="<?= htmlspecialchars($nombre) ?>: <?= $valor ?>"
-                                            style="width:<?= ($valor * 100) / max(1, $resPeriodo['total']) ?>%;background:<?= $color ?>"></div>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </div>
-                            <div class="aus-leyenda">
-                                <?php foreach ($segmentos as [$nombre, $valor, $color]): ?>
-                                    <div><span class="pto" style="background:<?= $color ?>"></span><?= htmlspecialchars($nombre) ?>: <b><?= $valor ?></b></div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-
-                        <div class="aus-card">
-                            <h3>Tendencia de los últimos 6 meses</h3>
-                            <p class="aus-hint">Permisos solicitados por mes (termina en <?= $periodoTodos ? 'el mes actual' : htmlspecialchars($etiquetaPeriodo) ?>)</p>
-                            <div class="aus-barras">
-                                <?php foreach ($tendencia as $i => $punto): ?>
-                                    <?php
-                                    $esUltimo = ($i === count($tendencia) - 1);
-                                    $alto = $punto['total'] > 0 ? max(6, (int) round($punto['total'] * 100 / $maxTendencia)) : 3;
-                                    ?>
-                                    <div class="aus-col">
-                                        <span class="v"><?= $punto['total'] ?></span>
-                                        <div class="b" style="height:<?= $alto ?>%;background:<?= $esUltimo ? '#dc2626' : '#fca5a5' ?>"></div>
-                                        <span class="m"><?= htmlspecialchars(substr(EmpleadoModel::mesEnEspanol($punto['mes']), 0, 3)) ?></span>
+                            <div class="dash-split">
+                                <div class="dash-card">
+                                    <h3>Tendencia de los últimos 6 meses</h3>
+                                    <p class="dash-hint">Permisos solicitados por mes (termina en <?= $periodoTodos ? 'el mes actual' : htmlspecialchars($etiquetaPeriodo) ?>)</p>
+                                    <div class="dash-barras" role="img" aria-label="Permisos por mes. <?= htmlspecialchars($resumenTendencia) ?>">
+                                        <?php foreach ($tendencia as $i => $punto): ?>
+                                            <?php
+                                            $esUltimo = ($i === count($tendencia) - 1);
+                                            $alto = $punto['total'] > 0 ? max(6, (int) round($punto['total'] * 100 / $maxTendencia)) : 3;
+                                            ?>
+                                            <div class="dash-col-b" aria-hidden="true">
+                                                <span class="v"><?= $punto['total'] ?></span>
+                                                <div class="b" style="height:<?= $alto ?>%;background:<?= $esUltimo ? '#dc2626' : '#fca5a5' ?>"></div>
+                                                <span class="m"><?= htmlspecialchars(mb_substr(EmpleadoModel::mesEnEspanol($punto['mes']), 0, 3, 'UTF-8')) ?></span>
+                                            </div>
+                                        <?php endforeach; ?>
                                     </div>
-                                <?php endforeach; ?>
+                                </div>
+
+                                <div class="dash-card">
+                                    <h3>Estado de las solicitudes del período</h3>
+                                    <p class="dash-hint"><?= htmlspecialchars($etiquetaPeriodo) ?> · <?= $resPeriodo['total'] ?> permiso(s) según fecha de inicio</p>
+                                    <div class="dash-apilada" role="img" aria-label="Estado de las solicitudes. <?= htmlspecialchars($resumenSegmentos) ?>">
+                                        <?php foreach ($segmentos as [$nombre, $valor, $color]): ?>
+                                            <?php if ($valor > 0): ?>
+                                                <div title="<?= htmlspecialchars($nombre) ?>: <?= $valor ?>"
+                                                    style="width:<?= ($valor * 100) / max(1, $resPeriodo['total']) ?>%;background:<?= $color ?>"></div>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <div class="dash-leyenda">
+                                        <?php foreach ($segmentos as [$nombre, $valor, $color]): ?>
+                                            <div><span class="pto" style="background:<?= $color ?>"></span><?= htmlspecialchars($nombre) ?>: <b><?= $valor ?></b></div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. Listas: tipo, jefes pendientes, top empleados -->
+                            <div class="dash-trio">
+                                <div class="dash-card">
+                                    <h3>Permisos por tipo</h3>
+                                    <p class="dash-hint"><?= htmlspecialchars($etiquetaPeriodo) ?><?= $periodoTodos ? '' : ' · entre paréntesis, el total histórico' ?></p>
+                                    <?php foreach ($tiposPeriodo as $tipo => $cantidad): ?>
+                                        <?php $ancho = $pct($cantidad, $resPeriodo['total']); ?>
+                                        <div class="dash-fila">
+                                            <div class="dash-fila-top">
+                                                <span><?= htmlspecialchars($etiquetasTipo[$tipo] ?? $tipo) ?></span>
+                                                <span><b><?= $cantidad ?></b> <small><?= $ancho ?>%<?= $periodoTodos ? '' : ' (' . $tiposTotal[$tipo] . ')' ?></small></span>
+                                            </div>
+                                            <div class="dash-track"><div class="dash-fill" style="width:<?= $ancho ?>%;background:<?= $coloresTipo[$tipo] ?? '#6b7280' ?>"></div></div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+
+                                <div class="dash-card">
+                                    <h3>Jefes con firmas por dar</h3>
+                                    <p class="dash-hint">Estado actual, sin importar el mes seleccionado</p>
+                                    <?php if (empty($jefesPendientes)): ?>
+                                        <div class="dash-vacio">Ningún jefe tiene permisos pendientes. ¡Todo al día!</div>
+                                    <?php else: ?>
+                                        <ul class="dash-lista">
+                                            <?php foreach ($jefesPendientes as $i => $jefe): ?>
+                                                <?php
+                                                $diasEspera = (int) (new DateTime('now'))->diff(new DateTime($jefe['mas_antiguo']))->days;
+                                                $textoEspera = $diasEspera === 0 ? 'desde hoy' : 'hace ' . $diasEspera . ' día' . ($diasEspera === 1 ? '' : 's');
+                                                ?>
+                                                <li>
+                                                    <span class="dash-pos"><?= $i + 1 ?></span>
+                                                    <div class="n">
+                                                        <p><?= htmlspecialchars($jefe['nombre']) ?></p>
+                                                        <small>El más antiguo espera <?= $textoEspera ?></small>
+                                                    </div>
+                                                    <span class="dash-pill <?= $diasEspera >= 3 ? 'alerta' : '' ?>"><?= (int) $jefe['pendientes'] ?> pendiente(s)</span>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="dash-card">
+                                    <h3>Quién pide más permisos</h3>
+                                    <p class="dash-hint">Top 5 · <?= htmlspecialchars($etiquetaPeriodo) ?></p>
+                                    <?php if (empty($topEmpleados)): ?>
+                                        <div class="dash-vacio">No hay permisos en este periodo.</div>
+                                    <?php else: ?>
+                                        <ul class="dash-lista">
+                                            <?php foreach ($topEmpleados as $i => $emp): ?>
+                                                <li>
+                                                    <span class="dash-pos"><?= $i + 1 ?></span>
+                                                    <div class="n">
+                                                        <p><?= htmlspecialchars($emp['nombre']) ?></p>
+                                                        <small>CC <?= htmlspecialchars($emp['cedula_empleado']) ?> · <?= htmlspecialchars($fmtHoras((float) $emp['horas'])) ?> aprobadas</small>
+                                                    </div>
+                                                    <span class="dash-pill"><?= (int) $emp['total'] ?> permiso(s)</span>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </section>
+                </div>
+
+                <!-- ============ 5. CUMPLEAÑOS (a la derecha en pantallas muy anchas) ============ -->
+                <aside class="dash-aside" id="cumpleanos" aria-labelledby="tCumple">
+                    <section class="dash-card" style="padding:0;overflow:hidden">
+                        <div class="dash-cumple-head">
+                            <div class="dash-sec-head">
+                                <span class="dash-ico rojo"><?= icon('cake', 'w-5 h-5') ?></span>
+                                <div>
+                                    <h2 id="tCumple">Cumpleaños</h2>
+                                    <p>Recordatorio con 15 días de anticipación</p>
+                                </div>
+                            </div>
+
+                            <nav class="dash-cal-nav" aria-label="Navegar meses del calendario">
+                                <a href="<?= $urlCalendario((int) date('Y'), (int) date('n')) ?>" class="dash-btn">Este mes</a>
+                                <a href="<?= $urlCalendario((int) $mesAnterior->format('Y'), (int) $mesAnterior->format('n')) ?>"
+                                    class="dash-nav-btn" aria-label="Mes anterior">
+                                    <?= icon('chevron-left', 'w-5 h-5') ?>
+                                </a>
+                                <div class="mes" aria-live="polite"><?= htmlspecialchars($nombreMesCalendario . ' ' . $anioCalendario) ?></div>
+                                <a href="<?= $urlCalendario((int) $mesSiguiente->format('Y'), (int) $mesSiguiente->format('n')) ?>"
+                                    class="dash-nav-btn" aria-label="Mes siguiente">
+                                    <?= icon('chevron-right', 'w-5 h-5') ?>
+                                </a>
+                            </nav>
+                        </div>
+
+                        <div class="dash-cumple-body">
+                            <!-- Calendario compacto -->
+                            <div class="dash-cal">
+                                <div class="dash-cal-grid" aria-hidden="true">
+                                    <?php foreach (['L', 'M', 'X', 'J', 'V', 'S', 'D'] as $diaSemana): ?>
+                                        <div class="dash-cal-dow"><?= $diaSemana ?></div>
+                                    <?php endforeach; ?>
+                                </div>
+
+                                <div class="dash-cal-grid">
+                                    <?php for ($espacio = 1; $espacio < $diaInicioSemana; $espacio++): ?>
+                                        <div aria-hidden="true"></div>
+                                    <?php endfor; ?>
+
+                                    <?php for ($dia = 1; $dia <= $diasEnMes; $dia++): ?>
+                                        <?php
+                                        $tieneCumpleanos = !empty($cumpleanosPorDia[$dia]);
+                                        $esHoy = ((int) date('Y') === $anioCalendario
+                                            && (int) date('n') === $mesCalendario
+                                            && (int) date('j') === $dia);
+                                        $nombresDia = $tieneCumpleanos
+                                            ? implode(', ', array_map(fn($e) => (string) $e['nombre'], $cumpleanosPorDia[$dia]))
+                                            : '';
+                                        ?>
+                                        <div class="dash-dia <?= $tieneCumpleanos ? 'cumple' : '' ?> <?= $esHoy ? 'hoy' : '' ?>"
+                                            <?= $tieneCumpleanos ? 'title="' . htmlspecialchars($nombresDia, ENT_QUOTES) . '"' : '' ?>>
+                                            <span><?= $dia ?></span>
+                                            <?php if ($tieneCumpleanos): ?>
+                                                <span class="pto" aria-hidden="true"></span>
+                                                <span class="sr-only">Cumpleaños: <?= htmlspecialchars($nombresDia) ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endfor; ?>
+                                </div>
+
+                                <div class="dash-cal-pie"><span class="pto" aria-hidden="true"></span> Hay cumpleaños</div>
+                            </div>
+
+                            <!-- Lista del mes -->
+                            <div class="dash-cumple-lista">
+                                <h3>Personas que cumplen <span><?= count($cumpleanosMes) ?> persona(s)</span></h3>
+
+                                <div class="dash-personas">
+                                    <?php if (empty($cumpleanosMes)): ?>
+                                        <div class="dash-vacio" style="margin-top:0">No hay cumpleaños registrados este mes.</div>
+                                    <?php else: ?>
+                                        <?php foreach ($cumpleanosMes as $emp): ?>
+                                            <?php
+                                            $infoCumple = EmpleadoModel::infoCumpleanos($emp['fecha_nacimiento'], 15);
+                                            // Edad que va a cumplir en el año del calendario que se está viendo.
+                                            $edadVaCumplir = $anioCalendario - (int) date('Y', strtotime($emp['fecha_nacimiento']));
+                                            $proximidad = '';
+                                            if ($infoCumple['cumple']) {
+                                                $proximidad = $infoCumple['dias_faltantes'] === 0
+                                                    ? 'Hoy'
+                                                    : 'En ' . $infoCumple['dias_faltantes'] . ' día' . ($infoCumple['dias_faltantes'] === 1 ? '' : 's');
+                                            }
+                                            ?>
+                                            <div class="dash-persona">
+                                                <div class="dia"><?= str_pad((string) $emp['dia_cumpleanos'], 2, '0', STR_PAD_LEFT) ?></div>
+                                                <div class="n">
+                                                    <p><?= htmlspecialchars($emp['nombre']) ?></p>
+                                                    <small>
+                                                        CC <?= htmlspecialchars($emp['cedula']) ?>
+                                                        <?php if ($proximidad !== ''): ?> · <span class="dash-prox"><?= $proximidad ?></span><?php endif; ?>
+                                                    </small>
+                                                </div>
+                                                <span class="dash-edad"><?= $edadVaCumplir ?> años</span>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Top empleados + jefes con firmas pendientes -->
-                    <div class="aus-dos">
-                        <div class="aus-card">
-                            <h3>Quién pide más permisos</h3>
-                            <p class="aus-hint">Top 5 · <?= htmlspecialchars($etiquetaPeriodo) ?></p>
-                            <?php if (empty($topEmpleados)): ?>
-                                <div class="aus-vacio">No hay permisos en este periodo.</div>
-                            <?php else: ?>
-                                <ul class="aus-lista">
-                                    <?php foreach ($topEmpleados as $i => $emp): ?>
-                                        <li>
-                                            <span class="aus-pos"><?= $i + 1 ?></span>
-                                            <div class="n">
-                                                <p><?= htmlspecialchars($emp['nombre']) ?></p>
-                                                <small>CC <?= htmlspecialchars($emp['cedula_empleado']) ?> · <?= htmlspecialchars($fmtHoras((float) $emp['horas'])) ?> aprobadas</small>
-                                            </div>
-                                            <span class="aus-pill"><?= (int) $emp['total'] ?> permiso(s)</span>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            <?php endif; ?>
-                        </div>
+                        <?php if (!empty($cumpleanosProximos)): ?>
+                            <div class="dash-cumple-pie">
+                                <b>Próximos 15 días:</b> <?= count($cumpleanosProximos) ?> cumpleañero(s).
+                            </div>
+                        <?php endif; ?>
+                    </section>
+                </aside>
 
-                        <div class="aus-card">
-                            <h3>Jefes con firmas por dar</h3>
-                            <p class="aus-hint">Estado actual, sin importar el mes seleccionado</p>
-                            <?php if (empty($jefesPendientes)): ?>
-                                <div class="aus-vacio">Ningún jefe tiene permisos pendientes. ¡Todo al día!</div>
-                            <?php else: ?>
-                                <ul class="aus-lista">
-                                    <?php foreach ($jefesPendientes as $i => $jefe): ?>
-                                        <?php
-                                        $diasEspera = (int) (new DateTime('now'))->diff(new DateTime($jefe['mas_antiguo']))->days;
-                                        $textoEspera = $diasEspera === 0 ? 'desde hoy' : 'hace ' . $diasEspera . ' día' . ($diasEspera === 1 ? '' : 's');
-                                        ?>
-                                        <li>
-                                            <span class="aus-pos"><?= $i + 1 ?></span>
-                                            <div class="n">
-                                                <p><?= htmlspecialchars($jefe['nombre']) ?></p>
-                                                <small>El más antiguo espera <?= $textoEspera ?></small>
-                                            </div>
-                                            <span class="aus-pill <?= $diasEspera >= 3 ? 'alerta' : '' ?>"><?= (int) $jefe['pendientes'] ?> pendiente(s)</span>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            </section>
-
+            </div>
         </main>
     </div>
 </body>

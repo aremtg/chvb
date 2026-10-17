@@ -1,0 +1,180 @@
+/*
+ * app_shell.css — base visual compartida de CHVB.
+ *
+ * Se carga desde includes/head.php, así que está disponible en TODAS las páginas.
+ * Contiene:
+ *   1. Tokens de diseño (colores, escala tipográfica fluida, espacios).
+ *   2. Accesibilidad básica (foco visible, bloqueo de scroll con el menú abierto).
+ *   3. Comportamiento responsive del menú lateral: fijo desde 1024 px (lg) y
+ *      desplegable (off-canvas) por debajo. Las páginas siguen usando "md:ml-64";
+ *      aquí se ajusta ese comportamiento sin tocar cada página.
+ *
+ * Está fuera de @layer a propósito: gana sobre las utilidades de Tailwind sin
+ * necesidad de recompilar tailwind.css.
+ */
+
+/* ------------------------------------------------------------------ 1. Tokens */
+:root {
+  /* Marca */
+  --brand: #dc2626;
+  --brand-dark: #b91c1c;
+  --brand-soft: #fef2f2;
+  --brand-ring: #fee2e2;
+
+  /* Texto (todos cumplen contraste AA sobre blanco, incluso en tamaño pequeño) */
+  --ink: #111827;
+  --ink-2: #374151;
+  --ink-3: #6b7280;
+
+  /* Líneas y fondos */
+  --line: #f3f4f6;
+  --line-2: #e5e7eb;
+  --surface: #ffffff;
+  --surface-2: #f9fafb;
+
+  /* Estados */
+  --ok: #16a34a;
+  --ok-soft: #f0fdf4;
+  --warn: #d97706;
+  --warn-soft: #fffbeb;
+  --info: #2563eb;
+  --info-soft: #eff6ff;
+  --alert: #ea580c;
+  --alert-soft: #fff7ed;
+
+  /* Escala tipográfica fluida: nunca baja de 12 px */
+  --fs-xs: clamp(.75rem, .73rem + .1vw, .8125rem);
+  --fs-sm: clamp(.8125rem, .79rem + .15vw, .9rem);
+  --fs-md: clamp(.9rem, .87rem + .2vw, 1rem);
+  --fs-lg: clamp(1.05rem, 1rem + .35vw, 1.25rem);
+  --fs-kpi: clamp(1.5rem, 1.15rem + 1.4vw, 2.25rem);
+
+  /* Espacios fluidos */
+  --sp-page: clamp(1rem, .6rem + 1.6vw, 2rem);
+  --sp-card: clamp(.875rem, .7rem + .7vw, 1.375rem);
+  --gap: clamp(.75rem, .55rem + .8vw, 1.25rem);
+
+  --radius-card: 1rem;
+  --radius-ctl: .75rem;
+  --tap: 2.75rem; /* 44 px: zona táctil mínima recomendada */
+  --sidebar-w: 16rem;
+  --shadow-card: 0 1px 2px rgba(17, 24, 39, .05);
+}
+
+/* ------------------------------------------------------------------ 2. Accesibilidad */
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* Enlace "Saltar al contenido": solo aparece al navegar con teclado. */
+.app-skip {
+  position: absolute;
+  left: .75rem;
+  top: -4rem;
+  z-index: 60;
+  padding: .625rem 1rem;
+  border-radius: var(--radius-ctl);
+  background: var(--brand);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  transition: top .15s ease;
+}
+.app-skip:focus { top: .75rem; }
+
+/* Con el menú abierto en móvil/tablet, el fondo no hace scroll. */
+.app-noscroll { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  #sidebarMovil,
+  #sidebarMovilEmpleado { transition: none !important; }
+}
+
+/* ------------------------------------------------------------------ 3. Menú lateral */
+
+/* Panel en columna: el pie (usuario / cerrar sesión) queda anclado abajo
+   y, si la pantalla es baja, todo el panel hace scroll en vez de perderse. */
+#sidebarMovil,
+#sidebarMovilEmpleado {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  width: var(--sidebar-w);
+  max-width: 86vw;
+}
+#sidebarMovil > nav,
+#sidebarMovilEmpleado > nav { flex: none; margin-bottom: 1.5rem; }
+.app-side-footer { margin-top: auto !important; }
+
+/* Logo: antes usaba w-100 (400 px) dentro de un panel de ~208 px útiles. */
+.app-logo {
+  display: block;
+  width: 10.5rem;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+}
+
+/* Botón de cerrar (X): solo existe cuando el menú es desplegable (menos de 1024 px). */
+@media (max-width: 1023px) {
+  #sidebarMovil button.md\:hidden,
+  #sidebarMovilEmpleado button.md\:hidden {
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+@media (min-width: 1024px) {
+  #sidebarMovil button.md\:hidden,
+  #sidebarMovilEmpleado button.md\:hidden { display: none; }
+}
+
+@media (pointer: coarse) {
+  #sidebarMovil nav a,
+  #sidebarMovilEmpleado nav a { min-height: var(--tap); }
+}
+
+/* Botón de menú del encabezado (móvil y tablet). */
+.app-menu-btn {
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-ctl);
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, .06);
+  cursor: pointer;
+}
+.app-menu-btn:hover { background: var(--surface-2); }
+
+/* Tablet vertical (768–1023 px): el menú NO se fija todavía; deja todo el ancho al contenido. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .md\:ml-64 { margin-left: 0; }
+  #sidebarMovil.-translate-x-full,
+  #sidebarMovilEmpleado.-translate-x-full { translate: -100% 0; }
+  #btnMenuMovil,
+  .app-menu-btn { display: inline-flex; }
+  #overlaySidebar:not(.hidden),
+  #overlaySidebarEmpleado:not(.hidden) { display: block; }
+}
+
+/* Escritorio (1024 px o más): menú fijo, sin botón de hamburguesa. */
+@media (min-width: 1024px) {
+  .md\:ml-64 { margin-left: var(--sidebar-w); }
+  .app-menu-btn { display: none; }
+}
+
+/* En móvil el botón se ve (el JS/markup lo coloca en el encabezado). */
+@media (max-width: 1023px) {
+  .app-menu-btn { display: inline-flex; }
+}

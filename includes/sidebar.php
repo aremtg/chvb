@@ -1,5 +1,20 @@
 <?php
 require_once __DIR__ . '/../src/models/NotificacionModel.php';
+
+/**
+ * Botón de menú (hamburguesa) para colocarlo directamente dentro del <header> de una página.
+ * Úsalo así: definir $chvBotonEnCabecera = true; ANTES de incluir este archivo y luego
+ * imprimir <?= chvBotonMenu() ?> en el encabezado. Evita el salto de diseño que producía
+ * mover el botón con JavaScript después de cargar.
+ */
+if (!function_exists('chvBotonMenu')) {
+    function chvBotonMenu(): string
+    {
+        return '<button type="button" id="btnMenuMovil" class="app-menu-btn" data-menu-abrir'
+            . ' aria-label="Abrir menú" aria-controls="sidebarMovil" aria-expanded="false">'
+            . icon('menu', 'w-5 h-5 text-gray-700') . '</button>';
+    }
+}
 $paginaActual = basename($_SERVER['PHP_SELF']);
 $rolActual = $_SESSION['superadmin_rol'] ?? '';
 
@@ -38,10 +53,12 @@ $linksSidebar[] = ['url' => CHVB_PUBLIC_URL . '/cambiar_password.php', 'label' =
 
 $totalNoLeidasInicial = in_array($rolActual, ROLES_TALENTO_HUMANO, true) ? NotificacionModel::contarNoLeidas() : 0;
 ?>
+<?php if (empty($chvBotonEnCabecera)): ?>
 <button id="btnMenuMovil" onclick="document.getElementById('sidebarMovil').classList.remove('-translate-x-full')"
     class="md:hidden fixed top-3 left-3 z-40 bg-white border border-gray-200 rounded-xl p-2 shadow">
     <?= icon('menu', 'w-6 h-6 text-gray-700') ?>
 </button>
+<?php endif; ?>
 
 <div id="overlaySidebar" onclick="document.getElementById('sidebarMovil').classList.add('-translate-x-full')"
     class="md:hidden hidden fixed inset-0 bg-black/40 z-30"></div>
@@ -51,19 +68,19 @@ $totalNoLeidasInicial = in_array($rolActual, ROLES_TALENTO_HUMANO, true) ? Notif
     <div class="flex items-center justify-between mb-4 px-2">
         <div>
             <div>
-                <img src="<?= CHVB_PUBLIC_URL ?>/assets/img/logo_chv_svg.svg" alt="Logo" class="w-100">
+                <img src="<?= CHVB_PUBLIC_URL ?>/assets/img/logo_chv_svg.svg" alt="Logo" class="app-logo">
             </div>
             <p class="text-sm text-center pt-2 text-gray-600">Panel Talento Humano</p>
         </div>
         <button onclick="document.getElementById('sidebarMovil').classList.add('-translate-x-full')"
-            class="md:hidden text-gray-600 hover:text-gray-700">
+            class="md:hidden text-gray-600 hover:text-gray-700" aria-label="Cerrar menú">
             <?= icon('x', 'w-5 h-5') ?>
         </button>
     </div>
-    <nav class="space-y-1">
+    <nav class="space-y-1" aria-label="Menú principal">
         <?php foreach ($linksSidebar as $link): ?>
             <?php $activo = $paginaActual === basename($link['url']); ?>
-            <a href="<?= $link['url'] ?>" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition
+            <a href="<?= $link['url'] ?>" <?= $activo ? 'aria-current="page"' : '' ?> class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition
                 <?= $activo ? 'bg-red-600 text-white' : 'text-gray-600 hover:bg-gray-100' ?>">
                 <?= icon($link['icon'], 'w-5 h-5') ?>
                 <span class="flex-1"><?= $link['label'] ?></span>
@@ -77,7 +94,7 @@ $totalNoLeidasInicial = in_array($rolActual, ROLES_TALENTO_HUMANO, true) ? Notif
         <?php endforeach; ?>
     </nav>
 
-   <div class="mt-8 pt-4 border-t border-gray-100 px-2">
+   <div class="app-side-footer mt-8 pt-4 border-t border-gray-100 px-2">
     <div class="flex items-center gap-2 min-w-0">
         <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 flex-shrink-0">
             <?= icon('user', 'w-5 h-5')?>
@@ -98,24 +115,6 @@ $totalNoLeidasInicial = in_array($rolActual, ROLES_TALENTO_HUMANO, true) ? Notif
 </aside>
 
 <script>
-    // Móvil: el botón de menú vive dentro del encabezado de la página (misma línea),
-    // en vez de flotar sobre una franja separada. Si la página no tiene encabezado, se queda flotando.
-    document.addEventListener('DOMContentLoaded', () => {
-        const boton = document.getElementById('btnMenuMovil');
-        const cabecera = document.querySelector('.md\\:ml-64 > header');
-        if (!boton || !cabecera) return;
-        boton.classList.remove('fixed', 'top-3', 'left-3', 'z-40', 'shadow');
-        boton.classList.add('app-menu-btn');
-        cabecera.prepend(boton);
-    });
-</script>
-<script>
-    const sidebarMovilEl = document.getElementById('sidebarMovil');
-    const overlaySidebarEl = document.getElementById('overlaySidebar');
-    new MutationObserver(() => {
-        overlaySidebarEl.classList.toggle('hidden', sidebarMovilEl.classList.contains('-translate-x-full'));
-    }).observe(sidebarMovilEl, { attributes: true, attributeFilter: ['class'] });
-
     <?php if (in_array($rolActual, ROLES_TALENTO_HUMANO, true)): ?>
         // --- Badge de notificaciones en tiempo real (funciona en TODAS las páginas) ---
         let ultimoTotalNoLeidas = <?= $totalNoLeidasInicial ?>;

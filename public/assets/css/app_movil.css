@@ -1,9 +1,9 @@
 /*
- * Responsive de la barra superior en móvil (menor de 768 px).
+ * Responsive de la barra superior en móvil y tablet (menor de 1024 px).
  * El botón de menú se mueve dentro del encabezado de cada página (ver includes/sidebar*.php),
  * así queda en la misma línea que el título, sin la franja vacía de arriba.
  */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* Se quita la franja de 3.5 rem que dejaba espacio para el botón flotante. */
   .md\:ml-64.pt-14 { padding-top: 0; }
 

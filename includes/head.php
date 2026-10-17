@@ -17,5 +17,8 @@ $chvLoadingJs  = __DIR__ . '/../public/assets/js/loading.js';
 <link rel="stylesheet" href="./assets/css/loading.css?v=<?= (int) @filemtime($chvLoadingCss) ?>">
 <link rel="stylesheet" href="./assets/css/app_movil.css?v=<?= (int) @filemtime(__DIR__ . '/../public/assets/css/app_movil.css') ?>">
 <link rel="stylesheet" href="./assets/css/modales.css?v=<?= (int) @filemtime(__DIR__ . '/../public/assets/css/modales.css') ?>">
+<?php // Tokens de diseño + comportamiento responsive del menú. Debe ir DESPUÉS de app_movil.css. ?>
+<link rel="stylesheet" href="./assets/css/app_shell.css?v=<?= (int) @filemtime(__DIR__ . '/../public/assets/css/app_shell.css') ?>">
+<script src="./assets/js/app_shell.js?v=<?= (int) @filemtime(__DIR__ . '/../public/assets/js/app_shell.js') ?>" defer></script>
 <?php // Sin "defer": así Loading existe también para los <script> inline del final de cada página. ?>
 <script src="./assets/js/loading.js?v=<?= (int) @filemtime($chvLoadingJs) ?>"></script>

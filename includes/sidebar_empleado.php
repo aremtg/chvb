@@ -29,19 +29,19 @@ $totalPorFirmarInicial = (int)$contadoresPermisos['por_firmar'];
     <div class="flex items-center justify-between mb-4 px-2">
         <div>
             <div>
-                <img src="<?= CHVB_PUBLIC_URL ?>/assets/img/logo_chv_svg.svg" alt="Logo" class="w-100">
+                <img src="<?= CHVB_PUBLIC_URL ?>/assets/img/logo_chv_svg.svg" alt="Logo" class="app-logo">
             </div>
             <p class="text-xs text-gray-600">Portal del Empleado</p>
         </div>
         <button onclick="document.getElementById('sidebarMovilEmpleado').classList.add('-translate-x-full')"
-            class="md:hidden text-gray-600 hover:text-gray-700">
+            class="md:hidden text-gray-600 hover:text-gray-700" aria-label="Cerrar menú">
             <?= icon('x', 'w-5 h-5') ?>
         </button>
     </div>
-    <nav class="space-y-1">
+    <nav class="space-y-1" aria-label="Menú principal">
         <?php foreach ($linksSidebarEmpleado as $link): ?>
             <?php $activo = $paginaActual === basename($link['url']); ?>
-            <a href="<?= $link['url'] ?>" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition
+            <a href="<?= $link['url'] ?>" <?= $activo ? 'aria-current="page"' : '' ?> class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition
                 <?= $activo ? 'bg-red-600 text-white' : 'text-gray-600 hover:bg-gray-100' ?>">
                 <?= icon($link['icon'], 'w-5 h-5') ?>
                 <span class="flex-1"><?= $link['label'] ?></span>
@@ -61,7 +61,7 @@ $totalPorFirmarInicial = (int)$contadoresPermisos['por_firmar'];
         <?php endforeach; ?>
     </nav>
 
-    <div class="mt-8 pt-4 border-t border-gray-100 px-2">
+    <div class="app-side-footer mt-8 pt-4 border-t border-gray-100 px-2">
         <p class="text-xs text-gray-600">Sesión</p>
         <p class="text-sm text-gray-700 font-medium truncate"><?= htmlspecialchars($cedulaSesion) ?></p>
         <form method="post" action="<?= CHVB_PUBLIC_URL ?>/logout_empleado.php">
@@ -74,24 +74,6 @@ $totalPorFirmarInicial = (int)$contadoresPermisos['por_firmar'];
 </aside>
 
 <script>
-    // Móvil: el botón de menú vive dentro del encabezado de la página (misma línea),
-    // en vez de flotar sobre una franja separada. Si la página no tiene encabezado, se queda flotando.
-    document.addEventListener('DOMContentLoaded', () => {
-        const boton = document.getElementById('btnMenuMovil');
-        const cabecera = document.querySelector('.md\\:ml-64 > header');
-        if (!boton || !cabecera) return;
-        boton.classList.remove('fixed', 'top-3', 'left-3', 'z-40', 'shadow');
-        boton.classList.add('app-menu-btn');
-        cabecera.prepend(boton);
-    });
-</script>
-<script>
-    const sidebarMovilEmpEl = document.getElementById('sidebarMovilEmpleado');
-    const overlaySidebarEmpEl = document.getElementById('overlaySidebarEmpleado');
-    new MutationObserver(() => {
-        overlaySidebarEmpEl.classList.toggle('hidden', sidebarMovilEmpEl.classList.contains('-translate-x-full'));
-    }).observe(sidebarMovilEmpEl, { attributes: true, attributeFilter: ['class'] });
-
     window.actualizarBadgeSidebarEmpleado = async function () {
         try {
             const res = await fetch('<?= CHVB_PUBLIC_URL ?>/api/permisos_notificaciones_contar.php');
